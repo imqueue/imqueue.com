@@ -1,3 +1,3 @@
-# imqueue.github.io
+# imqueue.com
 
 Coming soon...
