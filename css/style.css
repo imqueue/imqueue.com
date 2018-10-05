@@ -21,7 +21,7 @@ input:-ms-input-placeholder, textarea:-ms-input-placeholder {
   display: block;
   font-size: 1.1em;
   font-weight: bold;
-  color: #fcbf31;
+  color: #ef9d28;
 }
 .movie label::before {
   font-family: fontello;
@@ -77,7 +77,7 @@ h1, h2, h3, h4 {
 }
 
 .yellow {
-  background: #fcbf31;
+  background: #ef9d28;
 }
 
 .dark-blue {
@@ -117,7 +117,7 @@ h1, h2, h3, h4 {
   letter-spacing: 3px;
   font-size: 14px;
   padding: 13px 30px 10px;
-  background: #fcbf31;
+  background: #ef9d28;
 }
 
 .button:hover {
@@ -137,7 +137,7 @@ h1, h2, h3, h4 {
   color: white;
 }
 .button.boxed:hover {
-  background: #fcbf31;
+  background: #ef9d28;
 }
 
 .drop-letters {
@@ -196,7 +196,7 @@ h1, h2, h3, h4 {
 /*special title */
 .special-title i {
   font-size: 50px;
-  color: #fcbf31;
+  color: #ef9d28;
   margin-bottom: 15px;
   display: block;
 }
@@ -218,7 +218,7 @@ h1, h2, h3, h4 {
   width: 100px;
   height: 5px;
   margin: 0 auto;
-  border-bottom: 1px solid #fcbf31;
+  border-bottom: 1px solid #ef9d28;
 }
 
 /*icon-text */
@@ -238,7 +238,7 @@ h1, h2, h3, h4 {
   float: left;
 }
 .icon-text i.yellow {
-  background: #fcbf31;
+  background: #ef9d28;
 }
 .icon-text h3, .icon-text p {
   margin-left: 60px;
@@ -246,8 +246,8 @@ h1, h2, h3, h4 {
 
 .icon-text-boxed i {
   font-size: 88px;
-  color: #fcbf31;
-  border: 1px solid #fcbf31;
+  color: #ef9d28;
+  border: 1px solid #ef9d28;
   padding: 35px 0;
   display: block;
   width: 88%;
@@ -259,7 +259,7 @@ h1, h2, h3, h4 {
 }
 
 .icon-text-boxed:hover i {
-  background: #fcbf31;
+  background: #ef9d28;
   color: white;
 }
 
@@ -278,7 +278,7 @@ h1, h2, h3, h4 {
   -ms-border-radius: 50%;
   -o-border-radius: 50%;
   border-radius: 50%;
-  background: #fcbf31;
+  background: #ef9d28;
   -webkit-transition: color 0.2s linear;
   -moz-transition: color 0.2s linear;
   -o-transition: color 0.2s linear;
@@ -290,7 +290,7 @@ h1, h2, h3, h4 {
 
 .icon-text-circle:hover i {
   background: none;
-  color: #fcbf31;
+  color: #ef9d28;
 }
 
 /*call-to-action */
@@ -332,7 +332,7 @@ h1, h2, h3, h4 {
 }
 .bars p.highlighted {
   width: 0;
-  background: #fcbf31;
+  background: #ef9d28;
   height: 14px;
 }
 
@@ -357,7 +357,7 @@ h1, h2, h3, h4 {
 
 .member.active p.active-line {
   height: 4px;
-  background: #fcbf31;
+  background: #ef9d28;
   position: relative;
   margin: 0;
 }
@@ -390,7 +390,7 @@ h1, h2, h3, h4 {
 }
 .socials i.yellow {
   color: white;
-  background: #fcbf31;
+  background: #ef9d28;
 }
 .socials i.yellow:hover {
   background-color: rgba(252, 191, 49, 0.8);
@@ -561,7 +561,7 @@ ul.gallery li a .overlay {
   transition: all 0.2s linear;
 }
 ul.gallery li a h3 {
-  color: #fcbf31;
+  color: #ef9d28;
   margin-bottom: 10px;
 }
 ul.gallery li a p {
@@ -629,10 +629,10 @@ ul#filter li a {
   color: #999999;
 }
 ul#filter li.current {
-  border: 1px solid #fcbf31;
+  border: 1px solid #ef9d28;
 }
 ul#filter li.current a {
-  color: #fcbf31;
+  color: #ef9d28;
 }
 
 ul.info {
@@ -642,7 +642,7 @@ ul.info a {
   margin-right: 5px;
 }
 ul.info i {
-  border: 1px solid #fcbf31;
+  border: 1px solid #ef9d28;
   padding: 5px;
   -webkit-transition: all 0.1s linear;
   -moz-transition: all 0.1s linear;
@@ -650,7 +650,7 @@ ul.info i {
   transition: all 0.1s linear;
 }
 ul.info i:hover {
-  background: #fcbf31;
+  background: #ef9d28;
   color: white;
 }
 
@@ -672,7 +672,7 @@ ul.info i:hover {
   color: #333333;
 }
 .post .info p a:hover {
-  color: #fcbf31;
+  color: #ef9d28;
 }
 .post .other-info {
   list-style: none;
@@ -688,7 +688,7 @@ ul.info i:hover {
   color: #999999;
 }
 .post .other-info li a:hover {
-  color: #fcbf31;
+  color: #ef9d28;
 }
 .post .content .orbit-container {
   margin-bottom: 20px;
@@ -727,22 +727,22 @@ pre {
   color: #333333;
 }
 .pages ul a:hover {
-  color: #fcbf31;
+  color: #ef9d28;
 }
 
 .timestamp {
   width: 80px;
-  border: 1px solid #fcbf31;
+  border: 1px solid #ef9d28;
 }
 .timestamp .month {
-  background: #fcbf31;
+  background: #ef9d28;
   color: white;
-  border-bottom: 1px solid #fcbf31;
+  border-bottom: 1px solid #ef9d28;
   display: block;
   padding: 5px 0;
 }
 .timestamp .date {
-  color: #fcbf31;
+  color: #ef9d28;
   display: block;
   padding: 20px 0;
   font-size: 36px;

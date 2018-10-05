@@ -13,8 +13,8 @@ icon: rocket
 
 This is basic and shortest step-by-step guide how to start using `@imqueue`
 microservices framework. If you are looking for more detailed guide, please, 
-take a look at our [tutorial](/tutorial/). Full API technical documentation
-can be found [here](/api/). Also, take a look at our [blog](/blog/) for
+take a look at our [Tutorial](/tutorial/). Full API technical documentation
+can be found [here](/api/). Also, take a look at our [Blog](/blog/) for
 some advanced usage examples and articles.
 
 ## Before We Start
