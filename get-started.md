@@ -1,39 +1,94 @@
 ---
-layout: page
-title: "IMQ: Getting Started"
+layout: docs
+title: "Getting Started"
 section_id: docs
+icon: rocket
 ---
+<div class="medium-4 columns right panel radius toc" markdown="1">
+<h4>Table Of Contents</h4>
+{:#toc}
+* TOC
+{:toc}
+</div>
 
-# IMQ: Getting Started
+This is basic and shortest step-by-step guide how to start using `@imqueue`
+microservices framework. If you are looking for more detailed guide, please, 
+take a look at our [tutorial](/tutorial/). Full API technical documentation
+can be found [here](/api/). Also, take a look at our [blog](/blog/) for
+some advanced usage examples and articles.
 
-This is step-by-step guide how to prepare install and start using IMQ framework.
-This will take only couple of minutes and a few easy steps to start. Let's go.
+## Before We Start
 
-## Requirements
+Make sure you have all required software pre-installed in your system. If no - 
+install if first. Here is what we need:
 
-First of all it is required to have some software installed in your 
-system:
+ - [NodeJS](https://nodejs.org/en/).We recommend to install it via 
+   [NVM](https://github.com/creationix/nvm/blob/master/README.md)
+ - [Redis](https://redis.io/download) version 3.2 or above recommended
+ - [Git](https://git-scm.com/downloads) command-line tool
 
- - NodeJS
- - Redis server
- - Git
+## 1. Installing
 
-## Installation
-
-Before installing make sure you have NodeJS installed in your system. If no,
-please, install it first. It is suggested to use NVM tool to install NodeJS
-in your system to make sure it will be easy to manage which version of node 
-you want to use in the future or by different projects.
-
-After NodeJS installation run in your command line:
+First it is recommended to install IMQ command line tool globally as:
 
 ~~~bash
-npm i -g @imqueue/cli
+> npm i -g @imqueue/cli
 ~~~
 
-This will install IMQ command line tool. During the first installation run it 
-will prompt you to enter some initial configuration information. Yoy may proceed
-filling it up or skip it and configure it later.
+During the first installation it will prompt you to enter some initial 
+configuration information. Yoy may proceed filling it up or skip it pressing
+`<Ctrl>+<C>` and configure it later.
 
-## Configuration
+## 2. Configuring
 
+`@imqueue/cli` tool does not require mandatory configuration. By the way
+if you going to work on a big project with a large subset of services
+it may be useful to define global configuration once and simplify most of
+the typing commands in your terminal.
+
+If configuration step was skipped during installation or you need to re-define
+existing config, use the following command:
+
+~~~bash
+> imq config init
+~~~
+
+<div class="row movie">
+    <input type="checkbox" id="install-movie">
+    <label for="install-movie" class="medium-12 columns">Watch screencast</label>
+    <div class="medium-12 columns embed-container">
+        <iframe
+            src="https://www.youtube.com/embed/4zuAmpeDHM4"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            allowfullscreen>
+        </iframe>
+    </div>
+</div>
+
+## 3. Enable Completions
+
+After installation and configuration is complete it is recommended to turn on 
+completions support for `imq` command in your terminal. Simply run:
+
+~~~bash
+> imq completions on
+~~~
+
+and follow further instructions. Currently it supports `bash` and `zsh` 
+terminals.
+
+## 4. Usage
+
+IMQ command line tool was created specially free you up from writing
+boilerplate when making `@imqueue` based back-end services. There are 2 major
+things it can do for you:
+
+1. Create services from pre-defined boilerplate templates
+2. Manage clients code generation
+
+### 4.1 Creating Service
+
+
+
+### 4.2 Generating client

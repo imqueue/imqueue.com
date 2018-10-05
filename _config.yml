@@ -1,6 +1,6 @@
 name: imqueue.com
 slogan: Intercommunication Messaging Queue For Microservices
-markdown: redcarpet
+markdown: kramdown
 highlighter: pygments
 excerpt_separator: <!--more-->
 paginate: 3
