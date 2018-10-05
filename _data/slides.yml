@@ -1,0 +1,37 @@
+- image: gears.jpg
+  desc_location: left
+  desc:
+    <h2>Reliable</h2>
+    <p>Reliable communication for your services, supports guaranted
+    message delivery and sceduled (delayed) messages</p>
+    <div class='two spacing'></div>
+    <a class='button boxed' href="/about">Learn more</a>
+- image: speed.jpg
+  desc_location: right
+  desc:
+    <h2>Fast</h2>
+    <p>Fast communication for your services - tens of thousands requests per
+    second on a single core!</p>
+    <div class='two spacing'></div>
+    <a class='button boxed' href="/about">Learn More</a>
+- image: servers.jpg
+  desc_location: left
+  desc:
+    <h2>Scalable</h2>
+    <p>Ready for horizontal scaling - can handle any traffic!</p>
+    <div class='two spacing'></div>
+    <a class='button boxed' href="/about">Learn More</a>
+- image: easy.jpg
+  desc_location: right
+  desc:
+    <h2>Simple</h2>
+    <p>Easy to start and use. Develop your deploy-ready services in a minutes!</p>
+    <div class='two spacing'></div>
+    <a class='button boxed' href="/about">Learn More</a>
+- image: business.jpg
+  desc_location: center
+  desc:
+    <h2>Production Ready</h2>
+    <p>Made with love, well tested, already serviing live business apps!</p>
+    <div class='two spacing'></div>
+    <a class='button boxed' href="/about">Learn more</a>
