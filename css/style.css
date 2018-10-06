@@ -10,7 +10,9 @@ input::-moz-placeholder, textarea::-moz-placeholder {
 input:-ms-input-placeholder, textarea:-ms-input-placeholder {
   color: white;
 }
-
+.toc {
+  margin-left: 20px;
+}
 .movie {
   margin-bottom: 20px !important;
 }
