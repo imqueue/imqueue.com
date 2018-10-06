@@ -2,9 +2,9 @@
   icon: icon-home
   path: /
   section_id: home
-- name: About
-  path: /about/
-  section_id: about
+- name: Introduction
+  path: /intro/
+  section_id: intro
   icon: icon-info
 - name: Documentation
   path: /docs

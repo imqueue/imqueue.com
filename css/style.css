@@ -79,7 +79,7 @@ h1, h2, h3, h4 {
 }
 
 .yellow {
-  background: #ef9d28;
+  background:  #fcbf31;
 }
 
 .dark-blue {
@@ -119,7 +119,7 @@ h1, h2, h3, h4 {
   letter-spacing: 3px;
   font-size: 14px;
   padding: 13px 30px 10px;
-  background: #ef9d28;
+  background: #fcbf31;
 }
 
 .button:hover {
