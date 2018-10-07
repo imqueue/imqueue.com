@@ -11,16 +11,18 @@ icon: rocket
 {:toc}
 </div>
 
-This is basic and shortest step-by-step guide how to start using `@imqueue`
-microservices framework. If you are looking for more detailed guide, please, 
-take a look at our [Tutorial](/tutorial/). Full API technical documentation
-can be found [here](/api/). Also, take a look at our [Blog](/blog/) for
-some advanced usage examples and articles.
+<div class="panel callout secondary">
+<p class="lead" markdown="1">
+This is basic and shortest step-by-step guide how to start using `@imqueue`.
+For more detailed guide take a look at [Tutorial](/tutorial/).
+Full API technical documentation can be found [here](/api/). 
+</p>
+</div>
 
 ## Before We Start
 
-Make sure you have all required software pre-installed in your system. If no - 
-install if first. Here is what we need:
+Make sure you have all required software pre-installed in your system. Here are
+what we need:
 
  - [NodeJS](https://nodejs.org/en/).We recommend to install it via 
    [NVM](https://github.com/creationix/nvm/blob/master/README.md)
@@ -37,7 +39,7 @@ First it is recommended to install IMQ command line tool globally as:
 
 During the first installation it will prompt you to enter some initial 
 configuration information. Yoy may proceed filling it up or skip it pressing
-`<Ctrl>+<C>` and configure it later.
+`<Ctrl>+<C>` and configure it later (or never).
 
 ## 2. Configuring
 
@@ -68,8 +70,8 @@ existing config, use the following command:
 
 ## 3. Enable Completions
 
-After installation and configuration is complete it is recommended to turn on 
-completions support for `imq` command in your terminal. Simply run:
+After installation and configuration it is recommended to turn on completions 
+support for `imq` command in your terminal. Simply run:
 
 ~~~bash
 > imq completions on

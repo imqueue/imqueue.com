@@ -5,12 +5,7 @@ layout: default
 <div class="full">
     <div class="row">
         <div class="content">
-            <h1>
-                {% if page.icon %}
-                    <i class="icon-{{ page.icon }}"></i>
-                {% endif %}
-                {{ page.title }}
-            </h1>
+            <h1>{% if page.icon %}<i class="icon-{{ page.icon }} goldenrod"></i>{% endif %}{{ page.title }}</h1>
             {{ content }}
         </div>
     </div>
