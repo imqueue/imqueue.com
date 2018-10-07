@@ -91,6 +91,12 @@ i.goldenrod-text {
 .white-text * {
     color: #fff !important;
 }
+.white-text a {
+  color: #ef9d28 !important;
+}
+.white-text a:hover {
+  color: #fcbf31 !important;
+}
 
 .yellow {
   background:  #fcbf31;

@@ -157,5 +157,65 @@ section_id: intro
             templates which will modify or provide completely another
             ways of delivery on your side.
         </p>
+        <div class="spacing"></div>
+        <div class="spacing" style="margin-top:50px"></div>
+        <div class="special-title centered-text">
+            <h2>How Does It Work?</h2>
+            <p>Explaining @imqueue internals</p>
+            <p class="shortline"></p>
+            <div class="spacing"></div>
+        </div>
+        <div class="spacing"></div>
+        <img class="medium-4 columns right" src="/images/base-schema.svg">
+        <p>
+            IMQ implements messaging queue over Redis, which works as centralized
+            message broker for communication between services and their clients.
+        </p>
+        <p>
+            Such schema gives several advantages:
+            <ul>
+                <li>Simplicity (take a look at it!)</li>
+                <li>
+                    No need to implement any kind of <em>service discovery</em>, as it is
+                    auto-discoverable schema - service instances compete for their messages,
+                    so as far as instance is busy or down message will be consumed
+                    by another instance and will deliver the response to a proper
+                    client any way. It means there is no need to check if exact copy
+                    of the service instance is dead or alive.
+                </li>
+                <li>
+                    All messages are flowing through a single system point and can
+                    be <em>easily monitored</em>, which simplifies debugging and monitoring
+                    as far as Redis provides complete set of tools doing that.
+                </li>
+            </ul>
+        </p>
+        <h3>Fom Development Point Of View</h3>
+        <p>
+            So naturally each Service is a simple piece of software inside distributed
+            system solving some specific task in it. That means that from development
+            point of vew it is a simple as implementing class with an exposed methods.
+            As follows from that a Client is a local representation of a remote Service
+            interface at this exact network point. All you need when it is required to
+            call a certain Service method is to call a corresponding Client method,
+            where Client will take care about delivering proper message to a queue
+            and that massage will invoke corresponding Service method execution.
+        </p>
+        <p>Yes, at development level it simply looks like <em>remote procedures calls</em>!</p>
+        <p>
+            There is no need of manual implementation of the clients. All @imqueue
+            services are self-describable and clients could be generated dynamically
+            on-the-fly or to be pre-auto-generated files. That means that developer
+            should <em>be focused only on service implementation</em>. Following
+            the simple rules and best practices when developing a Service interface,
+            writing the proper doc-blocks you'll get all-in-one:
+            <ul>
+                <li>Implementation at one place</li>
+                <li>Auto-generated client code whenever it is needed</li>
+                <li>Auto-generated service-related documentation</li>
+                <li>IDE service-related code auto-completions</li>
+            </ul>
+        </p>
+        <p><a href="/get-started">Are you ready to try it?</a></p>
     </div>
 </div>
