@@ -24,10 +24,6 @@ typings/
 docs/
 
 debug*
-*.txt
-*.js
-*.d.ts
-*.js.map
 *.pid
 *.log
 .DS_Store
@@ -35,5 +31,3 @@ Thumbs.db
 *.swp
 
 package-lock.json
-stats.json
-benchmark-result/*
