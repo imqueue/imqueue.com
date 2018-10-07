@@ -23,10 +23,10 @@
     path: /api/
     section_id: docs
     icon: icon-book-open
-- name: Blog
-  path: /blog/
-  section_id: blog
-  icon: icon-thumbs-up
+#- name: Blog
+#  path: /blog/
+#  section_id: blog
+#  icon: icon-thumbs-up
 - name: Github
   icon: icon-github
   path: https://github.com/imqueue

@@ -27,7 +27,7 @@ input:-ms-input-placeholder, textarea:-ms-input-placeholder {
 }
 .movie label::before {
   font-family: fontello;
-  content: '\e86a';
+  content: '\f0fe';
   margin-right: 10px;
 }
 .embed-container {
@@ -52,7 +52,7 @@ input:-ms-input-placeholder, textarea:-ms-input-placeholder {
 }
 input:checked ~ label::before {
   font-family: fontello;
-  content: '\e86d';
+  content: '\f146';
   margin-right: 10px;
 }
 input:checked ~ .embed-container {
