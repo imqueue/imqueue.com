@@ -185,6 +185,11 @@ section_id: intro
                     of the service instance is dead or alive.
                 </li>
                 <li>
+                    No need to implement any additional <em>load-balancing</em>. Service instances
+                    compete for messages and do load-balancing naturally with a good
+                    distribution between nodes.
+                </li>
+                <li>
                     All messages are flowing through a single system point and can
                     be <em>easily monitored</em>, which simplifies debugging and monitoring
                     as far as Redis provides complete set of tools doing that.
