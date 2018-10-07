@@ -74,7 +74,8 @@ h1, h2, h3, h4 {
   padding: 0;
 }
 
-.goldenrod-text {
+.goldenrod-text,
+i.goldenrod-text {
     color: #ef9d28 !important;
 }
 
@@ -86,7 +87,8 @@ h1, h2, h3, h4 {
   background: #fff;
 }
 
-.white-text {
+.white-text,
+.white-text * {
     color: #fff !important;
 }
 
@@ -104,6 +106,10 @@ h1, h2, h3, h4 {
 
 .light-grey {
   background: #e8e8e4;
+}
+
+.gray {
+  background: #666;
 }
 
 .spacing {

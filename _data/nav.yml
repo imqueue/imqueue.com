@@ -5,7 +5,7 @@
 - name: Introduction
   path: /intro/
   section_id: intro
-  icon: icon-info
+  icon: icon-info-circled
 - name: Documentation
   path: /docs
   section_id: docs
@@ -14,12 +14,15 @@
   - name: Getting Started
     path: /get-started
     section_id: docs
+    icon: icon-rocket
   - name: Tutorial
     path: /tutorial/
     section_id: docs
+    icon: icon-book
   - name: API Docs
     path: /api/
     section_id: docs
+    icon: icon-book-open
 - name: Blog
   path: /blog/
   section_id: blog
