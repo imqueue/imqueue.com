@@ -14,8 +14,6 @@ $(document).foundation();
       $('> li > .highlighted', $(this)).each(function() {
         $(this).appear(function() {
           var percent = $(this).attr("data-percent");
-          // $bar.html('<p class="highlighted"><span class="tip">'+percent+'%</span></p>');
-          // http://stackoverflow.com/questions/3363035/jquery-animate-forces-style-overflowhidden
           $(this).animate({
             'width': percent + '%'
           }, 1700, function() { $(this).css('overflow', 'visible'); });

@@ -4,19 +4,23 @@ title: "Getting Started"
 section_id: docs
 icon: rocket
 ---
+
+<div class="special-title centered-text">
+    <p markdown="1">
+        This is basic and shortest step-by-step guide how to start using `@imqueue`.
+        For more detailed guide take a look at [Tutorial](/tutorial/).
+        Full API technical documentation can be found [here](/api/). 
+    </p>
+    <p class="shortline"></p>
+    <div class="spacing"></div>
+    <div class="spacing"></div>
+</div>
+
 <div class="medium-4 columns right panel radius toc" markdown="1">
 <h4>Table Of Contents</h4>
 {:#toc}
 * TOC
 {:toc}
-</div>
-
-<div class="panel callout secondary">
-<p class="lead" markdown="1">
-This is basic and shortest step-by-step guide how to start using `@imqueue`.
-For more detailed guide take a look at [Tutorial](/tutorial/).
-Full API technical documentation can be found [here](/api/). 
-</p>
 </div>
 
 ## Before We Start

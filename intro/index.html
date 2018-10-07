@@ -1,41 +1,161 @@
 ---
-layout: page
+layout: default
 title: "Introduction"
 section_id: intro
 ---
 
-<h1><i class="icon-info goldenrod-text"></i>{{ page.title }}</h1>
+<div class="full">
+    <div class="row">
+        <div class="content">
+            <div class="special-title centered-text">
+                <i class="icon-info-circled goldenrod-text"></i>
+                <h1>{{ page.title }}</h1>
+                <p>
+                    IMQ is an Intercommunication Messaging Queue Framework for service
+                    oriented back-end architectures.
+                </p>
+                <p class="shortline"></p>
+                <div class="spacing"></div>
+            </div>
 
-<div class="panel callout secondary">
-    <p class="lead">
-        IMQ is an Intercommunication Messaging Queue Framework for service
-        oriented back-end architectures.
-    </p>
+            <p>There are several key capabilities:</p>
+
+            <ul>
+                <li>Massaging Queue as a base communication protocol between services (<a href="https://github.com/imqueue/core">@imqueue/core</a>)</li>
+                <li>RPC-like programming interface (<a href="https://github.com/imqueue/rpc">@imqueue/rpc</a>)</li>
+                <li>Rapid application development command line interface (<a href="https://github.com/imqueue/cli">@imqueue/cli</a>)</li>
+            </ul>
+
+            <p>
+                These provides an ability for developers to create back-end services
+                (or microservices as a special case of SOA) very fast and focus only
+                on functionality implementation without need to take care of low-level
+                implementation, following the next key principals:
+            </p>
+        </div>
+    </div>
 </div>
 
-<p>There are several key capabilities:</p>
+<div class="full light-grey">
+    <div class="row special-title">
+        <i class="icon-gears goldenrod-text"></i>
+        <h2>Reliability</h2>
+        <p class="line"></p>
+        <div class="spacing"></div>
+    </div>
+    <div class="row">
+        <p>
+            IMQ implements <strong>reliable communication</strong> between services.
+            Depending on the exact needs with use of <strong>safe delivery</strong> messaging
+            and <strong>"leader" - "follower" deployment</strong> of messaging back-end engine
+            it is possible to obtain full guarantee of data delivery between
+            services.
+        </p>
+    </div>
+</div>
 
-<ul>
-    <li>Massaging Queue as a base communication protocol between services</li>
-    <li>RPC-like programming interface</li>
-    <li>Rapid application development command line interface</li>
-</ul>
-
-<p>
-    These provides an ability for developers to create back-end services
-    (or micro-services as a special case of SOA) very fast and focus only
-    on functionality implementation without need to take care of low-level
-    implementation.
-</p>
-
-<p>
-    IMQ protocol takes care about providing all necessary capabilities for
-    building distributed service-oriented application which are described below.
-</p>
-
-<h2>Reliability</h2>
-<h2>Scalability</h2>
-<h2>Simplicity</h2>
-<h2>Performance</h2>
-<h2>Continuous Integration</h2>
-<h2>Distribution</h2>
+<div class="full light-yellow">
+    <div class="row special-title">
+        <i class="icon-resize-full goldenrod-text"></i>
+        <h2>Scalability</h2>
+        <p class="line"></p>
+        <div class="spacing"></div>
+    </div>
+    <div class="row">
+        <p>
+            IMQ supports several scaling possibilities on a different levels:
+            <ul>
+                <li><strong>Clustering</strong> backend engine (Redis)</li>
+                <li><strong>Fork-based scaling</strong> on single machine to utilize all its cores</li>
+                <li><strong>Network based horizontal scaling</strong>, running as much service copies as needed across multiple servers</li>
+            </ul>
+        </p>
+        <p>
+            Taking into account all that there are <strong>no technical limits</strong>
+            to handle any possible throughput in the designed system based on IMQ.
+        </p>
+    </div>
+</div>
+<div class="full yellow">
+    <div class="row special-title">
+        <i class="icon-dot white-text"></i>
+        <h2>Simplicity</h2>
+        <p class="line"></p>
+        <div class="spacing"></div>
+    </div>
+    <div class="row">
+        <p>
+            IMQ follows KISS (keep it short and simple) principals, making development
+            using @imqueue easy and clear.
+            <ul>
+                <li><strong>Low-level entry threshold for JS/Typescript developers</strong> - only couple of minutes needed to implement first basic service</li>
+                <li><strong>No need of very specific "hidden knowledge"</strong> to have to develop services with @imqueue</li>
+                <li>Clean and easy to understand <strong>JSON-based messaging protocol</strong></li>
+                <li>Based on <strong>well-known, easy to understand patters</strong>, like Messaging Queue and RPC (remote procedure calls)</li>
+                <li><strong>Simple configuration</strong>. Being flexible from one hand @imqueue provides meaningful amount of configuration options to satisfy different needs</li>
+            </ul>
+        </p>
+        <p>
+            Usually all you need to create a service is only run a command which
+            will create a named service from boilerplate and write your implementation
+            as simple as writing class methods, exposing them. Then just run a
+            service and it is ready to use by auto-generated service client at
+            another network point.
+        </p>
+    </div>
+</div>
+<div class="full gray white-text">
+    <div class="row special-title">
+        <i class="icon-gauge goldenrod-text"></i>
+        <h2>Performance</h2>
+        <p class="line"></p>
+        <div class="spacing"></div>
+    </div>
+    <div class="row">
+        <p>
+            We tried to take max is possible from the technologies IMQ is based on.
+            Benchmarking is a part of @imqueue/core, so it is possible
+            to run and test it in your environment.
+        </p>
+        <p>
+            Here are some results we got on a single Intel Core i7 machine using
+            1 dedicated core for Redis process and 6 workers each assigned to
+            it's own core by using 1Kb message sent asynchronously 10,000 times
+            at a time:
+        </p>
+            <ul>
+                <li>For unsafe delivery communication it is fluctuated between <strong>40,000 - 50,000</strong> round-trips of messages per second</li>
+                <li>For safe delivery communication it is around <strong>20,000 - 25,000</strong> round-trips of messages per second</li>
+                <li>With a use of compression around it is <strong>20,000 - 25,000</strong> round-trips of messages per second</li>
+            </ul>
+        </p>
+        <p>
+            So we can talk about <strong>tens of thousands</strong> messages per second for a
+            single messaging backend engine which is fair enough to launch
+            mid-size project with pretty high load.
+        </p>
+    </div>
+</div>
+<div class="full dark-blue white-text">
+    <div class="row special-title">
+        <i class="icon-upload-cloud goldenrod-text"></i>
+        <h2>Delivery</h2>
+        <p class="line"></p>
+        <div class="spacing"></div>
+    </div>
+    <div class="row">
+        <p>
+            IMQ respects smooth abd clean development and delivery processes.
+            By using command line tool it provides extensible
+            way to organize service delivery based on your own needs. Currently it
+            provides a default template which includes <strong>Git</strong>,
+            <strong>Travis CI</strong> and <strong>Docker</strong> /
+            <strong>DockerHub</strong> integration out-of-the-box.
+        </p>
+        <p>
+            Thus is a big plus it allows to define custom boilerplate
+            templates which will modify or provide completely another
+            ways of delivery on your side.
+        </p>
+    </div>
+</div>

@@ -47,8 +47,13 @@
                     <a href="{{ item.path }}" class="{{icon_class}}">{{ item.name }}</a>
                     <ul class='dropdown'>
                       {% for child in item.children %}
+                        {% if child.icon %}
+                            {% assign child_icon_class = child.icon %}
+                        {% else %}
+                            {% assign child_icon_class = "" %}
+                        {% endif %}
                         <li>
-                          <a href="{{ child.path }}">{{ child.name }}</a>
+                          <a href="{{ child.path }}" class="{{child_icon_class}}">{{ child.name }}</a>
                         </li>
                       {% endfor %}
                     </ul>
