@@ -95,6 +95,39 @@ things it can do for you:
 
 ### 4.1 Creating Service
 
+To create a service from boilerplate run these commands in your terminal
 
+~~~bash
+> mkdir user-service
+> cd user-service
+> imq service create
+~~~
 
-### 4.2 Generating client
+Now open `src/UserService.ts` and implement all required methods (functionality)
+you need for this service.
+
+### 4.2 Running Service
+
+Make sure you have redis server running on default port before launching
+your service. Running service is easy, just execute:
+
+~~~bash
+> npm run dev
+~~~
+
+### 4.3 Generating Client
+
+All @imqueue services are self-describable. To generate a client you will need
+to run service first. After that run in your terminal:
+
+~~~bash
+> mkdir clients
+> cd clients
+> imq client generate UserService
+~~~
+
+Now client can be used to call service methods remotely.
+
+<div class="panel callout secondary special-title centered-text" markdown="1">
+Congratulations! You've just implemented your first @imqueue based service.
+</div>
