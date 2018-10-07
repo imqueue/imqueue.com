@@ -64,6 +64,10 @@ input:checked ~ .embed-container {
   margin-bottom: 10px;
 }
 
+.figure {
+  margin: 20px
+}
+
 h1, h2, h3, h4 {
   text-transform: uppercase;
   letter-spacing: 2px;
