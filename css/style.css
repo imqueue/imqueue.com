@@ -219,6 +219,23 @@ i.goldenrod-text {
   color: #eeeeee;
 }
 
+nav ul li.name p {
+  font-size: .8em;
+  padding-top: 20px;
+  padding-left: 30px;
+}
+nav ul li.name .special-title p a {
+  font-family: "droid serif", georgia;
+  font-style: italic;
+  color: #666666;
+  display: block;
+  padding:0;
+  margin:0;
+}
+nav ul li.name .special-title p a:hover {
+  color: #ef9d28;
+}
+
 /*special title */
 .special-title i {
   font-size: 50px;
@@ -235,7 +252,6 @@ i.goldenrod-text {
   font-size: 1.125rem;
   font-style: italic;
   color: #666666;
-  letter-spacing: 1px;
 }
 .special-title p.light {
   color: #aaa;
