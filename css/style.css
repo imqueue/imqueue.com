@@ -74,12 +74,20 @@ h1, h2, h3, h4 {
   padding: 0;
 }
 
-.goldenrod {
-    color: #ef9d28;
+.goldenrod-text {
+    color: #ef9d28 !important;
+}
+
+.normal-text {
+    color: #333;
 }
 
 .white {
-  background: white;
+  background: #fff;
+}
+
+.white-text {
+    color: #fff !important;
 }
 
 .yellow {
@@ -115,7 +123,7 @@ h1, h2, h3, h4 {
 }
 
 .light {
-  color: white;
+  color: #fff;
 }
 
 .button {
@@ -220,8 +228,14 @@ h1, h2, h3, h4 {
 .special-title p.light {
   color: #aaa;
 }
-.special-title p.shortline {
+p.shortline {
   width: 100px;
+  height: 5px;
+  margin: 0 auto;
+  border-bottom: 1px solid #ef9d28;
+}
+p.line {
+  width: 100%;
   height: 5px;
   margin: 0 auto;
   border-bottom: 1px solid #ef9d28;
@@ -266,11 +280,17 @@ h1, h2, h3, h4 {
 
 .icon-text-boxed:hover i {
   background: #ef9d28;
-  color: white;
+  color: #fff;
 }
 
 .icon-text-circle {
   text-align: center;
+  padding-top: 20px;
+  transition: background ease-in-out 0.25s;
+}
+.icon-text-circle:hover {
+    background: #ef9d28;
+    border-radius: 5px;
 }
 .icon-text-circle i {
   margin-bottom: 30px;
@@ -284,11 +304,11 @@ h1, h2, h3, h4 {
   -ms-border-radius: 50%;
   -o-border-radius: 50%;
   border-radius: 50%;
-  background: #ef9d28;
-  -webkit-transition: color 0.2s linear;
-  -moz-transition: color 0.2s linear;
-  -o-transition: color 0.2s linear;
-  transition: color 0.2s linear;
+  background: #fcbf31;
+  -webkit-transition: color 0.25s ease-in-out;
+  -moz-transition: color 0.25s ease-in-out;
+  -o-transition: color 0.25s ease-in-out;
+  transition: color 0.25s ease-in-out;
 }
 .icon-text-circle i:before {
   margin: 0;
@@ -296,7 +316,6 @@ h1, h2, h3, h4 {
 
 .icon-text-circle:hover i {
   background: none;
-  color: #ef9d28;
 }
 
 /*call-to-action */
