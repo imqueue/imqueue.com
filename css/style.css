@@ -63,6 +63,9 @@ input:checked ~ .embed-container {
 .content ul li {
   margin-bottom: 10px;
 }
+.content .toc ul li {
+  margin-bottom: unset;
+}
 
 .figure {
   margin: 20px
@@ -753,10 +756,6 @@ ul.info i:hover {
 }
 .post .content .orbit-container {
   margin-bottom: 20px;
-}
-
-pre {
-  margin: 0 0 20px;
 }
 
 .pager {
