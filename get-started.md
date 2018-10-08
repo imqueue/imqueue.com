@@ -86,7 +86,7 @@ terminals.
 
 ## 4. Usage
 
-IMQ command line tool was created specially free you up from writing
+IMQ command line tool was created specially to free you up from writing
 boilerplate when making `@imqueue` based back-end services. There are 2 major
 things it can do for you:
 
