@@ -2,8 +2,8 @@
   desc_location: left
   desc:
     <h2>Reliable</h2>
-    <p>Reliable communication for your services, supports guaranted
-    message delivery and sceduled (delayed) messages</p>
+    <p>Reliable communication for your services with support of guaranted
+    message delivery</p>
     <div class='two spacing'></div>
     <a class='button boxed' href="/intro">Learn more</a>
 - image: speed.jpg
