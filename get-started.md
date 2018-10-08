@@ -129,7 +129,10 @@ to run service first. After that run in your terminal:
 Now client can be used to call service methods remotely.
 
 <div class="panel callout secondary special-title centered-text" markdown="1">
-Congratulations! You've just implemented your first @imqueue based service.
-</div>
+
+**Congratulations!** You've just implemented your first @imqueue based service.
 
 **Need more?** Take a look at [Tutorial](/tutorial/) and [API docs](/api/).
+
+</div>
+
