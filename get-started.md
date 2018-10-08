@@ -28,7 +28,7 @@ icon: rocket
 Make sure you have all required software pre-installed in your system. Here are
 what we need:
 
- - [NodeJS](https://nodejs.org/en/).We recommend to install it via 
+ - [NodeJS](https://nodejs.org/en/). We recommend to install it via 
    [NVM](https://github.com/creationix/nvm/blob/master/README.md)
  - [Redis](https://redis.io/download) version 3.2 or above recommended
  - [Git](https://git-scm.com/downloads) command-line tool
