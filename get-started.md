@@ -131,3 +131,5 @@ Now client can be used to call service methods remotely.
 <div class="panel callout secondary special-title centered-text" markdown="1">
 Congratulations! You've just implemented your first @imqueue based service.
 </div>
+
+**Need more?** Take a look at [Tutorial](/tutorial/) and [API docs](/api/).
