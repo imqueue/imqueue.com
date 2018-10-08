@@ -18,7 +18,7 @@ section_id: intro
                 <div class="spacing"></div>
             </div>
 
-            <p>There are several key capabilities:</p>
+            <p>Key Capabilities:</p>
 
             <ul>
                 <li>Massaging Queue as a base communication protocol between services (<a href="https://github.com/imqueue/core">@imqueue/core</a>)</li>
@@ -27,10 +27,10 @@ section_id: intro
             </ul>
 
             <p>
-                These provides an ability for developers to create back-end services
+                It all enables developers to create back-end services
                 (or microservices as a special case of SOA) very fast and focus only
-                on functionality implementation without need to take care of low-level
-                implementation, following the next key principals:
+                on functionality implementation without the need to take care of low-level
+                implementation, following below key principles:
             </p>
         </div>
     </div>
@@ -46,9 +46,9 @@ section_id: intro
     <div class="row content">
         <p>
             IMQ implements <strong>reliable communication</strong> between services.
-            Depending on the exact needs with use of <strong>safe delivery</strong> messaging
+            Depending on the exact needs, using <strong>safe delivery</strong> messaging
             and <strong>"leader" - "follower" deployment</strong> of messaging back-end engine
-            it is possible to obtain full guarantee of data delivery between
+            provides possibility to fully guarantee data delivery between
             services.
         </p>
     </div>
@@ -63,15 +63,15 @@ section_id: intro
     </div>
     <div class="row content">
         <p>
-            IMQ supports several scaling possibilities on a different levels:
+            IMQ supports several scaling possibilities on different levels:
             <ul>
                 <li><strong>Clustering</strong> backend engine (Redis)</li>
                 <li><strong>Fork-based scaling</strong> on single machine to utilize all its cores</li>
-                <li><strong>Network based horizontal scaling</strong>, running as much service copies as needed across multiple servers</li>
+                <li><strong>Network based horizontal scaling</strong>, running as many service copies as needed across multiple servers</li>
             </ul>
         </p>
         <p>
-            Taking into account all that there are <strong>no technical limits</strong>
+            Taking into account all above, there are <strong>no technical limits</strong>
             to handle any possible throughput in the designed system based on IMQ.
         </p>
     </div>
@@ -85,22 +85,16 @@ section_id: intro
     </div>
     <div class="row content">
         <p>
-            IMQ follows KISS (keep it short and simple) principals, making development
+            IMQ follows KISS (keep it short and simple) principles, making development
             using @imqueue easy and clear.
             <ul>
-                <li><strong>Low-level entry threshold for JS/Typescript developers</strong> - only couple of minutes needed to implement first basic service</li>
-                <li><strong>No need of very specific "hidden knowledge"</strong> to have to develop services with @imqueue</li>
+                <li><strong>Low-level entry for JS/Typescript developers</strong> - only couple of minutes are needed to implement the first basic service</li>
+                <li><strong>No need in very specific "hidden knowledge"</strong> to develop services with @imqueue</li>
                 <li>Clean and easy to understand <strong>JSON-based messaging protocol</strong></li>
-                <li>Based on <strong>well-known, easy to understand patters</strong>, like Messaging Queue and RPC (remote procedure calls)</li>
-                <li><strong>Simple configuration</strong>. Being flexible from one hand @imqueue provides meaningful amount of configuration options to satisfy different needs</li>
+                <li>Based on <strong>well-known, easy to understand patterns</strong>, like Messaging Queue and RPC (remote procedure calls)</li>
+                <li><strong>Simple configuration</strong>. Being flexible though providing sufficient
+                    amount of configuration options @imqueue satisfies different needs</li>
             </ul>
-        </p>
-        <p>
-            Usually all you need to create a service is only run a command which
-            will create a named service from boilerplate and write your implementation
-            as simple as writing class methods, exposing them. Then just run a
-            service and it is ready to use by auto-generated service client at
-            another network point.
         </p>
     </div>
 </div>
@@ -113,8 +107,8 @@ section_id: intro
     </div>
     <div class="row content">
         <p>
-            We tried to take maximum possible from the technologies IMQ is based on.
-            Benchmarking is a part of @imqueue/core, so it is possible
+            We tried to get the utmost from the technologies IMQ is based on.
+            Benchmarking is a part of @imqueue/core, therefore it is possible
             to run and test it in your environment.
         </p>
         <p>
@@ -126,15 +120,15 @@ section_id: intro
             <ul>
                 <li>For unsafe delivery communication it is fluctuated between <strong>40,000 - 50,000</strong> round-trips of messages per second</li>
                 <li>For safe delivery communication it is around <strong>20,000 - 25,000</strong> round-trips of messages per second</li>
-                <li>With a use of compression around it is <strong>20,000 - 25,000</strong> round-trips of messages per second</li>
+                <li>With the use of compression it is around <strong>20,000 - 25,000</strong> round-trips of messages per second</li>
                 <li>Safe delivery with compression turned on is about <strong>16,000 - 18,000</strong> round-trips of messages per second</li>
             </ul>
         </p>
         <p>
-            So in the worst case with all features turned on we can talk about
+            Hence, in the worst case with all features turned on it is about
             <strong>tens of thousands</strong> messages round-trips per second for a
             single messaging backend engine which is fair enough to launch
-            projects with pretty high load.
+            projects with a pretty high load.
         </p>
     </div>
 </div>
@@ -147,7 +141,7 @@ section_id: intro
     </div>
     <div class="row content">
         <p>
-            IMQ respects smooth abd clean development and delivery processes.
+            IMQ respects smooth and clean development and delivery processes.
             By using command line tool it provides extensible
             way to organize service delivery based on your own needs. Currently it
             provides a default template which includes <strong>Git</strong>,
@@ -155,14 +149,14 @@ section_id: intro
             <strong>DockerHub</strong> integration out-of-the-box.
         </p>
         <p>
-            Thus is a big plus it allows to define custom boilerplate
+            Thus is a big plus that it allows to define custom boilerplate
             templates which will modify or provide completely another
-            ways of delivery on your side.
+            ways of delivery from your side.
         </p>
         <div class="spacing"></div>
         <div class="spacing" style="margin-top:70px"></div>
         <div class="special-title centered-text">
-            <h2>How Does It Work?</h2>
+            <h2>How It Works</h2>
             <p>Explaining @imqueue internals</p>
             <p class="shortline"></p>
             <div class="spacing"></div>
@@ -170,7 +164,7 @@ section_id: intro
         <div class="spacing"></div>
         <img class="medium-4 columns right figure" src="/images/base-schema.svg">
         <p>
-            IMQ implements messaging queue over Redis, which works as centralized
+            IMQ implements messaging queue over Redis, which works as a centralized
             message broker for communication between services and their clients.
         </p>
         <p>
