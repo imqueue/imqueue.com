@@ -8,8 +8,8 @@ icon: rocket
 <div class="special-title centered-text">
     <p markdown="1">
         This is basic and shortest step-by-step guide how to start using `@imqueue`.
-        For more detailed guide take a look at [Tutorial](/tutorial/).
-        Full API technical documentation can be found [here](/api/). 
+        For more detailed guide take a look at [Tutorial](/tutorial/).<br>
+        Full API technical documentation is available [here](/api/). 
     </p>
     <p class="shortline"></p>
     <div class="spacing"></div>
