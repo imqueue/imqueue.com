@@ -134,17 +134,6 @@ it work correctly:
   ~~~
 * Only class methods are allowed to expose. You *CAN NOT* expose class
   properties.
-* There is no limit of implementing async methods, so feel free to implement
-  them any time you need it:
-  ~~~typescript
-  import { IMQService, expose } from '@imqueue/rpc';
-  export class SomeService extends IMQService {
-    @expose()
-    public async exposedMethod(): Promise<void> {
-      // implementation goes here...
-    }
-  }
-  ~~~
 * If you need to make asynchronous operation on class service initialization -
   override `start()` method:
   ~~~typescript
@@ -167,16 +156,355 @@ it work correctly:
     }
   }
   ~~~
+* Remote calls means that from client to service and vice versa data are
+ transmitted via network, so all arguments passed in and all return values of
+ the exposed methods ***MUST* be JSON-serializable types**. 
+* You *CAN NOT* use spread operator for exposed method arguments - that won't
+  work on a client and is a known limitation. In this case bypass arguments as 
+  an array:
+  ~~~typescript
+  import { IMQService, expose } from '@imqueue/rpc';
+  export class SomeService extends IMQService {
+    // this is INCORRECT
+    // client for this service will not compile because of this
+    @expose()
+    public incorrectStuff(...args: any[]) {
+      args.forEach((arg) => {
+        // do something with arg...
+      });
+    }
+  
+    // this is CORRECT
+    @expose()
+    public correctStuff(args: any[]) {
+      args.forEach((arg) => {
+        // do something with arg...
+      });
+    }
+  
+    // this is also CORRECT
+    // as far as it is not exposed
+    private somePrivateStuff(...args: any[]) {
+      args.forEach((arg) => {
+        // do something with arg...
+      });
+    }
+  }
+
+  (async () => {
+    // let's imagine we have a client for the service
+    const client = new SomeServiceClient();
+    await client.start();
+    // and we want to have something like this:
+    client.incorrectStuff(1, 2, 3);
+    // but we can do like this instead,
+    // which is not that significant problem as seen:
+    client.correctStuff([1, 2, 3]);
+  })();
+  ~~~
 
 ### Importance of Using DocBlocks
 
+JS/Typescript does not have very powerful tooling for reflections, so there is
+no easy way to get all required information about arguments and return values
+data types on a Typescript level. By the way description model of the services 
+can easily utilize information from the doc-blocks associated with the class 
+method, and @imqueue does that very well.
+
+This is a very good practice form any point of view, as far as well written
+doc-blocks make code more documented, readable and clear, provides an ability to
+auto-generate API documentation for the written code, and, finally, in our case,
+they become *MANDATORY* to use to provide possibility for @imqueue to describe 
+the service and make its client to work correctly.
+
+Here is what mandatory to know about writing doc-blocks for @imqueue services:
+
+* Always use `@param` and `@return` tags with proper type definition to describe
+  input args and return value:
+  
+  ~~~typescript
+  import { IMQService, expose } from '@imqueue/rpc';
+  export class SomeService extends IMQService {
+    /**
+     * Some method description goes here
+     * 
+     * @param {string} argOne - the first argument description string
+     * @param {boolean} argTwo - the second argument description string
+     * @param { {name: string, value: number} } [argThree] - the third optional argument description string
+     * @return { {x: number, y: number} } - return value description string
+     */
+    @expose()
+    public someMethod(
+      argOne: string, argTwo: boolean, argThree?: { name: string, value: number }
+    ): { x: number, y: number } {
+      // do some stuff with args...
+      return { x: 5, y: 7 };
+    }
+  }
+  ~~~
+* Use `[]` around those argument name, which are optional in doc-block argument
+  description, it is important if you wish optional arguments to be defined
+  correctly on a generated client.
+* Use Typescript type definitions in doc-blocks for argument and return values,
+  as far as it will be used as part of generated client code.
+
 ### Complex Types
+
+@imqueue services support complex types to be defined and used within data
+exchange between client and service. There are also several rules to know about
+creating proper complex types which both service and client will understand and
+use correctly.
+
+Use **class declaration** for defining an interface of complex type on a service
+side. This is related to the problem that in comparison to interface
+declaration class is an accessible definition in JavaScript, but interface
+is only accessible on Typescript. As far as any reflection are available only
+on JavaScript level, there is no way to work with declaration of interfaces on it.
+Another problem is that JavaScript classes does not support properties (only 
+property getters and setters), so
+for Typescript it is enough to have simple property definition, but to access
+that definition on JavaScript level we need to have some extra definitions,
+which are implemented by `@property()` decorator factory.
+
+Here is an interface of `@property()` decorator factory:
+
+~~~typescript
+property(typeName: string, isOptional: boolean = false)
+~~~
+
+Usage:
+
+~~~typescript
+// service definition of the type:
+import { property } from '@imqueue/rpc';
+
+class UserObject {
+    @property('string')
+    firstName: string;
+    
+    @property('string')
+    lastName: string;
+    
+    @property('string')
+    email: string;
+    
+    @property('string', true)
+    phoneNumber?: string;
+}
+~~~
+
+This will be compiled on a client side to a proper Typescript interface and can
+be correctly used for a proper type definitions on a client and service side:
+
+~~~typescript
+// client definition of the type
+interface UserObject {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber?: string;
+}
+~~~
+
+Now the type can be used within service methods:
+
+~~~typescript
+import { IMQService, expose } from '@imqueue/rpc';
+import { UserObject } from './types/UserObject';
+class UserService extends IMQService {
+    /**
+     * Updates user record
+     * 
+     * @param {UserObject} data - user data fields
+     * @return {Promise<UserObject|null>} - saved user object or null if failed
+     */
+    @expose()
+    public async update(data: UserObject): Promise<UserObject|null> {
+        // do logic...
+        return data;
+    }
+}
+~~~
+
+When using a client it will do a proper type-checks as well.
+
+Complex types can aggregate another complex types. Let's imagine we want to
+extend our user model to be associated with one or more addresses defined for
+a user. It can look like this:
+
+~~~typescript
+import { property } from '@imqueue/rpc';
+
+class AddressObject {
+    @property('string')
+    country: string;
+    
+    @property('string')
+    city: string;
+    
+    @property('string')
+    address: string;
+    
+    @property('string', true)
+    phoneNumber?: string;
+}
+
+class UserObject {
+    @property('string')
+    firstName: string;
+    
+    @property('string')
+    lastName: string;
+    
+    @property('string')
+    email: string;
+    
+    @property('AddressObject[]', true)
+    addresses?: AddressObject[]
+}
+~~~
 
 ### Working with Service Description
 
+If you need, for some reason, to access service description metadata it is
+enough to simply call for a `describe()` method on service client:
+
+~~~typescript
+// treating it is executed in async context:
+const client = new UserClient();
+await client.start();
+console.log(client.describe());
+~~~
+
+It will return all metadata about service classes, methods and complex types
+definitions.
+
 ### Delayed Messaging
+
+Delayed messaging with `@imqueue/rpc` is easy. Any of exposed service method
+can be called with a delay. So if you need to use delayed messaging to implement
+scheduling queue for some operations it is as easy as specify `delay` (of 
+[IMQDelay](/api/rpc/{{latest_rpc}}/classes/imqdelay.html) type) parameter 
+within any client method call, like this:
+
+~~~typescript
+import { IMQDelay } from '@imqueue/rpc';
+import { UserObject, UserClient } from './clients';
+
+const client = new UserClient();
+const data: UserObject = {
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john@doe.com'
+}
+
+await client.start();
+// execute scheduled stuff in 1 hour, and obtain result asynchronously
+// after execution without stacking the thread
+client.doScheduledStuff(data, new IMQDelay(1, 'h'))
+    .then((result: any) => console.log(result));
+~~~
 
 ### Locking
 
+Locking is a powerful tool `@imqueue/rpc` provides to potentially optimize
+remote calls. For example, let's imagine your system can generate hundreds or
+even thousands calls to some specific service method with the same context
+and arguments and obtaining the same response result. It could be possible when
+some popular content is requested by many users but that content is pretty
+static at least for some period of time. In such case service executes the
+same operations hundreds of times per second, but there actually no reasons
+doing that. Locks allows to optimize such kind of behavior, and here is how.
+
+When the lock is defined for a method it will create an asynchronous lock on the
+first call and until the operation is not complete, all other similar calls
+(having the same signature) will wait until a first call is resolved, and then
+it resolves all enqueued calls with the data.
+
+For example if there is a call to fetch some specific blog-post 100 times during 
+the next 100 milliseconds, but operation to fetch a blog-post from a database 
+takes around that 100 milliseconds it means that such call will 
+execute the actual logic only once, than resolve all awaiting 100 clients
+with the same return value:
+
+~~~typescript
+import { IMQService, expose, lock } from '@imqueue/rpc';
+import { BlogPost } from './types';
+
+class BlogService extends IMQService {
+
+    /**
+     * Returns the same blog post data object corresponding to a
+     * given blog post identifier
+     *
+     * @param {string} id - blog post identifier
+     * @return {BlogPost} - blog post data set
+     */
+    @lock()
+    @expose()
+    public async fetchPost(id: string): Promise<BlogPost> {
+        let data: BlogPost;
+        // do stuff...
+        return data;
+    }
+}
+~~~
+
+From other hand if during that time there will be other calls with another 
+blog post ids them will be executed using their locks and will return another
+corresponding data value.
+
+This gives several advantages:
+
+  1. Decreases load on server
+  1. Improves response time for the clients (first one will wait the most, but
+     that which connected the last will obtain result almost immediately with no 
+     delay, so average response time across clients will be improved).
+
+Locking can be used also in another manner. @imqueue provides an implementation
+of asynchronous locks as a generic class 
+[IMQLock](/api/rpc/{{latest_rpc}}/classes/imqlock.html), which can be used for 
+many different needs outside of the using `@lock()` decorator factory.
+
 ### Caching
 
+Caching is another tool @imqueue provides for optimization purposes. It gives an
+ability to cache method execution calls using a given caching adapter (of
+course, Redis is by default and the only one implemented at this time). But it
+is possible to define your own adapter, it is enough to implement properly
+[ICache](/api/rpc/{{latest_rpc}}/interfaces/icache.html) and 
+[ICacheConstructor](/api/rpc/{{latest_rpc}}/interfaces/imcacheconstructor.html)
+interfaces.
+
+Out-of-the-box it can be used as `@cache()` decorator factory on a service
+methods or by utilizing [IMQCache](/api/rpc/{{latest_rpc}}/classes/imqcache.html)
+registry and [RedisCache](/api/rpc/{{latest_rpc}}/classes/rediscache.html)
+engine implementation.
+
+Typical usage as follows:
+
+~~~typescript
+import { IMQService, expose, cache } from '@imqueue/rpc';
+import { BlogPost } from './types';
+
+class BlogService extends IMQService {
+
+    /**
+     * Returns the same blog post data object corresponding to a
+     * given blog post identifier
+     *
+     * @param {string} id - blog post identifier
+     * @return {BlogPost} - blog post data set
+     */
+    @cache()
+    @expose()
+    public async fetchPost(id: string): Promise<BlogPost> {
+        let data: BlogPost;
+        // do stuff...
+        return data;
+    }
+}
+~~~
+
+`@cache()` decorator implements similar per-signature work principals as
+`@lock()`.
