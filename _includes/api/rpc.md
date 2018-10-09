@@ -91,9 +91,9 @@ a proper code writing, including all correct types definitions and documenting
 blocks. And, of course, on functionality implementation itself.
 
 Such a way provides a simplicity of development process - you just writing a
-service code and frameworks takes care itself about everything else.
+service code and framework takes care itself about everything else.
 
-From the other hand in case of some specific need there is no limit of 
+From the other hand, in case of some specific need, there is no limit of 
 implementing Clients manually, but it can significantly increase amount of
 work to be done on implementation, and what is the most critical - on support
 after implementation.
@@ -205,11 +205,11 @@ it work correctly:
 
 ### Importance of Using DocBlocks
 
-JS/Typescript does not have very powerful tooling for reflections, so there is
+JavaScript/Typescript does not have very powerful tooling for reflections, so there is
 no easy way to get all required information about arguments and return values
-data types on a Typescript level. By the way description model of the services 
-can easily utilize information from the doc-blocks associated with the class 
-method, and @imqueue does that very well.
+data types. By the way description model of the services 
+can easily utilize information from the doc-blocks associated with class 
+methods, and @imqueue does that very well.
 
 This is a very good practice form any point of view, as far as well written
 doc-blocks make code more documented, readable and clear, provides an ability to
@@ -217,21 +217,21 @@ auto-generate API documentation for the written code, and, finally, in our case,
 they become *MANDATORY* to use to provide possibility for @imqueue to describe 
 the service and make its client to work correctly.
 
-Here is what mandatory to know about writing doc-blocks for @imqueue services:
+Here is what you have to know about writing doc-blocks for @imqueue services:
 
 * Always use `@param` and `@return` tags with proper type definition to describe
   input args and return value:
   
   ~~~typescript
-  import { IMQService, expose } from '@imqueue/rpc';
+  {% raw %}import { IMQService, expose } from '@imqueue/rpc';
   export class SomeService extends IMQService {
     /**
      * Some method description goes here
      * 
      * @param {string} argOne - the first argument description string
      * @param {boolean} argTwo - the second argument description string
-     * @param { {name: string, value: number} } [argThree] - the third optional argument description string
-     * @return { {x: number, y: number} } - return value description string
+     * @param {{name: string, value: number}} [argThree] - the third optional argument description string
+     * @return {{x: number, y: number}} - return value description string
      */
     @expose()
     public someMethod(
@@ -240,36 +240,33 @@ Here is what mandatory to know about writing doc-blocks for @imqueue services:
       // do some stuff with args...
       return { x: 5, y: 7 };
     }
-  }
+  }{% endraw %}
   ~~~
-* Use `[]` around those argument name, which are optional in doc-block argument
+* Use `[]` around those argument names, which are optional in doc-block argument
   description, it is important if you wish optional arguments to be defined
   correctly on a generated client.
-* Use Typescript type definitions in doc-blocks for argument and return values,
-  as far as it will be used as part of generated client code.
+* Use Typescript types notations in doc-blocks for argument and return values,
+  as far as them will be used as part of generated client code.
 
 ### Complex Types
 
 @imqueue services support complex types to be defined and used within data
 exchange between client and service. There are also several rules to know about
-creating proper complex types which both service and client will understand and
+creating proper complex types, which both service and client will understand and
 use correctly.
 
 Use **class declaration** for defining an interface of complex type on a service
 side. This is related to the problem that in comparison to interface
-declaration class is an accessible definition in JavaScript, but interface
-is only accessible on Typescript. As far as any reflection are available only
-on JavaScript level, there is no way to work with declaration of interfaces on it.
+declaration, class is an accessible definition in JavaScript, but interface
+is only accessible in Typescript and does not exist at runtime.
 Another problem is that JavaScript classes does not support properties (only 
 property getters and setters), so
 for Typescript it is enough to have simple property definition, but to access
 that definition on JavaScript level we need to have some extra definitions,
-which are implemented by `@property()` decorator factory.
-
-Here is an interface of `@property()` decorator factory:
+which are implemented by `@property()` decorator factory:
 
 ~~~typescript
-property(typeName: string, isOptional: boolean = false)
+function property(typeName: string, isOptional: boolean = false): () => {}
 ~~~
 
 Usage:
@@ -297,7 +294,7 @@ This will be compiled on a client side to a proper Typescript interface and can
 be correctly used for a proper type definitions on a client and service side:
 
 ~~~typescript
-// client definition of the type
+// generated client definition of the type
 interface UserObject {
     firstName: string;
     lastName: string;
@@ -306,7 +303,8 @@ interface UserObject {
 }
 ~~~
 
-Now the type can be used within service methods:
+Now the type can be used within service methods (assuming we put a type
+definition in a separate file):
 
 ~~~typescript
 import { IMQService, expose } from '@imqueue/rpc';
@@ -326,11 +324,11 @@ class UserService extends IMQService {
 }
 ~~~
 
-When using a client it will do a proper type-checks as well.
+This guaranties correct type-checks on a client level.
 
 Complex types can aggregate another complex types. Let's imagine we want to
-extend our user model to be associated with one or more addresses defined for
-a user. It can look like this:
+extend our user model to be associated with one or more address objects, 
+like this:
 
 ~~~typescript
 import { property } from '@imqueue/rpc';
@@ -373,10 +371,10 @@ enough to simply call for a `describe()` method on service client:
 // treating it is executed in async context:
 const client = new UserClient();
 await client.start();
-console.log(client.describe());
+console.log(await client.describe());
 ~~~
 
-It will return all metadata about service classes, methods and complex types
+It will print out all metadata about service classes, methods and complex type
 definitions.
 
 ### Delayed Messaging
@@ -402,28 +400,29 @@ await client.start();
 // execute scheduled stuff in 1 hour, and obtain result asynchronously
 // after execution without stacking the thread
 client.doScheduledStuff(data, new IMQDelay(1, 'h'))
-    .then((result: any) => console.log(result));
+    .then((result: any) => client.logger.log(result));
 ~~~
 
 ### Locking
 
 Locking is a powerful tool `@imqueue/rpc` provides to potentially optimize
-remote calls. For example, let's imagine your system can generate hundreds or
-even thousands calls to some specific service method with the same context
-and arguments and obtaining the same response result. It could be possible when
-some popular content is requested by many users but that content is pretty
-static at least for some period of time. In such case service executes the
-same operations hundreds of times per second, but there actually no reasons
+remote calls. For example, let's imagine your system handles hundreds or
+even thousands calls to some specific method with the same execution context in
+a very short period of time and obtaining the same response result for each 
+call. It could be possible, for example, when some popular content is requested
+by many users, but that content is pretty static at least for this short period
+of time. In such case your backend, in fact, executes the same operations 
+hundreds or thousands of times per second, but there actually no reasons
 doing that. Locks allows to optimize such kind of behavior, and here is how.
 
-When the lock is defined for a method it will create an asynchronous lock on the
-first call and until the operation is not complete, all other similar calls
+When the `@lock()` is wrapping a method it will create an asynchronous lock on 
+the first call and until the operation is not complete, all other similar calls
 (having the same signature) will wait until a first call is resolved, and then
-it resolves all enqueued calls with the data.
+it resolves all enqueued calls with the same obtained data.
 
-For example if there is a call to fetch some specific blog-post 100 times during 
+For example, if there is a call to fetch some specific blog-post 100 times during 
 the next 100 milliseconds, but operation to fetch a blog-post from a database 
-takes around that 100 milliseconds it means that such call will 
+takes around 100 milliseconds as well, it means that such call will 
 execute the actual logic only once, than resolve all awaiting 100 clients
 with the same return value:
 
@@ -444,27 +443,39 @@ class BlogService extends IMQService {
     @expose()
     public async fetchPost(id: string): Promise<BlogPost> {
         let data: BlogPost;
-        // do stuff...
+        // select blog post data from database by given identifier...
         return data;
     }
 }
 ~~~
 
-From other hand if during that time there will be other calls with another 
-blog post ids them will be executed using their locks and will return another
-corresponding data value.
+From the other hand, if during that time there will be other calls with 
+different blog post identifiers, them will be executed using their different 
+contextual locks and will resolve their clients with different 
+corresponding values.
 
 This gives several advantages:
 
-  1. Decreases load on server
-  1. Improves response time for the clients (first one will wait the most, but
-     that which connected the last will obtain result almost immediately with no 
-     delay, so average response time across clients will be improved).
+  1. **Decreases load** on backend (less actual logic execution, less actual 
+     database calls).
+  1. **Improves average response time** for the clients (first one will wait 
+     the most, but the last will obtain result almost immediately with no delay,
+     so average response time across all clients will be improved).
 
-Locking can be used also in another manner. @imqueue provides an implementation
-of asynchronous locks as a generic class 
+But there is considerable downside when using locks. First of all, to qualify
+the execution context locking mechanism must perform a hashing on a signature
+of the call, which takes a reasonable time and computing resources. Despite the
+fact that used hashing algorithm is pretty productive its performance depends
+on the method signature length. In some circumstances it may occur that you can
+gain no benefit of using locks. So it is should be wisely chosen is there a 
+reason to apply it or not. For high load and slow methods it definitely worth
+it. When the method execution is cheaper than signature hashing it does not 
+worth.
+
+Locking can be used not only as methods decorator. IMQ provides an 
+implementation of asynchronous locks as a generic class 
 [IMQLock](/api/rpc/{{latest_rpc}}/classes/imqlock.html), which can be used for 
-many different needs outside of the using `@lock()` decorator factory.
+many different needs in many different parts of your backend implementation.
 
 ### Caching
 
@@ -507,4 +518,7 @@ class BlogService extends IMQService {
 ~~~
 
 `@cache()` decorator implements similar per-signature work principals as
-`@lock()`.
+`@lock()`. Whole set of @imqueue decorators can be combined in-use over
+service methods to improve overall system performance and stability. You can 
+write and use corresponding load tests for your backend and practically find
+a better way of optimization.

@@ -8,7 +8,7 @@ profiling times of execution and debugging calls. This tool is a `@profile()`
 decorator factory and is recommended to use on that parts of the system which 
 are critical to monitor.
 
-Profiled timing can have accuracy to microseconds and is so by default.
+Profiled timing can have accuracy to **microseconds** and is so by default.
 
 Usage:
 
@@ -49,11 +49,11 @@ class MonitoredService extends IMQService {
 
 When the `@profile()` decorator factory is called without arguments it will
 rely on environment configuration, which can either enable or disable
-profiling. Those decorator factory calls which provide arguments overrides
+profiling. Those decorator factory calls, which provide arguments, overrides
 environment settings and forces time/args profiling explicitly.
 
-It is recommended to manage profiling state via `.env` files or by setting
-profiling vars globally for the entire environment.
+It is recommended to manage profiling state via `.env` files for per-service
+configuration or by setting profiling vars globally for the entire environment.
 
 Those vars are:
 
@@ -70,7 +70,7 @@ need in any additional configuration actions for that purpose. Also this
 decorator can be used within any class method, not specially on a service class
 (means it is possible to use it anywhere else), like:
 
-~~~
+~~~typescript
 import { profile } from '@imqueue/core';
 class SomeClass {
    @profile()
@@ -79,7 +79,6 @@ class SomeClass {
 }
 ~~~
 
-Turned on profiling can slightly decrease overall @imqueue performance.
-
-Using profiling helps diagnose, find and eliminate potential "bottle-necks" and
-slow-running pieces of code in the system.
+Please, note, that turned on profiling can slightly decrease overall backend 
+performance. But using profiling helps diagnose, find and eliminate potential 
+"bottle-necks" and slow-running pieces of code in the system.
