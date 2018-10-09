@@ -40,4 +40,12 @@ and `'error'` events.
 
 ### Redis Queue
 
+[RedisQueue](/api/core/{{latest_core}}/classes/redisqueue.html) is a core
+implementation of Redis-based messaging queue. It implements an engine for
+a single redis node.
+
 ### Clustered Redis Queue
+
+[ClusteredRedisQueue](/api/core/{{latest_core}}/classes/clusteredredisqueue.html)
+extends functionality of RedisQueue to be applied on a cluster of Redis nodes
+and implement automatic "round-robin" based load balancing between nodes.
