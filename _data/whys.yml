@@ -1,13 +1,15 @@
 - title: Launching Start-Ups
-  icon: flash
+  icon: chart-area
   desc:
-    Fast prototyping of service-oriented backend architectures
+    Fast prototyping and launch of SOA-based backend architectures for
+    new Internet projects with growth potential
 - title: Business Run
-  icon: paper-plane
+  icon: bank
   desc:
-    For small and mid-size Internet projects launch with averge and above average
-    traffic load
+    For day-to-day stable run of small and medium size Internet projects with
+    averge and above average traffic load
 - title: Scalability and Reliability
-  icon: layout
+  icon: tools
   desc:
-    For highly reliable and scalable service-oriented backend architectures
+    For projects which require high reliability and scalability from
+    service-oriented backend architectures
