@@ -5,8 +5,8 @@ section_id: docs
 icon: book-open
 ---
 
-{% assign latest_core = "1.3.13" %}
-{% assign latest_rpc = "1.2.10" %}
+{% assign latest_core = "1.3.14" %}
+{% assign latest_rpc = "1.2.11" %}
 
 <div class="special-title centered-text">
     <p markdown="1">
@@ -39,8 +39,10 @@ icon: book-open
 ### Older Versions
 
 - **@imqueue/rpc**
+  * <a href="/api/rpc/1.2.9/" target="_blank">v1.2.10</a>
   * <a href="/api/rpc/1.2.9/" target="_blank">v1.2.9</a>
   * <a href="/api/rpc/1.2.8/" target="_blank">v1.2.8</a>
 - **@imqueue/core**
+  * <a href="/api/core/1.3.12/" target="_blank">v1.3.13</a>
   * <a href="/api/core/1.3.12/" target="_blank">v1.3.12</a>
   * <a href="/api/core/1.3.11/" target="_blank">v1.3.11</a>
