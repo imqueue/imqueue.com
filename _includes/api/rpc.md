@@ -403,10 +403,7 @@ client.doScheduledStuff(data, new IMQDelay(1, 'h'))
     .then((result: any) => client.logger.log(result));
 ~~~
 
-### Locking (Memoization)
-
-Locks provides memoization mechanism for asynchronous function calls on
-@imqueue services methods.
+### Locking
 
 Locking is a powerful tool `@imqueue/rpc` provides to potentially optimize
 remote calls. For example, let's imagine your system handles hundreds or
