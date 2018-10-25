@@ -538,7 +538,13 @@ textarea {
 }
 
 /* slider customization */
-
+.orbit-container,
+.orbit-slides-container,
+.orbit-slides-container li,
+.orbit-slides-container li.active,
+.orbit-slides-container li img {
+  min-height: 400px !important;
+}
 .orbit-container .orbit-timer, .orbit-container .orbit-slide-number {
   display: none;
 }
