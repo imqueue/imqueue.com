@@ -15,14 +15,14 @@
     path: /get-started
     section_id: docs
     icon: icon-rocket
-  - name: Tutorial
-    path: /tutorial/
-    section_id: docs
-    icon: icon-book
   - name: API Docs
     path: /api/
     section_id: docs
     icon: icon-book-open
+  - name: Tutorial
+    path: /tutorial/
+    section_id: docs
+    icon: icon-book
 #- name: Blog
 #  path: /blog/
 #  section_id: blog
