@@ -40,3 +40,13 @@ section_id: docs
 </div>
 
 <h2>Chapter 2. User service</h2>
+
+So we are ready to create our first service. It is recommended to create
+project directory which will hold all your development repositories.
+
+Let's start as:
+
+~~~bash
+mkdir ~/my-tutorial-app
+cd ~/my-tutorial-app
+~~~
