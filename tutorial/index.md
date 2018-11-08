@@ -168,3 +168,7 @@ steps to complete your @imqueue/cli configuration.
     </div>
 </div>
 
+After all these preparations done we are ready to go to create our first
+service.
+
+Go to next chapter - [Creating User Service](/tutorial/user-service).
