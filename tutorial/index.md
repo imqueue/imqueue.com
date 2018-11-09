@@ -31,13 +31,11 @@ screens:
 
 <h5>Next Chapters</h5>
 <div markdown="1">
- - [Chapter 2. User service](/tutorial/user-service)
- - [Chapter 3. Auth service](/tutorial/auth-service)
- - [Chapter 4. Car service](/tutorial/car-service)
- - [Chapter 5. TimeTable service](/tutorial/time-table-service)
- - [Chapter 6. API service. Integration](/tutorial/api-service)
- - [Chapter 7. Testing](/tutorial/testing)
- - [Chapter 8. Deployment](/tutorial/deployment)
+ - [Chapter 2. User Service. Creating First Service](/tutorial/user-service)
+ - [Chapter 3. Auth service. Inter-Service Communication](/tutorial/auth-service)
+ - [Chapter 4. Other Services](/tutorial/other-services)
+ - [Chapter 5. API. Integration](/tutorial/api-service)
+ - [Chapter 6. Deployment](/tutorial/deployment)
 </div>
 </div>
 
