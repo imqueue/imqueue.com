@@ -220,6 +220,8 @@ npm i --save-dev @types/mongoose
 
 ### The Implementation
 
+#### Prepare data storage
+
 First of all let's create mongoose database schema for our service as
 far as we decided to use MongoDB as data storage engine. It is can be
 done in a usual way, @imqueue does not introduce any limits here.
@@ -231,7 +233,6 @@ to have it and put the following content:
 import * as mongoose from 'mongoose';
 
 export const schema = new mongoose.Schema({
-    id: mongoose.SchemaTypes.ObjectId,
     email: {
         type: mongoose.SchemaTypes.String,
         unique: true,
@@ -274,9 +275,19 @@ export const schema = new mongoose.Schema({
 });
 ~~~
 
-So that's what happened here is that we created mongoose document schema
-to store user and his garage of cars in MongoDB. That means that we
-defined a data structures we want to operate on our service internally.
+By design we need to store information about user, such as
+- identifier
+- first name
+- last name
+- email
+- password
+- isActive flag (to have an ability block users if there any reason)
+- isAdmin flag (to define users of admin role)
+- user cars in garage (we plan to have a service car which would manage
+  cars database, but here we would need to assign the selected car data
+  to a user, so we define only those fields which should implement
+  references between users, car objects and additionally store
+  user-specific car data, like car registration number)
 
 Now we need to implement required operations on that data, which can be
 called by a remote client, so we are going to implement our public
@@ -284,6 +295,8 @@ service methods now.
 
 Open `./user/src/User.ts` file which contains our service class
 implementation which we are going to change.
+
+#### Prepare Database Connection
 
 First of all let's import our mongoose schema, add the following line
 at the top of the file:
@@ -343,6 +356,8 @@ public async start(): Promise<IMessageQueue | undefined> {
 }
 ~~~
 
+#### Logging Ninja
+
 We used `this.logger` here, which is a good way to deal with debugging
 output. By default the used logger is standard `console`, but you can
 re-configure it using `config.ts` and all debug/log/error outputs will
@@ -358,4 +373,310 @@ easily managed and monitored.
 Starting from this point we are ready to go implementing remote
 interface for our User Service.
 
+#### Exposing interface
 
+Initially we can define an external interface of our service to mark
+what our service will do, and here is what we can imagine:
+
+~~~typescript
+/**
+ * Creates or updates existing user with the new data set
+ *
+ * @param {UserObject} data - user data fields
+ * @param {string[]} [fields] - fields to return on success
+ * @return {Promise<UserObject | null>} - saved user data object
+ */
+@profile()
+@expose()
+public async update(
+    data: UserObject,
+    fields?: string[]
+): Promise<UserObject | null> {
+    // TODO: implement...
+    return null;
+}
+
+/**
+ * Look-ups and returns user data by either user e-mail or by user object
+ * identifier
+ *
+ * @param {string} criteria - user identifier or e-mail string
+ * @param {string[]} [fields] - fields to select and return
+ * @return {Promise<UserObject | null>} - found user object or nothing
+ */
+@profile()
+@expose()
+public async fetch(
+    criteria: string,
+    fields?: string[]
+): Promise<UserObject | null> {
+    // TODO: implement...
+    return null;
+}
+
+/**
+ * Returns collection of users matched is active criteria. Records
+ * can be fetched skipping given number of records and having max length
+ * of a given limit argument
+ *
+ * @param {UserFilters} [filters] - is active criteria to filter user list
+ * @param {string[]} [fields] - list of fields to be selected and returned for each found user object
+ * @param {number} [skip] - record to start fetching from
+ * @param {number} [limit] - selected collection max length from a starting position
+ * @return {Promise<UserObject[]>} - collection of users found
+ */
+@profile()
+@expose()
+public async find(
+    filters?: UserFilters,
+    fields?: string[],
+    skip?: number,
+    limit?: number,
+): Promise<UserObject[]> {
+    // TODO: implement...
+    return [];
+}
+
+/**
+ * Returns number of users stored in the system and matching given criteria
+ *
+ * @param {UserFilters} [filters] - filter by is active criteria
+ * @return {Promise<number>} - number of user counted
+ */
+@profile()
+@expose()
+public async count(filters?: UserFilters): Promise<number> {
+    // TODO: implement...
+    return 0;
+}
+
+/**
+ * Attach new car to a user
+ *
+ * @param {string} userId - user identifier to add car to
+ * @param {string} carId - selected car identifier
+ * @param {string} regNumber - car registration number
+ * @param {string[]} [selectedFields] - fields to fetch for a modified user object
+ * @return {Promise<UserObject | null>} - operation result
+ */
+@profile()
+@expose()
+public async addCar(
+    userId: string,
+    carId: string,
+    regNumber: string,
+    selectedFields?: string[],
+): Promise<UserObject | null> {
+    // TODO: implement...
+    return null;
+}
+
+/**
+ * Removes given car from a user
+ *
+ * @param {string} carId - user car identifier
+ * @param {string[]} [selectedFields] - fields to fetch for a modified user object
+ * @return {Promise<UserObject | null>} - modified user object
+ */
+@profile()
+@expose()
+public async removeCar(
+    carId: string,
+    selectedFields?: string[],
+): Promise<UserObject | null> {
+    // TODO: implement...
+    return null;
+}
+
+/**
+ * Returns car object of a given user, fetched by identifier
+ *
+ * @param {string} userId - user identifier
+ * @param {string} carId - car identifier
+ * @return {Promise<UserCarObject | null>}
+ */
+@profile()
+@expose()
+public async getCar(
+    userId: string,
+    carId: string,
+): Promise<UserCarObject | null> {
+    // TODO: implement...
+    return null;
+}
+
+/**
+ * Returns number of cars registered for the user having given id or email
+ *
+ * @param {string} idOrEmail
+ * @return {Promise<number>}
+ */
+@profile()
+@expose()
+public async carsCount(idOrEmail: string): Promise<number> {
+    // TODO: implement...
+    return 0;
+}
+~~~
+
+What you would need to know here about defining the externally callable
+methods is that you need to follow several rules, which are mandatory:
+
+1. If you need to make service method externally callable it MUST
+   be wrapped with `@expose()` decorator.
+1. Each service you implement MUST have at least one externally
+   callable method.
+1. It is strictly recommended to define appropriate doc-blocks for
+   each externally callable method, following the next simple rules:
+   - All param and return value types should be described in TypeScript
+     notation.
+   - Each param that is optional, must be described as optional in
+     dock-block, use '[]' to wrap an optional param, like this:
+     `@param {string} [name]`
+
+Following these rules guarantees that you will have appropriately
+set descriptions for your service and you will have expectantly working
+clients generated for your service.
+
+After interface has been defined as above we can see that our service
+does not compile. The reason is that we declared some arguments
+and return values of types which TypeScript can not recognize. Those
+are: `UserObject`, `UserCarObject` and `UserFilters`.
+
+#### Defining Externally Accessible Service Complex Types
+
+Using the doc-blocks we can describe any complex data structures in
+TypeScript notations, but it is not always useful as we might need
+to duplicate a lot of code.  So a good way here is to define re-usable
+complex types.
+
+Due to some limitations the ONLY correct way to describe complex types
+which could be exported remotely is to define them using classes. So the
+first rule here is to use classes for describing complex objects. Here
+we go:
+
+~~~bash
+mkdir ./user/src/types
+touch ./user/src/types/UserObject.ts
+~~~
+
+Now put the following contents inside the newly created file:
+
+~~~typescript
+import { property } from '@imqueue/rpc';
+import { UserCarObject } from '.';
+
+/**
+ * Serializable user type
+ */
+export class UserObject {
+    @property('string', true)
+    _id?: string;
+
+    @property('string')
+    email: string;
+
+    @property('string')
+    password: string;
+
+    @property('boolean')
+    isActive: boolean;
+
+    @property('boolean')
+    isAdmin: boolean;
+
+    @property('string')
+    firstName: string;
+
+    @property('string')
+    lastName: string;
+
+    @property('UserCarObject[]')
+    cars: UserCarObject[];
+}
+~~~
+
+Second rule - use `@property()` decorator factory whenever you need to
+expose a complex type property for remote access. This is required to
+describe a type definition.
+
+`@property()` decorator takes property type in TypeScript notation as
+the first argument. If the property should be defined as optional
+for that type, you can bypass `true` as a second argument.
+
+Types described in a such way on a service will be available on a
+client side as interfaces, given an ability to perform type checks by
+a TypeScript compiler.
+
+If there is any need it is possible to skip decoration on the type
+property and it provides a way to hide part of service-level related
+implementation.
+
+Type property may refer to another complex type, as we can see in our
+example - cars property referring to an array of `UserCarObject`.
+
+So, let's proceed with other types definitions we missing.
+
+~~~bash
+touch ./user/types/UserCarObject.ts
+~~~
+
+Put this content inside:
+
+~~~typescript
+import { property } from '@imqueue/rpc';
+
+export class UserCarObject {
+    @property('string')
+    _id: string;
+
+    @property('string')
+    carId: string;
+
+    @property('string')
+    regNumber: string;
+}
+~~~
+
+And the same for `UserFilters` type:
+
+~~~bash
+touch ./user/types/UserFilters.ts
+~~~
+
+~~~typescript
+import { property } from '@imqueue/rpc';
+
+export class UserFilters {
+    @property('string', true)
+    email: string;
+
+    @property('boolean', true)
+    isActive: boolean;
+
+    @property('boolean', true)
+    isAdmin: boolean;
+
+    @property('string', true)
+    firstName?: string;
+
+    @property('string', true)
+    lastName?: string;
+}
+~~~
+
+Now we need to import our types into the service class module:
+
+~~~typescript
+import { UserCarObject } from './types/UserCarObject';
+import { UserFilters } from './types/UserFilters';
+import { UserObject } from './types/UserObject';
+~~~
+
+That's it. Now our service should compile properly with no errors.
+
+The last thing here will be to implement logic for service methods, but
+let's keep it for your home-work, or you can simply refer the [source
+code](https://github.com/imqueue-sandbox/user) available on GitHub.
+
+Go to next chapter - [Creating Auth Service](/tutorial/auth-service).
