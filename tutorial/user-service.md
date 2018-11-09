@@ -386,10 +386,7 @@ what our service will do, and here is what we can imagine:
  */
 @profile()
 @expose()
-public async update(
-    data: UserObject,
-    fields?: string[]
-): Promise<UserObject | null> {
+public async update(data: UserObject, fields?: string[]): Promise<UserObject | null> {
     // TODO: implement...
     return null;
 }
@@ -404,10 +401,7 @@ public async update(
  */
 @profile()
 @expose()
-public async fetch(
-    criteria: string,
-    fields?: string[]
-): Promise<UserObject | null> {
+public async fetch(criteria: string, fields?: string[]): Promise<UserObject | null> {
     // TODO: implement...
     return null;
 }
@@ -425,12 +419,7 @@ public async fetch(
  */
 @profile()
 @expose()
-public async find(
-    filters?: UserFilters,
-    fields?: string[],
-    skip?: number,
-    limit?: number,
-): Promise<UserObject[]> {
+public async find(filters?: UserFilters, fields?: string[], skip?: number, limit?: number): Promise<UserObject[]> {
     // TODO: implement...
     return [];
 }
@@ -459,12 +448,7 @@ public async count(filters?: UserFilters): Promise<number> {
  */
 @profile()
 @expose()
-public async addCar(
-    userId: string,
-    carId: string,
-    regNumber: string,
-    selectedFields?: string[],
-): Promise<UserObject | null> {
+public async addCar(userId: string, carId: string, regNumber: string, selectedFields?: string[]): Promise<UserObject | null> {
     // TODO: implement...
     return null;
 }
@@ -478,10 +462,7 @@ public async addCar(
  */
 @profile()
 @expose()
-public async removeCar(
-    carId: string,
-    selectedFields?: string[],
-): Promise<UserObject | null> {
+public async removeCar(carId: string, selectedFields?: string[]): Promise<UserObject | null> {
     // TODO: implement...
     return null;
 }
@@ -495,10 +476,7 @@ public async removeCar(
  */
 @profile()
 @expose()
-public async getCar(
-    userId: string,
-    carId: string,
-): Promise<UserCarObject | null> {
+public async getCar(userId: string, carId: string): Promise<UserCarObject | null> {
     // TODO: implement...
     return null;
 }
