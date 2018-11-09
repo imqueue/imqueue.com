@@ -18,25 +18,23 @@ section_id: docs
 </div>
 <div class="large-3 columns right panel radius toc" markdown="1">
 <h4>Table Of Contents</h4>
-<h5>Chapter 3. Auth service</h5>
+<h5>Chapter 3. Auth Service. Inter-Service Communication</h5>
 {:#toc}
 * TOC
 {:toc}
 
 <h5>Next Chapters</h5>
 <div markdown="1">
- - [Chapter 4. Car service](/tutorial/car-service)
- - [Chapter 5. TimeTable service](/tutorial/time-table-service)
- - [Chapter 6. API service. Integration](/tutorial/api-service)
- - [Chapter 7. Testing](/tutorial/testing)
- - [Chapter 8. Deployment](/tutorial/deployment)
+ - [Chapter 4. Other Services](/tutorial/other-services)
+ - [Chapter 5. API. Integration](/tutorial/api-service)
+ - [Chapter 6. Deployment](/tutorial/deployment)
 </div>
 
 <h5>Previous Chapters</h5>
 <div markdown="1">
  - [Chapter 1. Introduction](/tutorial/)
- - [Chapter 2. User service](/tutorial/user-service)
+ - [Chapter 2. User Service. Creating First Service](/tutorial/user-service)
 </div>
 </div>
 
-<h2>Chapter 3. Auth service</h2>
+<h2>Chapter 3. Auth Service. Inter-Service Communication</h2>
