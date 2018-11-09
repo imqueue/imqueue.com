@@ -10,7 +10,10 @@ section_id: docs
         <h1>{{ page.title }}</h1>
         <p>
             Step-by-step guide of building back-end services for car washing
-            web application using @imqueue
+            web application using @imqueue.
+        </p>
+        <p>
+         For those who prefer to learn by example.
         </p>
         <p class="shortline"></p>
         <div class="spacing"></div>
