@@ -677,4 +677,4 @@ The last thing here will be to implement logic for service methods, but
 let's keep it for your home-work, or you can simply refer the [source
 code](https://github.com/imqueue-sandbox/user) available on GitHub.
 
-Go to next chapter - [Creating Auth Service](/tutorial/auth-service).
+Go to next chapter - [Creating Auth Service. Inter-Service Communication](/tutorial/auth-service).
