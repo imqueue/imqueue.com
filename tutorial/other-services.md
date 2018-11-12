@@ -108,7 +108,9 @@ public list(
 For any details and help about implementation, please refer
 corresponding [source code](https://github.com/imqueue-sandbox/car).
 
-### TimeTable Service Requirements
+**What to think about:** In-memory data synchronization when running
+multiple instance of services.
 
+### TimeTable Service Requirements
 
 
