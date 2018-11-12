@@ -8,7 +8,7 @@ icon: rocket
 <div class="special-title centered-text">
     <p markdown="1">
         This is basic and shortest step-by-step guide how to start using `@imqueue`.
-        For more detailed guide take a look at [Tutorial](/tutorial/).<br>
+        For more detailed guide, take a look at [Tutorial](/tutorial/).<br>
         Full API technical documentation is available [here](/api/). 
     </p>
     <p class="shortline"></p>
@@ -25,7 +25,7 @@ icon: rocket
 
 ## Before We Start
 
-Make sure you have all required software pre-installed in your system. Here are
+Make sure you have all required software pre-installed in your system. Here is
 what we need:
 
  - [NodeJS](https://nodejs.org/en/). We recommend to install it via 
@@ -35,22 +35,22 @@ what we need:
 
 ## 1. Installing
 
-First it is recommended to install IMQ command line tool globally as:
+First, it is recommended to install IMQ command line tool globally as:
 
 ~~~bash
 > npm i -g @imqueue/cli
 ~~~
 
 During the first installation it will prompt you to enter some initial 
-configuration information. Yoy may proceed filling it up or skip it pressing
-`<Ctrl>+<C>` and configure it later (or never).
+configuration information. You may proceed filling it up or skip it by
+pressing `<Ctrl>+<C>` and configure it later (or never).
 
 ## 2. Configuring
 
-`@imqueue/cli` tool does not require mandatory configuration. By the way
-if you going to work on a big project with a large subset of services
-it may be useful to define global configuration once and simplify most of
-the typing commands in your terminal.
+`@imqueue/cli` tool does not require mandatory configuration. By the way,
+if you're going to work on a big project with a large subset of services,
+it may be useful to define a global configuration once and simplify most
+of the typing commands in your terminal.
 
 If configuration step was skipped during installation or you need to re-define
 existing config, use the following command:
@@ -81,13 +81,13 @@ support for `imq` command in your terminal. Simply run:
 > imq completions on
 ~~~
 
-and follow further instructions. Currently it supports `bash` and `zsh` 
+and follow further instructions. Currently, it supports `bash` and `zsh`
 terminals.
 
 ## 4. Usage
 
 IMQ command line tool was created specially to free you up from writing
-boilerplate when making `@imqueue` based back-end services. There are 2 major
+boilerplate while making `@imqueue` based back-end services. There are 2 major
 things it can do for you:
 
 1. Create services from pre-defined boilerplate templates
@@ -95,7 +95,7 @@ things it can do for you:
 
 ### 4.1 Creating Service
 
-To create a service from boilerplate run these commands in your terminal
+To create a service from boilerplate, run these commands in your terminal:
 
 ~~~bash
 > mkdir user-service
@@ -108,7 +108,7 @@ you need for this service.
 
 ### 4.2 Running Service
 
-Make sure you have redis server running on default port before launching
+Make sure you have Redis server running on default port before launching
 your service. Running service is easy, just execute:
 
 ~~~bash
@@ -118,7 +118,7 @@ your service. Running service is easy, just execute:
 ### 4.3 Generating Client
 
 All @imqueue services are self-describable. To generate a client you will need
-to run service first. After that run in your terminal:
+to run service first. After that, run in your terminal:
 
 ~~~bash
 > mkdir clients
