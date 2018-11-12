@@ -168,14 +168,14 @@ section_id: intro
             message broker for communication between services and their clients.
         </p>
         <p>
-            Such schema gives several advantages:
+            Such schema provides several advantages:
             <ul>
                 <li>Simplicity (take a look at it!)</li>
                 <li>
                     No need to implement any kind of <em>service discovery</em>, as it is
-                    auto-discoverable schema - service instances compete for their messages,
-                    so as far as instance is busy or down message will be consumed
-                    by another instance and will deliver the response to a proper
+                    auto-discoverable scheme - service instances compete for their messages,
+                    so as far as instance is busy or down message is consumed
+                    by another instance and delivers the response to a proper
                     client any way. It means there is no need to check if exact copy
                     of the service instance is dead or alive.
                 </li>
@@ -193,9 +193,9 @@ section_id: intro
         </p>
         <h3>Fom Development Point Of View</h3>
         <p>
-            So naturally each Service is a simple piece of software inside distributed
+            So, naturally each Service is a simple piece of software inside distributed
             system solving some specific task in it. That means that from development
-            point of vew it is a simple as implementing class with an exposed methods.
+            point of vew it is as simple as implementing class with exposed methods.
             As follows from that a Client is a local representation of a remote Service
             interface at this exact network point. All you need when it is required to
             call a certain Service method is to call a corresponding Client method,
