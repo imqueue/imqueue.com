@@ -132,7 +132,7 @@ Now client can be used to call service methods remotely.
 
 **Congratulations!** You've just implemented your first @imqueue based service.
 
-**Need more?** Take a look at [Tutorial](/tutorial/) and [API docs](/api/).
+**Need more?** Take a look at [API docs](/api/) and [Tutorial](/tutorial/).
 
 </div>
 
