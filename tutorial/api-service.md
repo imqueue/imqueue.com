@@ -40,4 +40,4 @@ section_id: docs
 </div>
 </div>
 
-<h2>Chapter 6. API Service. Integration</h2>
+<h2>Chapter 5. API Service. Integration</h2>

@@ -113,4 +113,86 @@ multiple instance of services.
 
 ### TimeTable Service Requirements
 
+That should be a central service. Let's consider using relational
+database as data storage engine, for example, PostgreSQL or any other
+at your choice with Sequelize ORM library on top.
 
+Here is an interface expected to be built for this service:
+
+~~~typescript
+/**
+ * Returns a list of reservations starting from a given time (or from
+ * current time if omitted)
+ *
+ * @param {string} [date] - date to select reservations for, if not passed
+ *                          current date is used
+ * @param {string[]} [fields] - fields to select for reservations data list
+ * @return {Promise<Reservation[]>} - list of found reservations
+ */
+public async list(date?: string, fields?: string[]): Promise<Reservation[]>;
+
+/**
+ * Fetches and returns single reservation record by its identifier
+ *
+ * @param {string} id - reservation identifier to fetch
+ * @param {string[]} [fields] - fields to select for reservation data object
+ * @return {Promise<Reservation|null>} - reservation data object or null if not found
+ */
+public async fetch(id: string, fields?: string[]): Promise<Partial<Reservation>|null>;
+
+/**
+ * Makes a given reservation or throws a proper error
+ * if action is not possible
+ *
+ * @param {Reservation} reservation - reservation data structure
+ * @param {string[]} [fields] - fields to select for updated reservations list
+ * @return {Promise<Reservation[]>} - updated reservations list
+ */
+public async reserve(reservation: Reservation, fields?: string[]): Promise<Reservation[]>;
+
+/**
+ * Cancels reservation at a given time
+ *
+ * @param {string} id - reservation identifier
+ * @param {string[]} [fields] - fields to select for updated reservations list
+ * @return {Promise<Reservation[]>} - updated reservations list
+ */
+public async cancel(id: string, fields?: string[]): Promise<Reservation[]>;
+
+ /**
+ * Returns reservation time-table configuration settings
+ *
+ * @return {Promise<TimeTableOptions>} - reservations time-table options
+ */
+public async config(): Promise<TimeTableOptions>;
+~~~
+
+Where following complex types exposed as well:
+
+`Reservation`:
+ - id - reservation record identifier
+ - carId - user car identifier
+ - userId - user identifier
+ - type - washing type selected for this reservation, one of `'fast'|'std'|'full'`
+ - duration - is a range of start time/end time
+
+`TimeTableOptions`:
+ - start - washing station start working time in format HH:MM
+ - end - washing station end working time in format HH:MM
+ - baseTime - duration options for different types of washing, should be a list of
+   ```typescript
+   {
+      key: 'fast'|'std'|'full', /* or whatever else... */
+      title: string, /* human-readable definition title for washing type */
+      duration: number, /* in minutes */
+    }
+    ```
+
+
+**What to think about:** a) consider exposing sequelize model as a complex-type
+of @imqueue service; b) consider options as a configurable database records
+as well.
+
+Any way, the [complete source code is available on GitHub](https://github.com/imqueue-sandbox/time-table)
+
+Go to next chapter - [API Service. Integration](/tutorial/api-service)
