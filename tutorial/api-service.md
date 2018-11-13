@@ -82,14 +82,182 @@ npm i --save-dev @types/body-parser @types/compression \
     @types/graphql @types/graphql-relay @types/helmet
 ~~~
 
-> **NOTE!**. It is not principles which stack of technologies you are
+> **NOTE!** It is not principles which stack of technologies you are
 > choosing at this point to build-up API service. You may consider to
 > choose Apollo GraphQL server instead, or any other solution you may
 > prefer. We just giving the official Facebook's stack over express
 > with manually selected set of add-ons, but this way is not mandatory.
 
-### RPC Pattern
+Now simply remove `./api/src/Api.ts` service file as we don't need it,
+and remove everything from `./api/index.ts`. So we keep all npm scripts
+from @imqueue boilerplate, they should work OK for us, but we will
+change the contents of a service - now it should launch HTTP server using
+express with configured end-point serving GraphQL requests.
+
+We will not focus on this - you can rather implement it yourself if you
+have enough experience, or just refer to
+[source code](https://github.com/imqueue-sandbox/api) we built for you
+on GitHub. Take a closer look on
+[`index.ts`](https://github.com/imqueue-sandbox/api/blob/master/index.ts) and
+[`src/Application.ts`](https://github.com/imqueue-sandbox/api/blob/master/src/Application.ts)
+implementation.
+
+The essence of @imqueue integration is hidden inside `bootstrapContext()`
+method of Application class. Here we instantiating all @imqueue/rpc clients
+using which we are going to orchestrate requests to underlying services.
+And starting up all that clients as a part of API service start-up
+process.
+
+Than an execution context is bypassed to a GraphQL layer, which will take
+care to bypass it to all resolvers inside GraphQL schema, so we would
+be able to access all our services whenever we would need it.
+
+~~~typescript
+import { clientOptions } from '../config';
+import { user, auth, car, timeTable } from './clients';
+
+class Application {
+    /// ...
+    /**
+     * Initializes runtime context for graphql application
+     *
+     * @return {any} - initialized context
+     */
+    private static async bootstrapContext(): Promise<any> {
+        const context: any = {
+            user: new user.UserClient(clientOptions),
+            auth: new auth.AuthClient(clientOptions),
+            car: new car.CarClient(clientOptions),
+            timeTable: new timeTable.TimeTableClient(clientOptions),
+        };
+
+        await context.user.start();
+        await context.auth.start();
+        await context.car.start();
+        await context.timeTable.start();
+
+        return context;
+    }
+    /// ...
+}
+~~~
+
+As we already know from [chapter 3](/tutorial/auth-service#the-service-client)
+clients are required part of @imqueue/rpc and provides RPC way for
+calling a remote services. In that chapter we learn how to use a
+dynamically built clients. Now we will focus on building client code
+statically.
 
 ### Building The Clients
 
+Building static clients code is a good way to deal with @imqueue services
+as far as it provides several meaningful advantages:
+
+- You do not need to take care about the order of services launch (as
+  far as you do not need to have service running to build a client for
+  it).
+- You have a pre-built code which is accessible by your IDE and could
+  help you understand the service interface during development,
+  including such a great opportunities, like auto-complete functionality
+  inside your IDE.
+- You have a way to version your implementations and consider managing
+  compatibilities between different version of your code.
+
+And the last one point - due to fact all clients are located in one place
+(especially in case we don't care about dynamically built client on
+auth service) - there would be no code duplication we need to maintain.
+In other case we could imagine the systems, where the same service client
+gan be generated and used on a different network points. Thus in such a
+case there would be a need to organize management of client updates. Our
+case is simple, so you may think on that problem outside of topics in
+this tutorial.
+
+Practically to generate a client code you just need to launch a single
+command. But before executing it you have to make sure the service, which
+you want to build client for is up adn running.
+
+~~~bash
+imq client generate User ./api/src/clients
+imq client generate Auth ./api/src/clients
+imq client generate Car ./api/src/clients
+imq client generate TimeTable ./api/src/clients
+~~~
+
+You may also consider to add that commands as an npm script, so you
+will be able to simplify clients (re-)generation with a single command
+execution, like:
+
+~~~bash
+npm run rebuild-clients
+~~~
+
+or something similar.
+
 ### Querying The Services
+
+So, finally, when building a GraphQL schema we are ready to query our
+services. For example, consider we want to query a list of car brands:
+
+~~~typescript
+import {
+    GraphQLResolveInfo,
+    GraphQLList,
+    GraphQLSchema,
+    GraphQLObjectType,
+    GraphQLString,
+} from 'graphql';
+import { user, car, timeTable, auth } from '../clients';
+
+interface Context {
+    user: user.UserClient;
+    car: car.CarClient;
+    timeTable: timeTable.TimeTableClient;
+    auth: auth.AuthClient;
+}
+
+export const schema = new GraphQLSchema({
+    query: new GraphQLObjectType({
+    name: 'Query',
+        fields: {
+            brands: {
+                description: 'Fetches list of car brands',
+                type: new GraphQLList(GraphQLString),
+                async resolve(
+                     source: any,
+                     args: any,
+                     context: Context,
+                     info: GraphQLResolveInfo,
+                ): Promise<string[]> {
+                     try {
+                         return await context.car.brands();
+                     } catch (err) {
+                         console.warn('Fetch brands error:', err);
+                         return [];
+                     }
+                },
+            },
+        },
+    });
+});
+~~~
+
+Hence, as far as context is build-up during the startup of API service
+and GraphQL given an access to it in any possible resolver we are able
+to call remote services and fetch the required data whenever we need it
+in a simple way.
+
+So, as seen from that example, on a client side there is not too much work
+to do. All you need is just build-and-use. All implementation is done
+at one place which is service implementation. Then this implementation
+is available anywhere you need it remotely with a single command run and
+use of it as existing thing.
+
+This pattern gives you a way to do a "normal" programming, dealing with
+your services as with standard objects having methods, so you can
+imperatively create a complex combinations of services calls inside
+GraphQl resolvers or any other possible implementation you need.
+
+Full example of API Service implementation is available
+[here](https://github.com/imqueue-sandbox/api).
+
+Go to next chapter - [Deployment](/tutorial/deployment)
