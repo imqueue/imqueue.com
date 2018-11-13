@@ -37,3 +37,19 @@ section_id: docs
 </div>
 
 <h2>Chapter 6. Deployment</h2>
+
+### Multi-Process Run
+
+### Horizontal Scaling
+
+### Environment Variables
+
+### Garbage Collection
+
+### Development Deployment
+
+### Production Builds
+
+### Using Docker Images
+
+### AWS: Deploying in Cloud Environments
