@@ -38,6 +38,9 @@ section_id: docs
 
 <h2>Chapter 6. Deployment</h2>
 
+In this chapter we would try to cover different aspects and
+possibilities related to @imqueue based services deployment.
+
 There are variety of ways to deploy services depending on the needs.
 The first need you might have is, of course, development deployment.
 Another one case is when you need to deploy production packages.
@@ -58,6 +61,10 @@ either stateless, or there should be provided corresponding
 synchronization mechanisms to share the state between different service
 processes or network instances. This should be kept in mind by developer
 during the implementation.**
+
+What does that mean on practice?
+
+TODO: blah-blah-blah...
 
 ### Scaling Options
 
@@ -99,7 +106,29 @@ Anyway, exact implementation requires exact testing and experiments.
 Out-of-the-box @imqueue/cli default boilerplate template can be tuned to
 build Docker images for your services. This either can be done locally
 using corresponding script commands for npm inside service or managed by
-TravisCI-based continuous integration processes.
+TravisCI-based continuous integration processes, or both.
+
+For local builds it is required, of course, to have docker engine
+installed in your system.
+
+Continuous integration builds are enabled if your service was created
+using `--dockerize` option and provides correct docker namespace on
+DockerHub within `--docker-namespace` option. Those can be pre-set as
+a part of imq command line tool global configuration.
+
+TravisCI is configured to build-up a docker image on any commit to
+verify if there is no errors.
+
+Image is going to be published to a configured DockerHub namespace in a
+case there was set a version tag on a github repository. Dev versions
+are usually treated as those which match X.X.X-X semver version format.
+Those images will obtain docker dev tag. Docker images tagged as release
+versions are made from a builds triggered on a special `release` branch
+of git repository.
+
+Usually pre-build docker images can be easily pulled and deployed in
+many different cloud environments like AWS, Azure or Google Cloud
+Platform.
 
 
 
