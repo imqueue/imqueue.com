@@ -23,6 +23,9 @@
     path: /tutorial/
     section_id: docs
     icon: icon-book
+  - name: Contribute
+    icon: icon-publish
+    path: /contribute
 #- name: Blog
 #  path: /blog/
 #  section_id: blog
