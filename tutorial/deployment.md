@@ -184,6 +184,16 @@ many different cloud environments like AWS, Azure or Google Cloud
 Platform. Now it is just a matter of tuning your cloud environment
 enabling auto-scaling features and whatever you need else.
 
+There is one important thing to note about running @imqueue clients
+in a docker containers. If you're not using custom naming of your
+clients, each time client is created it will try to generate a client
+unique name based on operating system UUID. As far as all docker images
+out-of-the-box will obtain the same OS UUID, you should set it on the
+first image build to a unique value. That should be usually done in
+`/etc/machine-id` or `/var/lib/dbus/machine-id`, etc. Please, refer
+to a documentation related to an OS used as a base image of your container
+to find a proper location.
+
 ### Environment Variables
 
 Environment variables is a powerful way to separate configuration for
@@ -208,3 +218,65 @@ expected to be provided in your README files, so later during
 deployment to different environments anyone can easily tune their
 setups.
 
+### Development Run
+
+So, we discussed about various different options available during
+@imqueue services deployment. As you may see, it is very flexible
+solution, allowing you to satisfy any deployment needs to cover
+any system load needs, suitable for horizontal scaling, cloud platforms
+deployments, etc.
+
+In this tutorial we will focus only on a default development environment
+just to make sure you are able to launch the services, which we
+deliver as example from our [codebase](https://github.com/imqueue-sandbox).
+And make them available to you for learning and experiments.
+
+First what you will need is to clone all repos locally. Let's assume
+you will clone all repos in some dedicated local directory,
+for example, `~/imqueue-sandbox`:
+
+~~~bash
+mkdir ~/imqueue-sandbox
+git clone git@github.com:imqueue-sandbox/api.git
+git clone git@github.com:imqueue-sandbox/auth.git
+git clone git@github.com:imqueue-sandbox/car.git
+git clone git@github.com:imqueue-sandbox/time-table.git
+git clone git@github.com:imqueue-sandbox/user.git
+git clone git@github.com:imqueue-sandbox/web-app.git
+~~~
+
+Now you need to make sure you have Redis, MongoDB and PostgreSQL running
+locally on your development machine.
+
+You also will need to create database in PostgreSQL with the name `tutmq`
+owned by a user `tutmq` identified by a password `tutmq`. Or you would
+need to change the configuration of time-table service if you wish to
+use other names.
+
+After that simply run the services, each in a new terminal window, or
+use screen if you prefer and you have it available on your OS.
+
+~~~bash
+cd ~/imqueue-sandbox
+cd [service_dir]
+npm run dev
+~~~
+
+where `[service_dir]` would be one of `user|auth|car|time-table|api`.
+As we remember we have cross-communication between user and auth services,
+with dynamic client build on run-time, so you have to launch user service
+before starting auth service, or you may catch errors.
+
+After launching API service, graphiql web interface should be available
+to you at http://localhost:8888/
+
+And we are ready to start React-based web interface for our application.
+
+~~~bash
+cd ~/imqueue-sandbox/web-app
+npm start
+~~~
+
+Now you can play with it at http://localhost:3000/
+
+Happy hacking!
