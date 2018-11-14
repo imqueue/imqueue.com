@@ -13,20 +13,20 @@ section_id: contribute
     </div>
 </div>
 
-@imqueue is an Open Source project under ISC license, so we are greatly
-appreciated to anyone who have a will to contribute to this project to
+@imqueue is an Open Source project under ISC license, so we greatly
+appreciate anyone who has a will to contribute to this project in order to
 make it better. Please, consider you have a will to contribute under
-the terms of this license. If you reporting issues, creating pull
-requests or provide your work in any other possible way to our repos
+the terms of this license. If you report issues, create pull
+requests or provide your work in any other possible way to our repos,
 we consider you automatically agree with the stated terms.
 
 If you do not agree, please, do not report us any issues, do not create
-pull request and do not send us any kind of your work as contribution
+pull requests and do not send us any kind of your work as contribution
 to our repos.
 
 ## Issues
 
-We are very appreciate for all reported issues found on different
+We greatly appreciate all reported issues found on different
 packages related to @imqueue. Consider reporting issues directly to
 those packages they are related to:
 
@@ -68,7 +68,7 @@ for core packages, for other consider using:
 npm test
 ~~~
 
-If you solve exact known issue from the repo you forked, please, refer
+If you solve the exact known issue from the repo you forked, please, refer
 it within commit message when committing.
 
 Create pull request.
@@ -84,7 +84,7 @@ Create pull request.
 
 If you found any inconsistencies on this website and published on it
 documentation and have a will to contribute your corrections, you are
-very welcomed to do that.
+very welcome to do that.
 
 Go to [imqueue/imqueue.com](https://github.com/imqueue/imqueue.com)
 repository. Fork it to your space.
