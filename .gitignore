@@ -31,3 +31,4 @@ Thumbs.db
 *.swp
 
 package-lock.json
+Gemfile.lock
