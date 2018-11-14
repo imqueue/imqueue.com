@@ -1,11 +1,11 @@
 ## Profiling and Debugging
 
-Of course profiling and debugging are very important and valuable things
+Of course, profiling and debugging are very important and valuable things
 during the development and post-development support of any system.
 
 @imqueue provides a simple and basic tool to manage services methods execution,
 profiling times of execution and debugging calls. This tool is a `@profile()`
-decorator factory and is recommended to use on that parts of the system which 
+decorator factory and is recommended to be used on that parts of the system which
 are critical to monitor.
 
 Profiled timing can have accuracy to **microseconds** and is so by default.
@@ -47,10 +47,10 @@ class MonitoredService extends IMQService {
 }
 ~~~
 
-When the `@profile()` decorator factory is called without arguments it will
+When the `@profile()` decorator factory is called without arguments, it will
 rely on environment configuration, which can either enable or disable
-profiling. Those decorator factory calls, which provide arguments, overrides
-environment settings and forces time/args profiling explicitly.
+profiling. Those decorator factory calls, which provide arguments, override
+environment settings and force time/args profiling explicitly.
 
 It is recommended to manage profiling state via `.env` files for per-service
 configuration or by setting profiling vars globally for the entire environment.
@@ -66,9 +66,9 @@ Those vars are:
   output log.
 
 `@profile()` decorator utilizes configured logger for @imqueue, so there is no
-need in any additional configuration actions for that purpose. Also this 
+need in any additional configuration actions for that purpose. Also, this
 decorator can be used within any class method, not specially on a service class
-(means it is possible to use it anywhere else), like:
+(meaning it is possible to be used anywhere else), like:
 
 ~~~typescript
 import { profile } from '@imqueue/core';
