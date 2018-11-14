@@ -47,8 +47,8 @@ Another one case is when you need to deploy production packages.
 
 Contrastingly, the deployment scheme may be different for different types
 of environments, like you may need to utilize all physical cores of
-some physical or virtual server or you may need to deploy a containerized
-images.
+some physical or virtual server or you may need to spread across network
+many of small containerized images.
 
 Services based on @imqueue are ready to satisfy any of those needs, but
 it is up to DevOps and Developer to decide how it should be organized.
@@ -56,7 +56,7 @@ it is up to DevOps and Developer to decide how it should be organized.
 By the way, @imqueue/cli default boilerplate template provides some
 ready-to-use functionality related to deployment out-of-the-box.
 
-**To have services ready for any kind of horizontal scaling them should be
+**To have services ready for any kind of scaling them should be
 either stateless, or there should be provided corresponding
 synchronization mechanisms to share the state between different service
 processes or network instances. This should be kept in mind by developer
@@ -64,7 +64,50 @@ during the implementation.**
 
 What does that mean on practice?
 
-TODO: blah-blah-blah...
+Lets imagine our service will store in memory some state data, like a
+list of authenticated users:
+
+~~~typescript
+import { IMQService } from '@imqueue/rpc';
+
+class MyService extends IMQService {
+    private usersList: any[] = [];
+
+    @expose()
+    public addUser(data: any) {
+        this.userList.push(data);
+    }
+}
+~~~
+
+Now each time `addUser()` is called by a remote client our service will
+change its internal in-memory state. Unless we will have only one
+instance of service running everything will work as expected. By the
+way, if we will launch several copies of such service we will get into
+trouble. As far as after several calls of `addUser()` by remote
+clients internal state of different running copies of the service
+will be different. Different unpredictably.
+
+Such kind of behavior is undesired, so either we have to implement
+some mechanism allowing us to share state between service copies or
+we have to use some external tool to store and change the state, for
+example, it could be a database. Usually, own implementation of state
+sharing is non-trivial and may fall into causing a lot of side-effects.
+Unless you are experienced to understand how it works we would recommend
+to design your services as stateless. In this case you won't have any
+unexpected behavior of your system during different deployment needs.
+
+For example, in this tutorial, we suggested to implement
+[Car Service](https://github.com/imqueue-sandbox/car) as a service
+with in-memory car database storage, which is stateful service by
+design. However, the car database is predominantly static data, which
+we decided to try to update once per 24 hours, and that action should be
+done by all running copies almost at the same time and we never change
+the stored in-memory data in any other way, only reading from it.
+By the way, there are some small side-effects, but we may agree they are
+not significant for our system work. It's not good, nor bad, you just
+need to understand what you're doing and which consequences this can
+have.
 
 ### Scaling Options
 
@@ -107,6 +150,16 @@ Out-of-the-box @imqueue/cli default boilerplate template can be tuned to
 build Docker images for your services. This either can be done locally
 using corresponding script commands for npm inside service or managed by
 TravisCI-based continuous integration processes, or both.
+
+These commands are docker-related and should be available for the
+service created by @imqueue/cli:
+
+~~~bash
+npm run docker:build
+npm run docker:run
+npm run docker:stop
+npm run docker:ssh
+~~~
 
 For local builds it is required, of course, to have docker engine
 installed in your system.
