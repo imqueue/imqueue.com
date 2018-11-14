@@ -132,5 +132,5 @@ space on GitHub.
 - Use trailing commas,
 - Avd abbr wrds.
 
-Sincerely Yours,
+Sincerely Yours,<br/>
 @imqueue Team
