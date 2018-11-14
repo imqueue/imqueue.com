@@ -1,2 +1,3 @@
 - implement subscriptions on tutorial app. use delayed messaging to enclose
   this functionality in @imqueue
+- show in tutorial how safe delivery and compressing could be used and can help
