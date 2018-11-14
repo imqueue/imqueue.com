@@ -1,0 +1,2 @@
+- implement subscriptions on tutorial app. use delayed messaging to enclose
+  this functionality in @imqueue
