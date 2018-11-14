@@ -13,8 +13,8 @@ configuration, logging interface injection and profiling feature.
 construct messaging queue implementation instance.
 For the moment IMQ supports only Redis adapter implementation out-of-the-box.
 By the way, it is recommended to instantiate messaging queue engine instance
-using the factory class instead of doing it directly, which gives an ability 
-to extend existing functionality on your side or on framework side in the future.
+using the factory class instead of doing it directly, which gives the ability
+to extend existing functionality on your side or on the framework side in the future.
 
 Example:
 
@@ -23,7 +23,7 @@ import { IMQ } from '@imqueue/core';
 const mq = IMQ.create('MyMQ', { vendor: 'Redis' });
 ~~~
 
-There is no actual need to specify Redis vendor in bypassed options at the moment
+There is no actual need to specify Redis vendor in bypassed options at the moment,
 as it will be used by default, but in case you wish to inject your own 
 implementation it can be done as follows:
 
@@ -41,7 +41,7 @@ and `'error'` events.
 ### Redis Queue
 
 [RedisQueue](/api/core/{{latest_core}}/classes/redisqueue.html) is a core
-implementation of Redis-based messaging queue. It implements an engine for
+implementation of Redis-based messaging queue. It implements the engine for
 a single redis node.
 
 ### Clustered Redis Queue

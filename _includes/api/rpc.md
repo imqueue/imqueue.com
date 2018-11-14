@@ -362,7 +362,6 @@ class UserObject {
 }
 ~~~
 
-<!-- move on corrections from here  -->
 ### Working with Service Description
 
 If you need, for some reason, to access service description metadata it is
@@ -381,8 +380,8 @@ definitions.
 ### Delayed Messaging
 
 Delayed messaging with `@imqueue/rpc` is easy. Any of exposed service method
-can be called with a delay. So if you need to use delayed messaging to implement
-scheduling queue for some operations it is as easy as specify `delay` (of 
+can be called with a delay. So, if you need to use delayed messaging to implement
+scheduling queue for some operations, it is as easy as to specify `delay` (of
 [IMQDelay](/api/rpc/{{latest_rpc}}/classes/imqdelay.html) type) parameter 
 within any client method call, like this:
 
@@ -406,25 +405,25 @@ client.doScheduledStuff(data, new IMQDelay(1, 'h'))
 
 ### Locking
 
-Locking is a powerful tool `@imqueue/rpc` provides to potentially optimize
-remote calls. For example, let's imagine your system handles hundreds or
-even thousands calls to some specific method with the same execution context in
-a very short period of time and obtaining the same response result for each 
+Locking is a powerful tool provided by `@imqueue/rpc` to potentially optimize
+remote calls. For example, let's imagine that your system handles hundreds or
+even thousands of calls to some specific method with the same execution context in
+a very short period of time and obtains the same response result for each
 call. It could be possible, for example, when some popular content is requested
 by many users, but that content is pretty static at least for this short period
 of time. In such case your backend, in fact, executes the same operations 
-hundreds or thousands of times per second, but there actually no reasons
-doing that. Locks allows to optimize such kind of behavior, and here is how.
+hundreds or thousands of times per second, but there is actually no reason
+to do that. Locks allow to optimize such kind of behavior, and here is how.
 
-When the `@lock()` is wrapping a method it will create an asynchronous lock on 
+When the `@lock()` is wrapping a method, it creates an asynchronous lock on
 the first call and until the operation is not complete, all other similar calls
-(having the same signature) will wait until a first call is resolved, and then
+(having the same signature) will wait until the first call is resolved, and then
 it resolves all enqueued calls with the same obtained data.
 
 For example, if there is a call to fetch some specific blog-post 100 times during 
 the next 100 milliseconds, but operation to fetch a blog-post from a database 
 takes around 100 milliseconds as well, it means that such call will 
-execute the actual logic only once, than resolve all awaiting 100 clients
+execute the actual logic only once, then resolves all awaiting 100 clients
 with the same return value:
 
 ~~~typescript
@@ -450,12 +449,12 @@ class BlogService extends IMQService {
 }
 ~~~
 
-From the other hand, if during that time there will be other calls with 
-different blog post identifiers, them will be executed using their different 
-contextual locks and will resolve their clients with different 
+From the other hand, if during that time there are other calls with
+different blog post identifiers, they will be executed using their different
+contextual locks and resolve their clients with different
 corresponding values.
 
-This gives several advantages:
+This provides several advantages:
 
   1. **Decreases load** on backend (less actual logic execution, less actual 
      database calls).
@@ -463,14 +462,14 @@ This gives several advantages:
      the most, but the last will obtain result almost immediately with no delay,
      so average response time across all clients will be improved).
 
-But there is considerable downside when using locks. First of all, to qualify
-the execution context locking mechanism must perform a hashing on a signature
-of the call, which takes a reasonable time and computing resources. Despite the
-fact that used hashing algorithm is pretty productive its performance depends
-on the method signature length. In some circumstances it may occur that you can
-gain no benefit of using locks. So it is should be wisely chosen is there a 
-reason to apply it or not. For high load and slow methods it definitely worth
-it. When the method execution is cheaper than signature hashing it does not 
+But there is considerable downside while using locks. First of all, to qualify
+the execution context locking mechanism must execute a hashing function on a signature
+of the call, which takes reasonable time and computing resources. Despite the
+fact that used hashing algorithm is pretty productive, its performance depends
+on the length of signature method. In some circumstances it may occur that you can
+gain no benefit of using locks. So, it should be wisely considered if there is a
+reason to apply it or not. For high load and slow methods it is definitely worth
+it. When the method execution is cheaper than signature hashing, it is not
 worth.
 
 Locking can be used not only as methods decorator. IMQ provides an 
@@ -480,7 +479,7 @@ many different needs in many different parts of your backend implementation.
 
 ### Caching
 
-Caching is another tool @imqueue provides for optimization purposes. It gives an
+Caching is another tool @imqueue provides for optimization purposes. It gives the
 ability to cache method execution calls using a given caching adapter (of
 course, Redis is by default and the only one implemented at this time). But it
 is possible to define your own adapter, it is enough to implement properly
@@ -519,7 +518,7 @@ class BlogService extends IMQService {
 ~~~
 
 `@cache()` decorator implements similar per-signature work principals as
-`@lock()`. Whole set of @imqueue decorators can be combined in-use over
+`@lock()`. The whole set of @imqueue decorators can be combined in-use over
 service methods to improve overall system performance and stability. You can 
 write and use corresponding load tests for your backend and practically find
 a better way of optimization.
