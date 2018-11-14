@@ -54,7 +54,7 @@ cd ~/my-tutorial-app
 
 ### Creating The Service
 
-Now we going to create the first service, which will be a user service.
+Now we going to create the service, which will be a user service.
 Simply run:
 
 ~~~bash
@@ -78,9 +78,9 @@ defined by a scaling needs. If you writing a service which should handle
 very heavy load you might want to configure a cluster, otherwise
 you may suggest a single instance is OK.
 
-Anyway, a good option at this place would be to obtain a configuration
+Anyway, a good option at this point would be to obtain a configuration
 from an environment and bypass it to a service config, so this
-configuration may be changed dynamically by a deployment needs.
+configuration may be changed dynamically by deployment needs.
 
 Here is how we might want to change our `config.ts` file for the
 service:
@@ -114,18 +114,18 @@ IMQ_REDIS="some-redis-special.host:63790"
 ~~~
 
 If you have Redis running at `localhost:6379`, which is default
-standard address you can skip this configuration at this step.
+standard address you can skip this configuration at this step for now.
 
 ### Local Environment
 
-When developing a service usually we need to have an ability to launch
-it in local environment directly which is useful during development
+When developing a service, usually we need to have an ability to launch
+it in local environment directly, which is useful during development
 process. By the way, we must keep in mind that our service in production
 environment most of the cases will run with a different configuration.
 
 Hence a good way here is to get a configuration from environment
 variables. As far as you may have different projects running on
-your dev machine it could be tricky to setup an environment variables
+your dev machine, it could be tricky to setup an environment variables
 globally for the system. Using `.env` files allows you to solve this
 problem. This feature is available out-of-the-box with @imqueue
 services, so whenever you need to have some specific configuration set
@@ -142,7 +142,7 @@ Now let's check if our service is operational. Run this command:
 npm run dev
 ~~~
 
-If everything is fine it should produce the following output:
+If everything is fine, it should produce the following output:
 
 ~~~
 User: starting single-worker, pid 27034
@@ -151,7 +151,7 @@ User: reader channel connected, host localhost:6379, pid 27034
 User: writer channel connected, host localhost:6379, pid 27034
 ~~~
 
-That signals that everything is OK and we can now use the service. The
+That signals that everything is OK and we can use the service. The
 boilerplate produced by @imqueue always creates a service with one
 method available to call remotely, which is `hello()`, as far as it
 requires at least one external method to be implemented to run without
@@ -208,9 +208,13 @@ That means that service works as expected!
 When running in development mode @imqueue is watching for file changes
 using nodemon, so we can simply run our service and start development.
 
+> **NOTE:** any files or folders which names matched `debug*` pattern are
+> considered to be ignored during git commits, so you may use it in this
+> way, or just change corresponding ignore files to omit this behavior.
+
 ### Adding Dependencies
 
-No differs from what we usually do, just use `npm install`. For this
+Not differs from what we usually do, just use `npm install`. For this
 service our choice of data storage was MongoDB, so we can consider to
 use `mongoose` package to work with it. That's what we need:
 
@@ -276,13 +280,13 @@ export const schema = new mongoose.Schema({
 });
 ~~~
 
-By design we need to store information about user, such as
+By design, we need to store information about user, such as
 - identifier
 - first name
 - last name
 - email
 - password
-- isActive flag (to have an ability block users if there any reason)
+- isActive flag (to have an ability block users if there is any reason)
 - isAdmin flag (to define users of admin role)
 - user cars in garage (we plan to have a service car which would manage
   cars database, but here we would need to assign the selected car data
@@ -292,9 +296,9 @@ By design we need to store information about user, such as
 
 Now we need to implement required operations on that data, which can be
 called by a remote client, so we are going to implement our public
-service methods now.
+service methods.
 
-Open `./user/src/User.ts` file which contains our service class
+Open `./user/src/User.ts` file containing our service class
 implementation which we are going to change.
 
 #### Prepare Database Connection
@@ -318,7 +322,7 @@ private UserModel: mongoose.Model<any>;
 
 Usually such thing as establishing database connection is asynchronous.
 Better to override `IMQService.start()` method for such purpose.
-As the first step to do that let's define private `initDb()` method:
+As the first step, to do that let's define private `initDb()` method:
 
 ~~~typescript
 /**
@@ -360,16 +364,17 @@ public async start(): Promise<IMessageQueue | undefined> {
 #### Logging Ninja
 
 We used `this.logger` here, which is a good way to deal with debugging
-output. By default the used logger is standard `console`, but you can
+output. By default, the used logger is standard `console`, but you can
 re-configure it using `config.ts` and all debug/log/error outputs will
 be handled by a configured logger. This might be useful if you want
 to redirect all log outputs into some specific place or remote service.
-For example you may want to use `winston` module to organize your
+For example, you may want to use `winston` module to organize your
 logging and provide different transports to put debug info into some
-local storage and/or into remote service like logentries.
+local storage and/or into remote service, like LogEntries, Sentry or
+Raygun, whatever else...
 
 Hence using `this.logger` is a good practice to ensure your logs can be
-easily managed and monitored.
+easily managed and monitored at a single place.
 
 Starting from this point we are ready to go implementing remote
 interface for our User Service.
@@ -517,14 +522,14 @@ Following these rules guarantees that you will have appropriately
 set descriptions for your service and you will have expectantly working
 clients generated for your service.
 
-After interface has been defined as above we can see that our service
+After interface has been defined as above, we can see that our service
 does not compile. The reason is that we declared some arguments
 and return values of types which TypeScript can not recognize. Those
 are: `UserObject`, `UserCarObject` and `UserFilters`.
 
 #### Defining Externally Accessible Service Complex Types
 
-Using the doc-blocks we can describe any complex data structures in
+By using doc-blocks we can describe any complex data structures in
 TypeScript notations, but it is not always useful as we might need
 to duplicate a lot of code.  So a good way here is to define re-usable
 complex types.
@@ -579,6 +584,9 @@ Second rule - use `@property()` decorator factory whenever you need to
 expose a complex type property for remote access. This is required to
 describe a type definition.
 
+The type will be automatically exposed as remote interface it it has
+at least one decorated property.
+
 `@property()` decorator takes property type in TypeScript notation as
 the first argument. If the property should be defined as optional
 for that type, you can bypass `true` as a second argument.
@@ -587,14 +595,14 @@ Types described in a such way on a service will be available on a
 client side as interfaces, given an ability to perform type checks by
 a TypeScript compiler.
 
-If there is any need it is possible to skip decoration on the type
-property and it provides a way to hide part of service-level related
-implementation.
+If there is any need, it is possible to skip decoration on the type
+property and that's how it provides a way to hide part of service-level
+related implementation.
 
 Type property may refer to another complex type, as we can see in our
 example - cars property referring to an array of `UserCarObject`.
 
-So, let's proceed with other types definitions we missing.
+So, let's proceed with other types definitions we're still missing.
 
 ~~~bash
 touch ./user/types/UserCarObject.ts
