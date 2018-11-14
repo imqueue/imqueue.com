@@ -42,7 +42,7 @@ section_id: docs
 
 <h2>Chapter 2. User Service. Creating First Service</h2>
 
-So we are ready to create our first service. It is recommended to create
+So, we are ready to create our first service. It is recommended to create
 project directory which will hold all your development repositories.
 
 Let's start as:
@@ -54,19 +54,19 @@ cd ~/my-tutorial-app
 
 ### Creating The Service
 
-Now we going to create the service, which will be a user service.
+Now we are going to create the service, which will be a user service.
 Simply run:
 
 ~~~bash
 imq service create user ./user
 ~~~
 
-If everything goes well we should have `./user` directory created
+If everything goes well, we should have `./user` directory created,
 containing all the files required and all dependencies installed.
 
 ### Service Configuration
 
-We can test if it works simply running `npm run dev` command. Be aware
+We can test if it works by simply running `npm run dev` command. Be aware
 at this point that you need Redis running on your localhost and default
 port. If you have Redis running on another host:port, then before
 launching the service you need to change a configuration.
@@ -74,8 +74,8 @@ launching the service you need to change a configuration.
 Configuration file is located at `./user/config.ts`. There are two
 different possibilities configuring Redis access within the service -
 a single Redis instance or a cluster of Redis instances. This should be
-defined by a scaling needs. If you writing a service which should handle
-very heavy load you might want to configure a cluster, otherwise
+defined by a scaling needs. If you are writing a service which should handle
+very heavy load, you might want to configure a cluster, otherwise
 you may suggest a single instance is OK.
 
 Anyway, a good option at this point would be to obtain a configuration
@@ -103,7 +103,7 @@ export const serviceOptions: Partial<IMQServiceOptions> = {
 };
 ~~~
 
-And what we can do now is simply put `.env` file in root directory of
+And what we can do now is simply to put `.env` file in root directory of
 the service specifying our Redis configuration we want to have on our
 local environment (assuming we have redis running on
 `some-redis-special.host:63790`.
@@ -114,25 +114,25 @@ IMQ_REDIS="some-redis-special.host:63790"
 ~~~
 
 If you have Redis running at `localhost:6379`, which is default
-standard address you can skip this configuration at this step for now.
+standard address, you can skip this configuration at this step for now.
 
 ### Local Environment
 
-When developing a service, usually we need to have an ability to launch
+When developing a service, usually we need to have the ability to launch
 it in local environment directly, which is useful during development
 process. By the way, we must keep in mind that our service in production
-environment most of the cases will run with a different configuration.
+environment, most of the cases, will run with a different configuration.
 
-Hence a good way here is to get a configuration from environment
+Hence, a good way here is to get a configuration from environment
 variables. As far as you may have different projects running on
-your dev machine, it could be tricky to setup an environment variables
+your dev machine, it could be tricky to setup environment variables
 globally for the system. Using `.env` files allows you to solve this
 problem. This feature is available out-of-the-box with @imqueue
 services, so whenever you need to have some specific configuration set
 on your dev machine for the service - just create `.env` file in the
 service root directory and put all required variables you may want to
-read from the environment. Those files will be never committed, so it is
-safe for production runs.
+read from the environment. Those files will never be committed, so it is
+safe for further production runs.
 
 ### Verifying
 
@@ -190,7 +190,7 @@ new User(serviceOptions).start().then((service: any) => {
 });
 ~~~
 
-That will launch the service and it's client and do a remote call of
+That will launch the service and its client and do a remote call of
 service's `hello()` method. The output should look like:
 
 ~~~
@@ -205,7 +205,7 @@ Hello!
 
 That means that service works as expected!
 
-When running in development mode @imqueue is watching for file changes
+While running in development mode @imqueue is watching for file changes
 using nodemon, so we can simply run our service and start development.
 
 > **NOTE:** any files or folders which names matched `debug*` pattern are
@@ -228,7 +228,7 @@ npm i --save-dev @types/mongoose
 #### Prepare data storage
 
 First of all let's create mongoose database schema for our service as
-far as we decided to use MongoDB as data storage engine. It is can be
+far as we decided to use MongoDB as data storage engine. It can be
 done in a usual way, @imqueue does not introduce any limits here.
 
 Create file `./user/src/schema.ts` or whatever the path you would like
@@ -288,7 +288,7 @@ By design, we need to store information about user, such as
 - password
 - isActive flag (to have an ability block users if there is any reason)
 - isAdmin flag (to define users of admin role)
-- user cars in garage (we plan to have a service car which would manage
+- user cars in garage (we are planning to have a service car which would manage
   cars database, but here we would need to assign the selected car data
   to a user, so we define only those fields which should implement
   references between users, car objects and additionally store
@@ -310,7 +310,7 @@ at the top of the file:
 import { schema } from './schema';
 ~~~
 
-Next thing we need to do initialize MongoDB connection on service
+Next thing we need to do is to initialize MongoDB connection on service
 start-up and init our database schema so we can use it.
 
 Thus, let's define the next properties on our service class:
@@ -321,7 +321,7 @@ private UserModel: mongoose.Model<any>;
 ~~~
 
 Usually such thing as establishing database connection is asynchronous.
-Better to override `IMQService.start()` method for such purpose.
+Better to override `IMQService.start()` method for such a purpose.
 As the first step, to do that let's define private `initDb()` method:
 
 ~~~typescript
@@ -369,14 +369,14 @@ re-configure it using `config.ts` and all debug/log/error outputs will
 be handled by a configured logger. This might be useful if you want
 to redirect all log outputs into some specific place or remote service.
 For example, you may want to use `winston` module to organize your
-logging and provide different transports to put debug info into some
+logging and provide different transports to put debug into some
 local storage and/or into remote service, like LogEntries, Sentry or
 Raygun, whatever else...
 
-Hence using `this.logger` is a good practice to ensure your logs can be
-easily managed and monitored at a single place.
+Hence, using `this.logger` is a good practice to ensure that your logs
+can be easily managed and monitored from a single place.
 
-Starting from this point we are ready to go implementing remote
+Starting from this point we are ready to go into implementing remote
 interface for our User Service.
 
 #### Exposing interface
@@ -503,10 +503,10 @@ public async carsCount(idOrEmail: string): Promise<number> {
 }
 ~~~
 
-What you would need to know here about defining the externally callable
+What you need to know here about defining the externally callable
 methods is that you need to follow several rules, which are mandatory:
 
-1. If you need to make service method externally callable it MUST
+1. If you need to make service method externally callable, it MUST
    be wrapped with `@expose()` decorator.
 1. Each service you implement MUST have at least one externally
    callable method.
@@ -519,7 +519,7 @@ methods is that you need to follow several rules, which are mandatory:
      `@param {string} [name]`
 
 Following these rules guarantees that you will have appropriately
-set descriptions for your service and you will have expectantly working
+set descriptions for your service and expectantly working
 clients generated for your service.
 
 After interface has been defined as above, we can see that our service
@@ -531,12 +531,11 @@ are: `UserObject`, `UserCarObject` and `UserFilters`.
 
 By using doc-blocks we can describe any complex data structures in
 TypeScript notations, but it is not always useful as we might need
-to duplicate a lot of code.  So a good way here is to define re-usable
+to duplicate a lot of code.  So, a good way here is to define re-usable
 complex types.
 
 Due to some limitations the ONLY correct way to describe complex types
-which could be exported remotely is to define them using classes. So the
-first rule here is to use classes for describing complex objects. Here
+which could be exported remotely is to define them using classes. Here
 we go:
 
 ~~~bash
@@ -580,19 +579,19 @@ export class UserObject {
 }
 ~~~
 
-Second rule - use `@property()` decorator factory whenever you need to
+The second rule -  is to use `@property()` decorator factory whenever you need to
 expose a complex type property for remote access. This is required to
 describe a type definition.
 
-The type will be automatically exposed as remote interface it it has
+The type will be automatically exposed as a remote interface, it has
 at least one decorated property.
 
 `@property()` decorator takes property type in TypeScript notation as
 the first argument. If the property should be defined as optional
 for that type, you can bypass `true` as a second argument.
 
-Types described in a such way on a service will be available on a
-client side as interfaces, given an ability to perform type checks by
+Types described in such a way on a service will be available on a
+client's side as interfaces, given an ability to perform type checks by
 a TypeScript compiler.
 
 If there is any need, it is possible to skip decoration on the type
@@ -666,4 +665,4 @@ The last thing here will be to implement logic for service methods, but
 let's keep it for your home-work, or you can simply refer the [source
 code](https://github.com/imqueue-sandbox/user) available on GitHub.
 
-Go to next chapter - [Creating Auth Service. Inter-Service Communication](/tutorial/auth-service).
+Go to the next chapter - [Creating Auth Service. Inter-Service Communication](/tutorial/auth-service).

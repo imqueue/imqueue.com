@@ -48,7 +48,7 @@ to develop two more services: `Car` and `TimeTable`.
 
 Building them does not differ too much of what have been done for two
 previous services - `User` and `Auth`, so it is suggested to work on
-them as your homework. Or you can simple refer their
+them as your homework. Or you can simply refer to their
 [source](https://github.com/imqueue-sandbox/car)
 [code](https://github.com/imqueue-sandbox/time-table) at GitHub.
 
@@ -68,7 +68,7 @@ Here are the requirements.
   * Car years of manufacturing (`years: number[]`)
   * Car type (`type: 'mini' | 'midsize' | 'large'`)
 
-Here are an interface of the service which is expected to be implemented:
+Here is the interface of the service which is expected to be implemented:
 
 ~~~typescript
  /**
@@ -105,7 +105,7 @@ public list(
 ): Partial<CarObject>[];
 ~~~
 
-For any details and help about implementation, please refer
+For any details and help about implementation, please, refer to
 corresponding [source code](https://github.com/imqueue-sandbox/car).
 
 **What to think about:** In-memory data synchronization when running
@@ -114,10 +114,10 @@ multiple instance of services.
 ### TimeTable Service Requirements
 
 That should be a central service. Let's consider using relational
-database as data storage engine, for example, PostgreSQL or any other
+database as a data storage engine, for example, PostgreSQL or any other
 at your choice with Sequelize ORM library on top.
 
-Here is an interface expected to be built for this service:
+Here is the interface expected to be built for this service:
 
 ~~~typescript
 /**
@@ -167,7 +167,7 @@ public async cancel(id: string, fields?: string[]): Promise<Reservation[]>;
 public async config(): Promise<TimeTableOptions>;
 ~~~
 
-Where following complex types exposed as well:
+Where the following complex types exposed as well:
 
 `Reservation`:
  - id - reservation record identifier
@@ -195,4 +195,4 @@ as well.
 
 Any way, the [complete source code is available on GitHub](https://github.com/imqueue-sandbox/time-table)
 
-Go to next chapter - [API Service. Integration](/tutorial/api-service)
+Go to the next chapter - [API Service. Integration](/tutorial/api-service)
