@@ -1,0 +1,222 @@
+---
+layout: default
+title: "Introduction"
+section_id: intro
+---
+
+<div class="full">
+    <div class="row">
+        <div class="content">
+            <div class="special-title centered-text">
+                <i class="icon-info-circled goldenrod-text"></i>
+                <h1>{{ page.title }}</h1>
+                <p>
+                    IMQ is an Intercommunication Messaging Queue Framework for service
+                    oriented back-end architectures<br>built with Node and/or Typescript
+                </p>
+                <p class="shortline"></p>
+                <div class="spacing"></div>
+            </div>
+
+            <p>Key Capabilities:</p>
+
+            <ul>
+                <li>Massaging Queue as a base communication protocol between services (<a href="https://github.com/imqueue/core">@imqueue/core</a>)</li>
+                <li>RPC-like programming interface (<a href="https://github.com/imqueue/rpc">@imqueue/rpc</a>)</li>
+                <li>Rapid application development command line interface (<a href="https://github.com/imqueue/cli">@imqueue/cli</a>)</li>
+            </ul>
+
+            <p>
+                It all enables developers to create back-end services
+                (or microservices as a special case of SOA) very fast and focus only
+                on functionality implementation without the need to take care of low-level
+                implementation, following below key principles:
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="full light-grey">
+    <div class="row special-title content">
+        <i class="icon-gears goldenrod-text"></i>
+        <h2>Reliability</h2>
+        <p class="line"></p>
+        <div class="spacing"></div>
+    </div>
+    <div class="row content">
+        <p>
+            IMQ implements <strong>reliable communication</strong> between services.
+            Depending on the exact needs, using <strong>safe delivery</strong> messaging
+            and <strong>"leader" - "follower" deployment</strong> of messaging back-end engine
+            provides possibility to fully guarantee data delivery between
+            services.
+        </p>
+    </div>
+</div>
+
+<div class="full light-yellow">
+    <div class="row special-title content">
+        <i class="icon-resize-full goldenrod-text"></i>
+        <h2>Scalability</h2>
+        <p class="line"></p>
+        <div class="spacing"></div>
+    </div>
+    <div class="row content">
+        <p>
+            IMQ supports several scaling possibilities on different levels:
+            <ul>
+                <li><strong>Clustering</strong> backend engine (Redis)</li>
+                <li><strong>Fork-based scaling</strong> on single machine to utilize all its cores</li>
+                <li><strong>Network based horizontal scaling</strong>, running as many service copies as needed across multiple servers</li>
+            </ul>
+        </p>
+        <p>
+            Taking into account all above, there are <strong>no technical limits</strong>
+            to handle any possible throughput in the designed system based on IMQ.
+        </p>
+    </div>
+</div>
+<div class="full yellow">
+    <div class="row special-title content">
+        <i class="icon-dot white-text"></i>
+        <h2>Simplicity</h2>
+        <p class="line"></p>
+        <div class="spacing"></div>
+    </div>
+    <div class="row content">
+        <p>
+            IMQ follows KISS (keep it short and simple) principles, making development
+            using @imqueue easy and clear.
+            <ul>
+                <li><strong>Low-level entry for JS/Typescript developers</strong> - only couple of minutes are needed to implement the first basic service</li>
+                <li><strong>No need in very specific "hidden knowledge"</strong> to develop services with @imqueue</li>
+                <li>Clean and easy to understand <strong>JSON-based messaging protocol</strong></li>
+                <li>Based on <strong>well-known, easy to understand patterns</strong>, like Messaging Queue and RPC (remote procedure calls)</li>
+                <li><strong>Simple configuration</strong>. Being flexible though providing sufficient
+                    amount of configuration options @imqueue satisfies different needs</li>
+            </ul>
+        </p>
+    </div>
+</div>
+<div class="full gray white-text">
+    <div class="row special-title content">
+        <i class="icon-gauge goldenrod-text"></i>
+        <h2>Performance</h2>
+        <p class="line"></p>
+        <div class="spacing"></div>
+    </div>
+    <div class="row content">
+        <p>
+            We tried to get the utmost from the technologies IMQ is based on.
+            Benchmarking is a part of @imqueue/core, therefore it is possible
+            to run and test it in your environment.
+        </p>
+        <p>
+            Here are some results we got on a single Intel Core i7 machine using
+            1 dedicated core for Redis process and 6 workers each assigned to
+            it's own core by using 1Kb message sent asynchronously 10,000 times
+            at a time:
+        </p>
+            <ul>
+                <li>For unsafe delivery communication it is fluctuated between <strong>40,000 - 50,000</strong> round-trips of messages per second</li>
+                <li>For safe delivery communication it is around <strong>20,000 - 25,000</strong> round-trips of messages per second</li>
+                <li>With the use of compression it is around <strong>20,000 - 25,000</strong> round-trips of messages per second</li>
+                <li>Safe delivery with compression turned on is about <strong>16,000 - 18,000</strong> round-trips of messages per second</li>
+            </ul>
+        </p>
+        <p>
+            Hence, in the worst case with all features turned on it is about
+            <strong>tens of thousands</strong> messages round-trips per second for a
+            single messaging backend engine which is fair enough to launch
+            projects with a pretty high load.
+        </p>
+    </div>
+</div>
+<div class="full dark-blue white-text">
+    <div class="row special-title content">
+        <i class="icon-upload-cloud goldenrod-text"></i>
+        <h2>Delivery</h2>
+        <p class="line"></p>
+        <div class="spacing"></div>
+    </div>
+    <div class="row content">
+        <p>
+            IMQ respects smooth and clean development and delivery processes.
+            By using command line tool it provides extensible
+            way to organize service delivery based on your own needs. Currently it
+            provides a default template which includes <strong>Git</strong>,
+            <strong>Travis CI</strong> and <strong>Docker</strong> /
+            <strong>DockerHub</strong> integration out-of-the-box.
+        </p>
+        <p>
+            Thus is a big plus that it allows to define custom boilerplate
+            templates which will modify or provide completely another
+            ways of delivery from your side.
+        </p>
+        <div class="spacing"></div>
+        <div class="spacing" style="margin-top:70px"></div>
+        <div class="special-title centered-text">
+            <h2>How It Works</h2>
+            <p>Explaining @imqueue internals</p>
+            <p class="shortline"></p>
+            <div class="spacing"></div>
+        </div>
+        <div class="spacing"></div>
+        <img class="medium-4 columns right figure" src="/images/base-schema.svg">
+        <p>
+            IMQ implements messaging queue over Redis, which works as a centralized
+            message broker for communication between services and their clients.
+        </p>
+        <p>
+            Such schema provides several advantages:
+            <ul>
+                <li>Simplicity (take a look at it!)</li>
+                <li>
+                    No need to implement any kind of <em>service discovery</em>, as it is
+                    auto-discoverable scheme - service instances compete for their messages,
+                    so as far as instance is busy or down message is consumed
+                    by another instance and delivers the response to a proper
+                    client any way. It means there is no need to check if exact copy
+                    of the service instance is dead or alive.
+                </li>
+                <li>
+                    No need to implement any additional <em>load-balancing</em>. Service instances
+                    compete for messages and do load-balancing naturally with a good
+                    distribution between nodes.
+                </li>
+                <li>
+                    All messages are flowing through a single system point and can
+                    be <em>easily monitored</em>, which simplifies debugging and monitoring
+                    as far as Redis provides complete set of tools doing that.
+                </li>
+            </ul>
+        </p>
+        <h3>Fom Development Point Of View</h3>
+        <p>
+            So, naturally each Service is a simple piece of software inside distributed
+            system solving some specific task in it. That means that from development
+            point of vew it is as simple as implementing class with exposed methods.
+            As follows from that a Client is a local representation of a remote Service
+            interface at this exact network point. All you need when it is required to
+            call a certain Service method is to call a corresponding Client method,
+            where Client will take care about delivering proper message to a queue
+            and that massage will invoke corresponding Service method execution.
+        </p>
+        <p>Yes, at development level it simply looks like <em>remote procedures calls</em>!</p>
+        <p>
+            There is no need of manual implementation of the clients. All @imqueue
+            services are self-describable and clients could be generated dynamically
+            on-the-fly or to be pre-auto-generated files. That means that developer
+            should <em>be focused only on service implementation</em>. Following
+            the simple rules and best practices when developing a Service interface,
+            writing the proper doc-blocks you'll get all-in-one:
+            <ul>
+                <li>Implementation at one place</li>
+                <li>Auto-generated client code whenever it is needed</li>
+                <li>Auto-generated service-related documentation</li>
+                <li>IDE service-related code auto-completions</li>
+            </ul>
+        </p>
+        <p><a href="/get-started">Are you ready to try it?</a></p>
+    </div>
+</div>

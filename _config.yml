@@ -1,1 +1,37 @@
-theme: jekyll-theme-minimal
+name: imqueue.com
+slogan: Intercommunication Messaging Queue For Microservices using Node and Typescript
+markdown: kramdown
+#highlighter: pygments
+highlighter: rouge
+excerpt_separator: <!--more-->
+paginate: 3
+paginate_path: "blog/page:num"
+plugins:
+- jekyll-asciidoc
+- jekyll-gist
+- jekyll-paginate
+include: ['.htaccess']
+exclude:
+- .sass-cache
+- Gemfile
+- Gemfile.lock
+- LICENSE
+- README.md
+- INSTALL.md
+- api-docs.js
+- package.json
+language: 'en'
+compress_html:
+  clippings: all
+  comments: ["<!-- ", " -->"]
+  endings: all
+  profile: false
+  ignore:
+    envs: [development]
+asciidoctor-enabled: false
+asciidoctor:
+  description: testtewtetrue
+  attributes:
+    source-highlighter: coderay
+    coderay-css: style
+    icons: font
