@@ -109,32 +109,35 @@ Hence our high-level architecture of application will look like this:
 Command line tool for @imqueue provides an ability to integrate 3-rd party
 development tools, like Travis CI, DockerHub and GitHub within the default
 template, so while the service is created using the tool, we can gain all
-benefit of automatically set up repository, continuous integration and docker
+benefits of automatically set up repository, continuous integration and docker
 image builds with a single command. So what we going to do as a first step is
 to install and configure `@imqueue/cli`.
 
 ### Preparing Development Environment
 
-Before we start we need to set up [NodeJS](https://nodejs.org/). It is
+Before start we need to set up [NodeJS](https://nodejs.org/). It is
 recommended to install it using [NVM](https://github.com/creationix/nvm#installation)
 
-As we agreed we will also need to have Redis, MongoDB and PostgreSQL
+As we agreed, we will also need to have Redis, MongoDB and PostgreSQL
 installed. You can install them in your system using any comfortable way, like
-install using docker images:
+using docker images, for example:
 [Mongo](https://hub.docker.com/_/mongo/),
 [Redis](https://hub.docker.com/_/redis/),
 [PostgreSQL](https://hub.docker.com/_/postgres/).
 
+Or just directly install them in your system if there are no objections
+doing that.
+
 ### Installing @imqueue/cli
 
-As told before command line tool allows integrations with GitHub, DockerHub and
-TravisCI. You may consider CLI to do that or not. If not it will only create
+As told before, command line tool allows integrations with GitHub, DockerHub and
+TravisCI. You may consider CLI to do that or not. If not, it will only create
 local folders and files. So during the installation of the tool you have to
 make a choice for that.
 
-If you decide to use integrations you must prepare GitHub and DockerHub
-namespaces. For GitHub you use your user namespace or create an organisation.
-The same for DockerHub.
+If you decide to use integrations, you must prepare GitHub and DockerHub
+namespaces. For GitHub you should use your user namespace or create an
+organisation. The same for DockerHub.
 
 - Go to [GitHub](https://github.com). Create an account or log-in existing.
   Go to "Settings" -> "Organizations". Click "New organisation" and
@@ -144,8 +147,8 @@ The same for DockerHub.
   repositories in that namespace. To do that go to "Settings" -> "Developer
   settings" -> "Personal auth token" and create one.
 - Go to [DockerHub](https://hub.docker.com/). Create an account or log-in
-  existing. Go to "Organizations" tab and add an organisation which you will
-  use as a namespace for publishing your app images.
+  existing. Go to "Organizations" tab and add a new organisation which
+  you will use as a namespace for publishing your app images.
 
 So, let's start. Just run a command:
 
@@ -169,7 +172,7 @@ steps to complete your @imqueue/cli configuration.
     </div>
 </div>
 
-After all these preparations done we are ready to go to create our first
+After all these preparations done, we are ready to go to create our first
 service.
 
 Go to next chapter - [Creating First Service: User Service](/tutorial/user-service).
