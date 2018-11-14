@@ -1,0 +1,35 @@
+- name: Home
+  icon: icon-home
+  path: /
+  section_id: home
+- name: Introduction
+  path: /intro/
+  section_id: intro
+  icon: icon-info-circled
+- name: Documentation
+  path: /docs
+  section_id: docs
+  icon: icon-docs
+  children:
+  - name: Getting Started
+    path: /get-started
+    section_id: docs
+    icon: icon-rocket
+  - name: API Docs
+    path: /api/
+    section_id: docs
+    icon: icon-book-open
+  - name: Tutorial
+    path: /tutorial/
+    section_id: docs
+    icon: icon-book
+  - name: Contributing
+    icon: icon-publish
+    path: /contributing
+#- name: Blog
+#  path: /blog/
+#  section_id: blog
+#  icon: icon-thumbs-up
+- name: Github
+  icon: icon-github
+  path: https://github.com/imqueue
