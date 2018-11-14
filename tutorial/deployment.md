@@ -181,18 +181,30 @@ of git repository.
 
 Usually pre-build docker images can be easily pulled and deployed in
 many different cloud environments like AWS, Azure or Google Cloud
-Platform.
-
-
+Platform. Now it is just a matter of tuning your cloud environment
+enabling auto-scaling features and whatever you need else.
 
 ### Environment Variables
 
-### Garbage Collection
+Environment variables is a powerful way to separate configuration for
+different environments without a need to maintain different configs
+codebase. On cloud platforms, like AWS, you may suggest to utilize
+Parameter Store to provide environment configuration for your services,
+on a local development deployments you may utilize `.env` files to
+configure your services specific options.
 
-### Development Deployment
+All that needs some specific configuration to be set on service's
+`config.ts`. You can configure available options in a way, when you
+try initially to read from environment variables first (which you
+are supposed to define yourself) and as a fallback use some default
+values. We already discussed these possibilities in
+[chapter 2](http://localhost:4000/tutorial/user-service#service-configuration)
+of this tutorial.
 
-### Production Builds
+We strongly recommend to follow the same way any time you want to
+introduce some specific configuration to your real-world services,
+providing detailed description of which environment vars service
+expected to be provided in your README files, so later during
+deployment to different environments anyone can easily tune their
+setups.
 
-### Using Docker Images
-
-### AWS: Deploying in Cloud Environments
