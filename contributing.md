@@ -1,6 +1,6 @@
 ---
 layout: page
-title: "Contribute"
+title: "Contributing"
 section_id: contribute
 ---
 
