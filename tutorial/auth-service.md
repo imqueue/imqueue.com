@@ -114,6 +114,9 @@ for verification we would like to return verified user object.
 > By the way, @imqueue does not dictate you how to organize your
 > services communication, so it is up to you to make architectural
 > decision for your system wisely.
+> In this example we specially design it in a way to give an ability
+> to touch this functionality with your hands and get you insights
+> about how it works.
 
 ### The Service Client
 
@@ -123,23 +126,23 @@ to build a client for a remote service.
 
 - **Build client dynamically**. This is the way when client is build-up
   during the program code execution. In this case the remote service
-  should be up and running as far as to build a client @imqueue will
+  should be up and running, as far as to build a client @imqueue will
   request remote service for it's interface description and generate
   a client from that description on-the-fly. Such a method is pretty good
   when you want to avoid a need to take care about service interface
   changes, but has several disadvantages, like you are loosing a version
   control over your clients, type checking and IDE auto-complete
   functionality during development process. Yet another one
-  disappointment is that you need to follow the correct sequence of
+  disappointment is that you need to follow the correct order of
   service executions as far as you can not build the client when
   service is not running (or not callable).
 - **Build client statically**. This way provides an ability to generate
   client code for a remote service using @imqueue/cli command line tool.
   But any time remote service interface changes you will need to
-  re-generate clients to match with a new version. Anyway this method
+  re-generate clients to match with a new version. Anyway, this method
   is good when you need to detect and version changes in a service and
   gives an ability to TypeScript compiler to perform type-checks in your
-  code as well as enables auto-complete functionality in your IDE
+  code, as well as enables auto-complete functionality in your IDE
   during development. When you build up your application architecture
   in away that all clients are located at one place - this method would
   be definitely the best choice. Yet another one advantage is that you
