@@ -2,6 +2,7 @@ name: imqueue.com
 slogan: Intercommunication Messaging Queue For Microservices using Node and Typescript
 markdown: kramdown
 #highlighter: pygments
+url: "https://imqueue.com"
 highlighter: rouge
 excerpt_separator: <!--more-->
 paginate: 3
@@ -10,6 +11,7 @@ plugins:
 - jekyll-asciidoc
 - jekyll-gist
 - jekyll-paginate
+- jekyll-sitemap
 include: ['.htaccess']
 exclude:
 - .sass-cache
