@@ -37,6 +37,23 @@
           </ul>
           <section class='top-bar-section'>
             <ul class="right">
+              <li style="background-color:#fff;padding-top:37px;padding-bottom:37px;padding-right:20px">
+                <div id="donate-button-container">
+                    <div id="donate-button"></div>
+                    <script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js" charset="UTF-8"></script>
+                    <script>
+                    PayPal.Donation.Button({
+                        env:'production',
+                        hosted_button_id:'A5X7U5W9D3SRE',
+                        image: {
+                            src:'https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif',
+                            alt:'Donate with PayPal button',
+                            title:'PayPal - The safer, easier way to pay online!',
+                        }
+                    }).render('#donate-button');
+                    </script>
+                </div>
+              </li>
               {% for item in site.data.nav %}
                 {% if item.section_id == page.section_id %}
                   {% assign active_class = "active" %}
