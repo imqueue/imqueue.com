@@ -26,6 +26,9 @@
   - name: Contributing
     icon: icon-publish
     path: /contributing
+  - name: License
+    icon: icon-cc
+    path: /licence
 #- name: Blog
 #  path: /blog/
 #  section_id: blog
