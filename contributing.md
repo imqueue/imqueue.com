@@ -13,7 +13,7 @@ section_id: contribute
     </div>
 </div>
 
-@imqueue is an Open Source project under ISC license, so we greatly
+@imqueue is an Open Source project under GPL 3.0 license, so we greatly
 appreciate anyone who has a will to contribute to this project in order to
 make it better. Please, consider you have a will to contribute under
 the terms of this license. If you report issues, create pull
