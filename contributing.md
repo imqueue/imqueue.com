@@ -7,7 +7,7 @@ section_id: contribute
 <div class="content">
     <div class="special-title centered-text">
         <i class="icon-publish goldenrod-text"></i>
-        <h1>{{ page.title }}</h1>
+        <h1>{{ title }}</h1>
         <p class="shortline"></p>
         <div class="spacing"></div>
     </div>

@@ -27,15 +27,19 @@ section_id: docs
 
 <h5>Next Chapters</h5>
 <div>
+
  - [Chapter 4. Other Services](/tutorial/other-services)
  - [Chapter 5. API. Integration](/tutorial/api-service)
  - [Chapter 6. Deployment](/tutorial/deployment)
+
 </div>
 
 <h5>Previous Chapters</h5>
 <div>
+
  - [Chapter 1. Introduction](/tutorial/)
  - [Chapter 2. User Service. Creating First Service](/tutorial/user-service)
+
 </div>
 </div>
 
