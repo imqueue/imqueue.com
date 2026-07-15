@@ -1,4 +1,5 @@
 const yaml = require("js-yaml");
+const syntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 
 module.exports = function (eleventyConfig) {
   const markdownIt = require("markdown-it");
@@ -8,7 +9,7 @@ module.exports = function (eleventyConfig) {
 
   const md = markdownIt({ html: true, linkify: false, typographer: false })
     .use(mdAttrs)
-    .use(mdAnchor, { permalink: false })
+    .use(mdAnchor, { permalink: false, tabIndex: false })
     .use(mdToc, {
       includeLevel: [2, 3],
       containerHeaderHtml: undefined,
@@ -16,6 +17,7 @@ module.exports = function (eleventyConfig) {
     });
 
   eleventyConfig.setLibrary("md", md);
+  eleventyConfig.addPlugin(syntaxHighlight);
 
   // Jekyll-compatible Liquid: allow unquoted {% include foo.html %}.
   eleventyConfig.setLiquidOptions({
