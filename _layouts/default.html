@@ -72,7 +72,7 @@
                     </script>
                 </div>
               </li>
-              {% for item in site.data.nav %}
+              {% for item in nav %}
                 {% if item.section_id == page.section_id %}
                   {% assign active_class = "active" %}
                 {% else %}
