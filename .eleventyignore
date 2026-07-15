@@ -1,9 +1,7 @@
 _site
-.golden-site
 node_modules
 README.md
 docs
 .idea
-.superpowers
 api/**/*.html
 css/icons.html
