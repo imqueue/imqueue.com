@@ -9,7 +9,7 @@ icon: book-open
 {% assign latest_rpc = "2.0.4" %}
 
 <div class="special-title centered-text">
-    <p markdown="1">
+    <p>
         Application programming interfaces documentation for @imqueue packages
     </p>
     <p class="shortline"></p>
@@ -17,11 +17,11 @@ icon: book-open
     <div class="spacing"></div>
 </div>
 
-<div class="medium-4 columns right panel radius toc" markdown="1">
+<div class="medium-4 columns right panel radius toc">
 <h4>Table Of Contents</h4>
-{:#toc}
-* TOC
-{:toc}
+
+[[toc]]
+
 </div>
 
 {% include api/intro.md %}

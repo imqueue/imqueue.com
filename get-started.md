@@ -6,21 +6,21 @@ icon: rocket
 ---
 
 <div class="special-title centered-text">
-    <p markdown="1">
-        This is basic and shortest step-by-step guide how to start using `@imqueue`.
-        For more detailed guide, take a look at [Tutorial](/tutorial/).<br>
-        Full API technical documentation is available [here](/api/). 
+    <p>
+        This is basic and shortest step-by-step guide how to start using <code>@imqueue</code>.
+        For more detailed guide, take a look at <a href="/tutorial/">Tutorial</a>.<br>
+        Full API technical documentation is available <a href="/api/">here</a>.
     </p>
     <p class="shortline"></p>
     <div class="spacing"></div>
     <div class="spacing"></div>
 </div>
 
-<div class="medium-4 columns right panel radius toc" markdown="1">
+<div class="medium-4 columns right panel radius toc">
 <h4>Table Of Contents</h4>
-{:#toc}
-* TOC
-{:toc}
+
+[[toc]]
+
 </div>
 
 ## Before We Start
@@ -128,7 +128,7 @@ to run service first. After that, run in your terminal:
 
 Now client can be used to call service methods remotely.
 
-<div class="panel callout secondary special-title centered-text" markdown="1">
+<div class="panel callout secondary special-title centered-text">
 
 **Congratulations!** You've just implemented your first @imqueue based service.
 

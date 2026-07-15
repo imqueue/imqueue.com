@@ -25,15 +25,14 @@ screens:
         <div class="spacing"></div>
     </div>
 </div>
-<div class="large-3 columns right panel radius toc" markdown="1">
+<div class="large-3 columns right panel radius toc">
 <h4>Table Of Contents</h4>
 <h5>Chapter 1. Introduction</h5>
-{:#toc}
-* TOC
-{:toc}
+
+[[toc]]
 
 <h5>Next Chapters</h5>
-<div markdown="1">
+<div>
  - [Chapter 2. User Service. Creating First Service](/tutorial/user-service)
  - [Chapter 3. Auth service. Inter-Service Communication](/tutorial/auth-service)
  - [Chapter 4. Other Services](/tutorial/other-services)
