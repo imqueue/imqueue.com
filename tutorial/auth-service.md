@@ -7,7 +7,7 @@ section_id: docs
 <div class="content">
     <div class="special-title centered-text">
         <i class="icon-book goldenrod-text"></i>
-        <h1>{{ page.title }}</h1>
+        <h1>{{ title }}</h1>
         <p>
             Step-by-step guide of building back-end services for car washing
             web application using @imqueue.
