@@ -3,10 +3,18 @@
   "version": "1.0.0",
   "description": "You may visit this site at [imqueue.com](https://imqueue.com/)",
   "dependencies": {},
-  "devDpendencies": {},
+  "devDependencies": {
+    "@11ty/eleventy": "^3.0.0",
+    "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^9.2.0",
+    "markdown-it-table-of-contents": "^0.9.0",
+    "markdown-it-attrs": "^4.3.1",
+    "js-yaml": "^4.1.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
-    "start": "bundle exec jekyll serve --config _config.yml",
+    "build": "eleventy",
+    "serve": "eleventy --serve",
     "build-docs": "node api-docs"
   },
   "repository": {
