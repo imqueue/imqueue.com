@@ -94,20 +94,18 @@ Check out your fork
 git clone git@github.com:imqueue/imqueue.com.git
 ~~~
 
-The website is based on GitHub Pages and Jekyll. Refer the corresponding
-[documentation](https://help.github.com/articles/setting-up-your-github-pages-site-locally-with-jekyll/)
-about preparing local environment.
+The website is a static site built with [Eleventy](https://www.11ty.dev/)
+and deployed to GitHub Pages. You need [Node.js](https://nodejs.org/) 18 or
+above installed.
 
-Easy way should be if you have ruby installed in your system.
-Then just go to your local working copy of the repo and run:
+Go to your local working copy of the repo and install dependencies:
 ~~~bash
-gem install bundler
-bundle install
+npm install
 ~~~
 
 Now you can start your local development copy of the website:
 ~~~bash
-npm start
+npm run serve
 ~~~
 
 Make your corrections, coding add-ons to the website and docs.
