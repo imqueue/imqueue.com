@@ -55,7 +55,7 @@ end user.
 <div class="row">
 <div class="large-8 columns">
     <ul data-orbit="">
-        {% for image in page.screens %}
+        {% for image in screens %}
         <li>
             <img src="/images/tutorial/{{image}}">
         </li>
