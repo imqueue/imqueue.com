@@ -19,21 +19,20 @@ section_id: docs
         <div class="spacing"></div>
     </div>
 </div>
-<div class="large-3 columns right panel radius toc" markdown="1">
+<div class="large-3 columns right panel radius toc">
 <h4>Table Of Contents</h4>
 <h5>Chapter 4. Other Services</h5>
-{:#toc}
-* TOC
-{:toc}
+
+[[toc]]
 
 <h5>Next Chapters</h5>
-<div markdown="1">
+<div>
  - [Chapter 5. API service. Integration](/tutorial/api-service)
  - [Chapter 6. Deployment](/tutorial/deployment)
 </div>
 
 <h5>Previous Chapters</h5>
-<div markdown="1">
+<div>
  - [Chapter 1. Introduction](/tutorial/)
  - [Chapter 2. User Service. Creating First Service](/tutorial/user-service)
  - [Chapter 3. Auth service. Inter-Service Communication](/tutorial/auth-service)

@@ -1,6 +1,22 @@
 const yaml = require("js-yaml");
 
 module.exports = function (eleventyConfig) {
+  const markdownIt = require("markdown-it");
+  const mdAnchor = require("markdown-it-anchor");
+  const mdToc = require("markdown-it-table-of-contents");
+  const mdAttrs = require("markdown-it-attrs");
+
+  const md = markdownIt({ html: true, linkify: false, typographer: false })
+    .use(mdAttrs)
+    .use(mdAnchor, { permalink: false })
+    .use(mdToc, {
+      includeLevel: [2, 3],
+      containerHeaderHtml: undefined,
+      markerPattern: /^\[\[toc\]\]/im,
+    });
+
+  eleventyConfig.setLibrary("md", md);
+
   // Jekyll-compatible Liquid: allow unquoted {% include foo.html %}.
   eleventyConfig.setLiquidOptions({
     jekyllInclude: true,
