@@ -27,11 +27,13 @@ section_id: docs
 
 <h5>Previous Chapters</h5>
 <div>
+
  - [Chapter 1. Introduction](/tutorial/)
  - [Chapter 2. User Service. Creating First Service](/tutorial/user-service)
  - [Chapter 3. Auth service. Inter-Service Communication](/tutorial/auth-service)
  - [Chapter 4. Other Services](/tutorial/other-services)
  - [Chapter 5. API. Integration](/tutorial/api-service)
+
 </div>
 </div>
 
