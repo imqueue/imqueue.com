@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://imqueue.com/sitemap.xml
