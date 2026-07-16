@@ -5,8 +5,8 @@ section_id: docs
 icon: book-open
 ---
 
-{% assign latest_core = "2.0.2" %}
-{% assign latest_rpc = "2.0.4" %}
+{% assign latest_core = "3.2.1" %}
+{% assign latest_rpc = "3.2.1" %}
 
 <div class="special-title centered-text">
     <p>
@@ -21,13 +21,6 @@ icon: book-open
 <h4>Table Of Contents</h4>
 
 [[toc]]
-
-</div>
-
-<div class="panel radius">
-
-**Latest generated API reference (v3.2.1):**
-[@imqueue/core](/api/core/3.2.1/) &middot; [@imqueue/rpc](/api/rpc/3.2.1/)
 
 </div>
 
@@ -46,12 +39,14 @@ icon: book-open
 ### Older Versions
 
 - **@imqueue/rpc**
+  * <a href="/api/rpc/2.0.4/" target="_blank">v2.0.4</a>
   * <a href="/api/rpc/1.2.12/" target="_blank">v1.2.12</a>
   * <a href="/api/rpc/1.2.11/" target="_blank">v1.2.11</a>
   * <a href="/api/rpc/1.2.10/" target="_blank">v1.2.10</a>
   * <a href="/api/rpc/1.2.9/" target="_blank">v1.2.9</a>
   * <a href="/api/rpc/1.2.8/" target="_blank">v1.2.8</a>
 - **@imqueue/core**
+  * <a href="/api/core/2.0.2/" target="_blank">v2.0.2</a>
   * <a href="/api/core/1.3.15/" target="_blank">v1.3.15</a>
   * <a href="/api/core/1.3.14/" target="_blank">v1.3.14</a>
   * <a href="/api/core/1.3.13/" target="_blank">v1.3.13</a>
