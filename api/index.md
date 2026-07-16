@@ -24,6 +24,13 @@ icon: book-open
 
 </div>
 
+<div class="panel radius">
+
+**Latest generated API reference (v3.2.1):**
+[@imqueue/core](/api/core/3.2.1/) &middot; [@imqueue/rpc](/api/rpc/3.2.1/)
+
+</div>
+
 {% include api/intro.md %}
 {% include api/rpc.md %}
 {% include api/mq.md %}
