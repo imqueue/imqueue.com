@@ -269,12 +269,23 @@ which are implemented by `@property()` decorator factory:
 function property(typeName: string, isOptional: boolean = false): () => {}
 ~~~
 
+Since v3.x, each complex type class **must** also be annotated with the
+`@classType()` class decorator. @imqueue v3 relies on standard (TC39) decorators,
+under which `@property()` only collects field metadata on the class — the
+class-level `@classType()` then finalizes and registers that metadata as a named
+type, so both the service and the generated client recognize it:
+
+~~~typescript
+function classType(): (value: Function, context: ClassDecoratorContext) => void
+~~~
+
 Usage:
 
 ~~~typescript
 // service definition of the type:
-import { property } from '@imqueue/rpc';
+import { classType, property } from '@imqueue/rpc';
 
+@classType()
 class UserObject {
     @property('string')
     firstName: string;
@@ -331,8 +342,9 @@ extend our user model to be associated with one or more address objects,
 like this:
 
 ~~~typescript
-import { property } from '@imqueue/rpc';
+import { classType, property } from '@imqueue/rpc';
 
+@classType()
 class AddressObject {
     @property('string')
     country: string;
@@ -347,6 +359,7 @@ class AddressObject {
     phoneNumber?: string;
 }
 
+@classType()
 class UserObject {
     @property('string')
     firstName: string;
