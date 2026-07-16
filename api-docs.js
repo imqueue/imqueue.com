@@ -107,6 +107,13 @@ function main() {
       if (count === 0) {
         throw new Error(`No markdown produced for ${pkg.name} — aborting`);
       }
+      // Open the package docs directly: replace API Documenter's top-level
+      // "Packages" list (index.html) with the package's own page.
+      const pkgPage = path.join(outDir, `${pkg.name}.html`);
+      if (!fs.existsSync(pkgPage)) {
+        throw new Error(`Package page ${pkg.name}.html not found — cannot set index`);
+      }
+      fs.copyFileSync(pkgPage, path.join(outDir, 'index.html'));
       console.log(`Wrote ${count} pages to ${path.relative(ROOT, outDir)}`);
     }
   } finally {
