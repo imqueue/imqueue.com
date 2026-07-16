@@ -22,7 +22,7 @@ function sh(cmd, cwd) {
 function rmrf(p) { fs.rmSync(p, { recursive: true, force: true }); }
 
 function firstHeading(text, fallback) {
-  const m = text.match(/^#\s+(.+?)\s*$/m);
+  const m = text.match(/^#{1,4}\s+(.+?)\s*$/m);
   return m ? m[1].replace(/[\\`]/g, '').trim() : fallback;
 }
 
@@ -51,62 +51,68 @@ function main() {
   rmrf(TMP);
   fs.mkdirSync(TMP, { recursive: true });
 
-  for (const pkg of PKGS) {
-    const version = require(path.join(pkg.repo, 'package.json')).version;
-    console.log(`\n=== @imqueue/${pkg.name}@${version} ===`);
+  try {
+    for (const pkg of PKGS) {
+      const version = require(path.join(pkg.repo, 'package.json')).version;
+      console.log(`\n=== @imqueue/${pkg.name}@${version} ===`);
 
-    // 1. build sibling -> fresh .d.ts
-    sh('npm run build', pkg.repo);
+      // 1. build sibling -> fresh .d.ts
+      sh('npm run build', pkg.repo);
 
-    // 2. API Extractor via the programmatic API (not `npx api-extractor run`):
-    //    passing the sibling's own package.json ensures the model is labeled
-    //    @imqueue/<pkg>! instead of imqueue.com! -> .api-tmp/<pkg>.api.json
-    const configFilePath = path.join(ROOT, pkg.config);
-    const extractorConfig = ExtractorConfig.prepare({
-      configObject: ExtractorConfig.loadFile(configFilePath),
-      configObjectFullPath: configFilePath,
-      packageJsonFullPath: path.join(pkg.repo, 'package.json'),
-    });
-    const result = Extractor.invoke(extractorConfig, {
-      localBuild: true,
-      showVerboseMessages: false,
-    });
-    if (!result.succeeded) {
-      throw new Error(`API Extractor failed for ${pkg.name} (${result.errorCount} errors)`);
-    }
-    const apiJsonFilePath = extractorConfig.apiJsonFilePath;
+      // 2. API Extractor via the programmatic API (not `npx api-extractor run`):
+      //    passing the sibling's own package.json ensures the model is labeled
+      //    @imqueue/<pkg>! instead of imqueue.com! -> .api-tmp/<pkg>.api.json
+      const configFilePath = path.join(ROOT, pkg.config);
+      const extractorConfig = ExtractorConfig.prepare({
+        configObject: ExtractorConfig.loadFile(configFilePath),
+        configObjectFullPath: configFilePath,
+        packageJsonFullPath: path.join(pkg.repo, 'package.json'),
+      });
+      const result = Extractor.invoke(extractorConfig, {
+        localBuild: true,
+        showVerboseMessages: false,
+      });
+      if (!result.succeeded) {
+        throw new Error(`API Extractor failed for ${pkg.name} (${result.errorCount} errors)`);
+      }
+      const apiJsonFilePath = extractorConfig.apiJsonFilePath;
 
-    // isolate the model in its own input folder for the documenter
-    const modelDir = path.join(TMP, `${pkg.name}-model`);
-    fs.mkdirSync(modelDir, { recursive: true });
-    fs.copyFileSync(
-      apiJsonFilePath,
-      path.join(modelDir, `${pkg.name}.api.json`),
-    );
-
-    // 3. API Documenter -> markdown
-    const mdDir = path.join(TMP, `${pkg.name}-md`);
-    sh(`npx api-documenter markdown --input-folder "${modelDir}" --output-folder "${mdDir}"`);
-
-    // 4. render markdown -> standalone HTML into api/<pkg>/<version>/
-    const outDir = path.join(ROOT, 'api', pkg.name, version);
-    rmrf(outDir);
-    fs.mkdirSync(outDir, { recursive: true });
-    let count = 0;
-    for (const file of fs.readdirSync(mdDir)) {
-      if (!file.endsWith('.md')) continue;
-      const src = fs.readFileSync(path.join(mdDir, file), 'utf8');
-      const title = `${firstHeading(src, pkg.name)} | @imqueue/${pkg.name} ${version}`;
-      fs.writeFileSync(
-        path.join(outDir, file.replace(/\.md$/, '.html')),
-        renderPage(src, title),
+      // isolate the model in its own input folder for the documenter
+      const modelDir = path.join(TMP, `${pkg.name}-model`);
+      fs.mkdirSync(modelDir, { recursive: true });
+      fs.copyFileSync(
+        apiJsonFilePath,
+        path.join(modelDir, `${pkg.name}.api.json`),
       );
-      count++;
+
+      // 3. API Documenter -> markdown
+      const mdDir = path.join(TMP, `${pkg.name}-md`);
+      sh(`npx api-documenter markdown --input-folder "${modelDir}" --output-folder "${mdDir}"`);
+
+      // 4. render markdown -> standalone HTML into api/<pkg>/<version>/
+      const outDir = path.join(ROOT, 'api', pkg.name, version);
+      rmrf(outDir);
+      fs.mkdirSync(outDir, { recursive: true });
+      let count = 0;
+      for (const file of fs.readdirSync(mdDir)) {
+        if (!file.endsWith('.md')) continue;
+        const src = fs.readFileSync(path.join(mdDir, file), 'utf8');
+        const title = `${firstHeading(src, pkg.name)} | @imqueue/${pkg.name} ${version}`;
+        fs.writeFileSync(
+          path.join(outDir, file.replace(/\.md$/, '.html')),
+          renderPage(src, title),
+        );
+        count++;
+      }
+      if (count === 0) {
+        throw new Error(`No markdown produced for ${pkg.name} — aborting`);
+      }
+      console.log(`Wrote ${count} pages to ${path.relative(ROOT, outDir)}`);
     }
-    console.log(`Wrote ${count} pages to ${path.relative(ROOT, outDir)}`);
+  } finally {
+    rmrf(TMP);
   }
 
-  rmrf(TMP);
   console.log('\nDone!');
 }
 
