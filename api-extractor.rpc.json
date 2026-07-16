@@ -1,0 +1,34 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "projectFolder": "../rpc",
+  "mainEntryPointFilePath": "<projectFolder>/index.d.ts",
+  "bundledPackages": ["@imqueue/core"],
+  "compiler": {
+    "overrideTsconfig": {
+      "compilerOptions": {
+        "target": "ESNext",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "skipLibCheck": true,
+        "types": [],
+        "lib": ["ESNext"]
+      },
+      "include": ["index.d.ts"]
+    }
+  },
+  "apiReport": { "enabled": false },
+  "docModel": {
+    "enabled": true,
+    "apiJsonFilePath": ".api-tmp/rpc.api.json"
+  },
+  "dtsRollup": { "enabled": false },
+  "tsdocMetadata": { "enabled": false },
+  "messages": {
+    "compilerMessageReporting": { "default": { "logLevel": "warning" } },
+    "extractorMessageReporting": {
+      "default": { "logLevel": "warning" },
+      "ae-missing-release-tag": { "logLevel": "none" },
+      "ae-unresolved-link": { "logLevel": "none" }
+    }
+  }
+}
