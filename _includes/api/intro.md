@@ -15,9 +15,9 @@ core features in you development or RPC features as well.
 For example, such imports are equivalent from development point of view:
 
 ~~~typescript
-import { IMQ, uuid, profile } from '@imqueue/core';
-import { IMQ, uuid, profile } from '@imqueue/rpc';
+import { profile, IMQMode } from '@imqueue/core';
+import { profile, IMQMode } from '@imqueue/rpc';
 ~~~
 
-As `IMQ`, `uuid` and `profile` are defined in core package which is a
+As `profile` and `IMQMode` are defined in core package which is a
 dependency of rpc package.
