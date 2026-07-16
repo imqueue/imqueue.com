@@ -28,6 +28,7 @@ icon: book-open
 {% include api/rpc.md %}
 {% include api/mq.md %}
 {% include api/misc.md %}
+{% include api/migration.md %}
 
 ## Generated API Docs
 
