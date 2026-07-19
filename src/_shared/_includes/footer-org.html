@@ -1,0 +1,53 @@
+<footer class="footer">
+  <div class="footer-grid container">
+    <div>
+      <div style="margin-bottom:10px;">{% include "brand-lockup.html", aria: "@imqueue" %}</div>
+      <p class="footer-brand-desc">RPC over an intercommunication messaging queue. For TypeScript &amp; NodeJS back-ends.</p>
+    </div>
+    <div>
+      <h4>Docs</h4>
+      <div class="footer-links">
+        <a href="/intro/">Introduction</a>
+        <a href="/get-started/">Get started</a>
+        <a href="/tutorial/">Tutorial</a>
+        <a href="/api/">API</a>
+      </div>
+    </div>
+    <div>
+      <h4>Packages</h4>
+      <div class="footer-links">
+        <a href="https://npmjs.com/package/@imqueue/core">@imqueue/core</a>
+        <a href="https://npmjs.com/package/@imqueue/rpc">@imqueue/rpc</a>
+        <a href="https://npmjs.com/package/@imqueue/cli">@imqueue/cli</a>
+      </div>
+    </div>
+    <div>
+      <h4>Project</h4>
+      <div class="footer-links">
+        <a href="https://github.com/imqueue">GitHub</a>
+        <a href="/contributing/">Contributing</a>
+        <a href="/licence/">License</a>
+        <a href="{{ otherUrl }}/">Commercial ↗</a>
+      </div>
+      <div id="donate-button-container" style="margin-top:14px;">
+        <div id="donate-button"></div>
+        <script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js" charset="UTF-8" async></script>
+        <script>
+          window.addEventListener('load', function () {
+            if (window.PayPal && PayPal.Donation) {
+              PayPal.Donation.Button({
+                env:'production',
+                hosted_button_id:'A5X7U5W9D3SRE',
+                image:{ src:'https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif', alt:'Donate with PayPal button', title:'PayPal - The safer, easier way to pay online!' }
+              }).render('#donate-button');
+            }
+          });
+        </script>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom container">
+    <span>@imqueue open source · GPL-3.0</span>
+    <span>Need a commercial license? <a href="{{ otherUrl }}/pricing/" style="color:var(--accent);font-weight:600;">imqueue.com →</a></span>
+  </div>
+</footer>

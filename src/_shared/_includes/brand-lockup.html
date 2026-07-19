@@ -1,0 +1,18 @@
+{%- comment -%}
+Reusable brand lockup. Params (LiquidJS include vars):
+  href   — link target (default "/")
+  name   — brand name text (default "@imqueue")
+  slogan — optional tagline; when present the glyph spans name+slogan height
+  lg     — truthy for the larger name variant (commercial nav)
+  aria   — accessible label
+The glyph auto-sizes to the text block height via CSS (.brand__mark svg { height:100% }).
+{%- endcomment -%}
+{%- assign _href = href | default: "/" -%}
+{%- assign _name = name | default: "@imqueue" -%}
+<a href="{{ _href }}" class="brand{% if lg %} brand--lg{% endif %}{% if slogan %} brand--stacked{% endif %}"{% if aria %} aria-label="{{ aria }}"{% endif %}>
+  <span class="brand__mark">{% include "brand-logo.html" %}</span>
+  <span class="brand__text">
+    <span class="brand__name">{{ _name }}</span>
+    {%- if slogan %}<span class="brand__slogan">{{ slogan }}</span>{%- endif %}
+  </span>
+</a>
