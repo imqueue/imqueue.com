@@ -1,0 +1,19 @@
+# imqueue.com is the commercial edition; all documentation and open-source
+# content now lives on imqueue.org. 301 the legacy imqueue.com content paths to
+# their new home so inbound links and search rankings carry over.
+#
+# Note: /api/contact is a Pages Function and is handled before _redirects, so
+# the /api/* rule below does not affect the contact form.
+
+/docs           https://imqueue.org/docs/               301
+/docs/*         https://imqueue.org/docs/:splat         301
+/tutorial       https://imqueue.org/tutorial/           301
+/tutorial/*     https://imqueue.org/tutorial/:splat     301
+/intro          https://imqueue.org/intro/              301
+/intro/*        https://imqueue.org/intro/:splat        301
+/get-started    https://imqueue.org/get-started/        301
+/get-started/*  https://imqueue.org/get-started/:splat  301
+/blog           https://imqueue.org/blog/               301
+/blog/*         https://imqueue.org/blog/:splat         301
+/api            https://imqueue.org/api/                301
+/api/*          https://imqueue.org/api/:splat          301

@@ -58,7 +58,13 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "images": "images" });
   eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/favicon.svg`]: "favicon.svg" });
   eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/favicon.ico`]: "favicon.ico" });
-  eleventyConfig.addPassthroughCopy("robots.txt");
+  // robots.txt + sitemap.xml are generated per edition (see src/robots.liquid,
+  // src/sitemap.liquid) so each domain advertises its own sitemap URL.
+
+  // imqueue.com: 301 legacy content paths to their new home on imqueue.org.
+  if (isCom) {
+    eleventyConfig.addPassthroughCopy({ "src/com/_redirects": "_redirects" });
+  }
 
   // Generated API reference docs (api-documenter output) — .org only.
   if (!isCom) {
