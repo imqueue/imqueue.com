@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en"{% if skin %} data-skin="{{ skin }}"{% endif %}>
+<head>
+{% include "head.html" %}
+</head>
+<body>
+  <div class="page">
+    {%- assign _ribbon = "ribbon-" | append: edition | append: ".html" -%}
+    {%- assign _nav = "nav-" | append: edition | append: ".html" -%}
+    {%- assign _footer = "footer-" | append: edition | append: ".html" -%}
+    {% include _ribbon %}
+    {% include _nav %}
+    <main>
+      {{ content }}
+    </main>
+    {% include _footer %}
+  </div>
+  <script src="/js/site.js" defer></script>
+</body>
+</html>

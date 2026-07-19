@@ -1,0 +1,14 @@
+/* Minimal reset shared by both editions. */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+h1, h2, h3, h4, h5, h6, p, figure { margin: 0; }
+a { color: inherit; text-decoration: none; }
+a:hover { color: var(--accent); }
+img, svg { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+input, select, textarea { font: inherit; }
+ul { margin: 0; padding: 0; list-style: none; }
+code, pre { font-family: var(--font-mono); }
+::selection { background: var(--accent); color: var(--on-accent, #fff); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
