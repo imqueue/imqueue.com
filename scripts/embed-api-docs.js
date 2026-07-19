@@ -32,6 +32,9 @@ for (const [pkg, version] of Object.entries(LATEST)) {
     /href="(?:\.\/)?([A-Za-z0-9._-]+)\.html(#[^"]*)?"/g,
     (_m, base, anchor) => `href="${urlFor(base)}${anchor || ''}"`,
   );
+  // The api-documenter "Home" crumb links back to the package page; point it at
+  // the curated API reference landing (/api/) instead of duplicating the package crumb.
+  const fixHome = (html) => html.replace(/href="[^"]*">Home<\/a>/g, 'href="/api/">Home</a>');
   const mainOf = (html) => {
     const m = html.match(/<main class="apidoc">([\s\S]*?)<\/main>/);
     return m ? m[1].trim() : null;
@@ -63,7 +66,7 @@ for (const [pkg, version] of Object.entries(LATEST)) {
     const body = mainOf(html);
     if (body == null) { console.warn(`no <main> in ${file}, skipping`); continue; }
     const title = titleOf(html, file.replace(/\.html$/, ''));
-    const out = `---\ntitle: ${JSON.stringify(title)}\n---\n{% raw %}\n${rewriteLinks(body)}\n{% endraw %}\n`;
+    const out = `---\ntitle: ${JSON.stringify(title)}\n---\n{% raw %}\n${fixHome(rewriteLinks(body))}\n{% endraw %}\n`;
     fs.writeFileSync(path.join(outDir, file), out);
     count++;
   }
@@ -72,7 +75,7 @@ for (const [pkg, version] of Object.entries(LATEST)) {
   const idxBody = mainOf(pkgHtml);
   fs.writeFileSync(
     path.join(outDir, 'index.html'),
-    `---\ntitle: ${JSON.stringify(`@imqueue/${pkg} ${version} · API reference`)}\n---\n{% raw %}\n${rewriteLinks(idxBody)}\n{% endraw %}\n`,
+    `---\ntitle: ${JSON.stringify(`@imqueue/${pkg} ${version} · API reference`)}\n---\n{% raw %}\n${fixHome(rewriteLinks(idxBody))}\n{% endraw %}\n`,
   );
 
   fs.writeFileSync(
