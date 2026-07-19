@@ -4,6 +4,7 @@
 {% include "head.html" %}
 </head>
 <body>
+  {% if edition == "com" %}<div class="fx-blobs" aria-hidden="true"><span class="fx-blob fx-blob1"></span><span class="fx-blob fx-blob2"></span></div>{% endif %}
   <div class="page">
     {%- assign _ribbon = "ribbon-" | append: edition | append: ".html" -%}
     {%- assign _nav = "nav-" | append: edition | append: ".html" -%}
