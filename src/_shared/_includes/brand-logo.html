@@ -1,0 +1,9 @@
+{%- comment -%}
+@imqueue glyph. Emits an equal width/height (default 16) purely to give the SVG a
+1:1 intrinsic ratio, so CSS `height:100%; width:auto` renders it square. The value is
+kept small (<= brand name line height) so it never forces the lockup line taller than
+the text block — the glyph then stretches to name-only or name+slogan height via CSS.
+Pass `size` to force explicit dimensions for standalone use.
+{%- endcomment -%}
+{%- assign _sz = size | default: 16 -%}
+<svg viewBox="3 10 42 28" width="{{ _sz }}" height="{{ _sz }}" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M33 12H15a8 8 0 0 0-8 8v8a8 8 0 0 0 8 8h18"/><circle cx="16" cy="24" r="2.6" fill="currentColor" stroke="none"/><circle cx="24" cy="24" r="2.6" fill="currentColor" stroke="none"/><circle cx="41" cy="24" r="2.8" fill="currentColor" stroke="none"/></svg>

@@ -1,0 +1,68 @@
+/* Flux skin — imqueue.com (commercial). Purple/pink gradient, Space Grotesk display.
+   Token contract shared with the Terminal skin; values are edition-specific.
+   Default = dark. System mode follows prefers-color-scheme; explicit modes use
+   [data-theme] set by the theme switcher. */
+
+:root {
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* dark (default) */
+  --bg: #0c0a17;
+  --navbg: rgba(12,10,23,.82);
+  --surface: rgba(255,255,255,.045);
+  --surface2: rgba(255,255,255,.03);
+  --ink: #f2eeff;
+  --muted: #9a92c0;
+  --accent: #7b61ff;
+  --accent2: #ff5db1;
+  --line: rgba(255,255,255,.12);
+  --code: #d6cffb;
+  --code-bg: rgba(255,255,255,.04);
+  --on-accent: #ffffff;
+  --shadow: rgba(0,0,0,.6);
+  --eyebrow: #b9a6ff;
+  --field-bg: #171326;
+  --blob: .42;
+}
+
+:root[data-theme="light"] {
+  --bg: #faf9ff;
+  --navbg: rgba(250,249,255,.82);
+  --surface: #ffffff;
+  --surface2: #ffffff;
+  --ink: #171226;
+  --muted: #6b6486;
+  --accent: #6d4bff;
+  --accent2: #e0468f;
+  --line: rgba(23,18,38,.12);
+  --code: #3a2f66;
+  --code-bg: #f3f1fb;
+  --on-accent: #ffffff;
+  --shadow: rgba(23,18,38,.12);
+  --eyebrow: #5b3fd6;
+  --field-bg: #ffffff;
+  --blob: .16;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg: #faf9ff;
+    --navbg: rgba(250,249,255,.82);
+    --surface: #ffffff;
+    --surface2: #ffffff;
+    --ink: #171226;
+    --muted: #6b6486;
+    --accent: #6d4bff;
+    --accent2: #e0468f;
+    --line: rgba(23,18,38,.12);
+    --code: #3a2f66;
+    --code-bg: #f3f1fb;
+    --on-accent: #ffffff;
+    --shadow: rgba(23,18,38,.12);
+    --eyebrow: #5b3fd6;
+    --field-bg: #ffffff;
+    --blob: .16;
+  }
+}
