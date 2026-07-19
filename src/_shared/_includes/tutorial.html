@@ -1,0 +1,28 @@
+---
+layout: base.html
+---
+<div class="container tut-layout" style="padding-top:56px;padding-bottom:64px;">
+  <aside class="tut-side">
+    <div class="lbl">Chapters</div>
+    {% for ch in tutorialChapters %}
+    <a href="{{ ch.url }}" class="tut-ch{% if ch.n == chapter %} active{% endif %}">{{ ch.n }} · {{ ch.title }}</a>
+    {% endfor %}
+  </aside>
+
+  <div>
+    <header style="margin-bottom:26px;">
+      {% if docLabel %}<div class="section-label" style="margin-bottom:14px;">// {{ docLabel }}</div>{% endif %}
+      {% if title %}<h1 style="font-family:var(--font-display);font-size:36px;line-height:1.1;letter-spacing:-.03em;margin:0 0 12px;">{{ title }}</h1>{% endif %}
+      {% if lead %}<p class="muted" style="font-size:17px;line-height:1.65;margin:0;">{{ lead }}</p>{% endif %}
+    </header>
+
+    <article class="prose">
+      {{ content }}
+    </article>
+
+    <nav class="tut-nav">
+      {% if tutPrev %}<a href="{{ tutPrev.url }}" class="prev">← {{ tutPrev.title }}</a>{% else %}<span></span>{% endif %}
+      {% if tutNext %}<a href="{{ tutNext.url }}" class="next">{{ tutNext.title }} →</a>{% endif %}
+    </nav>
+  </div>
+</div>
