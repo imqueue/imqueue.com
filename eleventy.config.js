@@ -60,6 +60,13 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/favicon.ico`]: "favicon.ico" });
   eleventyConfig.addPassthroughCopy("robots.txt");
 
+  // Generated API reference docs (api-documenter output) — .org only.
+  if (!isCom) {
+    eleventyConfig.addPassthroughCopy({ "api/core": "api/core" });
+    eleventyConfig.addPassthroughCopy({ "api/rpc": "api/rpc" });
+    eleventyConfig.addPassthroughCopy({ "api/assets": "api/assets" });
+  }
+
   return {
     dir: {
       input: "src",

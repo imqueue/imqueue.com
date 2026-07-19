@@ -55,4 +55,38 @@
   } catch (e) {}
 
   reflect(currentMode());
+
+  // Move the in-content [[toc]] into the right-hand sidebar slot, if present.
+  (function () {
+    var layout = document.querySelector('.doc-layout');
+    if (!layout) return;
+    var toc = layout.querySelector('.prose > .table-of-contents');
+    var slot = layout.querySelector('[data-toc-slot]');
+    if (toc && slot && toc.querySelector('a')) {
+      slot.appendChild(toc);
+      layout.classList.add('has-toc');
+    }
+
+    // Scroll-spy: highlight the section currently in view (like the tutorial's
+    // active chapter).
+    var links = [].slice.call(layout.querySelectorAll('.doc-toc a[href^="#"]'));
+    var targets = links.map(function (a) {
+      var el = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+      return el ? { a: a, el: el } : null;
+    }).filter(Boolean);
+    if (!targets.length) return;
+
+    function sync() {
+      var current = targets[0];
+      for (var i = 0; i < targets.length; i++) {
+        if (targets[i].el.getBoundingClientRect().top - 140 <= 0) current = targets[i];
+        else break;
+      }
+      links.forEach(function (a) { a.classList.remove('active'); });
+      current.a.classList.add('active');
+    }
+    window.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync, { passive: true });
+    sync();
+  })();
 })();

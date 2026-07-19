@@ -1,0 +1,178 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "apiPkg": "core",
+  "apiVersion": "3.2.1",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "ClusteredRedisQueue",
+          "url": "/api/core/3.2.1/core.clusteredredisqueue/"
+        },
+        {
+          "name": "IMQ",
+          "url": "/api/core/3.2.1/core.imq/"
+        },
+        {
+          "name": "RedisQueue",
+          "url": "/api/core/3.2.1/core.redisqueue/"
+        },
+        {
+          "name": "UDPClusterManager",
+          "url": "/api/core/3.2.1/core.udpclustermanager/"
+        }
+      ]
+    },
+    {
+      "group": "Enumerations",
+      "items": [
+        {
+          "name": "IMQMode",
+          "url": "/api/core/3.2.1/core.imqmode/"
+        },
+        {
+          "name": "LogLevel",
+          "url": "/api/core/3.2.1/core.loglevel/"
+        }
+      ]
+    },
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "logDebugInfo({ debugTime, debugArgs, className, args, methodName, start, logger, logLevel, }, input)",
+          "url": "/api/core/3.2.1/core.logdebuginfo/"
+        },
+        {
+          "name": "profile(options)",
+          "url": "/api/core/3.2.1/core.profile/"
+        },
+        {
+          "name": "verifyLogLevel(level)",
+          "url": "/api/core/3.2.1/core.verifyloglevel/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "DebugInfoOptions",
+          "url": "/api/core/3.2.1/core.debuginfooptions/"
+        },
+        {
+          "name": "EventMap",
+          "url": "/api/core/3.2.1/core.eventmap/"
+        },
+        {
+          "name": "ILogger",
+          "url": "/api/core/3.2.1/core.ilogger/"
+        },
+        {
+          "name": "IMessage",
+          "url": "/api/core/3.2.1/core.imessage/"
+        },
+        {
+          "name": "IMessageQueue",
+          "url": "/api/core/3.2.1/core.imessagequeue/"
+        },
+        {
+          "name": "IMessageQueueAuthConnection",
+          "url": "/api/core/3.2.1/core.imessagequeueauthconnection/"
+        },
+        {
+          "name": "IMessageQueueConnection",
+          "url": "/api/core/3.2.1/core.imessagequeueconnection/"
+        },
+        {
+          "name": "IMQOptions",
+          "url": "/api/core/3.2.1/core.imqoptions/"
+        },
+        {
+          "name": "IRedisClient",
+          "url": "/api/core/3.2.1/core.iredisclient/"
+        },
+        {
+          "name": "IServerInput",
+          "url": "/api/core/3.2.1/core.iserverinput/"
+        },
+        {
+          "name": "JsonArray",
+          "url": "/api/core/3.2.1/core.jsonarray/"
+        },
+        {
+          "name": "JsonObject",
+          "url": "/api/core/3.2.1/core.jsonobject/"
+        },
+        {
+          "name": "ProfileDecoratorOptions",
+          "url": "/api/core/3.2.1/core.profiledecoratoroptions/"
+        },
+        {
+          "name": "UDPClusterManagerOptions",
+          "url": "/api/core/3.2.1/core.udpclustermanageroptions/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "DEFAULT_IMQ_OPTIONS",
+          "url": "/api/core/3.2.1/core.default_imq_options/"
+        },
+        {
+          "name": "DEFAULT_UDP_CLUSTER_MANAGER_OPTIONS",
+          "url": "/api/core/3.2.1/core.default_udp_cluster_manager_options/"
+        },
+        {
+          "name": "IMQ_CONNECTION_QUIT_TIMEOUT",
+          "url": "/api/core/3.2.1/core.imq_connection_quit_timeout/"
+        },
+        {
+          "name": "IMQ_LOG_ARGS",
+          "url": "/api/core/3.2.1/core.imq_log_args/"
+        },
+        {
+          "name": "IMQ_LOG_LEVEL",
+          "url": "/api/core/3.2.1/core.imq_log_level/"
+        },
+        {
+          "name": "IMQ_LOG_TIME_FORMAT",
+          "url": "/api/core/3.2.1/core.imq_log_time_format/"
+        },
+        {
+          "name": "IMQ_LOG_TIME",
+          "url": "/api/core/3.2.1/core.imq_log_time/"
+        },
+        {
+          "name": "IMQ_SHUTDOWN_TIMEOUT",
+          "url": "/api/core/3.2.1/core.imq_shutdown_timeout/"
+        }
+      ]
+    },
+    {
+      "group": "Type Aliases",
+      "items": [
+        {
+          "name": "AllowedTimeFormat",
+          "url": "/api/core/3.2.1/core.allowedtimeformat/"
+        },
+        {
+          "name": "AnyJson",
+          "url": "/api/core/3.2.1/core.anyjson/"
+        },
+        {
+          "name": "IMessageQueueConstructor",
+          "url": "/api/core/3.2.1/core.imessagequeueconstructor/"
+        },
+        {
+          "name": "UDPWorkerOptions",
+          "url": "/api/core/3.2.1/core.udpworkeroptions/"
+        }
+      ]
+    }
+  ]
+}

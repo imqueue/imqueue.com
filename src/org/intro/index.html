@@ -1,0 +1,66 @@
+---
+layout: base.html
+section: intro
+title: Introduction
+description: "IMQ is an Inter-Communication Messaging Queue framework for service-oriented Node & TypeScript back-ends. Create services fast and focus on functionality, not low-level messaging."
+---
+<style>
+  .intro-two { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start; }
+  .principle h3 { color:var(--accent); font-size:18px; margin-bottom:8px; }
+  .intro-hero { display:grid; grid-template-columns:1.05fr .95fr; gap:48px; align-items:center; }
+  .intro-schema { margin:0; }
+  .intro-schema img { display:block; width:100%; border:1px solid var(--line); border-radius:12px; background:#0d1512; padding:24px; }
+  .intro-schema figcaption { text-align:center; font-size:13px; color:var(--muted); margin-top:10px; }
+  @media (max-width:820px){ .intro-hero { grid-template-columns:1fr; gap:28px; } }
+  @media (max-width:760px){ .intro-two { grid-template-columns:1fr; gap:28px; } }
+</style>
+
+<section class="container" style="padding-top:56px;padding-bottom:10px;">
+  <div class="intro-hero">
+    <div>
+      <div class="section-label" style="margin-bottom:16px;">// INTRODUCTION</div>
+      <h1 style="font-family:var(--font-display);font-weight:700;font-size:44px;line-height:1.1;letter-spacing:-.03em;margin:0 0 18px;">An Inter-Communication Messaging Queue framework for SOA back-ends.</h1>
+      <p class="muted" style="font-size:18px;line-height:1.7;margin:0;">IMQ is built with Node and TypeScript and works best alongside GraphQL. It lets developers create back-end services — or microservices as a special case of SOA — fast, focusing only on functionality while IMQ handles the low-level messaging.</p>
+    </div>
+    <figure class="intro-schema">
+      <img src="/images/base-schema.svg" alt="@imqueue architecture: clients and services communicating through a centralized queue broker">
+      <figcaption>Clients and services communicate through a centralized queue broker.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-label">// KEY CAPABILITIES</div>
+  <div class="grid grid-3">
+    <a href="https://github.com/imqueue/core" class="card"><div style="font-family:var(--font-mono);color:var(--accent);font-size:14px;margin-bottom:8px;">@imqueue/core</div><p>Messaging queue as the base communication protocol between services.</p></a>
+    <a href="https://github.com/imqueue/rpc" class="card"><div style="font-family:var(--font-mono);color:var(--accent);font-size:14px;margin-bottom:8px;">@imqueue/rpc</div><p>An RPC-like programming interface over the messaging queue.</p></a>
+    <a href="https://github.com/imqueue/cli" class="card"><div style="font-family:var(--font-mono);color:var(--accent);font-size:14px;margin-bottom:8px;">@imqueue/cli</div><p>A rapid application development command line interface.</p></a>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-label">// KEY PRINCIPLES</div>
+  <div class="grid grid-2">
+    <div class="card principle"><h3>Reliable</h3><p>Safe-delivery messaging plus "leader"/"follower" deployment of the back-end engine fully guarantee data delivery between services.</p></div>
+    <div class="card principle"><h3>Scalable</h3><p>Cluster the backend engine, fork across a machine's cores, and scale horizontally across servers — there is no technical limit to the throughput a system built on IMQ can handle.</p></div>
+    <div class="card principle"><h3>Simple (KISS)</h3><p>Low entry for JS/TypeScript developers — minutes to your first service. No "hidden knowledge", a clean JSON-based protocol, and familiar patterns (Messaging Queue and RPC).</p></div>
+    <div class="card principle"><h3>Self-describing</h3><p>Every service describes itself, so clients are generated dynamically on-the-fly or pre-generated to files. You focus only on the service.</p></div>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-label">// HOW IT WORKS</div>
+  <div class="intro-two">
+    <div>
+      <h2 style="font-family:var(--font-display);font-size:24px;margin:0 0 12px;">A centralized broker</h2>
+      <p class="muted" style="line-height:1.75;margin:0 0 14px;">IMQ implements a messaging queue over a broker (Redis today, adapters are pluggable) that routes messages between services and their clients. All messages flow through a single point, so monitoring and debugging use the tooling the broker already gives you.</p>
+      <p class="muted" style="line-height:1.75;margin:0;">No service discovery to implement — instances compete for their messages. If one is busy or down, another consumes the message and delivers the response anyway. Load-balancing happens naturally, with good distribution across nodes.</p>
+    </div>
+    <div>
+      <h2 style="font-family:var(--font-display);font-size:24px;margin:0 0 12px;">Service &amp; client model</h2>
+      <p class="muted" style="line-height:1.75;margin:0 0 14px;">From a development point of view a service is as simple as a class with exposed methods. A client is a local representation of that remote service's interface.</p>
+      <p class="muted" style="line-height:1.75;margin:0 0 18px;">Call a client method and it takes care of delivering the message to the queue, invoking the matching service method, and returning the result. At development level it simply looks like remote procedure calls — and clients are generated for you, so you focus only on the service.</p>
+      <a href="/get-started/" style="font-family:var(--font-mono);font-size:14px;color:var(--accent);">→ Get started in a few minutes</a>
+    </div>
+  </div>
+</section>

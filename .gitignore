@@ -23,7 +23,7 @@ node_modules/
 connect.lock/
 coverage/
 typings/
-docs/
+/docs/
 
 debug*
 *.pid
