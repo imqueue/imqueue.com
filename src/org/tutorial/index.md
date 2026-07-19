@@ -64,52 +64,52 @@ Our high-level application architecture looks like this:
 <line x1="410" y1="240" x2="507" y2="330" marker-end="url(#hla-ah)"/>
 <line x1="410" y1="240" x2="702" y2="330" marker-end="url(#hla-ah)"/>
 <line x1="410" y1="108" x2="410" y2="174" marker-end="url(#hla-ah)"/>
-<line x1="117" y1="412" x2="117" y2="450" marker-end="url(#hla-ah)"/>
-<line x1="312" y1="412" x2="312" y2="450" marker-end="url(#hla-ah)"/>
-<line x1="507" y1="412" x2="507" y2="450" marker-end="url(#hla-ah)"/>
-<line x1="702" y1="412" x2="702" y2="450" marker-end="url(#hla-ah)"/>
+<line x1="117" y1="428" x2="117" y2="450" marker-end="url(#hla-ah)"/>
+<line x1="312" y1="428" x2="312" y2="450" marker-end="url(#hla-ah)"/>
+<line x1="507" y1="428" x2="507" y2="450" marker-end="url(#hla-ah)"/>
+<line x1="702" y1="428" x2="702" y2="450" marker-end="url(#hla-ah)"/>
 </g>
 <g class="elab">
-<rect x="352" y="130" width="116" height="20" rx="5"/>
+<rect x="348" y="127" width="124" height="24" rx="6"/>
 <text x="410" y="144">GraphQL / HTTP</text>
-<rect x="345" y="276" width="130" height="20" rx="5"/>
+<rect x="342" y="273" width="136" height="24" rx="6"/>
 <text x="410" y="290">@imqueue · RPC</text>
 </g>
-<g transform="translate(295,44)">
-<rect class="node" width="230" height="64" rx="13"/>
+<g transform="translate(285,44)">
+<rect class="node" width="250" height="64" rx="13"/>
 <g class="ic" transform="translate(20,19)"><rect x="0" y="0" width="30" height="24" rx="3"/><line x1="0" y1="7" x2="30" y2="7"/><circle class="dot" cx="4.5" cy="3.5" r="1.2"/><circle class="dot" cx="9" cy="3.5" r="1.2"/><circle class="dot" cx="13.5" cy="3.5" r="1.2"/></g>
-<text class="nt" x="64" y="30">Web App</text>
-<text class="ns" x="64" y="47">React / Relay / GraphQL</text>
+<text class="nt" x="64" y="28">Web App</text>
+<text class="ns" x="64" y="49">React / Relay / GraphQL</text>
 </g>
-<g transform="translate(295,176)">
-<rect class="hub" width="230" height="64" rx="13"/>
+<g transform="translate(285,176)">
+<rect class="hub" width="250" height="64" rx="13"/>
 <g class="ic-h" transform="translate(20,18)"><circle cx="14" cy="14" r="13"/><line x1="1" y1="14" x2="27" y2="14"/><ellipse cx="14" cy="14" rx="6" ry="13"/><line x1="4" y1="7" x2="24" y2="7"/><line x1="4" y1="21" x2="24" y2="21"/></g>
-<text class="ht" x="64" y="30">API Service</text>
-<text class="hs" x="64" y="47">GraphQL endpoint</text>
+<text class="ht" x="64" y="28">API Service</text>
+<text class="hs" x="64" y="49">GraphQL endpoint</text>
 </g>
 <g transform="translate(32,330)">
-<rect class="node" width="170" height="82" rx="13"/>
+<rect class="node" width="170" height="98" rx="13"/>
 <g class="ic" transform="translate(70,14)"><rect x="0" y="0" width="30" height="11" rx="2.5"/><rect x="0" y="14" width="30" height="11" rx="2.5"/><circle class="dot" cx="5" cy="5.5" r="1.4"/><circle class="dot" cx="5" cy="19.5" r="1.4"/></g>
 <text class="nt mid" x="85" y="58">User Service</text>
-<text class="ns mid" x="85" y="73">Node.js · TS</text>
+<text class="ns mid" x="85" y="83">Node.js · TS</text>
 </g>
 <g transform="translate(227,330)">
-<rect class="node" width="170" height="82" rx="13"/>
+<rect class="node" width="170" height="98" rx="13"/>
 <g class="ic" transform="translate(70,14)"><rect x="0" y="0" width="30" height="11" rx="2.5"/><rect x="0" y="14" width="30" height="11" rx="2.5"/><circle class="dot" cx="5" cy="5.5" r="1.4"/><circle class="dot" cx="5" cy="19.5" r="1.4"/></g>
 <text class="nt mid" x="85" y="58">Auth Service</text>
-<text class="ns mid" x="85" y="73">Node.js · TS</text>
+<text class="ns mid" x="85" y="83">Node.js · TS</text>
 </g>
 <g transform="translate(422,330)">
-<rect class="node" width="170" height="82" rx="13"/>
+<rect class="node" width="170" height="98" rx="13"/>
 <g class="ic" transform="translate(70,14)"><rect x="0" y="0" width="30" height="11" rx="2.5"/><rect x="0" y="14" width="30" height="11" rx="2.5"/><circle class="dot" cx="5" cy="5.5" r="1.4"/><circle class="dot" cx="5" cy="19.5" r="1.4"/></g>
 <text class="nt mid" x="85" y="58">Car Service</text>
-<text class="ns mid" x="85" y="73">Node.js · TS</text>
+<text class="ns mid" x="85" y="83">Node.js · TS</text>
 </g>
 <g transform="translate(617,330)">
-<rect class="node" width="170" height="82" rx="13"/>
+<rect class="node" width="170" height="98" rx="13"/>
 <g class="ic" transform="translate(70,14)"><rect x="0" y="0" width="30" height="11" rx="2.5"/><rect x="0" y="14" width="30" height="11" rx="2.5"/><circle class="dot" cx="5" cy="5.5" r="1.4"/><circle class="dot" cx="5" cy="19.5" r="1.4"/></g>
 <text class="nt mid" x="85" y="58">Time-Table Service</text>
-<text class="ns mid" x="85" y="73">Node.js · TS</text>
+<text class="ns mid" x="85" y="83">Node.js · TS</text>
 </g>
 <g transform="translate(32,452)">
 <rect class="store" width="170" height="34" rx="9"/>
