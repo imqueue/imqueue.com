@@ -46,7 +46,7 @@ code { color: var(--accent); }
 }
 .btn:hover { transform: translateY(-1px); color: inherit; }
 .btn-primary { background: var(--accent); color: var(--on-accent); }
-.btn-gradient { background: linear-gradient(100deg, var(--accent), var(--accent2)); color: #fff; }
+.btn-gradient { background: linear-gradient(100deg, var(--accent), var(--accent2)); background-origin: border-box; color: #fff; }
 .btn-ghost { border-color: var(--line); color: var(--ink); background: none; }
 .btn-sm { padding: 9px 16px; font-size: 13px; border-radius: 8px; }
 

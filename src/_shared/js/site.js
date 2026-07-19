@@ -98,7 +98,7 @@
     var thanks = document.querySelector('[data-thanks]');
     var errEl = form.querySelector('[data-form-error]');
     var useTypeInput = form.querySelector('input[name="useType"]');
-    var empInput = form.querySelector('input[name="employees"]');
+    var empInput = form.querySelector('input[name="developers"]');
 
     function showError(msg) {
       if (!errEl) return;

@@ -13,7 +13,7 @@
 @media (prefers-reduced-motion: reduce) { .fx-blob { animation: none !important; } }
 
 /* the surface cards use a translucent fill in dark mode — keep them above blobs */
-.fx-card, .fx-form-card, .fx-stat, .fx-faq-item { position: relative; }
+.fx-card, .fx-form-card, .fx-stat, .fx-acc { position: relative; }
 
 /* ---- shared gradient helpers ---- */
 .fx-grad { background: linear-gradient(100deg, var(--accent), var(--accent2));
@@ -92,7 +92,7 @@ select.fx-in option { background: var(--field-bg); color: var(--ink); }
 .fx-seg { display: flex; gap: 10px; }
 .fx-seg-btn { flex: 1; cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: 600;
   padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
-.fx-seg-btn.active { border-color: transparent; background: linear-gradient(100deg, var(--accent), var(--accent2)); color: #fff; }
+.fx-seg-btn.active { border-color: transparent; background: linear-gradient(100deg, var(--accent), var(--accent2)); background-origin: border-box; color: #fff; }
 .fx-emp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .fx-emp { cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 600; padding: 11px 6px;
   border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
@@ -120,12 +120,21 @@ select.fx-in option { background: var(--field-bg); color: var(--ink); }
 .fx-thanks-again { background: var(--surface); border: 1px solid var(--line); color: var(--ink);
   padding: 11px 22px; border-radius: 999px; font-size: 14px; cursor: pointer; font-family: var(--font-body); }
 
-/* licensing FAQ */
+/* licensing FAQ (accordion) */
 .fx-faq { display: flex; flex-direction: column; gap: 12px; }
-.fx-faq-item { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px; }
-.fx-faq-item h3 { font-family: var(--font-display); font-weight: 600; font-size: 16px; margin: 0 0 6px; }
-.fx-faq-item p { font-size: 14px; color: var(--muted); line-height: 1.6; margin: 0; }
-.fx-faq-item code { font-family: var(--font-mono); color: var(--accent); }
+.fx-acc { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.fx-acc summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 20px 24px; font-family: var(--font-display); font-weight: 600; font-size: 16px; color: var(--ink); }
+.fx-acc summary::-webkit-details-marker { display: none; }
+.fx-acc summary::after { content: ""; flex: none; width: 9px; height: 9px;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: translateY(-2px) rotate(45deg); transition: transform .2s ease; }
+.fx-acc[open] summary::after { transform: translateY(2px) rotate(-135deg); }
+.fx-acc summary:hover { color: var(--accent); }
+.fx-acc summary:hover::after { border-color: var(--accent); }
+.fx-acc-body { padding: 0 24px 20px; }
+.fx-acc-body p { font-size: 14px; color: var(--muted); line-height: 1.6; margin: 0; }
+.fx-acc-body code { font-family: var(--font-mono); color: var(--accent); }
 
 /* ---- responsive ---- */
 @media (max-width: 760px) {
