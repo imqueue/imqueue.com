@@ -1,0 +1,29 @@
+<nav class="nav">
+  <div class="nav-inner container">
+    {% include "brand-lockup.html", slogan: "RPC enqueued!", lg: true, aria: "@imqueue home" %}
+    <div class="nav-links">
+      <a href="/#why" class="nav-link" style="font-family:var(--font-body);">Why commercial</a>
+      <a href="/pricing/" class="nav-link{% if section == 'pricing' %} active{% endif %}" style="font-family:var(--font-body);">Pricing</a>
+      <a href="{{ otherUrl }}/" class="nav-link" style="font-family:var(--font-body);">Docs ↗</a>
+    </div>
+    <div class="nav-actions">
+      {% include "theme-toggle.html" %}
+      <a href="{{ otherUrl }}/" class="nav-outline" style="border-radius:999px;font-family:var(--font-body);">Open source ↗</a>
+      <a href="/pricing/" class="btn btn-gradient btn-sm" style="border-radius:999px;">Talk to sales</a>
+    </div>
+    <button class="burger" data-nav-toggle aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
+  <div class="mobile-nav" data-mobile-nav>
+    <div class="container">
+      <a href="/#why">Why commercial</a>
+      <a href="/pricing/">Pricing</a>
+      <a href="{{ otherUrl }}/">Docs ↗</a>
+      <a href="{{ otherUrl }}/">Open source ↗</a>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 6px;">
+        <span style="font-size:15px;">Theme</span>
+        {% include "theme-toggle.html" %}
+      </div>
+      <a href="/pricing/" class="btn btn-gradient" style="margin-top:12px;border-radius:12px;">Talk to sales</a>
+    </div>
+  </div>
+</nav>

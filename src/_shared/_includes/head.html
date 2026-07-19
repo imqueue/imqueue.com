@@ -1,0 +1,36 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="google-site-verification" content="lZDiiXownAih-OVzjgDS_lEpZruoAw3JCMoz3xkCVIE">
+<title>{% if title %}{{ title }} · {{ siteName }}{% else %}{{ siteName }} — {{ site.slogan }}{% endif %}</title>
+<meta name="description" content="{{ description | default: site.slogan }}">
+<link rel="canonical" href="{{ siteUrl }}{{ page.url }}">
+<link rel="icon" href="/favicon.svg?v=4" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico?v=4" sizes="any">
+<link rel="apple-touch-icon" href="/favicon.svg?v=4">
+
+<!-- No-FOUC theme init: apply stored theme before first paint -->
+<script>(function(){try{var t=localStorage.getItem('imqueue-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
+
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/reset.css">
+<link rel="stylesheet" href="/css/theme-{{ skin }}.css">
+<link rel="stylesheet" href="/css/base.css">
+{% if pageCss %}<link rel="stylesheet" href="{{ pageCss }}">{% endif %}
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EQTNPY721G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-EQTNPY721G');
+</script>
+<!-- MS Clarity -->
+<script type="text/javascript">
+  (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window, document, "clarity", "script", "josp89y34k");
+</script>

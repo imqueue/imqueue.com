@@ -1,6 +1,17 @@
 const yaml = require("js-yaml");
 const syntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 
+// ---- Edition switch -------------------------------------------------------
+// One repo, two editions. Pick with EDITION=com|org (default: org).
+//   EDITION=org  -> imqueue.org, "Terminal" skin, output _site-org
+//   EDITION=com  -> imqueue.com, "Flux" skin,     output _site-com
+const EDITION = (process.env.EDITION || "org").toLowerCase();
+const isCom = EDITION === "com";
+const SKIN = isCom ? "flux" : "terminal";
+const SITE_URL = isCom ? "https://imqueue.com" : "https://imqueue.org";
+const OTHER_URL = isCom ? "https://imqueue.org" : "https://imqueue.com";
+const OUTPUT = isCom ? "_site-com" : "_site-org";
+
 module.exports = function (eleventyConfig) {
   const markdownIt = require("markdown-it");
   const mdAnchor = require("markdown-it-anchor");
@@ -19,41 +30,42 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.setLibrary("md", md);
   eleventyConfig.addPlugin(syntaxHighlight);
 
-  // Jekyll-compatible Liquid: allow unquoted {% include foo.html %}.
+  // Standard LiquidJS: quoted/variable partials + comma-separated include args.
   eleventyConfig.setLiquidOptions({
-    jekyllInclude: true,
-    dynamicPartials: false,
+    dynamicPartials: true,
+    jekyllInclude: false,
     strictFilters: false,
   });
 
-  // Eleventy's global data directory only parses .json/.js by default;
-  // the site's _data/*.yml files (site, nav, whys, slides) need this to load.
   eleventyConfig.addDataExtension("yml", (contents) => yaml.load(contents));
 
-  // Static assets copied verbatim (never run through the template engine).
-  // api/ is copied by extension so the lone api/index.md stays a template.
-  eleventyConfig.addPassthroughCopy("api/**/*.html");
-  eleventyConfig.addPassthroughCopy("api/**/*.css");
-  eleventyConfig.addPassthroughCopy("api/**/*.js");
-  eleventyConfig.addPassthroughCopy("api/**/*.map");
-  eleventyConfig.addPassthroughCopy("api/**/*.png");
-  eleventyConfig.addPassthroughCopy("api/**/*.svg");
-  eleventyConfig.addPassthroughCopy("css");
-  eleventyConfig.addPassthroughCopy("js");
-  eleventyConfig.addPassthroughCopy("fonts");
-  eleventyConfig.addPassthroughCopy("images");
-  eleventyConfig.addPassthroughCopy("favicon.ico");
-  eleventyConfig.addPassthroughCopy("CNAME");
-  eleventyConfig.addPassthroughCopy("TODO.txt");
+  // Edition-wide values available in every template.
+  eleventyConfig.addGlobalData("edition", EDITION);
+  eleventyConfig.addGlobalData("skin", SKIN);
+  eleventyConfig.addGlobalData("siteUrl", SITE_URL);
+  eleventyConfig.addGlobalData("otherUrl", OTHER_URL);
+  eleventyConfig.addGlobalData("siteName", "@imqueue");
+
+  // Build only the active edition's pages.
+  eleventyConfig.ignores.add(isCom ? "src/org/**" : "src/com/**");
+
+  // Static assets: shared first, then the active edition's theme css (same /css dir).
+  eleventyConfig.addPassthroughCopy({ "src/_shared/fonts": "fonts" });
+  eleventyConfig.addPassthroughCopy({ "src/_shared/css": "css" });
+  eleventyConfig.addPassthroughCopy({ "src/_shared/js": "js" });
+  eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/css`]: "css" });
+  eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/js`]: "js" });
+  eleventyConfig.addPassthroughCopy({ "images": "images" });
+  eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/favicon.svg`]: "favicon.svg" });
+  eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/favicon.ico`]: "favicon.ico" });
   eleventyConfig.addPassthroughCopy("robots.txt");
-  eleventyConfig.addPassthroughCopy(".nojekyll");
 
   return {
     dir: {
-      input: ".",
-      output: "_site",
-      includes: "_includes",
-      layouts: "_layouts",
+      input: "src",
+      output: OUTPUT,
+      includes: "_shared/_includes",
+      layouts: "_shared/_includes",
       data: "_data",
     },
     markdownTemplateEngine: "liquid",

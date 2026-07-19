@@ -1,4 +1,6 @@
 _site/
+_site-org/
+_site-com/
 .ssh/
 dist/
 tmp/
