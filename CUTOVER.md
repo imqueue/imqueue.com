@@ -1,84 +1,93 @@
 # Dual-domain cutover checklist
 
-How to take the `rebrand/dual-domain` branch live as two sites from one repo:
+Take the `rebrand/dual-domain` branch live as two sites from one repo, replacing
+the current **GitHub Pages** production site with two **Cloudflare Pages** projects:
 
-- **imqueue.org** — open-source "Terminal" edition (all docs, tutorial, API, blog)
+- **imqueue.org** — open-source "Terminal" edition (docs, tutorial, API, blog)
 - **imqueue.com** — commercial "Flux" edition (home + pricing/license form)
 - **imqueue.net** — 301 → imqueue.com
 
-Everything below happens on **Cloudflare** (free tier) unless noted. Nothing here
-touches the live site until the final merge step — the branch is the safety net.
+**Context / confirmed:** production imqueue.com is served by GitHub Pages
+(`.github/workflows/deploy.yml`, `CNAME`, `.nojekyll`), with the domain already in
+Cloudflare (proxied → free SSL + CDN/WAF). We fully replace GitHub Pages with
+Cloudflare Pages. The old `deploy.yml` is incompatible with the new multi-edition
+build (it builds `_site`, but editions output `_site-org`/`_site-com` and need the
+`EDITION` env), and GitHub Pages can only serve one site — so it is retired here.
 
-> **Assumption:** the current production imqueue.com is served by **GitHub Pages**
-> (`.github/workflows/deploy.yml`, `CNAME`, `.nojekyll`). This plan replaces it with
-> two Cloudflare Pages projects. If production is hosted elsewhere, adjust step 6.
+The **same Cloudflare zone stays** — SSL, caching, WAF/DDoS all continue. The only
+DNS change is the record target: GitHub's IPs (`185.199.108–111.153`) → a proxied
+`*.pages.dev` CNAME. Pages provisions the custom-domain cert automatically.
 
-## 1. Cloudflare Pages projects (two, one repo)
+**Strategy: branch-first.** Point the Pages projects at `rebrand/dual-domain`,
+verify on `*.pages.dev`, then switch DNS. This decouples the DNS cutover from the
+git merge, so downtime is a few seconds (both old + new serve valid sites) and
+rollback is trivial. The merge to `master` becomes a cosmetic final step.
 
-Create two Pages projects from this GitHub repo:
+---
 
-| Project | Build command | Output dir | Production branch |
+## A. Build both Pages projects (live site untouched — no DNS change yet)
+
+Cloudflare → Workers & Pages → Create → Pages → connect this GitHub repo, twice:
+
+| Project | Production branch | Build command | Output dir |
 |---|---|---|---|
-| `imqueue-org` | `npm run build:org` | `_site-org` | `master` |
-| `imqueue-com` | `npm run build:com` | `_site-com` | `master` |
+| `imqueue-org` | `rebrand/dual-domain` | `npm run build:org` | `_site-org` |
+| `imqueue-com` | `rebrand/dual-domain` | `npm run build:com` | `_site-com` |
 
-- Both use the same repo; the `EDITION` env var is set by the build command.
-- Node version: match `.nvmrc`/`engines` if present (Eleventy 3 needs Node 18+).
+- Node version comes from `.nvmrc` (20). No other build config needed.
+- On **`imqueue-com`** → Settings → Environment variables, add `RESEND_API_KEY`
+  (Production + Preview). Optional: `CONTACT_TO` (default `support@imqueue.com`),
+  `CONTACT_FROM` (default `@imqueue <noreply@imqueue.com>`).
+- Verify both on their `imqueue-org.pages.dev` / `imqueue-com.pages.dev` URLs.
+  (imqueue.com is still served by GitHub Pages this whole time.)
 
-## 2. Custom domains
+## B. Email (Resend + routing)
 
-- `imqueue-org` → add custom domain **imqueue.org** (and `www.imqueue.org` → redirect to apex if desired).
-- `imqueue-com` → add custom domain **imqueue.com** (and `www`).
-- Point DNS (Cloudflare-managed) at the Pages projects; enable "Always use HTTPS".
+1. Resend → create account → **add & verify the `imqueue.com` domain** (add the
+   SPF/DKIM DNS records it gives you, in Cloudflare). Required to send from
+   `noreply@imqueue.com`. Put the API key in step A.
+2. Cloudflare → **Email Routing** on imqueue.com → forward `support@imqueue.com`
+   to a real inbox you monitor.
+   - ⚠️ Enabling Email Routing rewrites the domain's **MX** records. If imqueue.com
+     already receives email elsewhere, reconcile that first.
+3. Smoke-test after DNS cutover: submit the pricing form → confirm mail at support@.
 
-## 3. Contact form → Resend (imqueue.com only)
+## C. DNS cutover (the switch — seconds; both sides serve valid sites)
 
-The pricing form POSTs to the `functions/api/contact.js` Pages Function, which sends
-via [Resend](https://resend.com).
+1. **imqueue.com** → `imqueue-com` project → Custom domains → add `imqueue.com`
+   (and `www.imqueue.com`). Cloudflare replaces the GitHub Pages `A` records with a
+   proxied CNAME → `imqueue-com.pages.dev`. Manually delete any leftover
+   `185.199.x.x` `A`/`AAAA` records on `@`. SSL provisions automatically.
+2. **imqueue.org** → add the zone to Cloudflare if not already → `imqueue-org`
+   project → add custom domain `imqueue.org` (+ `www`).
+3. **imqueue.net** → add the zone to Cloudflare → add a proxied placeholder record
+   (`A @ → 192.0.2.1`, orange cloud; same for `www`) so it resolves → Rules →
+   **Redirect Rules**: when host is `imqueue.net`/`www.imqueue.net`, 301 to
+   `https://imqueue.com` + the original path.
+4. Keep **SSL/TLS mode = Full (strict)** on all zones.
+5. Verify live:
+   - imqueue.com → Flux home; `/pricing/` submits and emails support@.
+   - imqueue.org → Terminal home; docs / tutorial / API render.
+   - `imqueue.com/docs/`, `/tutorial/`, `/api/`, etc. → 301 to imqueue.org
+     (via `src/com/_redirects`; note `/api/contact` is a Function and is unaffected).
+   - `imqueue.net` → 301 → imqueue.com.
+   - Theme toggle, favicons, GA + Clarity work on both.
+6. Submit both sitemaps in Google Search Console:
+   `https://imqueue.org/sitemap.xml` and `https://imqueue.com/sitemap.xml`.
 
-1. Create a free Resend account.
-2. **Verify the `imqueue.com` domain** in Resend (add the DNS records it gives you:
-   SPF/DKIM). Sending from `noreply@imqueue.com` requires this.
-3. On the **imqueue-com** Pages project → Settings → Environment variables, add:
-   - `RESEND_API_KEY` = your Resend API key (Production + Preview).
-   - *(optional)* `CONTACT_TO` (default `support@imqueue.com`), `CONTACT_FROM`
-     (default `@imqueue <noreply@imqueue.com>`).
-4. Enable **Cloudflare Email Routing** on imqueue.com so `support@imqueue.com`
-   forwards to a real inbox you monitor.
-5. Smoke-test: submit the pricing form; confirm the email arrives at support@.
+## D. Retire GitHub Pages
 
-## 4. imqueue.net → imqueue.com
-
-- Add `imqueue.net` to Cloudflare.
-- Create a **Redirect Rule**: `*imqueue.net/*` → `https://imqueue.com/${1}` (301).
-  (This is a domain-level redirect, so it lives as a Cloudflare rule, not `_redirects`.)
-
-## 5. Legacy path redirects (already in the repo)
-
-- `src/com/_redirects` → built to `_site-com/_redirects`. It 301s the old
-  imqueue.com content paths (`/docs`, `/tutorial`, `/intro`, `/get-started`,
-  `/blog`, `/api`) to imqueue.org so inbound links and SEO carry over.
-- `/sitemap.xml` and `/robots.txt` are generated per edition (each advertises its
-  own domain's sitemap).
-- After go-live, submit both sitemaps in Google Search Console:
-  `https://imqueue.org/sitemap.xml` and `https://imqueue.com/sitemap.xml`.
-
-## 6. Go live (this changes the live site)
-
-1. Verify both Pages preview deployments look correct (they build from the branch).
-2. **Merge `rebrand/dual-domain` → `master`.** Cloudflare Pages redeploys both
-   projects from `master`.
-3. Retire the old GitHub Pages deploy so it doesn't fight Cloudflare for the domain:
-   disable/remove `.github/workflows/deploy.yml` and the Pages setting in the repo,
-   and remove the `CNAME` if DNS now points at Cloudflare.
-4. Post-cutover checks:
-   - imqueue.com loads the Flux home; `/pricing/` submits and emails support@.
-   - imqueue.org loads the Terminal home; docs/tutorial/API render.
-   - Old links like `imqueue.com/docs/` and `/api/` 301 to imqueue.org.
-   - `imqueue.net` 301s to imqueue.com.
-   - Theme toggle, favicons, analytics (GA + Clarity) all work on both.
+1. GitHub repo → Settings → Pages → Source = **None** (stops GitHub Pages serving).
+2. `deploy.yml`, `CNAME`, and `.nojekyll` are already removed on this branch, so
+   they disappear from `master` at merge (until then, `master` keeps serving the
+   current live site normally).
+3. **Merge `rebrand/dual-domain` → `master`.**
+4. Switch both Pages projects' production branch to `master` (visually a no-op;
+   future pushes to master auto-deploy).
 
 ## Rollback
 
-If anything is wrong after merge, revert the merge commit on `master`; Cloudflare
-redeploys the previous state. DNS/redirect rules can be toggled off independently.
+- Before merge: nothing to undo — DNS can be pointed back at GitHub's IPs, and
+  GitHub Pages is still enabled until step D.1.
+- After merge: revert the merge commit on `master`; Cloudflare redeploys the prior
+  state. Redirect rules and Email Routing can be toggled off independently.
