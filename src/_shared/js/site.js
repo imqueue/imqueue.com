@@ -89,4 +89,99 @@
     window.addEventListener('resize', sync, { passive: true });
     sync();
   })();
+
+  // ---- Flux commercial-license lead form (imqueue.com /pricing/) ----
+  (function () {
+    var wrap = document.querySelector('[data-license-form]');
+    if (!wrap) return;
+    var form = wrap.querySelector('form');
+    var thanks = document.querySelector('[data-thanks]');
+    var errEl = form.querySelector('[data-form-error]');
+    var useTypeInput = form.querySelector('input[name="useType"]');
+    var empInput = form.querySelector('input[name="employees"]');
+
+    function showError(msg) {
+      if (!errEl) return;
+      errEl.textContent = msg;
+      errEl.hidden = !msg;
+    }
+
+    // Business / Personal toggle
+    form.querySelectorAll('.fx-seg-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var type = btn.getAttribute('data-usetype');
+        useTypeInput.value = type;
+        form.querySelectorAll('.fx-seg-btn').forEach(function (b) {
+          var on = b === btn;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-pressed', String(on));
+        });
+        form.querySelectorAll('[data-pane]').forEach(function (pane) {
+          pane.hidden = pane.getAttribute('data-pane') !== type;
+        });
+        showError('');
+      });
+    });
+
+    // Employee count (single-select)
+    form.querySelectorAll('.fx-emp').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        empInput.value = btn.getAttribute('data-emp');
+        form.querySelectorAll('.fx-emp').forEach(function (b) {
+          b.classList.toggle('active', b === btn);
+        });
+      });
+    });
+
+    // Submit -> POST JSON to the contact function
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      showError('');
+
+      // honeypot: if filled, pretend success and send nothing
+      if (form.querySelector('input[name="company_url"]').value) {
+        form.closest('.fx-form-card').hidden = true;
+        if (thanks) thanks.hidden = false;
+        return;
+      }
+
+      var data = {};
+      new FormData(form).forEach(function (v, k) { data[k] = v; });
+      if (!data.name || !data.name.trim()) return showError('Please enter your name.');
+      if (!data.email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)) return showError('Please enter a valid email.');
+      if (data.useType === 'business' && (!data.company || !data.company.trim())) return showError('Please enter your company name.');
+      data.page = location.href;
+
+      var submitBtn = form.querySelector('.fx-submit');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+
+      fetch(form.getAttribute('action'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(function (res) {
+        if (!res.ok) throw new Error('bad status ' + res.status);
+        form.closest('.fx-form-card').hidden = true;
+        if (thanks) thanks.hidden = false;
+      }).catch(function () {
+        showError('Something went wrong sending your message. Please email support@imqueue.com directly.');
+      }).finally(function () {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send →';
+      });
+    });
+
+    // "Send another"
+    var again = thanks && thanks.querySelector('[data-send-another]');
+    if (again) {
+      again.addEventListener('click', function () {
+        form.reset();
+        empInput.value = '';
+        form.querySelectorAll('.fx-emp').forEach(function (b) { b.classList.remove('active'); });
+        thanks.hidden = true;
+        wrap.hidden = false;
+      });
+    }
+  })();
 })();
