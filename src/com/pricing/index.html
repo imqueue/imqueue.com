@@ -9,7 +9,7 @@ description: "Get a commercial license for @imqueue to ship it inside a closed-s
     <div class="fx-pill">Commercial license</div>
     <h1 class="fx-h1" style="font-size:46px;">Ship @imqueue in a closed-source product.</h1>
     <p class="fx-lead" style="max-width:580px;">The open-source edition is GPL-3.0 — convey or distribute a product built on it and the GPL asks you to release that product's source too. A commercial license lifts that obligation, with support on top. Same code, no changes.</p>
-    <p style="font-size:14px;color:var(--accent);line-height:1.6;margin:0 auto;max-width:520px;">We're shaping licensing around real needs — tell us how you'd use it and we'll follow up.</p>
+    <p style="font-size:14px;color:var(--eyebrow);line-height:1.6;margin:0 auto;max-width:520px;">We're shaping licensing around real needs — tell us how you'd use it and we'll follow up.</p>
   </div>
 
   <!-- LEAD FORM -->
@@ -40,14 +40,14 @@ description: "Get a commercial license for @imqueue to ship it inside a closed-s
             <input class="fx-in" id="fx-company" type="text" name="company" placeholder="Acme Inc.">
           </div>
           <div class="fx-field">
-            <label>Number of employees</label>
-            <div class="fx-emp-grid" role="group" aria-label="Number of employees">
-              <button type="button" class="fx-emp" data-emp="1–10">1–10</button>
-              <button type="button" class="fx-emp" data-emp="10–100">10–100</button>
-              <button type="button" class="fx-emp" data-emp="100–1000">100–1000</button>
-              <button type="button" class="fx-emp" data-emp="1000+">1000+</button>
+            <label>Number of developers</label>
+            <div class="fx-emp-grid" role="group" aria-label="Number of developers">
+              <button type="button" class="fx-emp" data-emp="1–9">1–9</button>
+              <button type="button" class="fx-emp" data-emp="10–49">10–49</button>
+              <button type="button" class="fx-emp" data-emp="50–199">50–199</button>
+              <button type="button" class="fx-emp" data-emp="200+">200+</button>
             </div>
-            <input type="hidden" name="employees" value="">
+            <input type="hidden" name="developers" value="">
           </div>
         </div>
       </div>
@@ -100,10 +100,22 @@ description: "Get a commercial license for @imqueue to ship it inside a closed-s
   <div style="margin-top:48px;">
     <h2 class="fx-h2" style="font-size:26px;text-align:center;margin-bottom:18px;">Licensing FAQ</h2>
     <div class="fx-faq">
-      <div class="fx-faq-item"><h3>When does the GPL obligation kick in?</h3><p>When you convey or distribute a product built on @imqueue. GPL-3.0's copyleft asks you to release that product's source under the GPL. A commercial license removes that requirement.</p></div>
-      <div class="fx-faq-item"><h3>Do I need a license for internal tools?</h3><p>Generally no. If the software isn't distributed outside your organization, the GPL obligation usually isn't triggered. The commercial license is for shipping closed-source products — and for support and indemnification.</p></div>
-      <div class="fx-faq-item"><h3>What does the commercial license include?</h3><p>The right to use @imqueue in closed-source products, SLA-backed support, and indemnification — on the same packages and APIs as the open-source edition.</p></div>
-      <div class="fx-faq-item"><h3>Is the code different from the open-source version?</h3><p>No — identical <code>@imqueue/*</code> packages. You change the license terms, not the code. No fork, no migration.</p></div>
+      <details class="fx-acc">
+        <summary>When does the GPL obligation kick in?</summary>
+        <div class="fx-acc-body"><p>When you convey or distribute a product built on @imqueue. GPL-3.0's copyleft asks you to release that product's source under the GPL. A commercial license removes that requirement.</p></div>
+      </details>
+      <details class="fx-acc">
+        <summary>Do I need a license for internal tools?</summary>
+        <div class="fx-acc-body"><p>Generally no. If the software isn't distributed outside your organization, the GPL obligation usually isn't triggered. The commercial license is for shipping closed-source products — and for support and indemnification.</p></div>
+      </details>
+      <details class="fx-acc">
+        <summary>What does the commercial license include?</summary>
+        <div class="fx-acc-body"><p>The right to use @imqueue in closed-source products, SLA-backed support, and indemnification — on the same packages and APIs as the open-source edition.</p></div>
+      </details>
+      <details class="fx-acc">
+        <summary>Is the code different from the open-source version?</summary>
+        <div class="fx-acc-body"><p>No — identical <code>@imqueue/*</code> packages. You change the license terms, not the code. No fork, no migration.</p></div>
+      </details>
     </div>
   </div>
 </section>
