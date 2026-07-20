@@ -42,7 +42,8 @@ code { color: var(--accent); }
 .btn {
   display: inline-flex; align-items: center; gap: 8px; justify-content: center;
   font-weight: 600; font-size: 14px; padding: 13px 24px; border-radius: 999px;
-  border: 1px solid transparent; cursor: pointer; transition: transform .15s ease, opacity .15s ease;
+  border: 1px solid transparent; cursor: pointer; white-space: nowrap;
+  transition: transform .15s ease, opacity .15s ease;
 }
 .btn:hover { transform: translateY(-1px); color: inherit; }
 .btn-primary { background: var(--accent); color: var(--on-accent); }
@@ -85,11 +86,11 @@ code { color: var(--accent); }
 .nav-actions { display: flex; align-items: center; gap: 10px; }
 .nav-link {
   font-family: var(--font-mono); font-size: 14.5px; font-weight: 500;
-  padding: 8px 12px; border-radius: 8px; color: var(--ink);
+  padding: 8px 12px; border-radius: 8px; color: var(--ink); white-space: nowrap;
 }
 .nav-link:hover { color: var(--accent); }
 .nav-link.active { color: var(--accent); font-weight: 600; }
-.nav-outline { border: 1px solid var(--line); padding: 8px 13px; border-radius: 8px; font-family: var(--font-mono); font-size: 14px; }
+.nav-outline { border: 1px solid var(--line); padding: 8px 13px; border-radius: 8px; font-family: var(--font-mono); font-size: 14px; white-space: nowrap; }
 
 .burger {
   display: none; width: 40px; height: 40px; align-items: center; justify-content: center;
@@ -151,7 +152,19 @@ code { color: var(--accent); }
   .tut-side { position: static; margin-bottom: 24px; }
 }
 
-/* ---- responsive (media queries; ≤760px = mobile) ---- */
+/* ---- responsive (media queries) ---- */
+/* Nav collapses to the burger *before* its items would run out of room and wrap.
+   The com (Flux) nav carries more items than org (Terminal), so each edition
+   switches at its own measured width. */
+@media (max-width: 940px) {
+  [data-skin="flux"] .nav-links, [data-skin="flux"] .nav-actions { display: none; }
+  [data-skin="flux"] .burger { display: inline-flex; }
+}
+@media (max-width: 860px) {
+  [data-skin="terminal"] .nav-links, [data-skin="terminal"] .nav-actions { display: none; }
+  [data-skin="terminal"] .burger { display: inline-flex; }
+}
+/* ≤760px = content mobile layout */
 @media (max-width: 760px) {
   .nav-links, .nav-actions { display: none; }
   .burger { display: inline-flex; }
