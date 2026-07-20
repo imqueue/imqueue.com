@@ -1,0 +1,31 @@
+---
+layout: base.html
+section: blog
+title: Blog
+description: "News, releases and articles about @imqueue."
+---
+<section class="container" style="padding-top:56px;padding-bottom:64px;">
+  <div class="section-label" style="margin-bottom:14px;">// BLOG</div>
+  <h1 style="font-family:var(--font-display);font-weight:700;font-size:42px;letter-spacing:-.03em;margin:0 0 12px;">Blog</h1>
+  <p class="muted" style="font-size:17px;max-width:600px;margin:0 0 40px;">News, releases and articles about @imqueue.</p>
+
+  {% assign posts = collections.posts %}
+  {% if posts and posts.size > 0 %}
+  <div class="grid grid-2">
+    {% for post in posts reversed %}
+    <a href="{{ post.url }}" class="card" style="display:block;">
+      <div style="font-family:var(--font-mono);color:var(--muted);font-size:12px;margin-bottom:10px;">{{ post.date | date: "%b %d, %Y" }}</div>
+      <h3 style="font-size:19px;margin-bottom:8px;">{{ post.data.title }}</h3>
+      {% if post.data.summary %}<p>{{ post.data.summary }}</p>{% endif %}
+      <span style="font-family:var(--font-mono);font-size:13px;color:var(--accent);display:inline-block;margin-top:12px;">read →</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card" style="text-align:center;padding:48px 26px;">
+    <div style="font-family:var(--font-mono);color:var(--accent);font-size:13px;margin-bottom:10px;">$ git log --oneline</div>
+    <h3 style="font-size:20px;margin-bottom:8px;">No posts yet.</h3>
+    <p style="max-width:440px;margin:0 auto;">We're heads-down building. Follow the project on <a href="https://github.com/imqueue" style="color:var(--accent);">GitHub</a> for releases and updates in the meantime.</p>
+  </div>
+  {% endif %}
+</section>

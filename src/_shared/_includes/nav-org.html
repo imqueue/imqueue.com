@@ -1,0 +1,33 @@
+<nav class="nav">
+  <div class="nav-inner container">
+    {% include "brand-lockup.html", slogan: "RPC enqueued!", aria: "@imqueue home" %}
+
+    <div class="nav-links">
+      <a href="/intro/" class="nav-link{% if section == 'intro' %} active{% endif %}">intro</a>
+      <a href="/docs/" class="nav-link{% if section == 'docs' %} active{% endif %}">docs</a>
+    </div>
+
+    <div class="nav-actions">
+      {% include "theme-toggle.html" %}
+      <a href="{{ otherUrl }}/" class="nav-outline">commercial ↗</a>
+      <a href="https://www.npmjs.com/package/@imqueue/rpc" class="nav-outline" style="background:var(--accent);color:var(--on-accent);border-color:transparent;font-weight:600;">$ npm i @imqueue/rpc</a>
+    </div>
+
+    <button class="burger" data-nav-toggle aria-label="Menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+
+  <div class="mobile-nav" data-mobile-nav>
+    <div class="container" style="font-family:var(--font-mono);">
+      <a href="/intro/">intro</a>
+      <a href="/docs/">docs</a>
+      <a href="{{ otherUrl }}/">commercial ↗</a>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 6px;border-bottom:none;">
+        <span style="font-size:14px;">theme</span>
+        {% include "theme-toggle.html" %}
+      </div>
+      <a href="https://www.npmjs.com/package/@imqueue/rpc" style="margin-top:12px;text-align:center;background:var(--accent);color:var(--on-accent);border-radius:6px;font-weight:600;border-bottom:none;">$ npm i @imqueue/rpc</a>
+    </div>
+  </div>
+</nav>

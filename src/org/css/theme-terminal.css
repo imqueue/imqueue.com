@@ -1,0 +1,60 @@
+/* Terminal skin — imqueue.org (open source). Green/cyan, JetBrains Mono display.
+   Token contract shared with the Flux skin; values are edition-specific.
+   Default = dark. System mode follows prefers-color-scheme; explicit modes use
+   [data-theme] set by the theme switcher. */
+
+:root {
+  --font-display: 'JetBrains Mono', ui-monospace, monospace;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* dark (default) */
+  --bg: #0a0e0d;
+  --navbg: rgba(10,14,13,.86);
+  --surface: #111917;
+  --surface2: #0c1210;
+  --ink: #e8f0ec;
+  --muted: #7f8f89;
+  --accent: #3ddc84;
+  --accent2: #35d0e0;
+  --line: rgba(255,255,255,.12);
+  --code: #c4cfc9;
+  --on-accent: #06120c;
+  --shadow: rgba(0,0,0,.45);
+  --eyebrow: #63e6a0;
+}
+
+/* light values, reused for system-light and explicit light */
+:root[data-theme="light"] {
+  --bg: #eef2ef;
+  --navbg: rgba(238,242,239,.86);
+  --surface: #ffffff;
+  --surface2: #f5f8f6;
+  --ink: #0d1512;
+  --muted: #5a6b63;
+  --accent: #0f9d52;
+  --accent2: #0b8a99;
+  --line: rgba(13,21,18,.13);
+  --code: #2b3a33;
+  --on-accent: #ffffff;
+  --shadow: rgba(13,21,18,.10);
+  --eyebrow: #0b7a40;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg: #eef2ef;
+    --navbg: rgba(238,242,239,.86);
+    --surface: #ffffff;
+    --surface2: #f5f8f6;
+    --ink: #0d1512;
+    --muted: #5a6b63;
+    --accent: #0f9d52;
+    --accent2: #0b8a99;
+    --line: rgba(13,21,18,.13);
+    --code: #2b3a33;
+    --on-accent: #ffffff;
+    --shadow: rgba(13,21,18,.10);
+    --eyebrow: #0b7a40;
+  }
+}

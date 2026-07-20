@@ -1,0 +1,121 @@
+---
+layout: base.html
+section: pricing
+title: Pricing & commercial license
+description: "Get a commercial license for @imqueue to ship it inside a closed-source product — lifting the GPL-3.0 source-release obligation, with SLA-backed support. Same packages, same APIs. Tell us your use case."
+---
+<section class="fx-hero fx-hero--narrow">
+  <div class="fx-center">
+    <div class="fx-pill">Commercial license</div>
+    <h1 class="fx-h1" style="font-size:46px;">Ship @imqueue in a closed-source product.</h1>
+    <p class="fx-lead" style="max-width:580px;">The open-source edition is GPL-3.0 — convey or distribute a product built on it and the GPL asks you to release that product's source too. A commercial license lifts that obligation, with support on top. Same code, no changes.</p>
+    <p style="font-size:14px;color:var(--eyebrow);line-height:1.6;margin:0 auto;max-width:520px;">We're shaping licensing around real needs — tell us how you'd use it and we'll follow up.</p>
+  </div>
+
+  <!-- LEAD FORM -->
+  <div class="fx-form-card" data-license-form>
+    <form class="fx-form" action="/api/contact" method="POST" novalidate>
+      <!-- honeypot: bots fill it, humans never see it -->
+      <input class="fx-hp" type="text" name="company_url" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <div class="fx-field">
+        <label>Type of use</label>
+        <div class="fx-seg" role="group" aria-label="Type of use">
+          <button type="button" class="fx-seg-btn active" data-usetype="business" aria-pressed="true">Business</button>
+          <button type="button" class="fx-seg-btn" data-usetype="personal" aria-pressed="false">Personal</button>
+        </div>
+        <input type="hidden" name="useType" value="business">
+      </div>
+
+      <!-- personal note -->
+      <div class="fx-field" data-pane="personal" hidden>
+        <div class="fx-note">Personal &amp; hobby use is already free under GPL-3.0 on <a href="{{ otherUrl }}/">imqueue.org</a>. Tell us your use case anyway — we're gauging whether a personal commercial plan is worth building.</div>
+      </div>
+
+      <!-- business fields -->
+      <div data-pane="business">
+        <div class="fx-form" style="gap:20px;">
+          <div class="fx-field">
+            <label for="fx-company">Company</label>
+            <input class="fx-in" id="fx-company" type="text" name="company" placeholder="Acme Inc.">
+          </div>
+          <div class="fx-field">
+            <label>Number of developers</label>
+            <div class="fx-emp-grid" role="group" aria-label="Number of developers">
+              <button type="button" class="fx-emp" data-emp="1–9">1–9</button>
+              <button type="button" class="fx-emp" data-emp="10–49">10–49</button>
+              <button type="button" class="fx-emp" data-emp="50–199">50–199</button>
+              <button type="button" class="fx-emp" data-emp="200+">200+</button>
+            </div>
+            <input type="hidden" name="developers" value="">
+          </div>
+        </div>
+      </div>
+
+      <div class="fx-row">
+        <div class="fx-field">
+          <label for="fx-name">Contact name</label>
+          <input class="fx-in" id="fx-name" type="text" name="name" placeholder="Jane Doe" required>
+        </div>
+        <div class="fx-field">
+          <label for="fx-email">Email</label>
+          <input class="fx-in" id="fx-email" type="email" name="email" placeholder="jane@acme.com" required>
+        </div>
+      </div>
+
+      <div class="fx-field">
+        <label for="fx-phone">Phone <span class="opt">· optional</span></label>
+        <input class="fx-in" id="fx-phone" type="tel" name="phone" placeholder="+1 555 000 0000">
+      </div>
+
+      <div class="fx-field">
+        <label for="fx-source">How did you find us? <span class="opt">· optional</span></label>
+        <div class="fx-select-wrap">
+          <select class="fx-in" id="fx-source" name="source">
+            <option value="">Select…</option>
+            <option>Google</option>
+            <option>Referral</option>
+            <option>Ads</option>
+            <option>AI assistant</option>
+            <option>Other</option>
+          </select>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+
+      <p class="fx-error" data-form-error hidden></p>
+      <button type="submit" class="fx-submit">Send →</button>
+    </form>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="fx-thanks" data-thanks hidden>
+    <div class="fx-thanks-check"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <h2>Thanks — we'll be in touch.</h2>
+    <p>A member of our team will reach out within one business day.</p>
+    <button type="button" class="fx-thanks-again" data-send-another>Send another →</button>
+  </div>
+
+  <!-- FAQ -->
+  <div style="margin-top:48px;">
+    <h2 class="fx-h2" style="font-size:26px;text-align:center;margin-bottom:18px;">Licensing FAQ</h2>
+    <div class="fx-faq">
+      <details class="fx-acc">
+        <summary>When does the GPL obligation kick in?</summary>
+        <div class="fx-acc-body"><p>When you convey or distribute a product built on @imqueue. GPL-3.0's copyleft asks you to release that product's source under the GPL. A commercial license removes that requirement.</p></div>
+      </details>
+      <details class="fx-acc">
+        <summary>Do I need a license for internal tools?</summary>
+        <div class="fx-acc-body"><p>Generally no. If the software isn't distributed outside your organization, the GPL obligation usually isn't triggered. The commercial license is for shipping closed-source products — and for support and indemnification.</p></div>
+      </details>
+      <details class="fx-acc">
+        <summary>What does the commercial license include?</summary>
+        <div class="fx-acc-body"><p>The right to use @imqueue in closed-source products, SLA-backed support, and indemnification — on the same packages and APIs as the open-source edition.</p></div>
+      </details>
+      <details class="fx-acc">
+        <summary>Is the code different from the open-source version?</summary>
+        <div class="fx-acc-body"><p>No — identical <code>@imqueue/*</code> packages. You change the license terms, not the code. No fork, no migration.</p></div>
+      </details>
+    </div>
+  </div>
+</section>

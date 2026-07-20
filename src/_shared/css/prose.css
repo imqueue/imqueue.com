@@ -1,0 +1,166 @@
+/* Long-form documentation styling (rendered markdown / doc pages).
+   Colors from the token contract so both editions/themes apply automatically. */
+
+.prose { font-size: 16px; line-height: 1.75; color: var(--ink); max-width: 760px; min-width: 0; overflow-wrap: break-word; }
+.prose > *:first-child { margin-top: 0; }
+
+.prose h1 { font-family: var(--font-display); font-size: 40px; line-height: 1.1; letter-spacing: -.03em; margin: 0 0 16px; }
+.prose h2 { font-family: var(--font-display); font-size: 26px; letter-spacing: -.02em; margin: 44px 0 12px; padding-top: 6px; scroll-margin-top: 100px; }
+.prose h3 { font-family: var(--font-display); font-size: 20px; margin: 30px 0 10px; scroll-margin-top: 100px; }
+.prose h4 { font-size: 17px; margin: 24px 0 8px; }
+.prose p { margin: 0 0 16px; color: var(--ink); }
+.prose a { color: var(--accent); font-weight: 500; }
+.prose a:hover { text-decoration: underline; }
+.prose strong { font-weight: 600; }
+.prose ul, .prose ol { margin: 0 0 16px; padding-left: 22px; }
+.prose li { margin: 6px 0; }
+.prose li::marker { color: var(--muted); }
+.prose hr { border: none; border-top: 1px solid var(--line); margin: 32px 0; }
+.prose img { border-radius: 12px; border: 1px solid var(--line); margin: 20px 0; }
+.prose blockquote { margin: 20px 0; padding: 2px 18px; border-left: 3px solid var(--accent); color: var(--muted); }
+
+/* inline code + code blocks */
+.prose :not(pre) > code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent); padding: .15em .4em; border-radius: 5px;
+  overflow-wrap: anywhere;
+}
+.prose pre {
+  font-family: var(--font-mono); font-size: 13.5px; line-height: 1.7;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 18px 20px; overflow-x: auto; margin: 0 0 20px; color: var(--code);
+}
+.prose pre code { font-family: inherit; background: none; color: inherit; padding: 0; }
+
+/* tables (scroll horizontally within their own box instead of overflowing the page) */
+.prose table { display: block; width: 100%; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 0 0 20px; font-size: 14.5px; }
+.prose th, .prose td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.prose th { font-family: var(--font-mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+
+/* docs layout: left sticky sidebar nav + content (same pattern as the tutorial).
+   The [[toc]] renders at the top of the content, then site.js relocates it into
+   the left sidebar slot and adds .has-toc (progressive enhancement). */
+.doc-layout { display: block; }
+.doc-layout.has-toc { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 44px; align-items: start; }
+.doc-toc { position: sticky; top: 90px; }
+.doc-layout:not(.has-toc) .doc-toc { display: none; }
+.doc-toc-title { font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.doc-toc .table-of-contents { background: none; border: none; padding: 0; margin: 0; font-family: var(--font-mono); font-size: 13px; }
+.doc-toc .table-of-contents ul { list-style: none; padding-left: 0; margin: 0; }
+.doc-toc .table-of-contents li { margin: 2px 0; }
+.doc-toc .table-of-contents a { display: block; padding: 8px 12px; border-radius: 8px; color: var(--muted); }
+.doc-toc .table-of-contents a:hover { color: var(--accent); text-decoration: none; }
+.doc-toc .table-of-contents ul ul a { padding-left: 24px; font-size: 12.5px; }
+.doc-toc .table-of-contents a.active { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.doc-toc .table-of-contents a.active:hover { color: var(--on-accent); }
+@media (max-width: 900px) {
+  .doc-layout.has-toc { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .doc-toc { position: static; margin-bottom: 28px; }
+}
+
+/* Full API Reference — latest-version package cards + older-versions disclosure */
+.prose .api-ref-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 0 0 18px; }
+.prose .api-ref-card { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; transition: border-color .15s ease, transform .15s ease; }
+.prose .api-ref-card:hover { border-color: var(--accent); transform: translateY(-2px); text-decoration: none; }
+.prose .api-ref-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.prose .api-ref-name { font-family: var(--font-mono); font-weight: 600; font-size: 17px; color: var(--accent); }
+.prose .api-ref-ver { font-family: var(--font-mono); font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
+.prose .api-ref-desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+.prose .api-ref-desc code { background: none; padding: 0; color: var(--accent); }
+.prose .api-ref-cta { font-family: var(--font-mono); font-size: 13px; color: var(--accent); font-weight: 600; margin-top: auto; }
+.prose .api-older { margin: 0 0 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface2); }
+.prose .api-older summary { cursor: pointer; padding: 13px 18px; font-family: var(--font-mono); font-size: 13px; color: var(--ink); list-style: none; }
+.prose .api-older summary::-webkit-details-marker { display: none; }
+.prose .api-older summary::before { content: "▸"; color: var(--muted); margin-right: 8px; display: inline-block; }
+.prose .api-older[open] summary::before { content: "▾"; }
+.prose .api-older-body { padding: 0 18px 16px; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-mono); font-size: 13px; }
+.prose .api-older-body a { color: var(--accent); margin-right: 10px; }
+.prose .api-older-pkg { color: var(--muted); margin-right: 10px; }
+@media (max-width: 620px) { .prose .api-ref-cards { grid-template-columns: 1fr; } }
+
+/* API reference layout: scrollable symbol sidebar + content */
+.api-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 44px; align-items: start; }
+.api-side { position: sticky; top: 90px; max-height: calc(100vh - 110px); overflow-y: auto; font-family: var(--font-mono); font-size: 13px; padding-right: 6px; }
+.api-side-head { display: block; margin-bottom: 12px; }
+.api-side-head .lbl { display: block; font-weight: 700; color: var(--ink); }
+.api-side-head .ver { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+.api-side-head:hover .lbl { color: var(--accent); }
+.api-group { color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-size: 11px; margin: 16px 0 6px; }
+.api-sym { display: block; padding: 5px 10px; border-radius: 7px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.api-sym:hover { color: var(--accent); }
+.api-sym.active { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.api-prose { min-width: 0; }
+.api-prose table { display: block; overflow-x: auto; }
+@media (max-width: 900px) {
+  .api-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .api-side { position: static; max-height: 320px; margin-bottom: 24px; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+}
+
+/* table of contents ([[toc]]) */
+.prose .table-of-contents {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 18px 22px; margin: 0 0 28px; font-size: 14.5px;
+}
+.prose .table-of-contents > ul { margin: 0; padding-left: 18px; }
+.prose .table-of-contents li { margin: 4px 0; }
+.prose .table-of-contents a { color: var(--muted); font-weight: 400; }
+.prose .table-of-contents a:hover { color: var(--accent); text-decoration: none; }
+
+/* screenshot gallery */
+.prose .shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin: 0 0 20px; }
+.prose .shots img { margin: 0; width: 100%; }
+
+/* tutorial: high-level architecture diagram — inline SVG themed via the token
+   contract, so it recolors live with the light/dark toggle and each edition. */
+.hla-fig { margin: 24px 0; overflow-x: auto; }
+.hla-fig svg { width: 100%; height: auto; display: block; min-width: 640px; }
+#hla-arch .z { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+#hla-arch .ztab { fill: var(--muted); font: 600 13px var(--font-mono); letter-spacing: .16em; }
+#hla-arch .node { fill: var(--bg); stroke: var(--line); stroke-width: 1.2; }
+#hla-arch .hub { fill: var(--accent); }
+#hla-arch .store { fill: var(--surface2); stroke: var(--line); stroke-width: 1; }
+#hla-arch .nt { fill: var(--ink); font: 600 16px var(--font-body); }
+#hla-arch .ns { fill: var(--muted); font: 400 12.5px var(--font-mono); }
+#hla-arch text.mid { text-anchor: middle; }
+#hla-arch .nt.mid { font-size: 15px; }
+#hla-arch .ht { fill: var(--on-accent); font: 700 17px var(--font-display); }
+#hla-arch .hs { fill: var(--on-accent); opacity: .8; font: 400 12.5px var(--font-mono); }
+#hla-arch .st { fill: var(--muted); font: 500 13px var(--font-mono); }
+#hla-arch .edge line { stroke: var(--muted); stroke-width: 1.4; opacity: .5; fill: none; }
+#hla-arch marker path { fill: var(--muted); opacity: .8; }
+#hla-arch .elab rect { fill: var(--surface); }
+#hla-arch .elab text { fill: var(--muted); font: 500 13px var(--font-mono); text-anchor: middle; }
+#hla-arch .ic { stroke: var(--accent); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+#hla-arch .ic .dot { fill: var(--accent); stroke: none; }
+#hla-arch .ic-h { stroke: var(--on-accent); stroke-width: 1.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+/* responsive video embed */
+.embed { position: relative; padding-bottom: 56.25%; height: 0; margin: 0 0 20px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+.embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* callout */
+.callout {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border: 1px solid var(--line); border-left: 3px solid var(--accent);
+  border-radius: 10px; padding: 16px 20px; margin: 24px 0;
+}
+.callout p:last-child { margin-bottom: 0; }
+
+/* ---- Prism syntax tokens (from @11ty/eleventy-plugin-syntaxhighlight) ---- */
+.prose .token.comment, .prose .token.prolog, .prose .token.doctype, .prose .token.cdata { color: var(--muted); font-style: italic; }
+.prose .token.punctuation { color: var(--code); }
+.prose .token.keyword, .prose .token.atrule, .prose .token.boolean { color: var(--accent2); }
+.prose .token.string, .prose .token.char, .prose .token.attr-value, .prose .token.inserted { color: var(--accent); }
+.prose .token.function, .prose .token.class-name, .prose .token.tag { color: var(--accent); }
+.prose .token.number, .prose .token.constant, .prose .token.symbol { color: var(--accent2); }
+.prose .token.operator, .prose .token.entity, .prose .token.url { color: var(--muted); }
+.prose .token.property, .prose .token.attr-name, .prose .token.variable { color: var(--code); }
+.prose .token.deleted { color: #ff6b6b; }
+.prose .token.important, .prose .token.bold { font-weight: 600; }
+.prose .token.italic { font-style: italic; }
+
+@media (max-width: 760px) {
+  .prose h1 { font-size: 30px; }
+  .prose h2 { font-size: 23px; }
+}
