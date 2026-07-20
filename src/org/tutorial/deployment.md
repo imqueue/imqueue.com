@@ -2,127 +2,98 @@
 chapter: 6
 title: Deployment
 docLabel: TUTORIAL — CHAPTER 6
-lead: "Ship your services: Docker images per service, environment configuration, and horizontal scaling for any load."
+lead: "Ship your services: per-service Docker images, environment-based configuration, and horizontal scaling for any load."
 description: "Ship your @imqueue services to production: Docker images per service, environment configuration, and horizontal auto-scaling for any load."
 keywords: "@imqueue deployment, deploy Node.js microservices, Docker microservices, horizontal scaling, scale microservices, production Node.js services, containerize TypeScript service"
 ogType: article
 ---
 
-In this chapter we are covering different aspects and
-possibilities related to @imqueue based services deployment.
+This chapter covers the various aspects of deploying @imqueue-based services.
 
-There is a variety of ways to deploy services depending on the needs.
-The first need you might have is, of course, development deployment.
-Another case is when you need to deploy production packages.
+There are many ways to deploy, depending on your needs. The most immediate is
+development deployment; another is shipping production packages. The deployment
+scheme also varies by environment — you might want to use every physical core of
+a single server, or spread many small containerised images across a network.
 
-Contrastingly, the deployment scheme may be different for different types
-of environments, like you may need to utilize all physical cores of
-some physical or virtual server or you may need to spread across network
-many small containerized images.
+@imqueue-based services are ready to meet any of these needs, but it's up to your
+developers and DevOps to decide how. The @imqueue/cli default template also
+provides some ready-to-use deployment functionality out of the box.
 
-Services based on @imqueue are ready to satisfy any of those needs, but
-it is up to DevOps and Developer to decide how it should be organized.
+**For services to scale in any direction, they must either be stateless or
+provide a mechanism to synchronise state across processes and network instances.
+Keep this in mind throughout implementation.**
 
-By the way, @imqueue/cli default boilerplate template provides some
-ready-to-use functionality related to deployment out-of-the-box.
+What does that mean in practice?
 
-**To have services ready for any kind of scaling they should be
-either stateless, or there should be provided corresponding
-synchronization mechanisms to share the state between different service
-processes or network instances. This should be kept in mind by a developer
-during the implementation.**
-
-What does that mean on practice?
-
-Let's imagine our service will store in memory some state data, like the
-list of authenticated users:
+Imagine a service that keeps some state in memory — say, the list of
+authenticated users:
 
 ~~~typescript
-import { IMQService } from '@imqueue/rpc';
+import { IMQService, expose } from '@imqueue/rpc';
 
 class MyService extends IMQService {
     private usersList: any[] = [];
 
     @expose()
     public addUser(data: any) {
-        this.userList.push(data);
+        this.usersList.push(data);
     }
 }
 ~~~
 
-Now each time `addUser()` is called by a remote client, our service will
-change its internal in-memory state. Unless we have only one
-instance of service running, everything will work as expected. By the
-way, if we launch several copies of such service we will get into
-trouble. As far as after several calls of `addUser()` by remote
-clients, the internal state of different running copies of the service
-will be different. Different unpredictably.
+Each time a remote client calls `addUser()`, the service mutates its in-memory
+state. With a single instance running, this works fine. But launch several copies
+and you're in trouble: after a few `addUser()` calls, each copy holds a different
+internal state — and the divergence is unpredictable.
 
-Such kind of behavior is undesired, so either we have to implement
-some mechanism allowing us to share state between service copies, or
-we have to use some external tool to store and change the state, for
-example, it could be a database. Usually, own implementation of state
-sharing is non-trivial and may fall into causing a lot of side-effects.
-Unless you are experienced to understand how it works, we would recommend
-to design your services as stateless. In this case you won't have any
-unexpected behavior of your system during different deployment needs.
+That's undesirable, so you must either implement a mechanism to share state
+between copies, or store and mutate the state in an external tool such as a
+database. Rolling your own state-sharing is usually non-trivial and prone to
+side-effects, so unless you're confident in how it works, we recommend designing
+your services to be stateless. Stateless services behave predictably across every
+deployment scenario.
 
-For example, in this tutorial, we suggested to implement
-[Car Service](https://github.com/imqueue-sandbox/car) as a service
-with in-memory car database storage, which is stateful service by
-design. However, the car database is predominantly static data, which
-we decided to try to update once per 24 hours, and that action should be
-done by all running copies almost at the same time and we never change
-the stored in-memory data in any other way, only reading from it.
-By the way, there are some small side-effects, but we may agree they are
-not significant for our system work. It's neither good, nor bad, you just
-need to understand what you're doing and which consequences this can
-have.
+For example, this tutorial suggests implementing the
+[Car service](https://github.com/imqueue-sandbox/car) with an in-memory car
+database, which is stateful by design. But that database is largely static data:
+we refresh it roughly once every 24 hours, all running copies do so at about the
+same time, and we otherwise only read from it. There are minor side-effects, but
+they're insignificant for this system. It's neither good nor bad — you just need
+to understand what you're doing and what the consequences are.
 
-### Scaling Options
+### Scaling options
 
-Services are ready by design to run in multi-process environments. As we
-know JavaScript running under NodeJS by its nature is single-threaded,
-so one process will utilize only the power of one core. If you deploy
-the service on multi-core environment you may want to utilize all
-available resources. So, this could be done using corresponding
-configuration options. Those options are related to either service, or
-client configuration and can be defined via `config.ts` file:
+Services are designed to run in multi-process environments. Since JavaScript on
+Node.js is single-threaded by nature, one process uses the power of only one
+core. On a multi-core machine you'll usually want to use all available cores,
+which you can do with a couple of configuration options. These are service (or
+client) options, and can be set in `config.ts`:
 
 ~~~typescript
-export const serviceOptions: Partial<IMQClientOptions> = { // or client options as well
-    multiProcess: true, // by default is false - turned off
-    childrenPerCore: 2, // by default is 1
-}
+export const serviceOptions: Partial<IMQServiceOptions> = {
+    multiProcess: true,  // default: false — turned off
+    childrenPerCore: 2,  // default: 1
+};
 ~~~
 
-To enable multi-process run you can set `miltiProcess: true` for your
-service or manage this value via external environment variables.
-In this case, by default, it will fork a number of service workers
-equal to the number of available cores in the system, 1 worker per core.
-As a fact, in a real-world launch, it may be found that to utilize all
-available power you may need to increase the number of processes running per
-core. Despite the fact that it will increase the number of context switching
-on each core you may gain overall performance boost of your system. As a
-recommendation, you can try to play with `childrenPerCore` values to
-experimentally detect the most valuable number of child processes.
+Set `multiProcess: true` to enable multi-process mode (or manage the value
+through environment variables). By default this forks one worker per available
+core. In real-world runs you may find that using all available capacity requires
+more than one process per core: increasing `childrenPerCore` adds more context
+switching per core but can still yield an overall performance gain. Treat it as a
+tuning knob — experiment to find the value that works best for your workload.
 
-Of course, those values can be set either directly on `config.ts` or
-managed externally by environment variables.
+If your deployment is based on small single-core containers, you probably don't
+need to touch the multi-process options at all. Either way, the right settings
+come from testing and experimentation.
 
-If your deployment schema is based on a small single-core containers, there
-is, probably, no need to modify multi-process related configuration.
-Anyway, exact implementation requires exact testing and experiments.
+### Building containers
 
-### Building Containers
+The @imqueue/cli default template can be configured to build Docker images for
+your services. You can build locally with the service's npm scripts, drive it
+through Travis CI-based continuous integration, or both.
 
-Out-of-the-box @imqueue/cli default boilerplate template can be tuned to
-build Docker images for your services. This either can be done locally
-by using corresponding script commands for npm inside service or managed by
-TravisCI-based continuous integration processes, or both.
-
-These commands are docker-related and should be available for the
-service created by @imqueue/cli:
+These Docker-related scripts are available in a service created by @imqueue/cli:
 
 ~~~bash
 npm run docker:build
@@ -131,82 +102,64 @@ npm run docker:stop
 npm run docker:ssh
 ~~~
 
-For local builds it is required, of course, to have docker engine
-installed in your system.
+Local builds require, of course, a Docker engine installed on your machine.
 
-Continuous integration builds are enabled if your service was created
-using `--dockerize` option and provides correct docker namespace on
-DockerHub within `--docker-namespace` option. Those can be pre-set as
-a part of imq command line tool global configuration.
+Continuous-integration builds are enabled when a service is created with the
+`--dockerize` option and given a valid DockerHub namespace via
+`--docker-namespace`. Both can be pre-set as part of the imq command-line tool's
+global configuration.
 
-TravisCI is configured to build-up a docker image on any commit to
-verify if there is no errors.
+Travis CI is configured to build a Docker image on every commit, to verify the
+build stays green. An image is published to the configured DockerHub namespace
+when a version tag is pushed to the GitHub repository. Dev versions — those
+matching the `X.X.X-X` semver format — get the Docker `dev` tag. Release images
+are built from a dedicated `release` branch.
 
-Image is going to be published to a configured DockerHub namespace in
-case a version tag was set on a github repository. Dev versions
-are usually treated as those which match X.X.X-X semver version format.
-Those images will obtain docker dev tag. Docker images tagged as release
-versions are made from a builds triggered on a special `release` branch
-of git repository.
+Pre-built Docker images can be pulled and deployed across many cloud
+environments — AWS, Azure, Google Cloud Platform and others. From there it's a
+matter of configuring your cloud environment: enabling auto-scaling and anything
+else you need.
 
-Usually pre-build docker images can be easily pulled and deployed in
-many different cloud environments like AWS, Azure or Google Cloud
-Platform. Now it is just a matter of tuning your cloud environment
-enabling auto-scaling features and whatever you need else.
+One important note about running @imqueue clients in Docker containers: unless
+you name your clients explicitly, each client generates a unique name based on
+the operating system's UUID. Since Docker images share the same OS UUID out of
+the box, you should set a unique value on the first image build — usually in
+`/etc/machine-id` or `/var/lib/dbus/machine-id`. Consult the documentation for
+your container's base OS to find the correct location.
 
-There is one important thing to note about running @imqueue clients
-in a docker containers. If you're not using custom naming of your
-clients, each time client is created, it will try to generate a client
-unique name based on operating system UUID. As far as all docker images,
-out-of-the-box, will obtain the same OS UUID, you should set it on the
-first image build to a unique value. That should be usually done in
-`/etc/machine-id` or `/var/lib/dbus/machine-id`, etc. Please, refer
-to a documentation related to an OS used as a base image of your container
-to find a proper location.
+### Environment variables
 
-### Environment Variables
+Environment variables are a powerful way to separate configuration across
+environments without maintaining multiple config codebases. On cloud platforms
+such as AWS you might use Parameter Store to supply configuration, while for local
+development you can use `.env` files.
 
-Environment variables is a powerful way to separate configuration for
-different environments without a need to maintain different configs
-codebase. On cloud platforms, like AWS, you may suggest to utilize
-Parameter Store to provide environment configuration for your services,
-on local development deployments you may utilize `.env` files to
-configure your services specific options.
+This requires some setup in the service's `config.ts`. Configure each option to
+read from an environment variable first (which you define yourself) and fall back
+to a default value. We covered this in
+[chapter 2](/tutorial/user-service#configuring-the-service).
 
-All that needs some specific configuration to be set on service's
-`config.ts`. You can configure available options in a way, when you are
-trying initially to read from environment variables first (which you
-are supposed to define yourself) and as a fallback, use some default
-values. We already discussed these possibilities in
-[chapter 2](http://localhost:4000/tutorial/user-service#service-configuration)
-of this tutorial.
+We strongly recommend following the same approach for any configuration in your
+real-world services, and documenting the expected environment variables in your
+README files — so that anyone deploying to a new environment can tune their setup
+easily.
 
-We strongly recommend to follow the same way any time you want to
-introduce some specific configuration to your real-world services,
-providing detailed description of which environment vars service is
-expected to be provided in your README files, so later during
-deployment to different environments anyone can easily tune their
-setups.
+### Running it locally
 
-### Development Run
+We've covered the many options available when deploying @imqueue services. As you
+can see, it's a flexible solution, able to satisfy any load and suitable for
+horizontal scaling and cloud deployments.
 
-So, we have discussed about various different options available during
-@imqueue services deployment. As you may see, it is very flexible
-solution, allowing you to satisfy any deployment needs to cover
-any system load needs, suitable for horizontal scaling, cloud platforms
-deployments, etc.
+For this tutorial we'll focus on the default development environment, so you can
+run the example services from our
+[codebase](https://github.com/imqueue-sandbox) and experiment with them.
 
-In this tutorial we are focusing only on a default development environment
-just to make sure you are able to launch the services, which we
-deliver as an example from our [codebase](https://github.com/imqueue-sandbox).
-And make them available to you for learning and experiments.
-
-First what you will need is to clone all repos locally. Let's assume
-you will clone all repos in some dedicated local directory,
-for example, `~/imqueue-sandbox`:
+First, clone all the repositories locally. Let's assume a dedicated directory,
+for example `~/imqueue-sandbox`:
 
 ~~~bash
 mkdir ~/imqueue-sandbox
+cd ~/imqueue-sandbox
 git clone git@github.com:imqueue-sandbox/api.git
 git clone git@github.com:imqueue-sandbox/auth.git
 git clone git@github.com:imqueue-sandbox/car.git
@@ -215,38 +168,37 @@ git clone git@github.com:imqueue-sandbox/user.git
 git clone git@github.com:imqueue-sandbox/web-app.git
 ~~~
 
-Now you need to make sure you have Redis, MongoDB and PostgreSQL running
-locally on your development machine.
+Next, make sure Redis, MongoDB and PostgreSQL are running on your development
+machine.
 
-You also will need to create database in PostgreSQL with the name `tutmq`
-owned by a user `tutmq` identified by a password `tutmq`. Or you would
-need to change the configuration of time-table service if you wish to
-use other names.
+You'll also need a PostgreSQL database named `tutmq`, owned by a user `tutmq`
+with the password `tutmq` — or change the time-table service's configuration to
+use different names.
 
-After that, simply run the services, each in a new terminal window, or
-use screen if you prefer and have it available on your OS.
+Then run each service in its own terminal window (or use a multiplexer such as
+`screen` or `tmux` if you prefer):
 
 ~~~bash
-cd ~/imqueue-sandbox
-cd [service_dir]
+cd ~/imqueue-sandbox/[service_dir]
 npm run dev
 ~~~
 
-where `[service_dir]` would be one of `user|auth|car|time-table|api`.
-As we remember, we have cross-communication between user and auth services,
-with dynamic client build on run-time, so you have to launch user service
-before starting auth service, or you may catch errors.
+where `[service_dir]` is one of `user`, `auth`, `car`, `time-table` or `api`.
+Remember that the user and auth services communicate via a dynamically built
+runtime client, so start the **user** service before the **auth** service, or
+you'll hit errors.
 
-After launching API service, graphiql web interface should be available
-to you at http://localhost:8888/
+Once the API service is running, the GraphiQL web interface is available at
+[http://localhost:8888/](http://localhost:8888/).
 
-And we are ready to start React-based web interface for our application.
+Finally, start the React-based web interface:
 
 ~~~bash
 cd ~/imqueue-sandbox/web-app
 npm start
 ~~~
 
-Now you can play with it at http://localhost:3000/
+You can now use the application at
+[http://localhost:3000/](http://localhost:3000/).
 
 Happy hacking!
