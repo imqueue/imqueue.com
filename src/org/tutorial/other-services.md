@@ -3,6 +3,9 @@ chapter: 4
 title: Domain Services
 docLabel: TUTORIAL — CHAPTER 4
 lead: "Add the remaining domain services (car, time-table) and choose how their typed clients are generated."
+description: "Add the remaining @imqueue domain services (Car, Time-Table) and choose how their typed clients are generated — self-describing services in practice."
+keywords: "@imqueue domain services, typed client generation, self-describing services, code generation RPC, PostgreSQL microservice, TypeScript service client"
+ogType: article
 ---
 
 At this point it should be already clear, that building @imqueue
