@@ -1,0 +1,179 @@
+/* Shared structural styles for both editions. Colors come entirely from the
+   active theme file's token contract; this file never hard-codes brand colors. */
+
+html { scroll-behavior: smooth; background: var(--bg); }
+
+/* Themed scrollbars (desktop / precise pointers). Colors come from the token
+   contract, so each edition + light/dark theme gets its own automatically:
+   a muted thumb derived from --ink, brightening to the brand --accent on hover. */
+@media (pointer: fine) {
+  html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--ink) 26%, transparent) transparent; }
+  ::-webkit-scrollbar { width: 11px; height: 11px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--ink) 22%, transparent); border-radius: 7px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+  ::-webkit-scrollbar-corner { background: transparent; }
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  transition: background .3s ease, color .3s ease;
+  min-height: 100vh;
+}
+
+.page { display: flex; flex-direction: column; min-height: 100vh; position: relative; }
+.container { max-width: 1180px; margin: 0 auto; padding-left: 32px; padding-right: 32px; }
+main { flex: 1; }
+
+
+h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -.02em; line-height: 1.1; }
+.eyebrow {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--eyebrow);
+}
+.muted { color: var(--muted); }
+.accent { color: var(--accent); }
+code { color: var(--accent); }
+
+/* ---- buttons ---- */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; justify-content: center;
+  font-weight: 600; font-size: 14px; padding: 13px 24px; border-radius: 999px;
+  border: 1px solid transparent; cursor: pointer; white-space: nowrap;
+  transition: transform .15s ease, opacity .15s ease;
+}
+.btn:hover { transform: translateY(-1px); color: inherit; }
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-gradient { background: linear-gradient(100deg, var(--accent), var(--accent2)); background-origin: border-box; color: #fff; }
+.btn-ghost { border-color: var(--line); color: var(--ink); background: none; }
+.btn-sm { padding: 9px 16px; font-size: 13px; border-radius: 8px; }
+
+/* ---- cross-ref ribbon ---- */
+.ribbon {
+  position: relative; z-index: 61;
+  background: var(--surface2); border-bottom: 1px solid var(--line);
+}
+.ribbon .container { padding-top: 9px; padding-bottom: 9px; text-align: center; font-size: 13px; line-height: 1.55; color: var(--muted); }
+.ribbon a { color: var(--accent); font-weight: 600; white-space: nowrap; }
+
+/* ---- nav ---- */
+.nav {
+  position: sticky; top: -1px; z-index: 60;
+  background: var(--navbg); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-inner { display: flex; align-items: center; gap: 20px; height: 74px; }
+/* Brand lockup: square glyph left of a name(+optional slogan) text block.
+   Common pattern across logo variants — the glyph is sized to the text block's
+   height: name-only for the plain variant, name+slogan for the stacked variant.
+   --mark holds that height per variant. */
+.brand { --mark: 15px; display: inline-flex; align-items: center; gap: 16px; margin-right: auto; color: var(--accent); }
+.brand--stacked { --mark: 27px; }
+.brand--lg { --mark: 17px; }
+.brand--lg.brand--stacked { --mark: 29px; }
+.brand__mark { display: flex; align-items: center; flex: none; }
+/* glyph viewBox is 42x28 (tight to the artwork) -> width = height * 1.5 */
+.brand__mark svg { height: var(--mark); width: calc(var(--mark) * 1.5); display: block; }
+.brand__text { display: flex; flex-direction: column; justify-content: center; }
+.brand__name { font-family: var(--font-display); font-weight: 700; font-size: 17px; line-height: 1.05; letter-spacing: -.02em; color: var(--ink); }
+.brand__slogan { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); line-height: 1.1; margin-top: 3px; }
+.brand--lg .brand__name { font-size: 19px; }
+
+.nav-links { display: flex; align-items: center; gap: 4px; }
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+.nav-link {
+  font-family: var(--font-mono); font-size: 14.5px; font-weight: 500;
+  padding: 8px 12px; border-radius: 8px; color: var(--ink); white-space: nowrap;
+}
+.nav-link:hover { color: var(--accent); }
+.nav-link.active { color: var(--accent); font-weight: 600; }
+.nav-outline { border: 1px solid var(--line); padding: 8px 13px; border-radius: 8px; font-family: var(--font-mono); font-size: 14px; white-space: nowrap; }
+
+.burger {
+  display: none; width: 40px; height: 40px; align-items: center; justify-content: center;
+  border: 1px solid var(--line); border-radius: 8px; color: var(--ink);
+}
+
+/* mobile nav drawer */
+.mobile-nav { display: none; border-top: 1px solid var(--line); background: var(--navbg); backdrop-filter: blur(14px); }
+.mobile-nav.open { display: block; }
+.mobile-nav .container { display: flex; flex-direction: column; padding-top: 8px; padding-bottom: 16px; }
+.mobile-nav a { padding: 13px 6px; color: var(--ink); font-size: 15px; border-bottom: 1px solid var(--line); }
+.mobile-nav a:last-child { border-bottom: none; }
+
+/* ---- theme toggle (segmented) ---- */
+.theme-toggle { display: inline-flex; align-items: center; gap: 2px; border: 1px solid var(--line); border-radius: 8px; padding: 2px; }
+.theme-toggle button {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 6px; color: var(--muted);
+}
+.theme-toggle button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+
+/* ---- cards ---- */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 28px 24px; }
+.card h3 { font-size: 18px; margin-bottom: 8px; }
+.card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+.grid { display: grid; gap: 16px; }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.section { padding-top: 44px; padding-bottom: 44px; }
+/* container-query context (kept for any component that opts into @container) */
+.section-label { font-family: var(--font-mono); font-size: 12px; letter-spacing: .16em; color: var(--muted); margin-bottom: 20px; }
+
+/* ---- footer ---- */
+.footer { border-top: 1px solid var(--line); background: var(--surface2); margin-top: 40px; }
+.footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; padding-top: 48px; padding-bottom: 30px; }
+.footer h4 { font-family: var(--font-mono); color: var(--muted); letter-spacing: .1em; font-size: 12px; margin-bottom: 12px; font-weight: 600; text-transform: uppercase; }
+.footer-links { display: flex; flex-direction: column; gap: 9px; font-size: 13.5px; }
+.footer-links a:hover { color: var(--accent); }
+.footer-brand-desc { font-size: 13.5px; color: var(--muted); line-height: 1.6; max-width: 260px; margin-top: 4px; }
+.footer-bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 18px; padding-bottom: 40px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+
+/* ---- tutorial layout (chapter sidebar + content) ---- */
+.tut-layout { display: grid; grid-template-columns: 240px 1fr; gap: 44px; align-items: start; }
+.tut-side { position: sticky; top: 90px; font-family: var(--font-mono); font-size: 13px; }
+.tut-side .lbl { color: var(--muted); letter-spacing: .12em; text-transform: uppercase; font-size: 12px; margin-bottom: 14px; }
+.tut-ch { display: block; padding: 10px 12px; border-radius: 8px; color: var(--muted); margin-bottom: 2px; }
+.tut-ch:hover { color: var(--accent); }
+.tut-ch.active { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.tut-nav { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); margin-top: 36px; padding-top: 22px; }
+.tut-nav a { font-family: var(--font-mono); font-size: 13px; border: 1px solid var(--line); padding: 10px 16px; border-radius: 8px; color: var(--ink); }
+.tut-nav a:hover { border-color: var(--accent); color: var(--accent); }
+.tut-nav .next { background: var(--accent); color: var(--on-accent); border-color: transparent; font-weight: 600; }
+.tut-nav .next:hover { color: var(--on-accent); }
+@media (max-width: 860px) {
+  .tut-layout { grid-template-columns: minmax(0, 1fr); }
+  .tut-side { position: static; margin-bottom: 24px; }
+}
+
+/* ---- responsive (media queries) ---- */
+/* Nav collapses to the burger *before* its items would run out of room and wrap.
+   The com (Flux) nav carries more items than org (Terminal), so each edition
+   switches at its own measured width. */
+@media (max-width: 940px) {
+  [data-skin="flux"] .nav-links, [data-skin="flux"] .nav-actions { display: none; }
+  [data-skin="flux"] .burger { display: inline-flex; }
+}
+@media (max-width: 860px) {
+  [data-skin="terminal"] .nav-links, [data-skin="terminal"] .nav-actions { display: none; }
+  [data-skin="terminal"] .burger { display: inline-flex; }
+}
+/* ≤760px = content mobile layout */
+@media (max-width: 760px) {
+  .nav-links, .nav-actions { display: none; }
+  .burger { display: inline-flex; }
+  .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  h1 { font-size: 34px !important; }
+  h2 { font-size: 26px !important; }
+}
+@media (max-width: 480px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+}
