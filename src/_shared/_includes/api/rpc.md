@@ -1,16 +1,16 @@
 ## RPC API
 
-RPC is a high-level framework API allowing to create client-server communication
-between services using Remote Procedure Call pattern. If you'd like to deal with
-a full subset of @imqueue features it is recommended to rely on it.
+The RPC API is a high-level framework for building client–server communication
+between services using the Remote Procedure Call pattern. If you want the full
+set of @imqueue features, this is the API to build on.
 
 ### Configuration
 
-Usually configuration options are bypassed to a Service or a Client constructor.
-In a real-world setup there is an easy way to map option values exported from 
-environment variables to an object instantiation, which gives a full flexibility
-during deployment. Thus, each service generated from a boilerplate provides 
-`config.ts` file where the options can be set, for example, like this:
+Configuration options are usually passed to a Service or Client constructor. In a
+real-world setup, the cleanest approach is to map option values from environment
+variables into the object at instantiation, giving you full flexibility at
+deployment time. Every service scaffolded from the boilerplate includes a
+`config.ts` file where these options can be set, for example:
 
 ~~~typescript
 export const serviceOptions: Partial<IMQServiceOptions> = {
@@ -20,170 +20,158 @@ export const serviceOptions: Partial<IMQServiceOptions> = {
 };
 ~~~
 
-Doing that it is easy to make service be re-configured by the environment it
-is executed in. For local deployment you can define environment
-vars in your shell (as a global configuration setup) or by using `.env` file in 
-the root directory of the service (as a per-service configuration). At the same
-time on environments like AWS it is possible to bypass environment vars from
-Parameters Store, etc.
+This lets a service be reconfigured by the environment it runs in. For local
+deployment you can define environment variables in your shell (global
+configuration) or in a `.env` file in the service's root directory (per-service
+configuration). On platforms such as AWS you can pass variables in from Parameter
+Store, and so on.
 
-#### Generic Options (Service and Client)
+#### Generic options (Service and Client)
 
-- **host** - Redis server host, default is `"localhost"`
-- **port** - Redis server port, default is `6379`
-- **cluster** - Defines a Redis servers cluster, actually it will be used instead of
-  host/port combination if provided. Naturally it is an array of Redis servers
-  host/port pairs. @imqueue will automatically distribute messages between
-  configured here Redis cluster nodes.
-- **prefix** - Redis keys prefix which should be used for @imqueue key/value
-  pairs, default is `"imq"`
-- **logger** - Reference to a logger implementation. By default it is `console`.
-  Configured logger implementation reference will be used by the whole set of 
-  library entities. Provided logger implementation must implement 
+- **host** — Redis server host. Default: `"localhost"`.
+- **port** — Redis server port. Default: `6379`.
+- **cluster** — defines a cluster of Redis servers, used instead of the
+  host/port pair when provided. It's an array of Redis host/port pairs; @imqueue
+  automatically distributes messages across the configured cluster nodes.
+- **prefix** — the Redis key prefix used for @imqueue key/value pairs. Default:
+  `"imq"`.
+- **logger** — a reference to a logger implementation, used by the whole library.
+  Default: `console`. The implementation must satisfy the
   [ILogger](/api/core/{{latest_core}}/interfaces/ilogger.html) interface.
-- **safeDelivery** - boolean value enabling/disabling safe (guaranteed) message
-  delivery. By default `false` - is turned off. Turned on safe delivery
-  guaranties that each consumer will either process a message or it will be
-  re-scheduled for re-handling by another instance of the same consumer type and
-  that guaranties the message will never be lost.
-- **safeDeliveryTtl** - time to live in milliseconds for messages in-process of 
-  consumer instance. In another words, it is the time when message lives in a
-  worker queue. When the time ends it is removed from worker queue and puts
-  back into a message queue. By default it is `5000` (5 seconds). Take care that if
-  there is a task running more than five seconds and safe delivery is turned on
-  this value should be extended.
-- **useGzip** - boolean flag which turns gzip compression on/off. By default it is
-  `false` - turned off. @imqueue exchanging messages in a plain JSON format.
-  If in your system by design messages are large and throughput in number of
-  messages is low, it can be a logical step to use compression to decrease
-  traffic exchange between consumer instances and Redis nodes. From the other
-  hand, turning this option on will decrease throughput in number of messages
-  per second around 2 times, so, it is not recommended to turn it on in cases
-  where throughput performance is a critical point. 
+- **safeDelivery** — enables or disables safe (guaranteed) message delivery.
+  Default: `false` (off). When on, every consumer either processes a message or
+  the message is rescheduled for re-handling by another instance of the same
+  consumer type, so a message is never lost.
+- **safeDeliveryTtl** — time to live, in milliseconds, for a message being
+  processed by a consumer instance — that is, how long the message stays in a
+  worker queue. When the time elapses, the message is moved from the worker queue
+  back to the message queue. Default: `5000` (5 seconds). If a task can run longer
+  than five seconds and safe delivery is on, increase this value accordingly.
+- **useGzip** — enables or disables gzip compression. Default: `false` (off).
+  @imqueue exchanges messages as plain JSON. If your messages are large and your
+  message throughput is low, compression can be a sensible way to reduce traffic
+  between consumer instances and Redis nodes. Note that turning it on roughly
+  halves message throughput, so avoid it where throughput is critical.
 
-#### Client Extra Options
+#### Client-only options
 
-There are several ways of creating and instantiating service Clients:
+There are several ways to create and instantiate service clients:
 
-  1. By using only pre-generated client source files
-  1. Instantiating clients dynamically with or without source files generation
-  1. Manual clients implementation in case of any need to do that
+1. Using only pre-generated client source files.
+2. Instantiating clients dynamically, with or without generating source files.
+3. Implementing clients manually, when you need to.
 
-Following below options and their values combination can set one of the
-described above modes.
+The following options select among these modes:
 
-- **compile** - enables client code module to be interpreted by JavaScript
-  on-the-fly. By default is turned on, so, it is possible to use dynamically
-  generated clients out-of-the-box without additional configuration. Can be
-  turned off for some reason. 
-- **write** - enables/disables persistence of generated client code. By default
-  is enabled.
-- **path** - specifies a path where the client source files should persist.
-  By default is `"./src/clients""`.
+- **compile** — allows the generated client module to be interpreted by
+  JavaScript on the fly. Default: on, so dynamically generated clients work out
+  of the box with no extra configuration. Can be turned off if needed.
+- **write** — enables or disables persistence of the generated client code.
+  Default: on.
+- **path** — where the generated client source files are written. Default:
+  `"./src/clients"`.
 
 ### Service and Client
 
-IMQ is implemented in the way where **a developer should focus only on Service
-development** and a Client is going to be automatically generated from a Service
-description. Each @imqueue Service instance is self-describable, so developer 
-must take care only of a good level of description which is reflected only to
-a proper code writing, including all correct types definitions and documenting 
-blocks. And, of course, on functionality implementation itself.
+IMQ is built so that **you focus only on service development** — the client is
+generated automatically from the service's description. Every @imqueue service is
+self-describing, so your only responsibilities are writing good descriptions
+(correct type definitions and doc-blocks) and, of course, implementing the
+functionality itself.
 
-Such a way provides simplicity of development process - you just write a
-service code and framework takes care itself about everything else.
+This keeps development simple: you write the service, and the framework handles
+the rest.
 
-Contrastingly, in case of some specific needs, there is no limit of
-implementing Clients manually, but it can significantly increase the amount of
-work to be done on implementation, and what is the most critical - on support
-after implementation.
+If you have special requirements, there's nothing stopping you from implementing
+clients by hand — but that adds significant work, both to build and, more
+importantly, to maintain afterwards.
 
-Anyway, @imqueue provides 
+@imqueue provides the
 [IMQService](/api/rpc/{{latest_rpc}}/classes/imqservice.html) and
-[IMQClient](/api/rpc/{{latest_rpc}}/classes/imqclient.html) base abstract
-classes which should be inherited by an exact implementation.
+[IMQClient](/api/rpc/{{latest_rpc}}/classes/imqclient.html) abstract base classes
+for concrete implementations to extend.
 
-Each service is treated as a package, which should contain at least one 
-service class. In case of complex service implementation it can consist of
-many classes, what in terms of implementing microservices is usually undesirable.
+Each service is treated as a package containing at least one service class. A
+complex service may consist of several classes, though in microservice terms
+that's usually best avoided.
 
-Typical empty service implementation looks like this
+A minimal, empty service looks like this:
 
 ~~~typescript
 import { IMQService } from '@imqueue/rpc';
+
 export class SomeService extends IMQService {
     // service implementation goes here
 }
 ~~~
 
-Implementation of a service is a typical Typescript class, so it can implement
-any method (including private, protected and public) and define any class
-properties. By the way, there are some minimal rules required to be followed
-to make it work correctly:
+A service is an ordinary TypeScript class — it can have private, protected and
+public methods, and any properties you like. A few rules must be followed to make
+it work correctly:
 
-* All methods which were not exposed will not be accessible remotely. If you need
-  to make method accessible via remote calls, you *MUST* expose it. To do that you
-  need to use `@expose()` decorator factory:
+* Methods that aren't exposed are not accessible remotely. To make a method
+  remotely callable, you **must** expose it with the `@expose()` decorator:
   ~~~typescript
   import { IMQService, expose } from '@imqueue/rpc';
+
   export class SomeService extends IMQService {
     @expose()
-    public exposedMethod() { /* implementation goes here... */ }
-    public unexposedMethod() { /* implementation goes here... */ }
+    public exposedMethod() { /* implementation... */ }
+
+    public unexposedMethod() { /* implementation... */ }
   }
   ~~~
-* Only class methods are allowed to expose. You *CAN NOT* expose class
-  properties.
-* If you need to make asynchronous operation on class service initialization -
-  override `start()` method:
+* Only methods can be exposed. You **cannot** expose class properties.
+* To run asynchronous setup during service initialization, override the
+  `start()` method:
   ~~~typescript
   import { IMessageQueue, IMQService, expose } from '@imqueue/rpc';
+
   export class SomeService extends IMQService {
     public async start(): Promise<IMessageQueue | undefined> {
-      // do your async stuff here, for example, init db connection, etc...
+      // async setup here — e.g. open a database connection...
       return super.start();
     }
   }
   ~~~
-* It is preferable to use aggregated logger, instead of using `console` for
-  debugging and printing info/warning/errors:
+* Prefer the injected logger over `console` for debug, info, warning and error
+  output:
   ~~~typescript
   import { IMQService, expose } from '@imqueue/rpc';
+
   export class SomeService extends IMQService {
     @expose()
     public loggedStuff() {
-      this.logger.log('I am logged string!');
+      this.logger.log('I am a logged string!');
     }
   }
   ~~~
-* Remote calls means that from a client to a service and vice versa data are
-  transmitted via network, so all arguments passed in and all return values of
-  the exposed methods ***MUST* be JSON-serializable types**.
-* You *CAN NOT* use spread operator for exposed method arguments - that won't
-  work on a client and is a known limitation. In this case bypass arguments as 
-  an array:
+* Because remote calls send data across the network, all arguments and return
+  values of exposed methods **must be JSON-serializable**.
+* You **cannot** use the spread operator for exposed-method arguments — it won't
+  work on the generated client (a known limitation). Pass such arguments as an
+  array instead:
   ~~~typescript
   import { IMQService, expose } from '@imqueue/rpc';
+
   export class SomeService extends IMQService {
-    // this is INCORRECT
-    // client for this service will not compile because of this
+    // INCORRECT — the client for this service will not compile
     @expose()
     public incorrectStuff(...args: any[]) {
       args.forEach((arg) => {
         // do something with arg...
       });
     }
-  
-    // this is CORRECT
+
+    // CORRECT
     @expose()
     public correctStuff(args: any[]) {
       args.forEach((arg) => {
         // do something with arg...
       });
     }
-  
-    // this is also CORRECT
-    // as far as it is not exposed
+
+    // Also fine — this one isn't exposed
     private somePrivateStuff(...args: any[]) {
       args.forEach((arg) => {
         // do something with arg...
@@ -192,120 +180,115 @@ to make it work correctly:
   }
 
   (async () => {
-    // let's imagine we have a client for the service
+    // assuming we have a client for the service:
     const client = new SomeServiceClient();
     await client.start();
-    // and we want to have something like this:
+
+    // we'd like to write this:
     client.incorrectStuff(1, 2, 3);
-    // but we can do like this instead,
-    // which is not that significant problem as seen:
+    // but we do this instead — hardly a hardship:
     client.correctStuff([1, 2, 3]);
   })();
   ~~~
 
-### Importance of Using DocBlocks
+### The importance of doc-blocks
 
-JavaScript/Typescript does not have very powerful tooling for reflections, so there is
-no easy way to get all required information about arguments and return values
-data types. By the way, description model of the services
-can easily utilize information from the doc-blocks associated with class 
-methods, and @imqueue does that very well.
+JavaScript and TypeScript offer little reflection tooling, so there's no easy way
+to recover argument and return-value types at runtime. @imqueue works around this
+by reading the doc-blocks attached to your class methods to build its service
+description.
 
-This is a very good practice form any point of view, as well written
-doc-blocks make code more documented, readable and clear, providing ability to
-auto-generate API documentation for the written code, and, finally, in our case,
-they become *MANDATORY* to use to provide possibility for @imqueue to describe 
-the service and make its client to work correct.
+This is good practice from every angle: well-written doc-blocks make code more
+readable and self-documenting, and let you auto-generate API docs. In @imqueue's
+case they're also **mandatory** — the framework needs them to describe a service
+and to generate a correctly working client.
 
-Here is what you have to know about writing doc-blocks for @imqueue services:
+Here's what you need to know about writing doc-blocks for @imqueue services:
 
-* Always use `@param` and `@return` tags with proper type definition to describe
-  input args and return value:
-  
+* Always use `@param` and `@return` tags with a proper type for every input
+  argument and return value:
+
   ~~~typescript
   {% raw %}import { IMQService, expose } from '@imqueue/rpc';
+
   export class SomeService extends IMQService {
     /**
      * Some method description goes here
-     * 
-     * @param {string} argOne - the first argument description string
-     * @param {boolean} argTwo - the second argument description string
-     * @param {{name: string, value: number}} [argThree] - the third optional argument description string
-     * @return {{x: number, y: number}} - return value description string
+     *
+     * @param {string} argOne - description of the first argument
+     * @param {boolean} argTwo - description of the second argument
+     * @param {{name: string, value: number}} [argThree] - description of the third, optional argument
+     * @return {{x: number, y: number}} - description of the return value
      */
     @expose()
     public someMethod(
-      argOne: string, argTwo: boolean, argThree?: { name: string, value: number }
+      argOne: string, argTwo: boolean, argThree?: { name: string, value: number },
     ): { x: number, y: number } {
-      // do some stuff with args...
+      // do something with the args...
       return { x: 5, y: 7 };
     }
   }{% endraw %}
   ~~~
-* Use `[]` around those argument names, which are optional in doc-block argument
-  description, it is important if you wish optional arguments to be defined
-  correctly on a generated client.
-* Use Typescript types notations in doc-blocks for argument and return values,
-  as far as they will be used as a part of a generated client code.
+* Wrap optional argument names in `[]` in the doc-block — this is what marks them
+  as optional on the generated client.
+* Use TypeScript type notation in doc-blocks for arguments and return values;
+  it's carried through into the generated client code.
 
-### Complex Types
+### Complex types
 
-@imqueue services support complex types to be defined and used within data
-exchange between a client and a service. There are also several rules to know about
-creating proper complex types, which both service and client will understand and
-use correctly.
+@imqueue services support complex types in the data exchanged between a client
+and a service. A few rules ensure that both sides understand and use them
+correctly.
 
-Use **class declaration** for defining an interface of complex type on a service
-side. This is related to the problem that in comparison to interface
-declaration, class is an accessible definition in JavaScript, but interface
-is only accessible in Typescript and does not exist at runtime.
-Another problem is that JavaScript classes don't support properties (only
-property getters and setters), so
-for Typescript it is enough to have a simple property definition, but to access
-that definition on JavaScript level we need to have some extra definitions,
-which are implemented by `@property()` decorator factory:
+Define a complex type's interface on the service side using a **class**, not a
+TypeScript interface. This is because a class exists in the compiled JavaScript,
+whereas an interface exists only in TypeScript and is gone at runtime. There's a
+second wrinkle: JavaScript classes don't support bare properties (only getters
+and setters), so while TypeScript is happy with a plain property definition,
+@imqueue needs extra metadata to see it at the JavaScript level. That metadata is
+supplied by the `@property()` decorator:
 
 ~~~typescript
 function property(typeName: string, isOptional: boolean = false): () => {}
 ~~~
 
-Since v3.x, each complex type class **must** also be annotated with the
-`@classType()` class decorator. @imqueue v3 relies on standard (TC39) decorators,
-under which `@property()` only collects field metadata on the class — the
-class-level `@classType()` then finalizes and registers that metadata as a named
-type, so both the service and the generated client recognize it:
+Since v3.x, each complex-type class **must** also be annotated with the
+`@classType()` class decorator. @imqueue v3 uses standard (TC39) decorators, under
+which `@property()` only collects field metadata — the class-level `@classType()`
+then finalizes and registers that metadata as a named type, so that both the
+service and the generated client recognise it:
 
 ~~~typescript
 function classType(): (value: Function, context: ClassDecoratorContext) => void
 ~~~
 
-Usage:
+Putting it together:
 
 ~~~typescript
-// service definition of the type:
+// service-side definition of the type:
 import { classType, property } from '@imqueue/rpc';
 
 @classType()
 class UserObject {
     @property('string')
     firstName: string;
-    
+
     @property('string')
     lastName: string;
-    
+
     @property('string')
     email: string;
-    
+
     @property('string', true)
     phoneNumber?: string;
 }
 ~~~
 
-This will be compiled on a client's side to a proper Typescript interface and can
-be correctly used for a proper type definitions on a client and a service side:
+This compiles, on the client side, to a matching TypeScript interface, so the
+type can be used for correct type-checking on both sides:
 
 ~~~typescript
-// generated client definition of the type
+// generated client-side definition of the type
 interface UserObject {
     firstName: string;
     lastName: string;
@@ -314,32 +297,32 @@ interface UserObject {
 }
 ~~~
 
-Now the type can be used within service methods (assuming we put a type
-definition in a separate file):
+The type can then be used in service methods (assuming the definition lives in
+its own file):
 
 ~~~typescript
 import { IMQService, expose } from '@imqueue/rpc';
 import { UserObject } from './types/UserObject';
+
 class UserService extends IMQService {
     /**
-     * Updates user record
-     * 
+     * Updates a user record
+     *
      * @param {UserObject} data - user data fields
-     * @return {Promise<UserObject|null>} - saved user object or null if failed
+     * @return {Promise<UserObject | null>} - the saved user, or null on failure
      */
     @expose()
-    public async update(data: UserObject): Promise<UserObject|null> {
+    public async update(data: UserObject): Promise<UserObject | null> {
         // do logic...
         return data;
     }
 }
 ~~~
 
-This guaranties correct type-checks on a client level.
+This guarantees correct type-checking at the client level.
 
-Complex types can aggregate another complex types. Let's imagine we want to
-extend our user model to be associated with one or more address objects, 
-like this:
+Complex types can nest other complex types. Suppose we extend the user model to
+be associated with one or more address objects:
 
 ~~~typescript
 import { classType, property } from '@imqueue/rpc';
@@ -348,13 +331,13 @@ import { classType, property } from '@imqueue/rpc';
 class AddressObject {
     @property('string')
     country: string;
-    
+
     @property('string')
     city: string;
-    
+
     @property('string')
     address: string;
-    
+
     @property('string', true)
     phoneNumber?: string;
 }
@@ -363,40 +346,40 @@ class AddressObject {
 class UserObject {
     @property('string')
     firstName: string;
-    
+
     @property('string')
     lastName: string;
-    
+
     @property('string')
     email: string;
-    
+
     @property('AddressObject[]', true)
-    addresses?: AddressObject[]
+    addresses?: AddressObject[];
 }
 ~~~
 
-### Working with Service Description
+### Working with the service description
 
-If you need, for some reason, to access service description metadata it is
-enough to simply call for a `describe()` method on service client:
+If you ever need to access a service's description metadata, just call
+`describe()` on a service client:
 
 ~~~typescript
-// treating it is executed in async context:
+// assuming this runs in an async context:
 const client = new UserClient();
 await client.start();
 console.log(await client.describe());
 ~~~
 
-It will print out all metadata about service classes, methods and complex type
-definitions.
+This prints all the metadata about the service's classes, methods and complex
+types.
 
-### Delayed Messaging
+### Delayed messaging
 
-Delayed messaging with `@imqueue/rpc` is easy. Any of exposed service method
-can be called with a delay. So, if you need to use delayed messaging to implement
-scheduling queue for some operations, it is as easy as to specify `delay` (of
-[IMQDelay](/api/rpc/{{latest_rpc}}/classes/imqdelay.html) type) parameter 
-within any client method call, like this:
+Delayed messaging with `@imqueue/rpc` is easy: any exposed service method can be
+called with a delay. This is handy for building scheduling queues. Just pass a
+`delay` parameter (of type
+[IMQDelay](/api/rpc/{{latest_rpc}}/classes/imqdelay.html)) in any client method
+call:
 
 ~~~typescript
 import { IMQDelay } from '@imqueue/rpc';
@@ -406,119 +389,101 @@ const client = new UserClient();
 const data: UserObject = {
     firstName: 'John',
     lastName: 'Doe',
-    email: 'john@doe.com'
-}
+    email: 'john@doe.com',
+};
 
 await client.start();
-// execute scheduled stuff in 1 hour, and obtain result asynchronously
-// after execution without stacking the thread
+// run the scheduled work in 1 hour, and handle the result asynchronously
+// once it completes, without blocking:
 client.doScheduledStuff(data, new IMQDelay(1, 'h'))
     .then((result: any) => client.logger.log(result));
 ~~~
 
 ### Locking
 
-Locking is a powerful tool provided by `@imqueue/rpc` to potentially optimize
-remote calls. For example, let's imagine that your system handles hundreds or
-even thousands of calls to some specific method with the same execution context in
-a very short period of time and obtains the same response result for each
-call. It could be possible, for example, when some popular content is requested
-by many users, but that content is pretty static at least for this short period
-of time. In such case your backend, in fact, executes the same operations 
-hundreds or thousands of times per second, but there is actually no reason
-to do that. Locks allow to optimize such kind of behavior, and here is how.
+Locking is a powerful tool in `@imqueue/rpc` for optimising remote calls.
+Imagine your system receives hundreds or thousands of calls to the same method,
+with the same execution context, in a very short window — and each returns the
+same result. This happens, for example, when popular content is requested by many
+users but stays effectively static over that short period. Without help, your
+back-end runs the same work hundreds or thousands of times a second for no real
+reason. Locks fix this.
 
-When the `@lock()` is wrapping a method, it creates an asynchronous lock on
-the first call and until the operation is not complete, all other similar calls
-(having the same signature) will wait until the first call is resolved, and then
-it resolves all enqueued calls with the same obtained data.
+When `@lock()` wraps a method, the first matching call acquires an asynchronous
+lock. Until that call resolves, all other calls with the same signature wait; when
+it resolves, they're all resolved with the same result.
 
-For example, if there is a call to fetch some specific blog-post 100 times during 
-the next 100 milliseconds, but operation to fetch a blog-post from a database 
-takes around 100 milliseconds as well, it means that such call will 
-execute the actual logic only once, then resolves all awaiting 100 clients
-with the same return value:
+For example, if a specific blog post is fetched 100 times over 100 milliseconds,
+and the database fetch itself takes about 100 milliseconds, the actual logic runs
+just once — and all 100 waiting clients are resolved with the same value:
 
 ~~~typescript
 import { IMQService, expose, lock } from '@imqueue/rpc';
 import { BlogPost } from './types';
 
 class BlogService extends IMQService {
-
     /**
-     * Returns the same blog post data object corresponding to a
-     * given blog post identifier
+     * Returns the blog post for a given identifier
      *
      * @param {string} id - blog post identifier
-     * @return {BlogPost} - blog post data set
+     * @return {Promise<BlogPost>} - the blog post data
      */
     @lock()
     @expose()
     public async fetchPost(id: string): Promise<BlogPost> {
         let data: BlogPost;
-        // select blog post data from database by given identifier...
+        // fetch the blog post from the database by id...
         return data;
     }
 }
 ~~~
 
-From the other hand, if during that time there are other calls with
-different blog post identifiers, they will be executed using their different
-contextual locks and resolve their clients with different
-corresponding values.
+Meanwhile, concurrent calls for *different* blog post identifiers run under their
+own contextual locks and resolve their clients with their own values.
 
-This provides several advantages:
+This offers two advantages:
 
-  1. **Decreases load** on backend (less actual logic execution, less actual 
-     database calls).
-  1. **Improves average response time** for the clients (first one will wait 
-     the most, but the last will obtain result almost immediately with no delay,
-     so average response time across all clients will be improved).
+1. **Lower back-end load** — less logic executed, fewer database calls.
+2. **Better average response time** — the first caller waits longest, but the
+   last is served almost instantly, so the average across all callers improves.
 
-But there is considerable downside while using locks. First of all, to qualify
-the execution context locking mechanism must execute a hashing function on a signature
-of the call, which takes reasonable time and computing resources. Despite the
-fact that used hashing algorithm is pretty productive, its performance depends
-on the length of signature method. In some circumstances it may occur that you can
-gain no benefit of using locks. So, it should be wisely considered if there is a
-reason to apply it or not. For high load and slow methods it is definitely worth
-it. When the method execution is cheaper than signature hashing, it is not
-worth.
+There is a trade-off. To identify the execution context, the locking mechanism
+hashes the call's signature, which costs time and CPU. The algorithm is efficient,
+but its cost grows with the length of the method signature. In some cases you may
+gain nothing from locking, so weigh it up: for high-load, slow methods it's
+clearly worth it; when the method is cheaper to run than its signature is to hash,
+it isn't.
 
-Locking can be used not only as methods decorator. IMQ provides an 
-implementation of asynchronous locks as a generic class 
-[IMQLock](/api/rpc/{{latest_rpc}}/classes/imqlock.html), which can be used for 
-many different needs in many different parts of your backend implementation.
+Locking isn't limited to a method decorator. IMQ also provides a general-purpose
+asynchronous lock class,
+[IMQLock](/api/rpc/{{latest_rpc}}/classes/imqlock.html), that you can use
+wherever you need it across your back-end.
 
 ### Caching
 
-Caching is another tool @imqueue provides for optimization purposes. It gives the
-ability to cache method execution calls using a given caching adapter (of
-course, Redis is by default and the only one implemented at this time). But it
-is possible to define your own adapter, it is enough to implement properly
-[ICache](/api/rpc/{{latest_rpc}}/interfaces/icache.html) and 
+Caching is another optimisation tool @imqueue provides. It caches a method's
+results using a caching adapter (Redis is the default, and currently the only
+built-in one). You can supply your own adapter by implementing the
+[ICache](/api/rpc/{{latest_rpc}}/interfaces/icache.html) and
 [ICacheConstructor](/api/rpc/{{latest_rpc}}/interfaces/imcacheconstructor.html)
 interfaces.
 
-Out-of-the-box it can be used as `@cache()` decorator factory on a service
-methods or by utilizing [IMQCache](/api/rpc/{{latest_rpc}}/classes/imqcache.html)
-registry and [RedisCache](/api/rpc/{{latest_rpc}}/classes/rediscache.html)
-engine implementation.
+Out of the box, use the `@cache()` decorator on service methods, or work with the
+[IMQCache](/api/rpc/{{latest_rpc}}/classes/imqcache.html) registry and the
+[RedisCache](/api/rpc/{{latest_rpc}}/classes/rediscache.html) engine directly.
 
-Typical usage as follows:
+Typical usage:
 
 ~~~typescript
 import { IMQService, expose, cache } from '@imqueue/rpc';
 import { BlogPost } from './types';
 
 class BlogService extends IMQService {
-
     /**
-     * Returns the same blog post data object corresponding to a
-     * given blog post identifier
+     * Returns the blog post for a given identifier
      *
      * @param {string} id - blog post identifier
-     * @return {BlogPost} - blog post data set
+     * @return {Promise<BlogPost>} - the blog post data
      */
     @cache()
     @expose()
@@ -530,8 +495,7 @@ class BlogService extends IMQService {
 }
 ~~~
 
-`@cache()` decorator implements similar per-signature work principals as
-`@lock()`. The whole set of @imqueue decorators can be combined in-use over
-service methods to improve overall system performance and stability. You can 
-write and use corresponding load tests for your backend and practically find
-a better way of optimization.
+Like `@lock()`, `@cache()` works per call signature. All of @imqueue's decorators
+can be combined on a service method to improve overall performance and stability.
+Write load tests for your back-end and use them to find the best optimisation
+strategy for your case.
