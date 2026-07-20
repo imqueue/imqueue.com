@@ -17,7 +17,8 @@
     "markdown-it-table-of-contents": "^0.9.0",
     "png-to-ico": "^3.0.2",
     "sharp": "^0.35.3",
-    "typescript": "~5.8.0"
+    "typescript": "~5.8.0",
+    "wawoff2": "^2.0.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
@@ -28,6 +29,7 @@
     "serve:com": "EDITION=com eleventy --serve --port=8081",
     "build": "npm run build:all",
     "gen-favicons": "node scripts/gen-favicons.mjs",
+    "gen-og": "node scripts/gen-og-images.js",
     "build-docs": "node api-docs"
   },
   "repository": {

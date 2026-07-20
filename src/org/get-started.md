@@ -4,6 +4,8 @@ section: docs
 title: Getting started
 docLabel: GET STARTED
 lead: "The shortest step-by-step guide to installing @imqueue and shipping your first service. For a deeper walkthrough see the Tutorial; full technical reference lives in the API docs."
+description: "Install @imqueue and ship your first Node & TypeScript service in minutes — the shortest quickstart for building message-queue RPC microservices."
+keywords: "@imqueue getting started, imqueue quickstart, install imqueue, first Node.js service, TypeScript microservice tutorial, npm @imqueue/cli, message queue RPC setup"
 ---
 
 [[toc]]

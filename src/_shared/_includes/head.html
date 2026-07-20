@@ -2,12 +2,81 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="google-site-verification" content="lZDiiXownAih-OVzjgDS_lEpZruoAw3JCMoz3xkCVIE">
-<title>{% if title %}{{ title }} · {{ siteName }}{% else %}{{ siteName }} — {{ site.slogan }}{% endif %}</title>
-<meta name="description" content="{{ description | default: site.slogan }}">
-<link rel="canonical" href="{{ siteUrl }}{{ page.url }}">
+
+{%- comment -%} Compute the page title + effective description/image once, reuse for OG/Twitter. {%- endcomment -%}
+{%- if title -%}{%- assign metaTitle = title | append: " · " | append: siteName -%}{%- else -%}{%- assign metaTitle = siteName | append: " — " | append: site.slogan -%}{%- endif -%}
+{%- assign metaDesc = description | default: site.slogan -%}
+{%- assign metaImage = ogImage | default: siteImage -%}
+{%- assign metaUrl = siteUrl | append: page.url -%}
+
+<title>{{ metaTitle }}</title>
+<meta name="description" content="{{ metaDesc }}">
+<meta name="keywords" content="{{ keywords | default: siteKeywords }}">
+<meta name="author" content="{{ siteName }}">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="theme-color" content="{{ themeColor }}">
+<link rel="canonical" href="{{ metaUrl }}">
 <link rel="icon" href="/favicon.svg?v=4" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico?v=4" sizes="any">
 <link rel="apple-touch-icon" href="/favicon.svg?v=4">
+
+<!-- Open Graph -->
+<meta property="og:type" content="{{ ogType | default: 'website' }}">
+<meta property="og:site_name" content="{{ siteName }}">
+<meta property="og:title" content="{{ metaTitle }}">
+<meta property="og:description" content="{{ metaDesc }}">
+<meta property="og:url" content="{{ metaUrl }}">
+<meta property="og:image" content="{{ metaImage }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ siteName }} — {{ site.slogan }}">
+<meta property="og:locale" content="{{ siteLocale }}">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="{{ twitterHandle }}">
+<meta name="twitter:title" content="{{ metaTitle }}">
+<meta name="twitter:description" content="{{ metaDesc }}">
+<meta name="twitter:image" content="{{ metaImage }}">
+<meta name="twitter:image:alt" content="{{ siteName }} — {{ site.slogan }}">
+
+<!-- Structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "{{ siteUrl }}/#org",
+      "name": "@imqueue",
+      "url": "{{ siteUrl }}/",
+      "logo": "{{ siteUrl }}/images/logo.svg",
+      "sameAs": ["https://github.com/imqueue"]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "{{ siteUrl }}/#website",
+      "name": "@imqueue",
+      "url": "{{ siteUrl }}/",
+      "description": {{ site.slogan | json }},
+      "inLanguage": "en",
+      "publisher": { "@id": "{{ siteUrl }}/#org" }
+    }{% if section == "home" %},
+    {
+      "@type": "SoftwareApplication",
+      "@id": "{{ siteUrl }}/#software",
+      "name": "@imqueue",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Node.js",
+      "url": "{{ siteUrl }}/",
+      "description": {{ metaDesc | json }},
+      "programmingLanguage": ["TypeScript", "JavaScript"],
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "publisher": { "@id": "{{ siteUrl }}/#org" }
+    }{% endif %}
+  ]
+}
+</script>
 
 <!-- No-FOUC theme init: apply stored theme before first paint -->
 <script>(function(){try{var t=localStorage.getItem('imqueue-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>

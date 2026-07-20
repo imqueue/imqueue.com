@@ -3,6 +3,9 @@ chapter: 5
 title: API Integration
 docLabel: TUTORIAL — CHAPTER 5
 lead: "Put a GraphQL API in front of your services — @imqueue works best with GraphQL."
+description: "Put a GraphQL API in front of your @imqueue services — orchestrate typed microservice calls behind a single GraphQL endpoint for your front-end."
+keywords: "@imqueue GraphQL, GraphQL API gateway, GraphQL microservices Node.js, orchestrate microservices, GraphQL endpoint TypeScript, API layer for microservices"
+ogType: article
 ---
 
 So, here is one of the most interesting parts of our system. API service
