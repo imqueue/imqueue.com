@@ -3,6 +3,9 @@ chapter: 6
 title: Deployment
 docLabel: TUTORIAL — CHAPTER 6
 lead: "Ship your services: Docker images per service, environment configuration, and horizontal scaling for any load."
+description: "Ship your @imqueue services to production: Docker images per service, environment configuration, and horizontal auto-scaling for any load."
+keywords: "@imqueue deployment, deploy Node.js microservices, Docker microservices, horizontal scaling, scale microservices, production Node.js services, containerize TypeScript service"
+ogType: article
 ---
 
 In this chapter we are covering different aspects and

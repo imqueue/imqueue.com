@@ -3,6 +3,9 @@ chapter: 2
 title: User Service — your first service
 docLabel: TUTORIAL — CHAPTER 2
 lead: "Create your first @imqueue service — the User service — and expose methods that other services can call."
+description: "Build your first @imqueue service in Node & TypeScript — the User service — and expose typed methods other services can call over the message queue."
+keywords: "@imqueue service, create Node.js microservice, expose RPC methods, IMQService, TypeScript service tutorial, @expose decorator, message queue service"
+ogType: article
 ---
 
 So, we are ready to create our first service. It is recommended to create

@@ -3,6 +3,9 @@ chapter: 3
 title: Auth Service
 docLabel: TUTORIAL — CHAPTER 3
 lead: "Add an Auth service that talks to the User service to log in and verify users — your first inter-service communication."
+description: "Add an @imqueue Auth service that calls the User service to log in and verify users — your first inter-service communication with typed RPC clients."
+keywords: "@imqueue inter-service communication, microservice to microservice call, typed RPC client, authentication microservice, JWT service Node.js, service-to-service RPC"
+ogType: article
 ---
 
 Create new service named Auth the same way as we did for User service

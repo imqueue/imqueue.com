@@ -46,6 +46,31 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addGlobalData("otherUrl", OTHER_URL);
   eleventyConfig.addGlobalData("siteName", "@imqueue");
 
+  // ---- SEO defaults (per edition) -----------------------------------------
+  // Page front matter can override `keywords`, `ogType`, `ogImage` and
+  // `description`; these are the site-wide fallbacks head.html reaches for.
+  const ORG_KEYWORDS = [
+    "@imqueue", "imqueue", "Node.js message queue", "TypeScript RPC",
+    "message queue RPC", "RPC over Redis", "Redis message queue",
+    "microservices framework", "Node.js microservices",
+    "TypeScript microservices", "service-oriented architecture", "SOA",
+    "inter-service communication", "self-describing services",
+    "typed RPC framework", "distributed systems", "message broker",
+    "scalable back-end services", "GraphQL microservices",
+  ].join(", ");
+  const COM_KEYWORDS = [
+    "@imqueue commercial license", "imqueue license",
+    "GPL-3.0 commercial license", "dual license", "closed-source license",
+    "commercial support", "SLA support", "Node.js microservices support",
+    "TypeScript RPC framework", "message queue RPC", "enterprise microservices",
+    "commercial license Node.js framework",
+  ].join(", ");
+  eleventyConfig.addGlobalData("siteKeywords", isCom ? COM_KEYWORDS : ORG_KEYWORDS);
+  eleventyConfig.addGlobalData("siteImage", `${SITE_URL}/images/og-${EDITION}.png`);
+  eleventyConfig.addGlobalData("siteLocale", "en_US");
+  eleventyConfig.addGlobalData("themeColor", isCom ? "#0c0a17" : "#0a0e0d");
+  eleventyConfig.addGlobalData("twitterHandle", "@imqueue");
+
   // Build only the active edition's pages.
   eleventyConfig.ignores.add(isCom ? "src/org/**" : "src/com/**");
 
