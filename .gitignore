@@ -36,3 +36,6 @@ package-lock.json
 Gemfile.lock
 
 .api-tmp/
+
+# Private legal documents — kept off git (backed up privately). Never commit.
+legal/
