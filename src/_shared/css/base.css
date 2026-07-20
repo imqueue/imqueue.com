@@ -28,6 +28,14 @@ body {
 .container { max-width: 1180px; margin: 0 auto; padding-left: 32px; padding-right: 32px; }
 main { flex: 1; }
 
+/* Opt-in vertical centering: a page wraps its content in `.page-center` to have
+   it centered in the space between nav and footer. main already fills that space
+   (flex:1 in the full-height .page); making it a column flex context lets the
+   wrapper's auto block margins center it vertically. The wrapper itself stays a
+   plain block, so its sections keep their normal full-width left-aligned flow. */
+main:has(> .page-center) { display: flex; flex-direction: column; }
+.page-center { margin-block: auto; }
+
 
 h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -.02em; line-height: 1.1; }
 .eyebrow {
