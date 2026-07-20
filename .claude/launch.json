@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "serve:org"],
       "port": 8080
+    },
+    {
+      "name": "com",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "serve:com"],
+      "port": 8081
     }
   ]
 }
