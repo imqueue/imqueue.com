@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "org",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "serve:org"],
+      "port": 8080
+    }
+  ]
+}
