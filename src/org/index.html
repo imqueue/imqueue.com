@@ -1,0 +1,111 @@
+---
+layout: base.html
+section: home
+description: "RPC over an inter-communication messaging queue for service-oriented Node & TypeScript back-ends. Self-describing services generate their own clients — no boilerplate, no service discovery, no load balancer."
+---
+<style>
+  .hero { display:grid; grid-template-columns:1fr 1fr; gap:52px; align-items:center; padding-block:56px 40px; }
+  .hero h1 { font-family:var(--font-display); font-weight:700; font-size:52px; line-height:1.08; margin:0 0 20px; }
+  .hero-sub { font-size:17px; line-height:1.65; color:var(--muted); max-width:460px; margin:0 0 30px; }
+  .hero-cta { display:flex; gap:13px; margin-bottom:36px; flex-wrap:wrap; }
+  .hero-cta .btn { font-family:var(--font-mono); border-radius:6px; }
+  .hero-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+  .hero-stats .num { font-family:var(--font-mono); font-size:26px; font-weight:700; color:var(--accent); }
+  .hero-stats .lbl { font-size:15px; color:var(--muted); margin-top:6px; }
+
+  .term { border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface); box-shadow:0 24px 60px var(--shadow); }
+  .term-bar { display:flex; align-items:center; gap:7px; padding:12px 16px; border-bottom:1px solid var(--line); }
+  .term-dot { width:11px; height:11px; border-radius:50%; }
+  .term-body { padding:22px 20px; font-family:var(--font-mono); font-size:13px; line-height:1.85; color:var(--code); overflow-x:auto; }
+  .k { color:var(--accent2); } .s { color:var(--accent); } .c { color:var(--muted); }
+  @keyframes tblink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+  .cursor { display:inline-block; width:8px; height:15px; background:var(--accent); vertical-align:middle; margin-left:6px; animation:tblink 1s step-end infinite; }
+
+  .how { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  .how > div { background:var(--surface); padding:30px 26px; }
+  .how .n { font-family:var(--font-mono); color:var(--accent); font-size:13px; margin-bottom:12px; }
+  .how h4 { font-size:16px; margin-bottom:8px; } .how p { font-size:14px; color:var(--muted); line-height:1.6; }
+
+  .card .tag { font-family:var(--font-mono); color:var(--accent); font-size:13px; margin-bottom:14px; }
+  .pkg { display:block; }
+  .pkg .name { font-family:var(--font-mono); font-weight:600; font-size:15px; color:var(--accent); margin-bottom:6px; }
+  .pkg p { font-size:13.5px; }
+
+  @media (max-width:760px) {
+    .hero { grid-template-columns:1fr; gap:32px; padding-block-start:28px; }
+    .hero h1 { font-size:34px; }
+    .how { grid-template-columns:1fr; }
+    .hero-cta { flex-direction:column; } .hero-cta .btn { text-align:center; }
+    .hero-stats { grid-template-columns:1fr; gap:22px; }
+  }
+</style>
+
+<!-- HERO -->
+<section class="container hero">
+  <div>
+    <div class="eyebrow" style="margin-bottom:22px;">// RPC · MESSAGING QUEUE · NODE · TYPESCRIPT</div>
+    <h1>Talk to your services like they're <span class="accent">local</span>.</h1>
+    <p class="hero-sub">RPC over an inter-communication messaging queue for service-oriented Node &amp; TypeScript back-ends. Self-describing services generate their own clients — no boilerplate, no service discovery, no load balancer. Just methods.</p>
+    <div class="hero-cta">
+      <a href="/get-started/" class="btn btn-primary">get started →</a>
+      <a href="/docs/" class="btn btn-ghost">read the docs</a>
+    </div>
+  </div>
+  <div class="term" aria-hidden="true">
+    <div class="term-bar">
+      <span class="term-dot" style="background:#ff5f57;"></span>
+      <span class="term-dot" style="background:#febc2e;"></span>
+      <span class="term-dot" style="background:var(--accent);"></span>
+      <span style="margin-left:8px;font-family:var(--font-mono);font-size:12px;color:var(--muted);">hello.service.ts</span>
+    </div>
+    <div class="term-body">
+      <div><span class="k">import</span> { IMQService, expose } <span class="k">from</span> <span class="s">'@imqueue/rpc'</span>;</div>
+      <div style="margin-top:10px;"><span class="k">class</span> <span class="s">Hello</span> <span class="k">extends</span> IMQService {</div>
+      <div>&nbsp;&nbsp;<span class="c">@expose()</span></div>
+      <div>&nbsp;&nbsp;<span class="k">async</span> hello(name?: <span class="s">string</span>) {</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">return</span> <span class="s">`Hello, ${name}!`</span>;</div>
+      <div>&nbsp;&nbsp;}</div>
+      <div>}</div>
+      <div style="margin-top:12px;" class="c">$ imq client generate Hello</div>
+      <div class="s">✓ client ready · 20–25K safe round-trips/s<span class="cursor"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS (full width) -->
+<section class="container" style="padding-bottom:20px;">
+  <div class="hero-stats">
+    <div><div class="num">Up to 100K/s</div><div class="lbl">unsafe round-trips / core</div></div>
+    <div><div class="num">Auto</div><div class="lbl">typed clients generated</div></div>
+    <div><div class="num">Optimal</div><div class="lbl">traffic flows with compression</div></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="container section">
+  <div class="grid grid-3">
+    <div class="card"><div class="tag">reliable()</div><h3>Guaranteed delivery</h3><p>Safe delivery and leader/follower deployment fully guarantee data between services — a message a dying worker drops is rescheduled.</p></div>
+    <div class="card"><div class="tag">scale()</div><h3>Zero-config balancing</h3><p>Instances compete for messages and self-balance across nodes. No service discovery, no external load balancer to wire up.</p></div>
+    <div class="card"><div class="tag">idle()</div><h3>No polling, ever</h3><p>No timers, no constant polling — zero delivery delay and zero CPU on workers while idle. It rests when there's nothing to do.</p></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="container section">
+  <div class="section-label">// HOW IT WORKS</div>
+  <div class="how">
+    <div><div class="n">01</div><h4>Implement a service</h4><p>Write a class with exposed methods and doc-blocks. That's your whole service.</p></div>
+    <div><div class="n">02</div><h4>Generate the client</h4><p>Services are self-describing — clients are generated on-the-fly or written to files.</p></div>
+    <div><div class="n">03</div><h4>Call it remotely</h4><p>Await a client method like any local call. The queue routes and returns the result.</p></div>
+  </div>
+</section>
+
+<!-- PACKAGES -->
+<section class="container section" style="padding-bottom:60px;">
+  <div class="section-label">// THREE PACKAGES</div>
+  <div class="grid grid-3">
+    <a href="/api/" class="card pkg"><div class="name">@imqueue/core</div><p>JSON-based messaging queue and the pluggable adapter engine.</p></a>
+    <a href="/api/" class="card pkg"><div class="name">@imqueue/rpc</div><p>Abstract classes and decorators for services and their clients.</p></a>
+    <a href="/get-started/" class="card pkg"><div class="name">@imqueue/cli</div><p>RAD command line — scaffold services from boilerplate templates.</p></a>
+  </div>
+</section>
