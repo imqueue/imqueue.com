@@ -30,19 +30,11 @@
         <a href="{{ otherUrl }}/">Commercial ↗</a>
       </div>
       <div id="donate-button-container" style="margin-top:14px;">
-        <div id="donate-button"></div>
-        <script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js" charset="UTF-8" async></script>
-        <script>
-          window.addEventListener('load', function () {
-            if (window.PayPal && PayPal.Donation) {
-              PayPal.Donation.Button({
-                env:'production',
-                hosted_button_id:'A5X7U5W9D3SRE',
-                image:{ src:'https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif', alt:'Donate with PayPal button', title:'PayPal - The safer, easier way to pay online!' }
-              }).render('#donate-button');
-            }
-          });
-        </script>
+        <!-- Static styled link (matches the header "npm i" button) instead of PayPal's
+             SDK-rendered GIF — same accent color, and no async render to shift the footer. -->
+        <a href="https://www.paypal.com/donate/?hosted_button_id=A5X7U5W9D3SRE"
+           target="_blank" rel="noopener" class="nav-outline"
+           style="display:inline-flex;align-items:center;height:28px;padding:0 12px;background:var(--accent);color:var(--on-accent);border-color:transparent;font-weight:600;font-size:13px;line-height:1;">$ donate</a>
       </div>
     </div>
   </div>
