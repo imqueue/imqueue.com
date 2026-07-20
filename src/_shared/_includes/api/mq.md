@@ -1,51 +1,50 @@
 ## Messaging API
 
-Messaging API is a low level API implementing Messaging Queue pattern used
-to implement inter-service communication. Use it whenever you need to utilize
-**only** messaging API in your development.
+The Messaging API is the low-level API implementing the Message Queue pattern
+used for inter-service communication. Reach for it when you need **only** the
+messaging layer in your code.
 
-This API related only to messaging engine adapter implementation, its 
-configuration, logging interface injection and profiling feature. 
+This API concerns the messaging-engine adapter, its configuration, logging
+injection and profiling.
 
-### IMQ Factory and Adapters
+### The IMQ factory and adapters
 
-[IMQ](/api/core/{{latest_core}}/classes/imq.html) Factory is usually used to 
-construct messaging queue implementation instance.
-For the moment IMQ supports only Redis adapter implementation out-of-the-box.
-By the way, it is recommended to instantiate messaging queue engine instance
-using the factory class instead of doing it directly, which gives the ability
-to extend existing functionality on your side or on the framework side in the future.
+The [IMQ](/api/core/{{latest_core}}/classes/imq.html) factory constructs
+message-queue instances. Currently IMQ ships with a Redis adapter out of the box.
+Prefer creating instances through the factory rather than directly — this lets
+functionality be extended later, on your side or the framework's.
 
 Example:
 
 ~~~typescript
 import { IMQ } from '@imqueue/core';
+
 const mq = IMQ.create('MyMQ', { vendor: 'Redis' });
 ~~~
 
-There is no actual need to specify Redis vendor in bypassed options at the moment,
-as it will be used by default, but in case you wish to inject your own 
-implementation it can be done as follows:
+You don't need to specify the Redis vendor — it's the default — but you can
+inject your own adapter implementation like this:
 
 ~~~typescript
 import { MyMQAdapter } from './path/to/MyMQAdapter';
 import { IMQ } from '@imqueue/core';
+
 const mq = IMQ.create('MyMQ', { vendor: MyMQAdapter });
 ~~~
 
-Each Adapter constructed by IMQ factory must correctly implement 
+Any adapter built by the IMQ factory must implement the
 [IMessageQueue](/api/core/{{latest_core}}/interfaces/imessagequeue.html)
-interface, extending `EventEmitter` with emitting on implementation `'message'` 
-and `'error'` events.
+interface, extending `EventEmitter` and emitting `'message'` and `'error'`
+events.
 
 ### Redis Queue
 
-[RedisQueue](/api/core/{{latest_core}}/classes/redisqueue.html) is a core
-implementation of Redis-based messaging queue. It implements the engine for
-a single redis node.
+[RedisQueue](/api/core/{{latest_core}}/classes/redisqueue.html) is the core
+Redis-based message-queue implementation, providing the engine for a single Redis
+node.
 
 ### Clustered Redis Queue
 
 [ClusteredRedisQueue](/api/core/{{latest_core}}/classes/clusteredredisqueue.html)
-extends functionality of RedisQueue to be applied on a cluster of Redis nodes
-and implement automatic "round-robin" based load balancing between nodes.
+extends `RedisQueue` to work across a cluster of Redis nodes, with automatic
+round-robin load balancing between them.
