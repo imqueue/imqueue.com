@@ -43,12 +43,17 @@ code { color: var(--accent); }
   display: inline-flex; align-items: center; gap: 8px; justify-content: center;
   font-weight: 600; font-size: 14px; padding: 13px 24px; border-radius: 999px;
   border: 1px solid transparent; cursor: pointer; white-space: nowrap;
-  transition: transform .15s ease, opacity .15s ease;
+  transition: filter .15s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease, color .15s ease;
 }
-.btn:hover { transform: translateY(-1px); color: inherit; }
 .btn-primary { background: var(--accent); color: var(--on-accent); }
 .btn-gradient { background: linear-gradient(100deg, var(--accent), var(--accent2)); background-origin: border-box; color: #fff; }
 .btn-ghost { border-color: var(--line); color: var(--ink); background: none; }
+/* Hover: subtle in-place feedback — no translate, so buttons don't jump.
+   Each variant re-asserts its own text color; the global `a:hover` (reset.css)
+   would otherwise recolor the label to --accent and tank contrast. */
+.btn-primary:hover { color: var(--on-accent); filter: brightness(1.06); }
+.btn-gradient:hover { color: #fff; filter: brightness(1.08); }
+.btn-ghost:hover { color: var(--ink); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .btn-sm { padding: 9px 16px; font-size: 13px; border-radius: 8px; }
 
 /* ---- cross-ref ribbon ---- */
