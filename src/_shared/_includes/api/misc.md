@@ -1,14 +1,13 @@
-## Profiling and Debugging
+## Profiling and debugging
 
-Of course, profiling and debugging are very important and valuable things
-during the development and post-development support of any system.
+Profiling and debugging matter throughout the development and ongoing support of
+any system.
 
-@imqueue provides a simple and basic tool to manage services methods execution,
-profiling times of execution and debugging calls. This tool is a `@profile()`
-decorator factory and is recommended to be used on that parts of the system which
-are critical to monitor.
+@imqueue provides a simple, built-in tool for measuring and debugging service
+method execution: the `@profile()` decorator. Apply it to the parts of the system
+you most need to keep an eye on.
 
-Profiled timing can have accuracy to **microseconds** and is so by default.
+Profiled timing is accurate to **microseconds** by default.
 
 Usage:
 
@@ -19,66 +18,61 @@ class MonitoredService extends IMQService {
     @profile()
     @expose()
     public exposedStuff() {
-        // call for some internals:
+        // call some internals:
         this.internalStuff(1, 2, 3);
         // do anything else...
     }
-    
+
     @profile()
     private internalStuff(...args: any[]) {
         for (let i = 0; i < 100000; i++) {
         }
     }
-    
+
     @profile(true)
     private forcedTimeProfiling(...args: any[]) {
-        
+
     }
-    
+
     @profile(undefined, true)
     private forcedArgsProfiling(...args: any[]) {
-        
+
     }
-    
+
     @profile(true, true)
     private forcedFullProfiling(...args: any[]) {
-        
+
     }
 }
 ~~~
 
-When the `@profile()` decorator factory is called without arguments, it will
-rely on environment configuration, which can either enable or disable
-profiling. Those decorator factory calls, which provide arguments, override
-environment settings and force time/args profiling explicitly.
+Called with no arguments, `@profile()` follows the environment configuration,
+which can turn profiling on or off. Calls that pass arguments override the
+environment and force time and/or argument profiling explicitly.
 
-It is recommended to manage profiling state via `.env` files for per-service
-configuration or by setting profiling vars globally for the entire environment.
+We recommend managing profiling state through `.env` files (per service) or by
+setting the variables globally (for the whole environment). Those variables are:
 
-Those vars are:
+- `IMQ_LOG_TIME=1|0` — enables or disables execution-time profiling. Empty is
+  treated as `0`, the default.
+- `IMQ_LOG_ARGS=1|0` — enables or disables argument debug logging. Empty is
+  treated as `0`, the default.
+- `IMQ_LOG_TIME_FORMAT="microseconds"|"milliseconds"|"seconds"` — sets the time
+  format in the debug output. Empty is treated as `"microseconds"`, the default.
 
-- `IMQ_LOG_TIME=1|0`, empty is treated as 0 - the default value. Enables/disables
-   execution time profiling.
-- `IMQ_LOG_ARGS=1|0`, empty is treated as 0 - the default value. Enables/disables
-   arguments debug logging.
-- `IMQ_LOG_TIME_FORMAT="microseconds"|"milliseconds"|"seconds"`, empty is treated
-  as "microseconds" - the default value. Specifies a time format in the debug
-  output log.
-
-`@profile()` decorator utilizes configured logger for @imqueue, so there is no
-need in any additional configuration actions for that purpose. Also, this
-decorator can be used within any class method, not specially on a service class
-(meaning it is possible to be used anywhere else), like:
+`@profile()` uses @imqueue's configured logger, so it needs no extra setup. It
+also works on any class method, not just service classes:
 
 ~~~typescript
 import { profile } from '@imqueue/core';
+
 class SomeClass {
-   @profile()
-   protected someProtectedMethod() {
-   }  
+    @profile()
+    protected someProtectedMethod() {
+    }
 }
 ~~~
 
-Please, note, that turned on profiling can slightly decrease overall backend 
-performance. But using profiling helps diagnose, find and eliminate potential 
-"bottle-necks" and slow-running pieces of code in the system.
+Note that enabling profiling can slightly reduce overall back-end performance —
+but it's invaluable for diagnosing and eliminating bottlenecks and slow code
+paths.
