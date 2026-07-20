@@ -2,54 +2,45 @@
 chapter: 2
 title: User Service — your first service
 docLabel: TUTORIAL — CHAPTER 2
-lead: "Create your first @imqueue service — the User service — and expose methods that other services can call."
+lead: "Create your first @imqueue service — the User service — and expose typed methods that other services can call."
 description: "Build your first @imqueue service in Node & TypeScript — the User service — and expose typed methods other services can call over the message queue."
 keywords: "@imqueue service, create Node.js microservice, expose RPC methods, IMQService, TypeScript service tutorial, @expose decorator, message queue service"
 ogType: article
 ---
 
-So, we are ready to create our first service. It is recommended to create
-project directory which will hold all your development repositories.
-
-Let's start as:
+We're ready to create our first service. Start by making a project directory to
+hold all of the tutorial's repositories:
 
 ~~~bash
 mkdir ~/my-tutorial-app
 cd ~/my-tutorial-app
 ~~~
 
-### Creating The Service
+### Creating the service
 
-Now we are going to create the service, which will be a user service.
-Simply run:
+Scaffold the User service with a single command:
 
 ~~~bash
 imq service create user ./user
 ~~~
 
-If everything goes well, we should have `./user` directory created,
-containing all the files required and all dependencies installed.
+If all goes well, you'll have a `./user` directory containing every file the
+service needs, with all dependencies already installed.
 
-### Service Configuration
+### Configuring the service
 
-We can test if it works by simply running `npm run dev` command. Be aware
-at this point that you need Redis running on your localhost and default
-port. If you have Redis running on another host:port, then before
-launching the service you need to change a configuration.
+You can check that it works by running `npm run dev`. This requires Redis
+running on `localhost` and the default port. If your Redis runs on a different
+host or port, adjust the configuration first.
 
-Configuration file is located at `./user/config.ts`. There are two
-different possibilities configuring Redis access within the service -
-a single Redis instance or a cluster of Redis instances. This should be
-defined by a scaling needs. If you are writing a service which should handle
-very heavy load, you might want to configure a cluster, otherwise
-you may suggest a single instance is OK.
+The configuration file lives at `./user/config.ts`. Redis access can be
+configured in two ways: a single Redis instance, or a cluster of instances.
+Which one you choose depends on your scaling needs — configure a cluster for
+services expected to handle heavy load, and a single instance otherwise.
 
-Anyway, a good option at this point would be to obtain a configuration
-from an environment and bypass it to a service config, so this
-configuration may be changed dynamically by deployment needs.
-
-Here is how we might want to change our `config.ts` file for the
-service:
+A good practice at this point is to read the configuration from the environment
+and pass it into the service config, so it can be changed at deployment time
+without touching code. Here is one way to adapt `config.ts`:
 
 ~~~typescript
 import {
@@ -69,46 +60,41 @@ export const serviceOptions: Partial<IMQServiceOptions> = {
 };
 ~~~
 
-And what we can do now is simply to put `.env` file in root directory of
-the service specifying our Redis configuration we want to have on our
-local environment (assuming we have redis running on
-`some-redis-special.host:63790`.
+With that in place, you can put a `.env` file in the service's root directory to
+set the Redis configuration for your local environment. For example, if Redis is
+running at `some-redis-special.host:63790`:
 
 `.env`:
 ~~~bash
 IMQ_REDIS="some-redis-special.host:63790"
 ~~~
 
-If you have Redis running at `localhost:6379`, which is default
-standard address, you can skip this configuration at this step for now.
+If your Redis runs at `localhost:6379` (the standard default), you can skip this
+step for now.
 
-### Local Environment
+### Local environment
 
-When developing a service, usually we need to have the ability to launch
-it in local environment directly, which is useful during development
-process. By the way, we must keep in mind that our service in production
-environment, most of the cases, will run with a different configuration.
+During development it's convenient to run a service directly in your local
+environment. Keep in mind, though, that in production the same service will
+usually run with a different configuration.
 
-Hence, a good way here is to get a configuration from environment
-variables. As far as you may have different projects running on
-your dev machine, it could be tricky to setup environment variables
-globally for the system. Using `.env` files allows you to solve this
-problem. This feature is available out-of-the-box with @imqueue
-services, so whenever you need to have some specific configuration set
-on your dev machine for the service - just create `.env` file in the
-service root directory and put all required variables you may want to
-read from the environment. Those files will never be committed, so it is
-safe for further production runs.
+Reading configuration from environment variables solves this cleanly. Because
+you may have several projects on your development machine, setting environment
+variables globally can get awkward — `.env` files avoid that. @imqueue services
+support `.env` files out of the box: whenever a service needs local
+configuration, create a `.env` file in its root directory and list the variables
+you want to read from the environment. These files are never committed, so they
+stay out of production runs.
 
-### Verifying
+### Verifying the service
 
-Now let's check if our service is operational. Run this command:
+Let's confirm the service is operational:
 
 ~~~bash
 npm run dev
 ~~~
 
-If everything is fine, it should produce the following output:
+If everything is fine, you should see output like this:
 
 ~~~
 User: starting single-worker, pid 27034
@@ -117,21 +103,18 @@ User: reader channel connected, host localhost:6379, pid 27034
 User: writer channel connected, host localhost:6379, pid 27034
 ~~~
 
-That signals that everything is OK and we can use the service. The
-boilerplate produced by @imqueue always creates a service with one
-method available to call remotely, which is `hello()`, as far as it
-requires at least one external method to be implemented to run without
-errors. When you implement your real first method on a service it is
-safe to remove generated `hello()` method off the service.
+That means the service is up and ready. The @imqueue boilerplate always
+scaffolds a service with one remotely callable method — `hello()` — because a
+service needs at least one exposed method to start without errors. Once you've
+implemented your own first method, it's safe to remove the generated `hello()`.
 
-But at this point we will use it to verify if our service works.
-Let's create `debug.ts` file in the root directory of the service with
-the following content:
+For now, we'll use `hello()` to verify the service. Create a `debug.ts` file in
+the service's root directory with the following content:
 
 ~~~typescript
 import { IMQClient, ILogger } from '@imqueue/rpc';
-import { User } from './src';
-import { serviceOptions } from './config';
+import { User } from './src/index.js';
+import { serviceOptions } from './config.js';
 
 const logger: ILogger = serviceOptions.logger || console;
 
@@ -156,49 +139,46 @@ new User(serviceOptions).start().then((service: any) => {
 });
 ~~~
 
-That will launch the service and its client and do a remote call of
-service's `hello()` method. The output should look like:
+This starts the service and a client, then makes a remote call to the service's
+`hello()` method. The output should look like:
 
 ~~~
 User: starting single-worker, pid 32372
 User: reader channel connected, host localhost:6379, pid 32372
 User: writer channel connected, host localhost:6379, pid 32372
 UserClient-6a4e92f40a6e4d7e8a650c6c44d79ab2-2:client: reader channel connected, host localhost:6379, pid 32372
-UserClient-6a4e92f40a6e4d7e8a650c6c44d79ab2-2:client: reader channel connected, host localhost:6379, pid 32372
 UserClient-6a4e92f40a6e4d7e8a650c6c44d79ab2-2:client: writer channel connected, host localhost:6379, pid 32372
 Hello!
 ~~~
 
-That means that service works as expected!
+That confirms the service works as expected.
 
-While running in development mode @imqueue is watching for file changes
-using nodemon, so we can simply run our service and start development.
+In development mode, @imqueue watches for file changes with nodemon, so you can
+simply run the service and start coding.
 
-> **NOTE:** any files or folders which names matched `debug*` pattern are
-> considered to be ignored during git commits, so you may use it in this
-> way, or just change corresponding ignore files to omit this behavior.
+> **NOTE:** any file or folder whose name matches the `debug*` pattern is
+> ignored by git, so you can use `debug.ts` freely — or adjust your ignore files
+> if you prefer different behaviour.
 
-### Adding Dependencies
+### Adding dependencies
 
-Not differs from what we usually do, just use `npm install`. For this
-service our choice of data storage was MongoDB, so we can consider to
-use `mongoose` package to work with it. That's what we need:
+Adding dependencies works exactly as it does in any Node.js project — just use
+`npm install`. We chose MongoDB as the data store for this service, so we'll use
+the `mongoose` package to work with it:
 
 ~~~bash
 npm i --save mongoose
-npm i --save-dev @types/mongoose
 ~~~
 
-### The Implementation
+### Implementing the service
 
-#### Prepare data storage
+#### Prepare the data store
 
-First of all let's create mongoose database schema for our service as
-far as we decided to use MongoDB as data storage engine. It can be
-done in a usual way, @imqueue does not introduce any limits here.
+First, define a Mongoose schema for the service. @imqueue imposes no constraints
+here — do it the usual way.
 
-Create file `./user/src/schema.ts` or whatever the path you would like
-to have it and put the following content:
+Create `./user/src/schema.ts` (or any path you prefer) with the following
+content:
 
 ~~~typescript
 import * as mongoose from 'mongoose';
@@ -246,77 +226,63 @@ export const schema = new mongoose.Schema({
 });
 ~~~
 
-By design, we need to store information about user, such as
+By design, we store the following for each user:
+
 - identifier
 - first name
 - last name
 - email
 - password
-- isActive flag (to have an ability block users if there is any reason)
-- isAdmin flag (to define users of admin role)
-- user cars in garage (we are planning to have a service car which would manage
-  cars database, but here we would need to assign the selected car data
-  to a user, so we define only those fields which should implement
-  references between users, car objects and additionally store
-  user-specific car data, like car registration number)
+- `isActive` flag — lets us block a user for any reason
+- `isAdmin` flag — marks users with the admin role
+- the user's cars ("garage") — a dedicated Car service will manage the cars
+  database, but here we store the fields needed to link a user to a car and to
+  hold user-specific data such as the car's registration number
 
-Now we need to implement required operations on that data, which can be
-called by a remote client, so we are going to implement our public
-service methods.
+Next we implement the operations on that data that remote clients can call — the
+service's public methods.
 
-Open `./user/src/User.ts` file containing our service class
-implementation which we are going to change.
+Open `./user/src/User.ts`, which contains our service class.
 
-#### Prepare Database Connection
+#### Prepare the database connection
 
-First of all let's import our mongoose schema, add the following line
-at the top of the file:
+Import the Mongoose schema at the top of the file:
 
 ~~~typescript
-import { schema } from './schema';
+import { schema } from './schema.js';
 ~~~
 
-Next thing we need to do is to initialize MongoDB connection on service
-start-up and init our database schema so we can use it.
-
-Thus, let's define the next properties on our service class:
+We then need to open the MongoDB connection when the service starts and register
+the schema so we can use it. Declare these properties on the service class:
 
 ~~~typescript
 private db: mongoose.Connection;
 private UserModel: mongoose.Model<any>;
 ~~~
 
-Usually such thing as establishing database connection is asynchronous.
-Better to override `IMQService.start()` method for such a purpose.
-As the first step, to do that let's define private `initDb()` method:
+Opening a database connection is asynchronous, so the natural place to do it is
+by overriding `IMQService.start()`. First, add a private `initDb()` method:
 
 ~~~typescript
 /**
- * Initializes mongo database connection and user schema
+ * Initializes the MongoDB connection and the user schema
  *
- * @return Promise<any>
+ * @return {Promise<void>}
  */
 @profile()
-private async initDb(): Promise<any> {
-    return new Promise((resolve, reject) => {
-        mongoose.set('useCreateIndex', true);
-        mongoose.set('useNewUrlParser', true);
-        mongoose.connect('mongodb://localhost/user');
+private async initDb(): Promise<void> {
+    await mongoose.connect('mongodb://localhost/user');
 
-        this.db = mongoose.connection;
-        this.db.on('error', reject);
-        this.db.once('open', resolve);
-
-        this.UserModel = mongoose.model('User', schema);
-    });
+    this.db = mongoose.connection;
+    this.UserModel = this.db.model('User', schema);
 }
 ~~~
 
-Now let's override `start()` method:
+Now override `start()` to call it:
 
 ~~~typescript
 /**
- * Overriding start method to inject mongodb connection establishment
+ * Overrides start() to establish the MongoDB connection first
  */
 @profile()
 public async start(): Promise<IMessageQueue | undefined> {
@@ -327,36 +293,32 @@ public async start(): Promise<IMessageQueue | undefined> {
 }
 ~~~
 
-#### Logging Ninja
+#### A note on logging
 
-We used `this.logger` here, which is a good way to deal with debugging
-output. By default, the used logger is standard `console`, but you can
-re-configure it using `config.ts` and all debug/log/error outputs will
-be handled by a configured logger. This might be useful if you want
-to redirect all log outputs into some specific place or remote service.
-For example, you may want to use `winston` module to organize your
-logging and provide different transports to put debug into some
-local storage and/or into remote service, like LogEntries, Sentry or
-Raygun, whatever else...
+Notice we used `this.logger` above. By default it's the standard `console`, but
+you can swap in your own logger through `config.ts`, and every debug, log and
+error output across the service will go through it. That's useful when you want
+to route logs to a specific destination — for example, using `winston` with
+transports that send output to local storage and/or a remote service such as
+Sentry.
 
-Hence, using `this.logger` is a good practice to ensure that your logs
-can be easily managed and monitored from a single place.
+Using `this.logger` (rather than `console` directly) keeps all logging
+manageable and monitorable from one place.
 
-Starting from this point we are ready to go into implementing remote
-interface for our User Service.
+With that, we're ready to implement the service's remote interface.
 
-#### Exposing interface
+#### Exposing the interface
 
-Initially we can define an external interface of our service to mark
-what our service will do, and here is what we can imagine:
+Let's start by defining the external interface — the set of methods the service
+will expose:
 
 ~~~typescript
 /**
- * Creates or updates existing user with the new data set
+ * Creates or updates an existing user with the given data
  *
  * @param {UserObject} data - user data fields
  * @param {string[]} [fields] - fields to return on success
- * @return {Promise<UserObject | null>} - saved user data object
+ * @return {Promise<UserObject | null>} - the saved user object
  */
 @profile()
 @expose()
@@ -366,12 +328,11 @@ public async update(data: UserObject, fields?: string[]): Promise<UserObject | n
 }
 
 /**
- * Look-ups and returns user data by either user e-mail or by user object
- * identifier
+ * Looks up and returns a user by e-mail or by object identifier
  *
- * @param {string} criteria - user identifier or e-mail string
+ * @param {string} criteria - user identifier or e-mail
  * @param {string[]} [fields] - fields to select and return
- * @return {Promise<UserObject | null>} - found user object or nothing
+ * @return {Promise<UserObject | null>} - the matching user, or null
  */
 @profile()
 @expose()
@@ -381,15 +342,14 @@ public async fetch(criteria: string, fields?: string[]): Promise<UserObject | nu
 }
 
 /**
- * Returns collection of users matched is active criteria. Records
- * can be fetched skipping given number of records and having max length
- * of a given limit argument
+ * Returns a collection of users matching the given criteria. Records can be
+ * paginated using the skip and limit arguments.
  *
- * @param {UserFilters} [filters] - is active criteria to filter user list
- * @param {string[]} [fields] - list of fields to be selected and returned for each found user object
- * @param {number} [skip] - record to start fetching from
- * @param {number} [limit] - selected collection max length from a starting position
- * @return {Promise<UserObject[]>} - collection of users found
+ * @param {UserFilters} [filters] - criteria to filter the user list
+ * @param {string[]} [fields] - fields to select for each returned user
+ * @param {number} [skip] - number of records to skip before fetching
+ * @param {number} [limit] - maximum number of records to return
+ * @return {Promise<UserObject[]>} - the matching users
  */
 @profile()
 @expose()
@@ -399,10 +359,10 @@ public async find(filters?: UserFilters, fields?: string[], skip?: number, limit
 }
 
 /**
- * Returns number of users stored in the system and matching given criteria
+ * Returns the number of users matching the given criteria
  *
- * @param {UserFilters} [filters] - filter by is active criteria
- * @return {Promise<number>} - number of user counted
+ * @param {UserFilters} [filters] - criteria to filter by
+ * @return {Promise<number>} - the number of matching users
  */
 @profile()
 @expose()
@@ -412,13 +372,13 @@ public async count(filters?: UserFilters): Promise<number> {
 }
 
 /**
- * Attach new car to a user
+ * Attaches a new car to a user
  *
- * @param {string} userId - user identifier to add car to
- * @param {string} carId - selected car identifier
+ * @param {string} userId - identifier of the user to attach the car to
+ * @param {string} carId - identifier of the selected car
  * @param {string} regNumber - car registration number
- * @param {string[]} [selectedFields] - fields to fetch for a modified user object
- * @return {Promise<UserObject | null>} - operation result
+ * @param {string[]} [selectedFields] - fields to return for the modified user
+ * @return {Promise<UserObject | null>} - the modified user
  */
 @profile()
 @expose()
@@ -428,11 +388,11 @@ public async addCar(userId: string, carId: string, regNumber: string, selectedFi
 }
 
 /**
- * Removes given car from a user
+ * Removes a car from a user
  *
- * @param {string} carId - user car identifier
- * @param {string[]} [selectedFields] - fields to fetch for a modified user object
- * @return {Promise<UserObject | null>} - modified user object
+ * @param {string} carId - identifier of the user's car
+ * @param {string[]} [selectedFields] - fields to return for the modified user
+ * @return {Promise<UserObject | null>} - the modified user
  */
 @profile()
 @expose()
@@ -442,7 +402,7 @@ public async removeCar(carId: string, selectedFields?: string[]): Promise<UserOb
 }
 
 /**
- * Returns car object of a given user, fetched by identifier
+ * Returns a given user's car, fetched by identifier
  *
  * @param {string} userId - user identifier
  * @param {string} carId - car identifier
@@ -456,9 +416,9 @@ public async getCar(userId: string, carId: string): Promise<UserCarObject | null
 }
 
 /**
- * Returns number of cars registered for the user having given id or email
+ * Returns the number of cars registered for the user with the given id or email
  *
- * @param {string} idOrEmail
+ * @param {string} idOrEmail - user identifier or e-mail
  * @return {Promise<number>}
  */
 @profile()
@@ -469,55 +429,52 @@ public async carsCount(idOrEmail: string): Promise<number> {
 }
 ~~~
 
-What you need to know here about defining the externally callable
-methods is that you need to follow several rules, which are mandatory:
+There are a few mandatory rules for defining externally callable methods:
 
-1. If you need to make service method externally callable, it MUST
-   be wrapped with `@expose()` decorator.
-1. Each service you implement MUST have at least one externally
-   callable method.
-1. It is strictly recommended to define appropriate doc-blocks for
-   each externally callable method, following the next simple rules:
-   - All param and return value types should be described in TypeScript
-     notation.
-   - Each param that is optional, must be described as optional in
-     dock-block, use '[]' to wrap an optional param, like this:
-     `@param {string} [name]`
+1. To make a method callable remotely, wrap it with the `@expose()` decorator.
+2. Every service must have at least one externally callable method.
+3. Write a doc-block for each exposed method. Two rules apply:
+   - Describe all argument and return-value types in TypeScript notation.
+   - Mark optional arguments as optional by wrapping the name in `[]`, like
+     this: `@param {string} [name]`.
 
-Following these rules guarantees that you will have appropriately
-set descriptions for your service and expectantly working
-clients generated for your service.
+Following these rules guarantees a correct service description and, in turn,
+correctly generated, working clients.
 
-After interface has been defined as above, we can see that our service
-does not compile. The reason is that we declared some arguments
-and return values of types which TypeScript can not recognize. Those
-are: `UserObject`, `UserCarObject` and `UserFilters`.
+With the interface above in place, the service won't compile yet — we've
+referenced types TypeScript doesn't know: `UserObject`, `UserCarObject` and
+`UserFilters`. Let's define them.
 
-#### Defining Externally Accessible Service Complex Types
+#### Defining exposable complex types
 
-By using doc-blocks we can describe any complex data structures in
-TypeScript notations, but it is not always useful as we might need
-to duplicate a lot of code.  So, a good way here is to define re-usable
-complex types.
+You can describe complex data structures inline in doc-blocks using TypeScript
+notation, but that quickly leads to duplication. A cleaner approach is to define
+reusable complex types.
 
-Due to some limitations the ONLY correct way to describe complex types
-which could be exported remotely is to define them using classes. Here
-we go:
+Complex types that can be exposed remotely **must be defined as classes**. Each
+such class must be annotated with the `@classType()` class decorator, and each
+exposed field with the `@property()` decorator. Under @imqueue v3's standard
+(TC39) decorators, `@property()` only collects field metadata — the class-level
+`@classType()` then registers that metadata as a named type, so both the service
+and the generated client recognise it.
+
+Create the first type:
 
 ~~~bash
 mkdir ./user/src/types
 touch ./user/src/types/UserObject.ts
 ~~~
 
-Now put the following contents inside the newly created file:
+Put the following inside:
 
 ~~~typescript
-import { property } from '@imqueue/rpc';
-import { UserCarObject } from '.';
+import { classType, property } from '@imqueue/rpc';
+import { UserCarObject } from './UserCarObject.js';
 
 /**
  * Serializable user type
  */
+@classType()
 export class UserObject {
     @property('string', true)
     _id?: string;
@@ -545,39 +502,27 @@ export class UserObject {
 }
 ~~~
 
-The second rule -  is to use `@property()` decorator factory whenever you need to
-expose a complex type property for remote access. This is required to
-describe a type definition.
+A few things to note about `@property()`:
 
-The type will be automatically exposed as a remote interface, it has
-at least one decorated property.
+- Its first argument is the property type in TypeScript notation.
+- Pass `true` as the second argument to mark the property as optional.
+- A property may reference another complex type — here, `cars` references an
+  array of `UserCarObject`.
+- Types defined this way appear on the client side as TypeScript interfaces,
+  giving you full type-checking across the client and service.
+- Leaving a property undecorated hides it from the remote interface, which is a
+  handy way to keep service-internal fields private.
 
-`@property()` decorator takes property type in TypeScript notation as
-the first argument. If the property should be defined as optional
-for that type, you can bypass `true` as a second argument.
-
-Types described in such a way on a service will be available on a
-client's side as interfaces, given an ability to perform type checks by
-a TypeScript compiler.
-
-If there is any need, it is possible to skip decoration on the type
-property and that's how it provides a way to hide part of service-level
-related implementation.
-
-Type property may refer to another complex type, as we can see in our
-example - cars property referring to an array of `UserCarObject`.
-
-So, let's proceed with other types definitions we're still missing.
+Now define the remaining types.
 
 ~~~bash
-touch ./user/types/UserCarObject.ts
+touch ./user/src/types/UserCarObject.ts
 ~~~
 
-Put this content inside:
-
 ~~~typescript
-import { property } from '@imqueue/rpc';
+import { classType, property } from '@imqueue/rpc';
 
+@classType()
 export class UserCarObject {
     @property('string')
     _id: string;
@@ -590,24 +535,25 @@ export class UserCarObject {
 }
 ~~~
 
-And the same for `UserFilters` type:
+And `UserFilters`:
 
 ~~~bash
-touch ./user/types/UserFilters.ts
+touch ./user/src/types/UserFilters.ts
 ~~~
 
 ~~~typescript
-import { property } from '@imqueue/rpc';
+import { classType, property } from '@imqueue/rpc';
 
+@classType()
 export class UserFilters {
     @property('string', true)
-    email: string;
+    email?: string;
 
     @property('boolean', true)
-    isActive: boolean;
+    isActive?: boolean;
 
     @property('boolean', true)
-    isAdmin: boolean;
+    isAdmin?: boolean;
 
     @property('string', true)
     firstName?: string;
@@ -617,18 +563,18 @@ export class UserFilters {
 }
 ~~~
 
-Now we need to import our types into the service class module:
+Finally, import the types into the service class module:
 
 ~~~typescript
-import { UserCarObject } from './types/UserCarObject';
-import { UserFilters } from './types/UserFilters';
-import { UserObject } from './types/UserObject';
+import { UserCarObject } from './types/UserCarObject.js';
+import { UserFilters } from './types/UserFilters.js';
+import { UserObject } from './types/UserObject.js';
 ~~~
 
-That's it. Now our service should compile properly with no errors.
+The service should now compile without errors.
 
-The last thing here will be to implement logic for service methods, but
-let's keep it for your home-work, or you can simply refer the [source
-code](https://github.com/imqueue-sandbox/user) available on GitHub.
+All that's left is to implement the logic of the service methods — we'll leave
+that as homework, but you can always refer to the [source
+code](https://github.com/imqueue-sandbox/user) on GitHub.
 
-Go to the next chapter - [Creating Auth Service. Inter-Service Communication](/tutorial/auth-service).
+Next up: [Auth Service — inter-service communication](/tutorial/auth-service).

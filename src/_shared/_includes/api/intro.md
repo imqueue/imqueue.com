@@ -1,23 +1,24 @@
 ## Introduction
 
-`@imqueue` consists of three packages - `core`, `rpc` and `cli`, where `cli` is RAD
-command line tool and should be used globally as utility, others two are related
-to API, which is described below.
+`@imqueue` is made up of three packages — `core`, `rpc` and `cli`. `cli` is a
+rapid-development command-line tool, used globally as a utility; `core` and `rpc`
+make up the runtime API documented below.
 
-All `@imqueue` packaging follows nesting principles. It means that top level package
-exports outside whole functionality of internally related package it depends on.
-Thus if you're importing `@imqueue/rpc` it exports everything from `@imqueue/core`
-as well.
+@imqueue packaging follows a nesting principle: each higher-level package
+re-exports the full functionality of the package it depends on. So importing
+`@imqueue/rpc` also gives you everything from `@imqueue/core`.
 
-That all provides the ability to use single import whenever you decide to use only
-core features in you development or RPC features as well.
-
-For example, such imports are equivalent from development point of view:
+This means a single import is enough whether you use only the core features or
+the RPC features as well. For example, these two imports are equivalent:
 
 ~~~typescript
 import { profile, IMQMode } from '@imqueue/core';
 import { profile, IMQMode } from '@imqueue/rpc';
 ~~~
 
-As `profile` and `IMQMode` are defined in core package which is a
-dependency of rpc package.
+Both work because `profile` and `IMQMode` are defined in `core`, which is a
+dependency of `rpc`.
+
+> **Using v3?** @imqueue 3.x ships as native ES modules and requires Node.js
+> 22.12 or newer. If you're upgrading from 2.x, see the
+> [Migration from 2.x to 3.x](#migration-from-2.x-to-3.x) section below.
