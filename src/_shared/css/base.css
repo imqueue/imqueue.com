@@ -76,15 +76,17 @@ code { color: var(--accent); }
    height: name-only for the plain variant, name+slogan for the stacked variant.
    --mark holds that height per variant. */
 .brand { --mark: 15px; display: inline-flex; align-items: center; gap: 16px; margin-right: auto; color: var(--accent); }
-.brand--stacked { --mark: 27px; }
+.brand--stacked { --mark: 35px; }
 .brand--lg { --mark: 17px; }
-.brand--lg.brand--stacked { --mark: 29px; }
+.brand--lg.brand--stacked { --mark: 37px; }
 .brand__mark { display: flex; align-items: center; flex: none; }
 /* glyph viewBox is 42x28 (tight to the artwork) -> width = height * 1.5 */
 .brand__mark svg { height: var(--mark); width: calc(var(--mark) * 1.5); display: block; }
 .brand__text { display: flex; flex-direction: column; justify-content: center; }
-.brand__name { font-family: var(--font-display); font-weight: 700; font-size: 17px; line-height: 1.05; letter-spacing: -.02em; color: var(--ink); }
-.brand__slogan { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); line-height: 1.1; margin-top: 3px; }
+/* Brand name always uses the Flux (.com) display face so the logo is identical
+   across editions, regardless of each theme's --font-display. */
+.brand__name { font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 17px; line-height: 1.05; letter-spacing: -.02em; color: var(--ink); }
+.brand__slogan { font-family: var(--font-mono); font-size: 11.4px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); line-height: 1.1; margin-top: 9px; }
 .brand--lg .brand__name { font-size: 19px; }
 
 .nav-links { display: flex; align-items: center; gap: 4px; }
