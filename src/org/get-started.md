@@ -3,44 +3,44 @@ layout: docs.html
 section: docs
 title: Getting started
 docLabel: GET STARTED
-lead: "The shortest step-by-step guide to installing @imqueue and shipping your first service. For a deeper walkthrough see the Tutorial; full technical reference lives in the API docs."
+lead: "The shortest path from an empty terminal to a running @imqueue service and a generated client. For a deeper, worked example see the Tutorial; the full technical reference lives in the API docs."
 description: "Install @imqueue and ship your first Node & TypeScript service in minutes — the shortest quickstart for building message-queue RPC microservices."
 keywords: "@imqueue getting started, imqueue quickstart, install imqueue, first Node.js service, TypeScript microservice tutorial, npm @imqueue/cli, message queue RPC setup"
 ---
 
 [[toc]]
 
-## Before we start
+## Prerequisites
 
-Make sure you have all required software pre-installed on your system. Here is
-what we need:
+Before you begin, make sure the following are installed and available on your
+system:
 
-- [Node.js](https://nodejs.org/en/) — we recommend installing it via
-  [NVM](https://github.com/creationix/nvm/blob/master/README.md)
-- [Redis](https://redis.io/download) version 3.2 or above recommended
-- [Git](https://git-scm.com/downloads) command-line tool
+- [Node.js](https://nodejs.org/en/) **22.12 or newer** — we recommend
+  installing it through [NVM](https://github.com/nvm-sh/nvm#installing-and-updating).
+- [Redis](https://redis.io/download) — version 3.2 or newer. @imqueue uses
+  Redis as its message-queue transport.
+- [Git](https://git-scm.com/downloads) — the command-line client.
 
-## 1. Installing
+## 1. Install the CLI
 
-First, it is recommended to install the IMQ command line tool globally:
+Install the @imqueue command-line tool globally. It scaffolds services and
+generates clients for you, so you write features instead of boilerplate:
 
 ~~~bash
 npm i -g @imqueue/cli
 ~~~
 
-During the first installation it will prompt you to enter some initial
-configuration information. You may proceed filling it in, or skip it by
-pressing `Ctrl+C` and configure it later (or never).
+On first run the installer offers to collect some initial configuration. You can
+fill it in now, or press `Ctrl+C` to skip and configure it later (or not at all
+— it is optional).
 
-## 2. Configuring
+## 2. Configure (optional)
 
-The `@imqueue/cli` tool does not require mandatory configuration. That said,
-if you're going to work on a big project with a large set of services, it may
-be useful to define a global configuration once and simplify most of the
-commands you type in your terminal.
+`@imqueue/cli` works without any configuration. Defining a global configuration
+once is only worthwhile on larger projects with many services, where it saves
+you from repeating the same options on every command.
 
-If the configuration step was skipped during installation, or you need to
-re-define an existing config, use:
+To create or re-create the configuration at any time, run:
 
 ~~~bash
 imq config init
@@ -50,29 +50,28 @@ imq config init
   <iframe src="https://www.youtube.com/embed/4zuAmpeDHM4" title="Installation screencast" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 </div>
 
-## 3. Enable completions
+## 3. Enable shell completions
 
-After installation and configuration it is recommended to turn on completions
-support for the `imq` command in your terminal. Simply run:
+Turning on completions for the `imq` command makes the CLI far more pleasant to
+use. Run:
 
 ~~~bash
 imq completions on
 ~~~
 
-and follow the instructions. Currently it supports `bash` and `zsh`.
+and follow the prompts. `bash` and `zsh` are supported.
 
-## 4. Usage
+## 4. Everyday usage
 
-The IMQ command line tool was created specially to free you from writing
-boilerplate while building `@imqueue`-based back-end services. There are two
-major things it can do for you:
+The CLI exists to remove the boilerplate of building `@imqueue`-based back-end
+services. It does two main jobs for you:
 
-1. Create services from pre-defined boilerplate templates
-2. Manage client code generation
+1. Scaffold services from ready-made templates.
+2. Generate client code for calling those services.
 
-### 4.1 Creating a service
+### 4.1 Create a service
 
-To create a service from boilerplate, run these commands in your terminal:
+Scaffold a new service into a fresh directory:
 
 ~~~bash
 mkdir user-service
@@ -80,22 +79,23 @@ cd user-service
 imq service create
 ~~~
 
-Now open `src/UserService.ts` and implement all the methods (functionality)
-you need for this service.
+Then open `src/UserService.ts` and implement the methods your service needs to
+expose.
 
-### 4.2 Running a service
+### 4.2 Run the service
 
-Make sure you have a Redis server running on the default port before launching
-your service. Running the service is easy — just execute:
+Make sure a Redis server is running on the default port, then start the service
+in watch mode:
 
 ~~~bash
 npm run dev
 ~~~
 
-### 4.3 Generating a client
+### 4.3 Generate a client
 
-All @imqueue services are self-describing. To generate a client you need to run
-the service first. After that, run in your terminal:
+Every @imqueue service is self-describing, so a fully typed client can be
+generated directly from a running service. With the service running, generate
+its client:
 
 ~~~bash
 mkdir clients
@@ -103,9 +103,10 @@ cd clients
 imq client generate UserService
 ~~~
 
-Now the client can be used to call service methods remotely.
+You can now import that client and call the service's methods remotely, with
+full type-checking and IDE auto-completion.
 
 <div class="callout">
-  <p><strong>Congratulations!</strong> You've just implemented your first @imqueue-based service.</p>
-  <p><strong>Need more?</strong> Take a look at the <a href="/api/">API docs</a> and the <a href="/tutorial/">Tutorial</a>.</p>
+  <p><strong>That's it — you've built and called your first @imqueue service.</strong></p>
+  <p><strong>Ready for more?</strong> Work through the <a href="/tutorial/">Tutorial</a> for a complete example application, or dive into the <a href="/api/">API reference</a>.</p>
 </div>
