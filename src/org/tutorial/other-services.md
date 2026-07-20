@@ -2,163 +2,160 @@
 chapter: 4
 title: Domain Services
 docLabel: TUTORIAL — CHAPTER 4
-lead: "Add the remaining domain services (car, time-table) and choose how their typed clients are generated."
+lead: "Add the remaining domain services — Car and Time-Table — and choose how their typed clients are generated."
 description: "Add the remaining @imqueue domain services (Car, Time-Table) and choose how their typed clients are generated — self-describing services in practice."
 keywords: "@imqueue domain services, typed client generation, self-describing services, code generation RPC, PostgreSQL microservice, TypeScript service client"
 ogType: article
 ---
 
-At this point it should be already clear, that building @imqueue
-services is an easy process. To make our app fully functional we need
-to develop two more services: `Car` and `TimeTable`.
+By now it should be clear that building @imqueue services is a straightforward
+process. To make the application fully functional we need two more services:
+`Car` and `TimeTable`.
 
-Building them does not differ too much of what have been done for two
-previous services - `User` and `Auth`, so it is suggested to work on
-them as your homework. Or you can simply refer to their
-[source](https://github.com/imqueue-sandbox/car)
-[code](https://github.com/imqueue-sandbox/time-table) at GitHub.
+Building them isn't much different from the `User` and `Auth` services we've
+already covered, so we suggest tackling them as homework. If you'd rather read
+the finished code, both are on GitHub —
+[Car](https://github.com/imqueue-sandbox/car) and
+[Time-Table](https://github.com/imqueue-sandbox/time-table).
 
 Here are the requirements.
 
-### Car Service Requirements
+### Car service requirements
 
-- It should utilize data about cars from any available data source, for
-  example, this one [publicly available vehicle database](https://www.fueleconomy.gov/feg/ws/index.shtml)
-- It should implement in-memory data storage with data update each 24
-  hours from a selected remote vehicle database.
-- It should Provide access to the list of car object containing the
-  following data (`CarObject`):
-  * Unique car identifier (`id: string`)
-  * Car manufacturer name (`make: string`)
-  * Car model name (`model: string`)
-  * Car years of manufacturing (`years: number[]`)
-  * Car type (`type: 'mini' | 'midsize' | 'large'`)
+- Source its car data from any available dataset — for example, this
+  [publicly available vehicle database](https://www.fueleconomy.gov/feg/ws/index.shtml).
+- Cache the data in an in-memory store, refreshed from the remote vehicle
+  database every 24 hours.
+- Expose a list of car objects (`CarObject`) with the following fields:
+  * unique car identifier (`id: string`)
+  * manufacturer name (`make: string`)
+  * model name (`model: string`)
+  * years of manufacture (`years: number[]`)
+  * type (`type: 'mini' | 'midsize' | 'large'`)
 
-Here is the interface of the service which is expected to be implemented:
+Here is the interface the service is expected to implement:
 
 ~~~typescript
- /**
- * Returns a list of car manufacturers (car brands)
+/**
+ * Returns the list of car manufacturers (brands)
  *
- * @return {string[]} - list of known brands
+ * @return {string[]} - the list of known brands
  */
 public brands(): string[];
+
 /**
- * Returns car object by its identifier or if multiple identifiers given
- * as array of identifiers - returns a list of car objects.
+ * Returns the car object for a given identifier, or a list of car objects if an
+ * array of identifiers is given.
  *
- * @param {string | string[]} id - car identifier
+ * @param {string | string[]} id - car identifier(s)
  * @param {string[]} [selectedFields] - fields to return
- * @return {Partial<CarObject> | Partial<CarObject|null>[] | null} - found object or null otherwise
+ * @return {Partial<CarObject> | Partial<CarObject | null>[] | null} - the found object(s), or null
  */
 public fetch(
     id: string | string[],
-    selectedFields?: string[]
-): Partial<CarObject> | Partial<CarObject|null>[] | null;
+    selectedFields?: string[],
+): Partial<CarObject> | Partial<CarObject | null>[] | null;
+
 /**
- * Returns list of known cars for a given brand
+ * Returns the list of known cars for a given brand
  *
  * @param {string} brand - car manufacturer (brand) name
  * @param {string[]} [selectedFields] - fields to return
- * @param {string} [sort] - sort field, by default is 'model'
- * @param {'asc' | 'desc'} [dir] - sort direction, by default is 'asc' - ascending
- * @return {Partial<CarObject>[]} - list of found car objects
+ * @param {string} [sort] - field to sort by, defaults to 'model'
+ * @param {'asc' | 'desc'} [dir] - sort direction, defaults to 'asc' (ascending)
+ * @return {Partial<CarObject>[]} - the list of matching cars
  */
 public list(
     brand: string,
     selectedFields?: string[],
-    sort: string = 'model', dir: 'asc' | 'desc' = 'asc'
+    sort: string = 'model',
+    dir: 'asc' | 'desc' = 'asc',
 ): Partial<CarObject>[];
 ~~~
 
-For any details and help about implementation, please, refer to
-corresponding [source code](https://github.com/imqueue-sandbox/car).
+For implementation details, refer to the
+[source code](https://github.com/imqueue-sandbox/car).
 
-**What to think about:** In-memory data synchronization when running
-multiple instance of services.
+**Something to think about:** synchronising the in-memory data across multiple
+running instances of the service.
 
-### TimeTable Service Requirements
+### Time-Table service requirements
 
-That should be a central service. Let's consider using relational
-database as a data storage engine, for example, PostgreSQL or any other
-at your choice with Sequelize ORM library on top.
+This is the central service. Use a relational database as its data store — for
+example, PostgreSQL (or another of your choice) with the Sequelize ORM on top.
 
-Here is the interface expected to be built for this service:
+Here is the interface expected for this service:
 
 ~~~typescript
 /**
- * Returns a list of reservations starting from a given time (or from
- * current time if omitted)
+ * Returns reservations starting from a given time (or from the current time if
+ * omitted)
  *
- * @param {string} [date] - date to select reservations for, if not passed
- *                          current date is used
- * @param {string[]} [fields] - fields to select for reservations data list
- * @return {Promise<Reservation[]>} - list of found reservations
+ * @param {string} [date] - date to select reservations for; defaults to the current date
+ * @param {string[]} [fields] - fields to select for each reservation
+ * @return {Promise<Reservation[]>} - the matching reservations
  */
 public async list(date?: string, fields?: string[]): Promise<Reservation[]>;
 
 /**
- * Fetches and returns single reservation record by its identifier
+ * Fetches a single reservation by its identifier
  *
- * @param {string} id - reservation identifier to fetch
- * @param {string[]} [fields] - fields to select for reservation data object
- * @return {Promise<Reservation|null>} - reservation data object or null if not found
+ * @param {string} id - identifier of the reservation to fetch
+ * @param {string[]} [fields] - fields to select for the reservation
+ * @return {Promise<Partial<Reservation> | null>} - the reservation, or null if not found
  */
-public async fetch(id: string, fields?: string[]): Promise<Partial<Reservation>|null>;
+public async fetch(id: string, fields?: string[]): Promise<Partial<Reservation> | null>;
 
 /**
- * Makes a given reservation or throws a proper error
- * if action is not possible
+ * Makes a reservation, or throws if it cannot be made
  *
- * @param {Reservation} reservation - reservation data structure
- * @param {string[]} [fields] - fields to select for updated reservations list
- * @return {Promise<Reservation[]>} - updated reservations list
+ * @param {Reservation} reservation - the reservation data
+ * @param {string[]} [fields] - fields to select for the updated reservations list
+ * @return {Promise<Reservation[]>} - the updated reservations list
  */
 public async reserve(reservation: Reservation, fields?: string[]): Promise<Reservation[]>;
 
 /**
- * Cancels reservation at a given time
+ * Cancels a reservation
  *
  * @param {string} id - reservation identifier
- * @param {string[]} [fields] - fields to select for updated reservations list
- * @return {Promise<Reservation[]>} - updated reservations list
+ * @param {string[]} [fields] - fields to select for the updated reservations list
+ * @return {Promise<Reservation[]>} - the updated reservations list
  */
 public async cancel(id: string, fields?: string[]): Promise<Reservation[]>;
 
- /**
- * Returns reservation time-table configuration settings
+/**
+ * Returns the time-table configuration settings
  *
- * @return {Promise<TimeTableOptions>} - reservations time-table options
+ * @return {Promise<TimeTableOptions>} - the time-table options
  */
 public async config(): Promise<TimeTableOptions>;
 ~~~
 
-Where the following complex types exposed as well:
+It also exposes these complex types:
 
 `Reservation`:
- - id - reservation record identifier
- - carId - user car identifier
- - userId - user identifier
- - type - washing type selected for this reservation, one of `'fast'|'std'|'full'`
- - duration - is a range of start time/end time
+ - `id` — reservation record identifier
+ - `carId` — user's car identifier
+ - `userId` — user identifier
+ - `type` — the washing type for this reservation, one of `'fast' | 'std' | 'full'`
+ - `duration` — a range of start and end times
 
 `TimeTableOptions`:
- - start - washing station start working time in format HH:MM
- - end - washing station end working time in format HH:MM
- - baseTime - duration options for different types of washing, should be a list of
-   ```typescript
+ - `start` — the station's opening time, in `HH:MM` format
+ - `end` — the station's closing time, in `HH:MM` format
+ - `baseTime` — the duration options per washing type, as a list of:
+   ~~~typescript
    {
-      key: 'fast'|'std'|'full', /* or whatever else... */
-      title: string, /* human-readable definition title for washing type */
-      duration: number, /* in minutes */
-    }
-    ```
+      key: 'fast' | 'std' | 'full', // or whatever else...
+      title: string,  // human-readable title for the washing type
+      duration: number, // in minutes
+   }
+   ~~~
 
+**Something to think about:** (a) exposing a Sequelize model as an @imqueue
+complex type; (b) storing the options as configurable database records.
 
-**What to think about:** a) consider exposing sequelize model as a complex-type
-of @imqueue service; b) consider options as a configurable database records
-as well.
+Either way, the [complete source code is on GitHub](https://github.com/imqueue-sandbox/time-table).
 
-Any way, the [complete source code is available on GitHub](https://github.com/imqueue-sandbox/time-table)
-
-Go to the next chapter - [API Service. Integration](/tutorial/api-service)
+Next up: [API Service — integration](/tutorial/api-service).
