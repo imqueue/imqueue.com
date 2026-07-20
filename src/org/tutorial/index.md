@@ -4,6 +4,8 @@ title: Introduction
 docLabel: TUTORIAL — CHAPTER 1
 lead: "A step-by-step guide to building back-end services for a car-washing web application with @imqueue — for those who prefer to learn by example."
 description: "Tutorial: build back-end services for a car-washing web application using @imqueue, from first service to GraphQL API and deployment."
+keywords: "@imqueue tutorial, Node.js microservices tutorial, TypeScript back-end tutorial, build microservices by example, message queue RPC tutorial, GraphQL microservices, SOA tutorial"
+ogType: article
 ---
 
 ## Tour of Cars Washing
