@@ -20,6 +20,11 @@
     "typescript": "~5.8.0",
     "wawoff2": "^2.0.1"
   },
+  "overrides": {
+    "@microsoft/api-documenter": {
+      "js-yaml": "^4.3.0"
+    }
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
     "build:org": "EDITION=org eleventy",
