@@ -1,7 +1,7 @@
 ---
 layout: docs.html
 section: docs
-title: Getting started
+title: Getting Started
 docLabel: GET STARTED
 lead: "The shortest path from an empty terminal to a running @imqueue service and a generated client. For a deeper, worked example see the Tutorial; the full technical reference lives in the API docs."
 description: "Install @imqueue and ship your first Node & TypeScript service in minutes — the shortest quickstart for building message-queue RPC microservices."
@@ -46,9 +46,9 @@ To create or re-create the configuration at any time, run:
 imq config init
 ~~~
 
-<div class="embed">
-  <iframe src="https://www.youtube.com/embed/4zuAmpeDHM4" title="Installation screencast" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-</div>
+For the full setup details — requirements, upgrading and shell completions — see
+the [Installation](/cli/installation/) & [Configuration](/cli/configuration/)
+chapters of the CLI User Guide.
 
 ## 3. Enable shell completions
 

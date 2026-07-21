@@ -1,0 +1,81 @@
+name: Sync CLI User Guide
+
+# Regenerates the CLI User Guide (src/org/cli/*.md) from @imqueue/cli's wiki/
+# and commits the result to master — which deploys the site. It runs when the
+# cli repo signals a release (repository_dispatch, see the snippet at the bottom
+# of this file), and can also be triggered by hand.
+
+on:
+  repository_dispatch:
+    types: [cli-released]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "@imqueue/cli git ref (tag/branch) to sync from"
+        default: master
+
+# Never let two syncs race on a push to master.
+concurrency:
+  group: sync-cli-guide
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout imqueue.com
+        uses: actions/checkout@v4
+
+      - name: Resolve cli ref
+        id: ref
+        run: echo "ref=${{ github.event.client_payload.ref || github.event.inputs.ref || 'master' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout @imqueue/cli wiki source
+        uses: actions/checkout@v4
+        with:
+          repository: imqueue/cli
+          ref: ${{ steps.ref.outputs.ref }}
+          path: .cli-src
+          sparse-checkout: wiki
+          # Only needed if imqueue/cli is private. For a public repo the default
+          # token is enough and you can delete this line (and the secret).
+          token: ${{ secrets.CLI_SYNC_TOKEN || github.token }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Regenerate CLI User Guide from the wiki
+        run: node scripts/sync-cli-wiki.js --wiki .cli-src/wiki
+
+      - name: Commit & push if changed
+        run: |
+          if [ -z "$(git status --porcelain src/org/cli)" ]; then
+            echo "No changes — the guide is already in sync."
+            exit 0
+          fi
+          git config user.name "imqueue-bot"
+          git config user.email "bot@imqueue.com"
+          git add src/org/cli
+          git commit -m "docs(cli): sync CLI User Guide from @imqueue/cli@${{ steps.ref.outputs.ref }}"
+          git push
+
+# ---------------------------------------------------------------------------
+# To fire this automatically on every @imqueue/cli npm publish, add a step to
+# the cli repo's release/publish workflow (AFTER the successful `npm publish`):
+#
+#   - name: Notify imqueue.com to refresh the CLI User Guide
+#     run: |
+#       curl -sSf -X POST \
+#         -H "Authorization: Bearer ${{ secrets.SITE_DISPATCH_TOKEN }}" \
+#         -H "Accept: application/vnd.github+json" \
+#         https://api.github.com/repos/imqueue/imqueue.com/dispatches \
+#         -d "{\"event_type\":\"cli-released\",\"client_payload\":{\"ref\":\"${GITHUB_REF_NAME}\"}}"
+#
+# SITE_DISPATCH_TOKEN is a fine-grained PAT (or classic PAT with `repo` scope)
+# that can send dispatches to imqueue/imqueue.com, stored as a secret in the
+# cli repo. That is the only credential you need to create by hand.
+# ---------------------------------------------------------------------------
