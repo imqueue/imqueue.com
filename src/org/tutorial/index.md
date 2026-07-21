@@ -173,8 +173,8 @@ npm i -g @imqueue/cli
 Installation ends with an interactive configuration wizard — follow the steps to
 finish configuring `@imqueue/cli`.
 
-<div class="embed">
-  <iframe src="https://www.youtube.com/embed/4zuAmpeDHM4" title="Installation screencast" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-</div>
+For the full setup details — requirements, upgrading and shell completions — see
+the [Installation](/cli/installation/) & [Configuration](/cli/configuration/)
+chapters of the CLI User Guide.
 
 With that in place, we're ready to create our first service.

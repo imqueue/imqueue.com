@@ -184,4 +184,60 @@
       });
     }
   })();
+
+  // ---- image lightbox: click a screenshot to view it full size ----
+  (function () {
+    var SEL = '.prose .shots img';
+    var overlay, imgEl, capEl, lastFocus;
+
+    function build() {
+      overlay = document.createElement('div');
+      overlay.className = 'lightbox';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.hidden = true;
+      overlay.innerHTML =
+        '<button class="lightbox__close" type="button" aria-label="Close">×</button>' +
+        '<figure class="lightbox__fig">' +
+        '<img class="lightbox__img" alt="">' +
+        '<figcaption class="lightbox__cap"></figcaption>' +
+        '</figure>';
+      document.body.appendChild(overlay);
+      imgEl = overlay.querySelector('.lightbox__img');
+      capEl = overlay.querySelector('.lightbox__cap');
+      // close on backdrop / close-button click; a click on the image itself keeps it open
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay || e.target.closest('.lightbox__close')) close();
+      });
+    }
+
+    function open(src, alt) {
+      if (!overlay) build();
+      lastFocus = document.activeElement;
+      imgEl.src = src;
+      imgEl.alt = alt || '';
+      capEl.textContent = alt || '';
+      capEl.hidden = !alt;
+      overlay.setAttribute('aria-label', alt || 'Screenshot');
+      overlay.hidden = false;
+      document.documentElement.classList.add('lightbox-open');
+      overlay.querySelector('.lightbox__close').focus();
+    }
+
+    function close() {
+      if (!overlay || overlay.hidden) return;
+      overlay.hidden = true;
+      imgEl.removeAttribute('src');
+      document.documentElement.classList.remove('lightbox-open');
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    document.addEventListener('click', function (e) {
+      var img = e.target.closest(SEL);
+      if (img) { e.preventDefault(); open(img.currentSrc || img.src, img.alt); }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') close();
+    });
+  })();
 })();
