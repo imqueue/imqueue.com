@@ -1,7 +1,7 @@
 ---
 layout: docs.html
 section: api
-title: API reference
+title: API Reference
 docLabel: API REFERENCE
 lead: "Application programming interface documentation for the @imqueue packages — core, rpc and cli. Packaging follows nesting, so importing @imqueue/rpc re-exports everything from @imqueue/core."
 description: "API reference for @imqueue — core, rpc and cli packages: RPC API, decorators, doc-blocks, the Messaging API and adapters, plus generated per-version reference docs."

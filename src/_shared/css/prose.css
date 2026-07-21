@@ -107,9 +107,10 @@
 .prose .table-of-contents a { color: var(--muted); font-weight: 400; }
 .prose .table-of-contents a:hover { color: var(--accent); text-decoration: none; }
 
-/* screenshot gallery */
-.prose .shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin: 0 0 20px; }
-.prose .shots img { margin: 0; width: 100%; }
+/* screenshot gallery — two screenshots per row (one per row on narrow screens) */
+.prose .shots { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0 0 20px; }
+.prose .shots img { margin: 0; width: 100%; cursor: zoom-in; }
+@media (max-width: 480px) { .prose .shots { grid-template-columns: 1fr; } }
 
 /* tutorial: high-level architecture diagram — inline SVG themed via the token
    contract, so it recolors live with the light/dark toggle and each edition. */
