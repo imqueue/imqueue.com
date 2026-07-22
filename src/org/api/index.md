@@ -7,22 +7,22 @@ lead: "Application programming interface documentation for the @imqueue packages
 description: "API reference for @imqueue — core, rpc and cli packages: RPC API, decorators, doc-blocks, the Messaging API and adapters, plus generated per-version reference docs."
 keywords: "@imqueue API reference, imqueue core, imqueue rpc, imqueue cli, RPC decorators, TypeScript RPC API, message queue API, IMQService, IMQClient, @expose decorator"
 ---
-{% assign latest_core = "3.2.1" %}
-{% assign latest_rpc = "3.2.1" %}
+{% assign latest_core = apiVersions.core %}
+{% assign latest_rpc = apiVersions.rpc %}
 
 [[toc]]
 
 ## Full API Reference
 
-Browse the complete generated reference for the latest release — every class, interface, decorator and function, with signatures and types.
+Browse the complete generated reference for the latest release — every class, interface, decorator and function, with signatures and types. These pages always live at `/latest/`, so a bookmark or link keeps working across releases.
 
 <div class="api-ref-cards">
-  <a href="/api/rpc/{{ latest_rpc }}/" class="api-ref-card">
+  <a href="/api/rpc/latest/" class="api-ref-card">
     <span class="api-ref-top"><span class="api-ref-name">@imqueue/rpc</span><span class="api-ref-ver">v{{ latest_rpc }}</span></span>
     <span class="api-ref-desc">Services, clients and decorators — <code>@expose</code>, <code>@remote</code>, <code>@lock</code>, <code>@cache</code> — and the RPC runtime.</span>
     <span class="api-ref-cta">Browse reference →</span>
   </a>
-  <a href="/api/core/{{ latest_core }}/" class="api-ref-card">
+  <a href="/api/core/latest/" class="api-ref-card">
     <span class="api-ref-top"><span class="api-ref-name">@imqueue/core</span><span class="api-ref-ver">v{{ latest_core }}</span></span>
     <span class="api-ref-desc">The JSON messaging-queue engine, the IMQ factory, and the pluggable adapter interface.</span>
     <span class="api-ref-cta">Browse reference →</span>
