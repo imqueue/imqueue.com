@@ -89,7 +89,18 @@ function stripReexports(dir, modulePattern, { skipNodeModules = false } = {}) {
 
 // Embed api-documenter markdown as native Eleventy pages under the given URL
 // segment ('latest' for the current major, or the version for an archive).
-function embed({ pkg, version, seg, mdDir }) {
+// Archived segments are emitted with `noindex: true` (they duplicate /latest/
+// for search) and a per-page `latestUrl` pointing at the same symbol under
+// /latest/ (falling back to the package root when the symbol no longer exists),
+// which drives the "you're viewing archived docs" banner. Returns the set of
+// page basenames it wrote (used to resolve archives' latestUrl links).
+function embed({ pkg, version, seg, mdDir, latestFiles }) {
+  const isArchived = seg !== 'latest';
+  const isRoot = (b) => b === 'index' || b === pkg;
+  const latestUrlFor = (b) =>
+    isRoot(b) || !(latestFiles && latestFiles.has(b))
+      ? `/api/${pkg}/latest/`
+      : `/api/${pkg}/latest/${b}/`;
   const base_ = `/api/${pkg}/${seg}`;
   const urlFor = (file) => {
     const b = file.replace(/\.md$/, '');
@@ -118,24 +129,38 @@ function embed({ pkg, version, seg, mdDir }) {
   }
   if (!apiNav.length) throw new Error(`No symbols parsed for ${pkg}@${version} sidebar`);
 
+  // Build the YAML front matter for one embedded page.
+  const frontMatter = (title, latestUrl) => {
+    let fm = `title: ${JSON.stringify(title)}\n`;
+    if (isArchived) fm += `noindex: true\nlatestUrl: ${JSON.stringify(latestUrl)}\n`;
+    return `---\n${fm}---\n\n`;
+  };
+  const archivedSuffix = isArchived ? ` v${version} (archived)` : '';
+
+  const basenames = new Set(['index']);
   let count = 0;
   for (const file of fs.readdirSync(mdDir)) {
     if (!file.endsWith('.md')) continue;
+    const b = file.replace(/\.md$/, '');
+    basenames.add(b);
     const raw = fs.readFileSync(path.join(mdDir, file), 'utf8');
-    const title = `${firstHeading(raw, file.replace(/\.md$/, ''))} · @imqueue/${pkg}`;
-    fs.writeFileSync(path.join(outDir, file), `---\ntitle: ${JSON.stringify(title)}\n---\n\n` + rewriteLinks(raw));
+    const title = `${firstHeading(raw, b)} · @imqueue/${pkg}${archivedSuffix}`;
+    fs.writeFileSync(path.join(outDir, file), frontMatter(title, latestUrlFor(b)) + rewriteLinks(raw));
     count++;
   }
+  const indexTitle = `@imqueue/${pkg} ${version} · API reference${isArchived ? ' (archived)' : ''}`;
   fs.writeFileSync(path.join(outDir, 'index.md'),
-    `---\ntitle: ${JSON.stringify(`@imqueue/${pkg} ${version} · API reference`)}\n---\n\n` + rewriteLinks(pkgPageMd));
+    frontMatter(indexTitle, `/api/${pkg}/latest/`) + rewriteLinks(pkgPageMd));
   fs.writeFileSync(path.join(outDir, `${seg}.11tydata.json`),
     JSON.stringify({ layout: 'apiref.html', section: 'api', apiPkg: pkg, apiVersion: version, apiVersionPath: seg, apiNav }, null, 2));
 
   console.log(`  embedded ${count} pages -> src/org/api/${pkg}/${seg}/ (${apiNav.reduce((n, g) => n + g.items.length, 0)} symbols)`);
+  return basenames;
 }
 
 // Fetch a published version from npm and emit it at the given URL segment.
-function generate({ pkg, version, seg }) {
+// Returns the set of page basenames written (see embed()).
+function generate({ pkg, version, seg, latestFiles }) {
   console.log(`\n=== @imqueue/${pkg}@${version}  ->  /api/${pkg}/${seg}/ ===`);
   const work = path.join(TMP, `${pkg}-${version}`);
   rmrf(work);
@@ -184,7 +209,7 @@ function generate({ pkg, version, seg }) {
   const mdDir = path.join(work, 'md');
   sh(`"${DOCUMENTER}" markdown --input-folder "${modelDir}" --output-folder "${mdDir}"`);
 
-  embed({ pkg, version, seg, mdDir });
+  return embed({ pkg, version, seg, mdDir, latestFiles });
 }
 
 // Remove version dirs under src/org/api/<pkg>/ that the current plan doesn't keep.
@@ -239,8 +264,8 @@ function main() {
     for (const pkg of pkgs) {
       const plan = planFor(pkg);
       console.log(`\n##### @imqueue/${pkg}: latest ${plan.latest} (major ${plan.currentMajor}), archives [${plan.archives.join(', ') || 'none'}]`);
-      generate({ pkg, version: plan.latest, seg: 'latest' });
-      for (const v of plan.archives) generate({ pkg, version: v, seg: v });
+      const latestFiles = generate({ pkg, version: plan.latest, seg: 'latest' });
+      for (const v of plan.archives) generate({ pkg, version: v, seg: v, latestFiles });
       cleanStale(pkg, ['latest', ...plan.archives]);
       apiVersions[pkg] = { latest: plan.latest, archives: plan.archives };
       allRules.push(...redirectRules(pkg, plan));
