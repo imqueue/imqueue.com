@@ -10,13 +10,12 @@ eleventyComputed:
   title: "{{ author.name }}"
   description: "{{ author.name }} — {{ author.occupation }} at @imqueue. Posts and articles."
 ---
-{%- assign avatarPartial = "blog-art/" | append: author.avatar | append: ".svg" -%}
 {%- assign myPosts = collections.posts | byAuthor: author.slug -%}
 <div class="container" style="padding-top:48px;padding-bottom:64px;max-width:900px;">
   <a href="/blog/" class="nav-link" style="font-family:var(--font-mono);font-size:13px;color:var(--accent);">← all posts</a>
 
   <header class="author-hero">
-    <div class="author-hero-avatar">{% include avatarPartial %}</div>
+    <div class="author-hero-avatar"><img class="avatar-img" src="{{ author.avatar }}" alt="{{ author.name }}" width="120" height="120"></div>
     <div>
       <div class="section-label" style="margin-bottom:10px;">// AUTHOR</div>
       <h1 style="font-family:var(--font-display);font-size:34px;line-height:1.1;margin:0 0 6px;">{{ author.name }}</h1>
@@ -37,6 +36,8 @@ eleventyComputed:
       "jobTitle": {{ author.occupation | json }},
       "description": {{ author.bio | strip_newlines | strip | json }},
       "url": "{{ siteUrl }}/blog/authors/{{ author.slug }}/",
+      "image": "{{ siteUrl }}{{ author.avatar }}",
+      {% if author.github %}"sameAs": ["{{ author.github }}"],{% endif %}
       "worksFor": { "@id": "{{ siteUrl }}/#org" }
     }
   }

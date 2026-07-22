@@ -269,6 +269,8 @@ html.lightbox-open { overflow: hidden; }
 
 .author-hero { display: grid; grid-template-columns: 120px 1fr; gap: 26px; align-items: center; margin-top: 22px; }
 @media (max-width: 560px) { .author-hero { grid-template-columns: 1fr; } }
-.author-hero-avatar svg { width: 120px; height: 120px; display: block; }
+.author-hero-avatar svg, .author-hero-avatar img { width: 120px; height: 120px; display: block; }
 .author-chip { display: inline-flex; align-items: center; gap: 8px; }
-.author-chip svg { width: 26px; height: 26px; }
+.author-chip svg, .author-chip img { width: 26px; height: 26px; }
+.avatar-img { border-radius: 50%; object-fit: cover; display: block; }
+.post-byline .avatar-img { width: 42px; height: 42px; flex: 0 0 auto; }

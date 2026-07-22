@@ -8,7 +8,7 @@ summary: "TEMPLATE — a production case study is the single strongest sales ass
 description: "Production case study template for @imqueue: architecture, scale, and results. Replace bracketed placeholders with real data before publishing."
 keywords: "imqueue case study, production microservices nodejs, imqueue in production"
 date: 2026-06-04
-author: priya-nair
+author: andrii
 illustration: case-study
 topics: [case-study]
 ogType: article

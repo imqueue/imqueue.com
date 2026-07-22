@@ -17,8 +17,7 @@ section: blog
         <h1 style="font-family:var(--font-display);font-size:38px;line-height:1.12;letter-spacing:-.03em;margin:0 0 16px;">{{ title }}</h1>
         <div class="post-byline">
           {%- if a -%}
-          {%- assign avatarPartial = "blog-art/" | append: a.avatar | append: ".svg" -%}
-          <a href="/blog/authors/{{ a.slug }}/" aria-label="{{ a.name }}">{% include avatarPartial %}</a>
+          <a href="/blog/authors/{{ a.slug }}/" aria-label="{{ a.name }}"><img class="avatar-img" src="{{ a.avatar }}" alt="{{ a.name }}" width="42" height="42"></a>
           <div class="who">
             <div><a href="/blog/authors/{{ a.slug }}/">{{ a.name }}</a></div>
             <div class="role">{{ a.occupation }}{% if date %} · {{ date | date: "%B %-d, %Y" }}{% endif %}</div>
@@ -44,11 +43,10 @@ section: blog
     <!-- SIDEBAR -->
     <aside class="post-aside">
       {%- if a -%}
-      {%- assign avatarPartial = "blog-art/" | append: a.avatar | append: ".svg" -%}
       <div class="aside-box">
         <h4>Written by</h4>
         <a href="/blog/authors/{{ a.slug }}/" class="author-chip" style="text-decoration:none;color:var(--ink);">
-          {% include avatarPartial %}
+          <img class="avatar-img" src="{{ a.avatar }}" alt="{{ a.name }}" width="26" height="26">
           <span><strong>{{ a.name }}</strong><span class="meta" style="display:block;font-family:var(--font-mono);font-size:11px;color:var(--muted);">{{ a.occupation }}</span></span>
         </a>
       </div>
@@ -91,7 +89,7 @@ section: blog
   {% if keywords %}"keywords": {{ keywords | json }},{% endif %}
   {% if date %}"datePublished": "{{ date | date: '%Y-%m-%d' }}",
   "dateModified": "{{ date | date: '%Y-%m-%d' }}",{% endif %}
-  "author": { "@type": "Person", "name": {{ a.name | default: "@imqueue" | json }}{% if a %}, "url": "{{ siteUrl }}/blog/authors/{{ a.slug }}/"{% endif %} },
+  "author": { "@type": "Person", "name": {{ a.name | default: "@imqueue" | json }}{% if a %}, "url": "{{ siteUrl }}/blog/authors/{{ a.slug }}/"{% if a.github %}, "sameAs": ["{{ a.github }}"]{% endif %}{% endif %} },
   "publisher": { "@id": "{{ siteUrl }}/#org" },
   "mainEntityOfPage": { "@type": "WebPage", "@id": "{{ siteUrl }}{{ page.url }}" }
 }
