@@ -144,12 +144,9 @@ module.exports = function (eleventyConfig) {
   // paths to imqueue.org; imqueue.org 301s retired versioned API URLs to /latest/.
   eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/_redirects`]: "_redirects" });
 
-  // Generated API reference docs (api-documenter output) — .org only.
-  if (!isCom) {
-    eleventyConfig.addPassthroughCopy({ "api/core": "api/core" });
-    eleventyConfig.addPassthroughCopy({ "api/rpc": "api/rpc" });
-    eleventyConfig.addPassthroughCopy({ "api/assets": "api/assets" });
-  }
+  // API reference (current + kept archives) is now generated as native Eleventy
+  // pages under src/org/api/**; the old standalone TypeDoc HTML passthrough is
+  // gone. Regenerate with `npm run build-docs` (latest) / `gen-api-archive` (old).
 
   return {
     dir: {

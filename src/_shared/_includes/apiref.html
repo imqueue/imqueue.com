@@ -3,9 +3,9 @@ layout: base.html
 ---
 <div class="container api-layout" style="padding-top:56px;padding-bottom:64px;">
   <aside class="api-side">
-    <a href="/api/{{ apiPkg }}/latest/" class="api-side-head">
+    <a href="/api/{{ apiPkg }}/{{ apiVersionPath | default: 'latest' }}/" class="api-side-head">
       <span class="lbl">@imqueue/{{ apiPkg }}</span>
-      <span class="ver">v{{ apiVersion }} · API reference</span>
+      <span class="ver">v{{ apiVersion }}{% if apiVersionPath and apiVersionPath != 'latest' %} · archived{% else %} · API reference{% endif %}</span>
     </a>
     {% for group in apiNav %}
     <div class="api-group">{{ group.group }}</div>
