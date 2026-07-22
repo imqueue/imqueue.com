@@ -25,7 +25,7 @@ eleventyExcludeFromCollections: true
     {%- elsif item.url contains "/api/" -%}{%- assign prio = "0.3" -%}{%- assign freq = "yearly" -%}
     {%- elsif item.url contains "/blog/" -%}{%- assign prio = "0.8" -%}{%- assign freq = "weekly" -%}
     {%- elsif item.url contains "/docs" or item.url contains "/tutorial" or item.url contains "/cli" or item.url contains "/get-started" or item.url contains "/intro" -%}{%- assign prio = "0.8" -%}
-    {%- elsif item.url contains "/pricing" -%}{%- assign prio = "0.9" -%}
+    {%- elsif item.url contains "/pricing" or item.url contains "/license" or item.url contains "/support" -%}{%- assign prio = "0.9" -%}
     {%- endif %}
   <url>
     <loc>{{ siteUrl }}{{ item.url }}</loc>
