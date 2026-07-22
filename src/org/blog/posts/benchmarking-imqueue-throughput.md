@@ -6,7 +6,7 @@ title: "Benchmarking @imqueue: throughput, delivery modes, and how to measure yo
 summary: "The published throughput numbers for @imqueue's message queue, what the two delivery modes cost, and a reproducible harness so you can measure the figures that actually matter — yours."
 description: "Published throughput figures for @imqueue/core's message queue, the cost of guaranteed vs unreliable delivery, and a reproducible way to benchmark it on your own hardware."
 keywords: "imqueue benchmark, message queue throughput, nodejs message queue performance, guaranteed delivery cost, imqueue performance, rpc benchmark"
-date: 2026-05-27
+date: 2026-06-07
 author: maya-torres
 illustration: throughput
 topics: [performance, queue, benchmark]

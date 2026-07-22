@@ -6,7 +6,7 @@ title: "@imqueue vs NestJS microservices: framework vs transport"
 summary: "NestJS is a full application framework with a microservices module; @imqueue is a focused RPC transport. They're not really competitors — here's how they differ and how they can work together."
 description: "Comparing @imqueue with the NestJS microservices module: application framework vs focused RPC transport, typing model, and when to use each or both."
 keywords: "imqueue vs nestjs, nestjs microservices, nestjs transporter, TypeScript microservices, message queue RPC, nestjs alternative"
-date: 2026-07-01
+date: 2026-06-17
 author: priya-nair
 illustration: layers
 topics: [comparison, frameworks, architecture]
