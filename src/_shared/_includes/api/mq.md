@@ -9,7 +9,7 @@ injection and profiling.
 
 ### The IMQ factory and adapters
 
-The [IMQ](/api/core/{{latest_core}}/classes/imq.html) factory constructs
+The [IMQ](/api/core/latest/core.imq/) factory constructs
 message-queue instances. Currently IMQ ships with a Redis adapter out of the box.
 Prefer creating instances through the factory rather than directly — this lets
 functionality be extended later, on your side or the framework's.
@@ -33,18 +33,18 @@ const mq = IMQ.create('MyMQ', { vendor: MyMQAdapter });
 ~~~
 
 Any adapter built by the IMQ factory must implement the
-[IMessageQueue](/api/core/{{latest_core}}/interfaces/imessagequeue.html)
+[IMessageQueue](/api/core/latest/core.imessagequeue/)
 interface, extending `EventEmitter` and emitting `'message'` and `'error'`
 events.
 
 ### Redis Queue
 
-[RedisQueue](/api/core/{{latest_core}}/classes/redisqueue.html) is the core
+[RedisQueue](/api/core/latest/core.redisqueue/) is the core
 Redis-based message-queue implementation, providing the engine for a single Redis
 node.
 
 ### Clustered Redis Queue
 
-[ClusteredRedisQueue](/api/core/{{latest_core}}/classes/clusteredredisqueue.html)
+[ClusteredRedisQueue](/api/core/latest/core.clusteredredisqueue/)
 extends `RedisQueue` to work across a cluster of Redis nodes, with automatic
 round-robin load balancing between them.

@@ -2,16 +2,12 @@
   "layout": "apiref.html",
   "section": "api",
   "apiPkg": "rpc",
-  "apiVersion": "3.2.1",
+  "apiVersion": "3.3.0",
   "apiVersionPath": "latest",
   "apiNav": [
     {
       "group": "Classes",
       "items": [
-        {
-          "name": "ClusteredRedisQueue",
-          "url": "/api/rpc/latest/rpc.clusteredredisqueue/"
-        },
         {
           "name": "Description",
           "url": "/api/rpc/latest/rpc.description/"
@@ -39,14 +35,6 @@
         {
           "name": "RedisCache",
           "url": "/api/rpc/latest/rpc.rediscache/"
-        },
-        {
-          "name": "RedisQueue",
-          "url": "/api/rpc/latest/rpc.redisqueue/"
-        },
-        {
-          "name": "UDPClusterManager",
-          "url": "/api/rpc/latest/rpc.udpclustermanager/"
         }
       ]
     },
@@ -60,19 +48,6 @@
         {
           "name": "IMQService",
           "url": "/api/rpc/latest/rpc.imqservice/"
-        }
-      ]
-    },
-    {
-      "group": "Enumerations",
-      "items": [
-        {
-          "name": "IMQMode",
-          "url": "/api/rpc/latest/rpc.imqmode/"
-        },
-        {
-          "name": "LogLevel",
-          "url": "/api/rpc/latest/rpc.loglevel/"
         }
       ]
     },
@@ -112,16 +87,12 @@
           "url": "/api/rpc/latest/rpc.lock/"
         },
         {
-          "name": "logDebugInfo({ debugTime, debugArgs, className, args, methodName, start, logger, logLevel, }, input)",
-          "url": "/api/rpc/latest/rpc.logdebuginfo/"
-        },
-        {
           "name": "logged(options)",
           "url": "/api/rpc/latest/rpc.logged/"
         },
         {
-          "name": "profile(options)",
-          "url": "/api/rpc/latest/rpc.profile/"
+          "name": "parseSourceComments(src, className)",
+          "url": "/api/rpc/latest/rpc.parsesourcecomments/"
         },
         {
           "name": "property(type, isOptional)",
@@ -142,10 +113,6 @@
         {
           "name": "send(request, response, service)",
           "url": "/api/rpc/latest/rpc.send/"
-        },
-        {
-          "name": "verifyLogLevel(level)",
-          "url": "/api/rpc/latest/rpc.verifyloglevel/"
         }
       ]
     },
@@ -165,40 +132,12 @@
           "url": "/api/rpc/latest/rpc.cachedecoratoroptions/"
         },
         {
-          "name": "DebugInfoOptions",
-          "url": "/api/rpc/latest/rpc.debuginfooptions/"
-        },
-        {
-          "name": "EventMap",
-          "url": "/api/rpc/latest/rpc.eventmap/"
-        },
-        {
           "name": "ICache",
           "url": "/api/rpc/latest/rpc.icache/"
         },
         {
           "name": "ICacheConstructor",
           "url": "/api/rpc/latest/rpc.icacheconstructor/"
-        },
-        {
-          "name": "ILogger",
-          "url": "/api/rpc/latest/rpc.ilogger/"
-        },
-        {
-          "name": "IMessage",
-          "url": "/api/rpc/latest/rpc.imessage/"
-        },
-        {
-          "name": "IMessageQueue",
-          "url": "/api/rpc/latest/rpc.imessagequeue/"
-        },
-        {
-          "name": "IMessageQueueAuthConnection",
-          "url": "/api/rpc/latest/rpc.imessagequeueauthconnection/"
-        },
-        {
-          "name": "IMessageQueueConnection",
-          "url": "/api/rpc/latest/rpc.imessagequeueconnection/"
         },
         {
           "name": "IMQAfterCall",
@@ -225,10 +164,6 @@
           "url": "/api/rpc/latest/rpc.imqmetricsserveroptions/"
         },
         {
-          "name": "IMQOptions",
-          "url": "/api/rpc/latest/rpc.imqoptions/"
-        },
-        {
           "name": "IMQRPCError",
           "url": "/api/rpc/latest/rpc.imqrpcerror/"
         },
@@ -245,24 +180,12 @@
           "url": "/api/rpc/latest/rpc.imqserviceoptions/"
         },
         {
+          "name": "IMQWrapCall",
+          "url": "/api/rpc/latest/rpc.imqwrapcall/"
+        },
+        {
           "name": "IRedisCacheOptions",
           "url": "/api/rpc/latest/rpc.irediscacheoptions/"
-        },
-        {
-          "name": "IRedisClient",
-          "url": "/api/rpc/latest/rpc.iredisclient/"
-        },
-        {
-          "name": "IServerInput",
-          "url": "/api/rpc/latest/rpc.iserverinput/"
-        },
-        {
-          "name": "JsonArray",
-          "url": "/api/rpc/latest/rpc.jsonarray/"
-        },
-        {
-          "name": "JsonObject",
-          "url": "/api/rpc/latest/rpc.jsonobject/"
         },
         {
           "name": "LockOptions",
@@ -279,10 +202,6 @@
         {
           "name": "MethodsCollectionDescription",
           "url": "/api/rpc/latest/rpc.methodscollectiondescription/"
-        },
-        {
-          "name": "ProfileDecoratorOptions",
-          "url": "/api/rpc/latest/rpc.profiledecoratoroptions/"
         },
         {
           "name": "PropertyDescription",
@@ -311,10 +230,6 @@
         {
           "name": "TypesDescription",
           "url": "/api/rpc/latest/rpc.typesdescription/"
-        },
-        {
-          "name": "UDPClusterManagerOptions",
-          "url": "/api/rpc/latest/rpc.udpclustermanageroptions/"
         }
       ]
     },
@@ -322,11 +237,11 @@
       "group": "Variables",
       "items": [
         {
-          "name": "AFTER_HOOK_ERROR",
+          "name": "AFTER\\_HOOK\\_ERROR",
           "url": "/api/rpc/latest/rpc.after_hook_error/"
         },
         {
-          "name": "BEFORE_HOOK_ERROR",
+          "name": "BEFORE\\_HOOK\\_ERROR",
           "url": "/api/rpc/latest/rpc.before_hook_error/"
         },
         {
@@ -334,55 +249,23 @@
           "url": "/api/rpc/latest/rpc.cache/"
         },
         {
-          "name": "DEFAULT_IMQ_CLIENT_OPTIONS",
+          "name": "DEFAULT\\_IMQ\\_CLIENT\\_OPTIONS",
           "url": "/api/rpc/latest/rpc.default_imq_client_options/"
         },
         {
-          "name": "DEFAULT_IMQ_METRICS_SERVER_OPTIONS",
+          "name": "DEFAULT\\_IMQ\\_METRICS\\_SERVER\\_OPTIONS",
           "url": "/api/rpc/latest/rpc.default_imq_metrics_server_options/"
         },
         {
-          "name": "DEFAULT_IMQ_OPTIONS",
-          "url": "/api/rpc/latest/rpc.default_imq_options/"
-        },
-        {
-          "name": "DEFAULT_IMQ_SERVICE_OPTIONS",
+          "name": "DEFAULT\\_IMQ\\_SERVICE\\_OPTIONS",
           "url": "/api/rpc/latest/rpc.default_imq_service_options/"
         },
         {
-          "name": "DEFAULT_REDIS_CACHE_OPTIONS",
+          "name": "DEFAULT\\_REDIS\\_CACHE\\_OPTIONS",
           "url": "/api/rpc/latest/rpc.default_redis_cache_options/"
         },
         {
-          "name": "DEFAULT_UDP_CLUSTER_MANAGER_OPTIONS",
-          "url": "/api/rpc/latest/rpc.default_udp_cluster_manager_options/"
-        },
-        {
-          "name": "IMQ_CONNECTION_QUIT_TIMEOUT",
-          "url": "/api/rpc/latest/rpc.imq_connection_quit_timeout/"
-        },
-        {
-          "name": "IMQ_LOG_ARGS",
-          "url": "/api/rpc/latest/rpc.imq_log_args/"
-        },
-        {
-          "name": "IMQ_LOG_LEVEL",
-          "url": "/api/rpc/latest/rpc.imq_log_level/"
-        },
-        {
-          "name": "IMQ_LOG_TIME_FORMAT",
-          "url": "/api/rpc/latest/rpc.imq_log_time_format/"
-        },
-        {
-          "name": "IMQ_LOG_TIME",
-          "url": "/api/rpc/latest/rpc.imq_log_time/"
-        },
-        {
-          "name": "IMQ_SHUTDOWN_TIMEOUT",
-          "url": "/api/rpc/latest/rpc.imq_shutdown_timeout/"
-        },
-        {
-          "name": "REDIS_CLIENT_INIT_ERROR",
+          "name": "REDIS\\_CLIENT\\_INIT\\_ERROR",
           "url": "/api/rpc/latest/rpc.redis_client_init_error/"
         }
       ]
@@ -395,20 +278,8 @@
           "url": "/api/rpc/latest/rpc.acquiredlock/"
         },
         {
-          "name": "AllowedTimeFormat",
-          "url": "/api/rpc/latest/rpc.allowedtimeformat/"
-        },
-        {
-          "name": "AnyJson",
-          "url": "/api/rpc/latest/rpc.anyjson/"
-        },
-        {
           "name": "ICacheAdapter",
           "url": "/api/rpc/latest/rpc.icacheadapter/"
-        },
-        {
-          "name": "IMessageQueueConstructor",
-          "url": "/api/rpc/latest/rpc.imessagequeueconstructor/"
         },
         {
           "name": "IMQLockQueue",
@@ -421,10 +292,6 @@
         {
           "name": "LoggedLogLevel",
           "url": "/api/rpc/latest/rpc.loggedloglevel/"
-        },
-        {
-          "name": "UDPWorkerOptions",
-          "url": "/api/rpc/latest/rpc.udpworkeroptions/"
         }
       ]
     }
