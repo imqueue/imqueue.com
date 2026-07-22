@@ -7,7 +7,9 @@ summary: "tRPC gives you end-to-end types between a frontend and its backend. @i
 description: "How tRPC and @imqueue differ: tRPC for typed client-server calls over HTTP in a TypeScript monorepo, @imqueue for typed service-to-service RPC over a message queue."
 keywords: "trpc vs imqueue, trpc alternative backend, typed rpc typescript, service to service rpc, imqueue, monorepo types"
 date: 2026-06-24
-author: The @imqueue team
+author: priya-nair
+illustration: boundaries
+topics: [comparison, types, rpc]
 ogType: article
 ---
 

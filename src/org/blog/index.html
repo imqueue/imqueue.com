@@ -4,29 +4,112 @@ section: blog
 title: Blog
 description: "News, releases and articles about @imqueue — the message-queue RPC framework for Node & TypeScript microservices."
 keywords: "@imqueue blog, imqueue news, imqueue releases, Node.js microservices articles, message queue RPC updates, TypeScript back-end"
+pagination:
+  data: collections.posts
+  size: 5
+  alias: pagePosts
+permalink: "/blog/{% if pagination.pageNumber > 0 %}page/{{ pagination.pageNumber | plus: 1 }}/{% endif %}"
 ---
-<section class="container" style="padding-top:56px;padding-bottom:64px;">
+<section class="container" style="padding-top:48px;padding-bottom:64px;">
   <div class="section-label" style="margin-bottom:14px;">// BLOG</div>
-  <h1 style="font-family:var(--font-display);font-weight:700;font-size:42px;letter-spacing:-.03em;margin:0 0 12px;">Blog</h1>
-  <p class="muted" style="font-size:17px;max-width:600px;margin:0 0 40px;">News, releases and articles about @imqueue.</p>
+  <h1 style="font-family:var(--font-display);font-weight:700;font-size:42px;letter-spacing:-.03em;margin:0 0 10px;">Blog</h1>
+  <p class="muted" style="font-size:17px;max-width:600px;margin:0 0 36px;">News, releases and articles about @imqueue.{% if pagination.pages.size > 1 %} <span style="font-family:var(--font-mono);font-size:14px;">Page {{ pagination.pageNumber | plus: 1 }} of {{ pagination.pages.size }}.</span>{% endif %}</p>
 
-  {% assign posts = collections.posts %}
-  {% if posts and posts.size > 0 %}
-  <div class="grid grid-2">
-    {% for post in posts reversed %}
-    <a href="{{ post.url }}" class="card" style="display:block;">
-      <div style="font-family:var(--font-mono);color:var(--muted);font-size:12px;margin-bottom:10px;">{{ post.date | date: "%b %d, %Y" }}</div>
-      <h3 style="font-size:19px;margin-bottom:8px;">{{ post.data.title }}</h3>
-      {% if post.data.summary %}<p>{{ post.data.summary }}</p>{% endif %}
-      <span style="font-family:var(--font-mono);font-size:13px;color:var(--accent);display:inline-block;margin-top:12px;">read →</span>
-    </a>
-    {% endfor %}
+  <div class="blog-layout">
+    <!-- MAIN COLUMN -->
+    <div>
+      <div class="post-list">
+        {%- for post in pagePosts -%}
+        {%- assign artPartial = "blog-art/" | append: post.data.illustration | append: ".svg" -%}
+        {%- assign a = authors | authorBySlug: post.data.author -%}
+        <a href="{{ post.url }}" class="post-card">
+          <div class="post-card-art">{% include artPartial %}</div>
+          <div class="post-card-body">
+            <div class="post-card-meta">{{ post.date | date: "%b %-d, %Y" }}{% if a %} · {{ a.name }}{% endif %}</div>
+            <h3>{{ post.data.title }}</h3>
+            {% if post.data.summary %}<p>{{ post.data.summary }}</p>{% endif %}
+            <span class="post-card-more">read →</span>
+          </div>
+        </a>
+        {%- endfor -%}
+      </div>
+
+      {%- if pagination.pages.size > 1 -%}
+      <nav class="pagination" aria-label="Blog pages">
+        {% if pagination.href.previous %}<a href="{{ pagination.href.previous }}" aria-label="Previous page">←</a>{% else %}<span class="disabled">←</span>{% endif %}
+        {%- for pageEntry in pagination.pages -%}
+          {% if forloop.index0 == pagination.pageNumber %}<span class="current" aria-current="page">{{ forloop.index }}</span>{% else %}<a href="{{ pagination.hrefs[forloop.index0] }}">{{ forloop.index }}</a>{% endif %}
+        {%- endfor -%}
+        {% if pagination.href.next %}<a href="{{ pagination.href.next }}" aria-label="Next page">→</a>{% else %}<span class="disabled">→</span>{% endif %}
+      </nav>
+      {%- endif -%}
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="blog-aside">
+      <div class="aside-box blog-search">
+        <h4>Search posts</h4>
+        <input type="search" id="blog-search-input" placeholder="Search…" autocomplete="off" aria-label="Search posts">
+        <p class="search-note" id="blog-search-note" hidden></p>
+        <ul class="search-results" id="blog-search-results"></ul>
+      </div>
+
+      <div class="aside-box">
+        <h4>Recent posts</h4>
+        <ul class="aside-links">
+          {%- for post in collections.posts limit: 8 -%}
+          <li><a href="{{ post.url }}">{{ post.data.title }}<span class="meta">{{ post.date | date: "%b %-d, %Y" }}</span></a></li>
+          {%- endfor -%}
+        </ul>
+      </div>
+
+      <div class="aside-box">
+        <h4>Authors</h4>
+        <ul class="aside-links">
+          {%- for author in authors -%}
+          <li><a href="/blog/authors/{{ author.slug }}/">{{ author.name }}<span class="meta">{{ author.occupation }}</span></a></li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    </aside>
   </div>
-  {% else %}
-  <div class="card" style="text-align:center;padding:48px 26px;">
-    <div style="font-family:var(--font-mono);color:var(--accent);font-size:13px;margin-bottom:10px;">$ git log --oneline</div>
-    <h3 style="font-size:20px;margin-bottom:8px;">No posts yet.</h3>
-    <p style="max-width:440px;margin:0 auto;">We're heads-down building. Follow the project on <a href="https://github.com/imqueue" style="color:var(--accent);">GitHub</a> for releases and updates in the meantime.</p>
-  </div>
-  {% endif %}
 </section>
+
+<script>
+(function () {
+  var input = document.getElementById('blog-search-input');
+  var out = document.getElementById('blog-search-results');
+  var note = document.getElementById('blog-search-note');
+  if (!input || !out) return;
+  var index = null, loading = false;
+
+  function load() {
+    if (index || loading) return;
+    loading = true;
+    fetch('/blog/search-index.json').then(function (r) { return r.json(); }).then(function (data) {
+      index = data;
+      if (input.value.trim()) run(input.value);
+    }).catch(function () { loading = false; });
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  function run(q) {
+    q = q.trim().toLowerCase();
+    out.innerHTML = '';
+    if (!q) { note.hidden = true; return; }
+    if (!index) { note.hidden = false; note.textContent = 'Loading…'; return; }
+    var hits = index.filter(function (p) {
+      return (p.title + ' ' + (p.summary || '') + ' ' + (p.topics || []).join(' ')).toLowerCase().indexOf(q) !== -1;
+    }).slice(0, 10);
+    if (!hits.length) { note.hidden = false; note.textContent = 'No posts match “' + q + '”.'; return; }
+    note.hidden = true;
+    out.innerHTML = hits.map(function (p) {
+      return '<li><a href="' + p.url + '">' + esc(p.title) + '<span class="meta">' + esc(p.date || '') + '</span></a></li>';
+    }).join('');
+  }
+
+  input.addEventListener('focus', load);
+  input.addEventListener('input', function () { load(); run(input.value); });
+})();
+</script>

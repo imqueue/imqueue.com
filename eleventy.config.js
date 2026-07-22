@@ -84,15 +84,47 @@ module.exports = function (eleventyConfig) {
     )
   );
 
-  // Blog posts (.org only) — src/org/blog/posts/*.md, oldest→newest by date.
+  // Blog posts (.org only) — src/org/blog/posts/*.md, newest→oldest by date.
   // Drafts (front matter `draft: true`) build to their URL but are kept out of
   // the index listing.
   eleventyConfig.addCollection("posts", (api) =>
     api
       .getFilteredByGlob("src/org/blog/posts/*.md")
       .filter((item) => !item.data.draft)
-      .sort((a, b) => a.date - b.date)
+      .sort((a, b) => b.date - a.date)
   );
+
+  // Posts written by a given author slug (newest first).
+  eleventyConfig.addFilter("byAuthor", (posts, slug) =>
+    (posts || []).filter((p) => p.data.author === slug)
+  );
+
+  // Look up a single author record by slug from the authors data list.
+  eleventyConfig.addFilter("authorBySlug", (authors, slug) =>
+    (authors || []).find((a) => a.slug === slug)
+  );
+
+  // Related posts: others sharing the most `topics` with the current one,
+  // newest first as the tie-breaker; falls back to filling with recent posts.
+  eleventyConfig.addFilter("related", (posts, currentUrl, topics, limit) => {
+    const want = new Set(topics || []);
+    const others = (posts || []).filter((p) => p.url !== currentUrl);
+    const scored = others
+      .map((p) => ({
+        p,
+        score: (p.data.topics || []).filter((t) => want.has(t)).length,
+      }))
+      .sort((a, b) => b.score - a.score || b.p.date - a.p.date);
+    const n = limit || 5;
+    const picked = scored.filter((x) => x.score > 0).slice(0, n).map((x) => x.p);
+    if (picked.length < n) {
+      for (const x of scored) {
+        if (picked.length >= n) break;
+        if (!picked.includes(x.p)) picked.push(x.p);
+      }
+    }
+    return picked;
+  });
 
   // Static assets: shared first, then the active edition's theme css (same /css dir).
   eleventyConfig.addPassthroughCopy({ "src/_shared/fonts": "fonts" });

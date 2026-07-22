@@ -2,26 +2,80 @@
 layout: base.html
 section: blog
 ---
-<article class="container" style="padding-top:56px;padding-bottom:72px;max-width:760px;">
-  <header style="margin-bottom:34px;">
-    <div class="section-label" style="margin-bottom:14px;">// BLOG</div>
-    <h1 style="font-family:var(--font-display);font-size:40px;line-height:1.12;letter-spacing:-.03em;margin:0 0 14px;">{{ title }}</h1>
-    <div style="font-family:var(--font-mono);color:var(--muted);font-size:13px;margin-bottom:8px;">
-      {% if date %}{{ date | date: "%B %-d, %Y" }}{% endif %}{% if author %} · {{ author }}{% endif %}
-    </div>
-    {% if summary %}<p class="muted" style="font-size:18px;line-height:1.6;margin:0;">{{ summary }}</p>{% endif %}
-  </header>
-  <div class="prose">
-    {{ content }}
+{%- assign a = authors | authorBySlug: author -%}
+{%- assign artPartial = "blog-art/" | append: illustration | append: ".svg" -%}
+{%- assign rel = collections.posts | related: page.url, topics, 5 -%}
+<div class="container" style="padding-top:40px;padding-bottom:72px;">
+  <a href="/blog/" class="nav-link" style="font-family:var(--font-mono);font-size:13px;color:var(--accent);">← all posts</a>
+
+  <div class="post-layout" style="margin-top:18px;">
+    <!-- ARTICLE -->
+    <article>
+      {% if illustration %}<div class="post-hero">{% include artPartial %}</div>{% endif %}
+      <header style="margin-bottom:30px;">
+        <div class="section-label" style="margin-bottom:14px;">// BLOG</div>
+        <h1 style="font-family:var(--font-display);font-size:38px;line-height:1.12;letter-spacing:-.03em;margin:0 0 16px;">{{ title }}</h1>
+        <div class="post-byline">
+          {%- if a -%}
+          {%- assign avatarPartial = "blog-art/" | append: a.avatar | append: ".svg" -%}
+          <a href="/blog/authors/{{ a.slug }}/" aria-label="{{ a.name }}">{% include avatarPartial %}</a>
+          <div class="who">
+            <div><a href="/blog/authors/{{ a.slug }}/">{{ a.name }}</a></div>
+            <div class="role">{{ a.occupation }}{% if date %} · {{ date | date: "%B %-d, %Y" }}{% endif %}</div>
+          </div>
+          {%- else -%}
+          <div class="role">{% if date %}{{ date | date: "%B %-d, %Y" }}{% endif %}</div>
+          {%- endif -%}
+        </div>
+        {% if summary %}<p class="muted" style="font-size:18px;line-height:1.6;margin:18px 0 0;">{{ summary }}</p>{% endif %}
+      </header>
+      <div class="prose">
+        {{ content }}
+      </div>
+      <hr style="margin:48px 0 24px;border:none;border-top:1px solid var(--line);">
+      <p class="muted" style="font-size:15px;">
+        Building on @imqueue? The open-source packages live on
+        <a href="https://github.com/imqueue">GitHub</a> and the docs at
+        <a href="/">imqueue.org</a>. Shipping inside a closed-source product?
+        See <a href="{{ otherUrl }}/">commercial licensing &amp; support</a>.
+      </p>
+    </article>
+
+    <!-- SIDEBAR -->
+    <aside class="post-aside">
+      {%- if a -%}
+      {%- assign avatarPartial = "blog-art/" | append: a.avatar | append: ".svg" -%}
+      <div class="aside-box">
+        <h4>Written by</h4>
+        <a href="/blog/authors/{{ a.slug }}/" class="author-chip" style="text-decoration:none;color:var(--ink);">
+          {% include avatarPartial %}
+          <span><strong>{{ a.name }}</strong><span class="meta" style="display:block;font-family:var(--font-mono);font-size:11px;color:var(--muted);">{{ a.occupation }}</span></span>
+        </a>
+      </div>
+      {%- endif -%}
+
+      {%- if rel and rel.size > 0 -%}
+      <div class="aside-box">
+        <h4>Related posts</h4>
+        <ul class="aside-links">
+          {%- for r in rel -%}
+          <li><a href="{{ r.url }}">{{ r.data.title }}<span class="meta">{{ r.date | date: "%b %-d, %Y" }}</span></a></li>
+          {%- endfor -%}
+        </ul>
+      </div>
+      {%- endif -%}
+
+      <div class="aside-box">
+        <h4>Browse</h4>
+        <ul class="aside-links">
+          <li><a href="/blog/">All posts</a></li>
+          <li><a href="/get-started/">Getting Started</a></li>
+          <li><a href="/docs/">Documentation</a></li>
+        </ul>
+      </div>
+    </aside>
   </div>
-  <hr style="margin:48px 0 24px;border:none;border-top:1px solid var(--line);">
-  <p class="muted" style="font-size:15px;">
-    Building on @imqueue? The open-source packages live on
-    <a href="https://github.com/imqueue">GitHub</a> and the docs at
-    <a href="/">imqueue.org</a>. Shipping inside a closed-source product?
-    See <a href="{{ otherUrl }}/">commercial licensing &amp; support</a>.
-  </p>
-</article>
+</div>
 
 <script type="application/ld+json">
 {
@@ -34,7 +88,7 @@ section: blog
   "inLanguage": "en",
   {% if date %}"datePublished": "{{ date | date: '%Y-%m-%d' }}",
   "dateModified": "{{ date | date: '%Y-%m-%d' }}",{% endif %}
-  "author": { "@type": "Organization", "name": "@imqueue", "url": "{{ siteUrl }}/" },
+  "author": { "@type": "Person", "name": {{ a.name | default: "@imqueue" | json }}{% if a %}, "url": "{{ siteUrl }}/blog/authors/{{ a.slug }}/"{% endif %} },
   "publisher": { "@id": "{{ siteUrl }}/#org" },
   "mainEntityOfPage": { "@type": "WebPage", "@id": "{{ siteUrl }}{{ page.url }}" }
 }
