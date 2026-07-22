@@ -1,0 +1,59 @@
+name: IndexNow on deploy
+
+# On every push to master (which also triggers the Cloudflare Pages deploy),
+# rebuild both editions to regenerate their sitemap.xml, wait for the new
+# content to actually go live, then submit the URLs to IndexNow (Bing/Yandex/
+# Seznam). Google is not an IndexNow consumer — it is driven by the sitemaps in
+# Search Console, which Cloudflare regenerates on each deploy.
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+# Only the most recent push needs to ping; cancel any in-flight older run.
+concurrency:
+  group: indexnow
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build both editions (regenerates sitemap.xml for org + com)
+        run: npm run build:all
+
+      - name: Wait for the Cloudflare Pages deploy to go live
+        # Poll each live sitemap until its set of <loc> URLs matches the freshly
+        # built one (lastmod/ordering ignored), so we only ping once the deploy
+        # actually reflects this commit. Falls through after ~12 min so a slow
+        # deploy never blocks the ping (IndexNow crawls asynchronously anyway).
+        run: |
+          set -u
+          locs() { grep -oE '<loc>[^<]+</loc>' "$1" 2>/dev/null | sort; }
+          live_locs() { curl -fsS --max-time 30 "$1" 2>/dev/null | grep -oE '<loc>[^<]+</loc>' | sort; }
+          wait_host() {
+            host="$1"; built="$2"
+            want="$(locs "$built")"
+            for i in $(seq 1 48); do
+              if [ "$(live_locs "https://$host/sitemap.xml")" = "$want" ]; then
+                echo "$host: deploy is live (attempt $i)"; return 0
+              fi
+              echo "$host: waiting for deploy… ($i/48)"; sleep 15
+            done
+            echo "::warning::$host deploy not confirmed within timeout — pinging anyway"
+          }
+          wait_host imqueue.com _site-com/sitemap.xml
+          wait_host imqueue.org _site-org/sitemap.xml
+
+      - name: Submit URLs to IndexNow
+        run: npm run indexnow:com && npm run indexnow:org
