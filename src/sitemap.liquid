@@ -15,6 +15,8 @@ eleventyExcludeFromCollections: true
   {%- if item.url contains ".txt" -%}{%- assign isPage = false -%}{%- endif -%}
   {%- if item.url contains ".xml" -%}{%- assign isPage = false -%}{%- endif -%}
   {%- if item.data.draft -%}{%- assign isPage = false -%}{%- endif -%}
+  {%- comment -%} noindex pages (e.g. archived API versions) must never be advertised in the sitemap. {%- endcomment -%}
+  {%- if item.data.noindex -%}{%- assign isPage = false -%}{%- endif -%}
   {%- comment -%} Author pages are paginated (only page 1 lands in collections.all); emitted explicitly below. {%- endcomment -%}
   {%- if item.url contains "/blog/authors/" -%}{%- assign isPage = false -%}{%- endif -%}
   {%- if isPage -%}
