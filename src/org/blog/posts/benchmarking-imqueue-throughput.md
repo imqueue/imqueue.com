@@ -3,8 +3,8 @@ layout: post.html
 permalink: /blog/benchmarking-imqueue-throughput/
 templateEngineOverride: md
 title: "Benchmarking @imqueue: throughput, delivery modes, and how to measure your own"
-summary: "The published throughput numbers for @imqueue's message queue, what the two delivery modes cost, and a reproducible harness so you can measure the figures that actually matter — yours."
-description: "Published throughput figures for @imqueue/core's message queue, the cost of guaranteed vs unreliable delivery, and a reproducible way to benchmark it on your own hardware."
+summary: "Real measured throughput for @imqueue's message queue — ~200k msg/sec unreliable, ~120k guaranteed on a 24-core box — what the delivery modes cost, and a reproducible harness to measure the figures that matter: yours."
+description: "Measured throughput figures for @imqueue/core's message queue (round-trip ~200k msg/sec unreliable, ~120k guaranteed), the cost of guaranteed vs unreliable delivery and gzip, and a reproducible way to benchmark it on your own hardware."
 keywords: "imqueue benchmark, message queue throughput, nodejs message queue performance, guaranteed delivery cost, imqueue performance, rpc benchmark"
 date: 2026-06-07
 author: mykhailo-stadnyk
@@ -13,24 +13,33 @@ topics: [performance, queue, benchmark]
 ogType: article
 ---
 
-Performance claims are only useful if you can reproduce them, so this post does two things: it reports the throughput figures `@imqueue/core` publishes, and it shows you how to run the benchmark yourself — because the only numbers that matter for your decision are the ones from *your* hardware and *your* message shapes.
+Performance claims are only useful if you can reproduce them, so this post does two things: it reports figures from a real `@imqueue/core` benchmark run, and it shows you how to run the same benchmark yourself — because the only numbers that matter for your decision are the ones from *your* hardware and *your* message shapes.
 
-> A note on honesty: the figures below are `@imqueue/core`'s own published benchmark results and are **hardware-dependent** (they were measured on an i7-class CPU). We deliberately don't print head-to-head numbers against other frameworks here, because a fair cross-framework benchmark has to run on identical hardware, message sizes, and delivery guarantees — see "Comparing fairly" at the end for how to do that yourself.
+> A note on honesty: the figures below are from one benchmark run and are **hardware-dependent** — see the exact rig under the table. We deliberately don't print head-to-head numbers against other frameworks here, because a fair cross-framework benchmark has to run on identical hardware, message sizes, and delivery guarantees — see "Comparing fairly" at the end for how to do that yourself.
 
-## The published figures
+## The measured figures
 
-On an i7-class core, `@imqueue/core`'s reference benchmark reports, for 1 KB messages:
+These come from the benchmark that ships with `@imqueue/core`, run in July 2026 on:
 
-| Mode | Throughput (approx.) | Notes |
+- **CPU:** Intel Core Ultra 9 275HX (24 cores) · **RAM:** 61 GB · **OS:** Linux (x64) · **Node.js:** 24.15.0
+- **22 worker processes** (cores − 2), each with a dedicated CPU core and Redis pinned to its own core
+- **~1 KB messages** (1,030-byte JSON payload)
+
+Throughput is reported as **round-trip messages/second** — a full send→receive cycle, summed across all workers:
+
+| Mode | Round-trip throughput | Notes |
 |---|---|---|
-| Unreliable delivery | ~35,000–40,000 msg/s | Fastest; a consumer that dies mid-message loses it |
-| Guaranteed (safe) delivery | ~20,000–25,000 msg/s | ~1.5–2× slower; a lost message is rescheduled |
-| Delayed messages | ~10,000 msg/s | For scheduled/delayed delivery |
+| Unreliable delivery (default) | **~200,000 msg/sec** (196k–208k) | Fastest; a consumer that dies mid-message loses it |
+| Guaranteed (safe) delivery | **~120,000 msg/sec** (118k–129k) | A message a crashed consumer was holding is rescheduled |
+| Guaranteed + gzip | ~100,000–105,000 msg/sec | Payload compressed ~1,030 → ~322 bytes (≈70% less traffic) |
 
-Two things are worth internalizing from this table:
+Three things worth internalizing:
 
-1. **Guaranteed delivery isn't free, but it isn't catastrophic either.** Roughly halving throughput to never lose a message is a trade many workloads will happily make. You choose per queue, so latency-critical paths can stay in the fast mode while critical ones run safe.
-2. **No polling means idle queues cost nothing.** The implementation uses blocking queue operations rather than timers, so throughput is the interesting number — there's no baseline CPU burn when the system is quiet.
+1. **Guaranteed delivery costs throughput, but not dramatically.** Safe mode runs at roughly 60% of unreliable throughput here (about 1.7× slower) — a trade many workloads happily make to never silently lose a message. You choose per queue, so latency-critical paths can stay in the fast mode while critical ones run safe.
+2. **gzip trades CPU for traffic, not free speed.** Compression cut each 1 KB message to ~322 bytes on the wire (~70% less Redis traffic) but *lowered* throughput, because encoding/decoding costs CPU. Turn it on when bandwidth is the bottleneck, not when throughput is.
+3. **No polling means idle queues cost nothing.** The implementation uses blocking queue operations rather than timers, so throughput is the interesting number — there's no baseline CPU burn when the system is quiet.
+
+(These are aggregate round-trip figures across 22 workers pushing hundreds of thousands of messages per run, at average end-to-end delivery times of ~2–4 seconds for the full batch — not per-message latency. Measure percentiles on your own workload; see below.)
 
 ## Why the delivery modes differ
 
@@ -44,7 +53,9 @@ The harness ships with the repo. With a local Redis running:
 git clone https://github.com/imqueue/core.git
 cd core
 npm install
-node benchmark -c 4 -m 10000
+npm run benchmark              # auto: (cores - 2) workers, 100k msgs each
+# or drive it directly, e.g. the run above (22 workers, 20k msgs each):
+node benchmark -c 22 -m 20000
 ```
 
 Useful flags:
