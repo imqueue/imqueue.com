@@ -1,0 +1,14 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <rect width="480" height="260" rx="0" fill="var(--accent)" opacity="0.05"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="40" y="100" width="96" height="60" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="88" y="135" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="15" fill="var(--accent)" stroke="none">call</text>
+    <line x1="140" y1="130" x2="200" y2="130" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 200 130 l -7 -4 m 7 4 l -7 4" stroke="var(--accent)" stroke-width="2"/>
+    <text x="170" y="118" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">now</text>
+    <circle cx="300" cy="130" r="42" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 300 130 L 300 104 M 300 130 L 322 138" stroke="var(--accent)" stroke-width="2.5"/>
+    <text x="300" y="210" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">later / job</text>
+    <line x1="384" y1="130" x2="440" y2="130" stroke="var(--muted)" stroke-width="2" stroke-dasharray="4 6"/>
+  </g>
+</svg>

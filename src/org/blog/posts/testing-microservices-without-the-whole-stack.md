@@ -7,7 +7,9 @@ summary: "Integration tests that require every service and its infrastructure ru
 description: "A practical, layered strategy for testing Node.js microservices that call each other — unit-testing service classes directly and using typed generated clients as seams — with @imqueue."
 keywords: "test microservices nodejs, mock service calls typescript, integration test microservices, testing service to service, imqueue"
 date: 2026-06-09
-author: The @imqueue team
+author: dan-ivanov
+illustration: testing
+topics: [testing, dx, clients]
 ogType: article
 ---
 

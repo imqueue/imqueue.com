@@ -1,0 +1,9 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <rect width="480" height="260" rx="0" fill="var(--accent)" opacity="0.05"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="120" y="96" width="150" height="96" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 120 104 L 195 150 L 270 104" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 330 78 L 388 100 L 388 150 Q 388 190 330 208 Q 300 196 300 150 L 300 100 Z" fill="var(--accent)" fill-opacity="0.10" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 320 150 l 12 14 l 26 -30" stroke="var(--accent)" stroke-width="2.5"/>
+  </g>
+</svg>

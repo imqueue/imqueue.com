@@ -7,7 +7,9 @@ summary: "Every service you call needs a client, and hand-maintained clients dri
 description: "Why hand-written microservice clients and SDKs rot, and how self-describing services with generated typed clients keep callers in sync automatically."
 keywords: "generate typed api client typescript, stop writing api clients, sdk maintenance microservices, microservice client generation, imqueue"
 date: 2026-07-21
-author: The @imqueue team
+author: dan-ivanov
+illustration: generated-client
+topics: [clients, types, dx]
 ogType: article
 ---
 
