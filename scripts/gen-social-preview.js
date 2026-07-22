@@ -70,10 +70,12 @@ const CARDS = [
   { repo: "cli", name: "@imqueue/cli", tagline: "Scaffolding & typed-client generation", cmd: "npm i -g @imqueue/cli" },
   { repo: "job", name: "@imqueue/job", tagline: "Simple, safe-by-default Redis job queue", cmd: "npm i @imqueue/job" },
   { repo: "pg-pubsub", name: "@imqueue/pg-pubsub", tagline: "Reliable PostgreSQL LISTEN/NOTIFY", tagline2: "with inter-process lock support", cmd: "npm i @imqueue/pg-pubsub" },
-  // Not npm packages (UDP-based Redis broker-discovery nodes) — no install
-  // command, so they show a context tag instead of a `$ npm i` line.
-  { repo: "redis-broker-promoter", name: "redis-broker-promoter", tagline: "Announces a Redis server on startup", tagline2: "over UDP for automatic broker discovery", tag: "UDP broadcast · Redis · service discovery" },
-  { repo: "redis-broker-unicaster", name: "redis-broker-unicaster", tagline: "Delivers Redis broker messages over UDP", tagline2: "to the Kubernetes pod IPs it discovers", tag: "UDP unicast · Redis · Kubernetes" },
+  // Not npm packages (UDP nodes that announce new Redis broker instances so the
+  // message bus scales out horizontally) — no install command, so they show a
+  // context tag instead of a `$ npm i` line. Promoter broadcasts (where allowed);
+  // unicaster sends direct unicast to discovered pods where broadcast is blocked.
+  { repo: "redis-broker-promoter", name: "redis-broker-promoter", tagline: "Announces new Redis broker instances", tagline2: "for horizontal message-bus auto-scaling", tag: "UDP broadcast · Redis · auto-scaling" },
+  { repo: "redis-broker-unicaster", name: "redis-broker-unicaster", tagline: "Unicasts new Redis brokers to cluster pods", tagline2: "where broadcast is blocked (e.g. GCP VPC)", tag: "UDP unicast · Kubernetes · auto-scaling" },
 ];
 
 // Fit the package name: shrink font so it never collides with the right edge.
