@@ -57,11 +57,15 @@ function main() {
         if (base === 'index' || base === pkg.name) return `${base_}/`;
         return `${base_}/${base}/`;
       };
-      // rewrite intra-doc markdown links: [x](./foo.md#a) -> [x](/api/<pkg>/latest/foo/#a)
-      const rewriteLinks = (text) => text.replace(
-        /\]\((?:\.\/)?([A-Za-z0-9._-]+)\.md(#[^)]*)?\)/g,
-        (_m, name, anchor) => `](${urlFor(name)}${anchor || ''})`,
-      );
+      // rewrite intra-doc markdown links: [x](./foo.md#a) -> [x](/api/<pkg>/latest/foo/#a).
+      // The api-documenter breadcrumb "Home" points at the model root (index.md);
+      // send it to the API landing page /api/ instead of the package root.
+      const rewriteLinks = (text) => text
+        .replace(/\[Home\]\((?:\.\/)?index\.md\)/g, '[Home](/api/)')
+        .replace(
+          /\]\((?:\.\/)?([A-Za-z0-9._-]+)\.md(#[^)]*)?\)/g,
+          (_m, name, anchor) => `](${urlFor(name)}${anchor || ''})`,
+        );
 
       // 1. build sibling -> fresh .d.ts
       sh('npm run build', pkg.repo);
