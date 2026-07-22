@@ -86,10 +86,25 @@ section: blog
   {% if summary %}"description": {{ summary | json }},{% endif %}
   "url": "{{ siteUrl }}{{ page.url }}",
   "inLanguage": "en",
+  "articleSection": "Blog",
+  {% if ogImage %}"image": {{ ogImage | json }},{% endif %}
+  {% if keywords %}"keywords": {{ keywords | json }},{% endif %}
   {% if date %}"datePublished": "{{ date | date: '%Y-%m-%d' }}",
   "dateModified": "{{ date | date: '%Y-%m-%d' }}",{% endif %}
   "author": { "@type": "Person", "name": {{ a.name | default: "@imqueue" | json }}{% if a %}, "url": "{{ siteUrl }}/blog/authors/{{ a.slug }}/"{% endif %} },
   "publisher": { "@id": "{{ siteUrl }}/#org" },
   "mainEntityOfPage": { "@type": "WebPage", "@id": "{{ siteUrl }}{{ page.url }}" }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{ siteUrl }}/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "{{ siteUrl }}/blog/" },
+    { "@type": "ListItem", "position": 3, "name": {{ title | json }}, "item": "{{ siteUrl }}{{ page.url }}" }
+  ]
 }
 </script>

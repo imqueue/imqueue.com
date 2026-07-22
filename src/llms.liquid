@@ -48,8 +48,14 @@ The open-source packages (@imqueue/core, @imqueue/rpc, @imqueue/cli) and their d
 - [API Documentation]({{ siteUrl }}/api/): Full generated API reference for @imqueue/core and @imqueue/rpc (classes, interfaces, methods, types).
 - [Documentation home]({{ siteUrl }}/docs/): Entry point to all @imqueue documentation.
 
+## Articles
+{%- for post in collections.posts %}
+- [{{ post.data.title }}]({{ siteUrl }}{{ post.url }}){% if post.data.summary %}: {{ post.data.summary | strip_newlines }}{% endif %}
+{%- endfor %}
+
 ## Full text
-- [llms-full.txt]({{ siteUrl }}/llms-full.txt): The complete documentation concatenated as a single markdown file for ingestion.
+- [llms-full.txt]({{ siteUrl }}/llms-full.txt): The complete documentation and articles concatenated as a single markdown file for ingestion.
+- [Blog feed]({{ siteUrl }}/blog/feed.xml): Atom feed of new articles.
 
 ## Commercial
 - [Commercial license & support](https://imqueue.com/): Ship @imqueue inside a closed-source product and get SLA-backed support.

@@ -17,6 +17,7 @@ A commercial license lets you ship @imqueue inside a closed-source product witho
 {%- assign isMd = false -%}
 {%- if item.inputPath contains ".md" -%}{%- assign isMd = true -%}{%- endif -%}
 {%- if item.url contains "/api/" -%}{%- assign isMd = false -%}{%- endif -%}
+{%- if item.data.draft -%}{%- assign isMd = false -%}{%- endif -%}
 {%- if isMd -%}
 {%- assign body = item.rawInput | replace: "[[toc]]", "" -%}
 

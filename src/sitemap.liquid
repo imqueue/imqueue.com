@@ -14,6 +14,7 @@ eleventyExcludeFromCollections: true
   {%- if item.url contains ".md" -%}{%- assign isPage = false -%}{%- endif -%}
   {%- if item.url contains ".txt" -%}{%- assign isPage = false -%}{%- endif -%}
   {%- if item.url contains ".xml" -%}{%- assign isPage = false -%}{%- endif -%}
+  {%- if item.data.draft -%}{%- assign isPage = false -%}{%- endif -%}
   {%- if isPage -%}
     {%- comment -%} Priority: home first, human docs next, generated API reference last. {%- endcomment -%}
     {%- assign prio = "0.7" -%}
