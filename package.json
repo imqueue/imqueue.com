@@ -40,7 +40,8 @@
     "sync-cli-guide": "node scripts/sync-cli-wiki.js",
     "sync-cli-guide:check": "node scripts/sync-cli-wiki.js --check",
     "indexnow:org": "node scripts/indexnow-ping.js org",
-    "indexnow:com": "node scripts/indexnow-ping.js com"
+    "indexnow:com": "node scripts/indexnow-ping.js com",
+    "gen-syndication": "node scripts/gen-syndication.js"
   },
   "repository": {
     "type": "git",
