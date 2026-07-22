@@ -1,0 +1,12 @@
+# imqueue.org — Cloudflare Pages redirects.
+#
+# The generated API reference now lives at a stable /api/<pkg>/latest/ path
+# (it used to be version-numbered). 301 the retired version-numbered URLs to
+# /latest/ so old links, bookmarks and search rankings carry over instead of
+# 404-ing. Only the previously-published "latest" version (3.2.1) is retired
+# here; the older-version archives under /api/ stay reachable as-is.
+
+/api/core/3.2.1      /api/core/latest/          301
+/api/core/3.2.1/*    /api/core/latest/:splat    301
+/api/rpc/3.2.1       /api/rpc/latest/           301
+/api/rpc/3.2.1/*     /api/rpc/latest/:splat     301
