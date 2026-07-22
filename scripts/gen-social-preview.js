@@ -70,16 +70,21 @@ const CARDS = [
   { repo: "cli", name: "@imqueue/cli", tagline: "Scaffolding & typed-client generation", cmd: "npm i -g @imqueue/cli" },
   { repo: "job", name: "@imqueue/job", tagline: "Simple, safe-by-default Redis job queue", cmd: "npm i @imqueue/job" },
   { repo: "pg-pubsub", name: "@imqueue/pg-pubsub", tagline: "Reliable PostgreSQL LISTEN/NOTIFY", tagline2: "with inter-process lock support", cmd: "npm i @imqueue/pg-pubsub" },
+  // Not npm packages (UDP-based Redis broker-discovery nodes) — no install
+  // command, so they show a context tag instead of a `$ npm i` line.
+  { repo: "redis-broker-promoter", name: "redis-broker-promoter", tagline: "Announces a Redis server on startup", tagline2: "over UDP for automatic broker discovery", tag: "UDP broadcast · Redis · service discovery" },
+  { repo: "redis-broker-unicaster", name: "redis-broker-unicaster", tagline: "Delivers Redis broker messages over UDP", tagline2: "to the Kubernetes pod IPs it discovers", tag: "UDP unicast · Redis · Kubernetes" },
 ];
 
 // Fit the package name: shrink font so it never collides with the right edge.
 function nameSize(name) {
   if (name.length <= 8) return 96;   // "@imqueue"
   if (name.length <= 13) return 78;  // "@imqueue/core"
-  return 70;
+  if (name.length <= 18) return 70;  // "@imqueue/pg-pubsub"
+  return 62;                         // "redis-broker-unicaster"
 }
 
-function card({ name, tagline, tagline2, cmd }) {
+function card({ name, tagline, tagline2, cmd, tag }) {
   const ns = nameSize(name);
   // One-line tagline sits at y=372 with the command at 486; a second tagline
   // line tightens the two together and pushes the command down.
@@ -89,6 +94,13 @@ function card({ name, tagline, tagline2, cmd }) {
   <text x="100" y="${ty1 + 52}" font-family="${MONO}" font-weight="400" font-size="40" fill="#d5e2db">${esc(tagline2)}</text>`
     : `<text x="100" y="${ty1}" font-family="${MONO}" font-weight="400" font-size="40" fill="#d5e2db">${esc(tagline)}</text>`;
   const cmdY = tagline2 ? 504 : 486;
+  // Prominent green `$ npm i …` for packages; a muted `// tag` for repos with
+  // no install command (e.g. deployable infra nodes).
+  const actionLine = cmd
+    ? `<text x="100" y="${cmdY}" font-family="${MONO}" font-weight="700" font-size="32" fill="#63e6a0"><tspan fill="#35d0e0">$</tspan> ${esc(cmd)}</text>`
+    : tag
+    ? `<text x="100" y="${cmdY}" font-family="${MONO}" font-weight="700" font-size="30" fill="#7f8f89"><tspan fill="#35d0e0">//</tspan> ${esc(tag)}</text>`
+    : "";
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
   <defs>
     <linearGradient id="gt" x1="0" y1="0" x2="1" y2="1">
@@ -111,7 +123,7 @@ function card({ name, tagline, tagline2, cmd }) {
 
   ${taglineBlock}
 
-  <text x="100" y="${cmdY}" font-family="${MONO}" font-weight="700" font-size="32" fill="#63e6a0"><tspan fill="#35d0e0">$</tspan> ${esc(cmd)}</text>
+  ${actionLine}
 
   <text x="100" y="590" font-family="${MONO}" font-weight="700" font-size="28" fill="#7f8f89">open source · GPL-3.0</text>
   <text x="1180" y="590" text-anchor="end" font-family="${MONO}" font-weight="700" font-size="28" fill="#7f8f89">imqueue.org</text>
