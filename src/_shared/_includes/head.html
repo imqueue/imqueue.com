@@ -13,7 +13,7 @@
 <meta name="description" content="{{ metaDesc }}">
 <meta name="keywords" content="{{ keywords | default: siteKeywords }}">
 <meta name="author" content="{{ siteName }}">
-<meta name="robots" content="{% if draft %}noindex, follow{% else %}index, follow, max-image-preview:large, max-snippet:-1{% endif %}">
+<meta name="robots" content="{% if draft or noindex %}noindex, follow{% else %}index, follow, max-image-preview:large, max-snippet:-1{% endif %}">
 <meta name="theme-color" content="{{ themeColor }}">
 <link rel="canonical" href="{{ metaUrl }}">
 {%- if pagination %}
