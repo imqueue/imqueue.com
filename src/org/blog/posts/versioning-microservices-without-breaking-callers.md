@@ -7,7 +7,7 @@ summary: "A change to one service's method quietly breaks the services that call
 description: "Strategies for versioning Node.js microservices without silently breaking callers: compile-time breakage via regenerated typed clients and coordinated fleet-wide version bumps with @imqueue."
 keywords: "microservice versioning nodejs, breaking change microservices, coordinate service releases, api versioning, imqueue"
 date: 2026-07-02
-author: dan-ivanov
+author: serhiy-morenko
 illustration: versioning
 topics: [versioning, types, dx]
 ogType: article

@@ -7,7 +7,7 @@ summary: "Why route internal service-to-service calls through a message queue in
 description: "A practical look at doing RPC between Node.js & TypeScript microservices over a message queue instead of HTTP or gRPC, with a working @imqueue example."
 keywords: "message queue RPC, Node.js microservices RPC, TypeScript microservices, imqueue, service-to-service communication, no HTTP RPC, queue-based RPC"
 date: 2026-07-22
-author: maya-torres
+author: mykhailo-stadnyk
 illustration: queue-rpc
 topics: [rpc, queue, architecture]
 ogType: article

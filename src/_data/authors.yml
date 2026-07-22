@@ -1,29 +1,27 @@
-# Blog authors (fictional @imqueue team personas — rename/replace freely).
-# `avatar` names an SVG partial in _shared/_includes/blog-art/avatar-<slug>.svg
-- slug: maya-torres
-  name: Maya Torres
-  occupation: Principal Engineer — Distributed Systems
-  avatar: avatar-maya-torres
+# Blog authors — real @imqueue maintainers. `avatar` is an image path;
+# `github` feeds Person/sameAs schema.
+- slug: mykhailo-stadnyk
+  name: Mykhailo Stadnyk
+  occupation: Creator & maintainer of @imqueue
+  avatar: /images/authors/mykhailo-stadnyk.png
+  github: https://github.com/Mikhus
   bio: >
-    Maya works on the messaging and RPC internals of @imqueue, and spends most
-    of the day thinking about delivery guarantees, back-pressure, and how to make
-    service-to-service calls feel like ordinary function calls. Before @imqueue,
-    they built and operated large event-driven back-ends and learned most of these
-    lessons the hard way, in production.
-- slug: dan-ivanov
-  name: Dan Ivanov
-  occupation: Staff Back-end Engineer
-  avatar: avatar-dan-ivanov
+    Web developer, software engineer and architect — mainly TypeScript, Go,
+    JavaScript, Node.js, Python and C. Mykhailo is the creator and maintainer of
+    the @imqueue framework.
+- slug: serhiy-morenko
+  name: Serhiy Morenko
+  occupation: Maintainer, @imqueue
+  avatar: /images/authors/serhiy-morenko.png
+  github: https://github.com/SerhiyGreench
   bio: >
-    Dan focuses on the developer experience of building services — scaffolding,
-    typed client generation, and the tooling that removes boilerplate. They care
-    a lot about keeping the simple things simple and making breaking changes loud
-    at build time instead of silent in production.
-- slug: priya-nair
-  name: Priya Nair
-  occupation: Developer Advocate
-  avatar: avatar-priya-nair
+    Software engineer and a maintainer of the @imqueue framework, working on the
+    RPC, tooling and service internals.
+- slug: andrii
+  name: Andrii
+  occupation: Maintainer, @imqueue
+  avatar: /images/authors/andrii.png
+  github: https://github.com/creomobile
   bio: >
-    Priya writes about patterns for Node.js and TypeScript microservices and helps
-    teams adopt @imqueue without over-engineering. They enjoy turning a gnarly
-    architecture problem into a short, honest explanation — trade-offs included.
+    Software engineer and a maintainer of the @imqueue framework, contributing
+    across its packages and developer tooling.

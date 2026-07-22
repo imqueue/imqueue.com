@@ -7,7 +7,7 @@ summary: "Both move messages through a queue — but BullMQ is a background-job 
 description: "The difference between @imqueue (request/response RPC) and BullMQ (background job/task queue over Redis), and when to use each — or both together."
 keywords: "imqueue vs bullmq, bullmq alternative, redis job queue, background jobs nodejs, task queue vs rpc, request response vs job queue"
 date: 2026-06-12
-author: priya-nair
+author: andrii
 illustration: rpc-vs-jobs
 topics: [comparison, queue, jobs]
 ogType: article

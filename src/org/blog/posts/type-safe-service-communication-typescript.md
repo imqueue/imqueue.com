@@ -7,7 +7,7 @@ summary: "End-to-end types across service boundaries are easy inside one process
 description: "How to get compile-time-safe communication between TypeScript microservices without hand-written clients or a separate IDL, using self-describing @imqueue services."
 keywords: "type-safe microservices, TypeScript RPC, typed service communication, generated clients, imqueue, end-to-end types, self-describing services"
 date: 2026-07-19
-author: dan-ivanov
+author: serhiy-morenko
 illustration: types
 topics: [types, rpc, dx]
 ogType: article
