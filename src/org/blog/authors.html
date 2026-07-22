@@ -21,6 +21,11 @@ eleventyComputed:
       <h1 style="font-family:var(--font-display);font-size:34px;line-height:1.1;margin:0 0 6px;">{{ author.name }}</h1>
       <div style="font-family:var(--font-mono);color:var(--accent);font-size:14px;margin-bottom:14px;">{{ author.occupation }}</div>
       <p class="muted" style="font-size:16px;line-height:1.7;margin:0;max-width:640px;">{{ author.bio }}</p>
+      {%- if author.github -%}
+      <p class="author-links" style="margin:14px 0 0;font-family:var(--font-mono);font-size:14px;">
+        <a href="{{ author.github }}" rel="me noopener" target="_blank" style="color:var(--accent);">GitHub&nbsp;↗ @{{ author.github | split: "/" | last }}</a>
+      </p>
+      {%- endif -%}
     </div>
   </header>
 
