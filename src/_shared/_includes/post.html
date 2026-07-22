@@ -1,0 +1,41 @@
+---
+layout: base.html
+section: blog
+---
+<article class="container" style="padding-top:56px;padding-bottom:72px;max-width:760px;">
+  <header style="margin-bottom:34px;">
+    <div class="section-label" style="margin-bottom:14px;">// BLOG</div>
+    <h1 style="font-family:var(--font-display);font-size:40px;line-height:1.12;letter-spacing:-.03em;margin:0 0 14px;">{{ title }}</h1>
+    <div style="font-family:var(--font-mono);color:var(--muted);font-size:13px;margin-bottom:8px;">
+      {% if date %}{{ date | date: "%B %-d, %Y" }}{% endif %}{% if author %} · {{ author }}{% endif %}
+    </div>
+    {% if summary %}<p class="muted" style="font-size:18px;line-height:1.6;margin:0;">{{ summary }}</p>{% endif %}
+  </header>
+  <div class="prose">
+    {{ content }}
+  </div>
+  <hr style="margin:48px 0 24px;border:none;border-top:1px solid var(--line);">
+  <p class="muted" style="font-size:15px;">
+    Building on @imqueue? The open-source packages live on
+    <a href="https://github.com/imqueue">GitHub</a> and the docs at
+    <a href="/">imqueue.org</a>. Shipping inside a closed-source product?
+    See <a href="{{ otherUrl }}/">commercial licensing &amp; support</a>.
+  </p>
+</article>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "@id": "{{ siteUrl }}{{ page.url }}#post",
+  "headline": {{ title | json }},
+  {% if summary %}"description": {{ summary | json }},{% endif %}
+  "url": "{{ siteUrl }}{{ page.url }}",
+  "inLanguage": "en",
+  {% if date %}"datePublished": "{{ date | date: '%Y-%m-%d' }}",
+  "dateModified": "{{ date | date: '%Y-%m-%d' }}",{% endif %}
+  "author": { "@type": "Organization", "name": "@imqueue", "url": "{{ siteUrl }}/" },
+  "publisher": { "@id": "{{ siteUrl }}/#org" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "{{ siteUrl }}{{ page.url }}" }
+}
+</script>
