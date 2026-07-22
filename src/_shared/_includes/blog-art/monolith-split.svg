@@ -1,5 +1,4 @@
 <svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
-  <rect width="480" height="260" rx="0" fill="var(--accent)" opacity="0.05"/>
   <g fill="none" stroke-linecap="round" stroke-linejoin="round">
     <rect x="46" y="86" width="120" height="88" rx="10" fill="var(--muted)" fill-opacity="0.18" stroke="var(--muted)" stroke-width="2"/>
     <line x1="176" y1="130" x2="236" y2="130" stroke="var(--accent)" stroke-width="2"/>
