@@ -20,6 +20,8 @@ layout: base.html
       {{ content }}
     </article>
 
+    {% include "related-reading.html" %}
+
     <nav class="tut-nav">
       {% if tutPrev %}<a href="{{ tutPrev.url }}" class="prev">← {{ tutPrev.title }}</a>{% else %}<span></span>{% endif %}
       {% if tutNext %}<a href="{{ tutNext.url }}" class="next">{{ tutNext.title }} →</a>{% endif %}

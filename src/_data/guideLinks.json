@@ -1,0 +1,75 @@
+{
+  "rpc": [
+    { "title": "Getting Started", "url": "/get-started/" },
+    { "title": "IMQService (API)", "url": "/api/rpc/latest/rpc.imqservice/" },
+    { "title": "@expose decorator (API)", "url": "/api/rpc/latest/rpc.expose/" }
+  ],
+  "clients": [
+    { "title": "CLI: clients & versioning", "url": "/cli/clients-and-versioning/" },
+    { "title": "IMQClient (API)", "url": "/api/rpc/latest/rpc.imqclient/" }
+  ],
+  "types": [
+    { "title": "CLI: clients & versioning", "url": "/cli/clients-and-versioning/" },
+    { "title": "IMQClient (API)", "url": "/api/rpc/latest/rpc.imqclient/" }
+  ],
+  "dx": [
+    { "title": "Create services with the CLI", "url": "/cli/creating-services/" },
+    { "title": "Using @imqueue with AI assistants", "url": "/using-ai-assistants/" }
+  ],
+  "tooling": [
+    { "title": "CLI manual", "url": "/cli/" },
+    { "title": "Create services with the CLI", "url": "/cli/creating-services/" }
+  ],
+  "versioning": [
+    { "title": "CLI: clients & versioning", "url": "/cli/clients-and-versioning/" }
+  ],
+  "queue": [
+    { "title": "ClusteredRedisQueue (API)", "url": "/api/core/latest/core.clusteredredisqueue/" },
+    { "title": "@imqueue/core API reference", "url": "/api/core/latest/" }
+  ],
+  "delivery": [
+    { "title": "IMQDelay (API)", "url": "/api/rpc/latest/rpc.imqdelay/" }
+  ],
+  "resilience": [
+    { "title": "IMQLock (API)", "url": "/api/rpc/latest/rpc.lock/" },
+    { "title": "IMQDelay (API)", "url": "/api/rpc/latest/rpc.imqdelay/" }
+  ],
+  "backpressure": [
+    { "title": "IMQDelay (API)", "url": "/api/rpc/latest/rpc.imqdelay/" },
+    { "title": "@imqueue/core API reference", "url": "/api/core/latest/" }
+  ],
+  "architecture": [
+    { "title": "Tutorial: build a system", "url": "/tutorial/" },
+    { "title": "Getting Started", "url": "/get-started/" }
+  ],
+  "migration": [
+    { "title": "Tutorial: build a system", "url": "/tutorial/" },
+    { "title": "Getting Started", "url": "/get-started/" }
+  ],
+  "testing": [
+    { "title": "Tutorial: build a system", "url": "/tutorial/" }
+  ],
+  "comparison": [
+    { "title": "Documentation", "url": "/docs/" },
+    { "title": "Getting Started", "url": "/get-started/" }
+  ],
+  "frameworks": [
+    { "title": "Documentation", "url": "/docs/" }
+  ],
+  "transport": [
+    { "title": "Getting Started", "url": "/get-started/" },
+    { "title": "@imqueue/rpc API reference", "url": "/api/rpc/latest/" }
+  ],
+  "discovery": [
+    { "title": "Tutorial: build a system", "url": "/tutorial/" }
+  ],
+  "load-balancing": [
+    { "title": "ClusteredRedisQueue (API)", "url": "/api/core/latest/core.clusteredredisqueue/" }
+  ],
+  "patterns": [
+    { "title": "@imqueue/core API reference", "url": "/api/core/latest/" }
+  ],
+  "jobs": [
+    { "title": "@imqueue/core API reference", "url": "/api/core/latest/" }
+  ]
+}
