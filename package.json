@@ -38,7 +38,9 @@
     "gen-og-blog": "node scripts/gen-og-blog.js",
     "build-docs": "node api-docs",
     "sync-cli-guide": "node scripts/sync-cli-wiki.js",
-    "sync-cli-guide:check": "node scripts/sync-cli-wiki.js --check"
+    "sync-cli-guide:check": "node scripts/sync-cli-wiki.js --check",
+    "indexnow:org": "node scripts/indexnow-ping.js org",
+    "indexnow:com": "node scripts/indexnow-ping.js com"
   },
   "repository": {
     "type": "git",
