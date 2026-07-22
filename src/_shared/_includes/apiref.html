@@ -16,6 +16,14 @@ layout: base.html
   </aside>
 
   <article class="prose api-prose">
+    {%- if apiVersionPath and apiVersionPath != 'latest' -%}
+    {%- capture latestFallback -%}/api/{{ apiPkg }}/latest/{%- endcapture -%}
+    {%- assign latestHref = latestUrl | default: latestFallback -%}
+    <div class="api-archived-banner" role="note">
+      <span>You're viewing <strong>archived</strong> documentation for <strong>@imqueue/{{ apiPkg }} v{{ apiVersion }}</strong>. APIs may differ from the current release.</span>
+      <a href="{{ latestHref }}">View the latest version&nbsp;↗</a>
+    </div>
+    {%- endif -%}
     {{ content }}
   </article>
 </div>
