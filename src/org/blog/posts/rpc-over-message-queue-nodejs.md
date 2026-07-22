@@ -1,6 +1,6 @@
 ---
 layout: post.html
-permalink: /blog/rpc-over-redis-nodejs/
+permalink: /blog/rpc-over-message-queue-nodejs/
 templateEngineOverride: md
 title: "RPC between Node.js microservices over a message queue — no HTTP, no gRPC"
 summary: "Why route internal service-to-service calls through a message queue instead of HTTP or gRPC — and how @imqueue makes those calls fully typed with zero client boilerplate."
