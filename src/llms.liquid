@@ -46,6 +46,13 @@ The open-source packages (@imqueue/core, @imqueue/rpc, @imqueue/cli) and their d
 {%- endif -%}
 {%- endfor %}
 
+## MCP Server
+{%- for item in collections.all -%}
+{%- if item.url contains "/mcp/" %}
+- [{{ item.data.title | default: item.url }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %}
+{%- endif -%}
+{%- endfor %}
+
 ## Reference
 - [API Documentation]({{ siteUrl }}/api/): Full generated API reference for @imqueue/core and @imqueue/rpc (classes, interfaces, methods, types).
 - [Documentation home]({{ siteUrl }}/docs/): Entry point to all @imqueue documentation.

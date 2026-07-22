@@ -14,11 +14,18 @@
   ],
   "dx": [
     { "title": "Create services with the CLI", "url": "/cli/creating-services/" },
-    { "title": "Using @imqueue with AI assistants", "url": "/using-ai-assistants/" }
+    { "title": "Using @imqueue with AI assistants", "url": "/using-ai-assistants/" },
+    { "title": "MCP server for AI agents", "url": "/mcp/" }
   ],
   "tooling": [
     { "title": "CLI manual", "url": "/cli/" },
-    { "title": "Create services with the CLI", "url": "/cli/creating-services/" }
+    { "title": "Create services with the CLI", "url": "/cli/creating-services/" },
+    { "title": "MCP server for AI agents", "url": "/mcp/" }
+  ],
+  "mcp": [
+    { "title": "MCP server overview", "url": "/mcp/" },
+    { "title": "Add to your AI tool", "url": "/mcp/installation/" },
+    { "title": "MCP tools reference", "url": "/mcp/tools/" }
   ],
   "versioning": [
     { "title": "CLI: clients & versioning", "url": "/cli/clients-and-versioning/" }
