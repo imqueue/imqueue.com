@@ -73,6 +73,7 @@ const CARDS = [
   { repo: "net", name: "@imqueue/net", tagline: "Fast, reliable binary address checker", tagline2: "for Node — IPv4 & IPv6 support", cmd: "npm i @imqueue/net" },
   { repo: "http-protect", name: "@imqueue/http-protect", tagline: "HTTP DDoS protection middleware", cmd: "npm i @imqueue/http-protect" },
   { repo: "sequelize", name: "@imqueue/sequelize", tagline: "Sequelize ORM refinements", tagline2: "for the @imqueue ecosystem", cmd: "npm i @imqueue/sequelize" },
+  { repo: "mcp", name: "@imqueue/mcp", tagline: "Docs search & service scaffolding", tagline2: "for AI coding agents (MCP)", cmd: "npx -y @imqueue/mcp" },
   // Not npm packages (UDP nodes that announce new Redis broker instances so the
   // message bus scales out horizontally) — no install command, so they show a
   // context tag instead of a `$ npm i` line. Promoter broadcasts (where allowed);
