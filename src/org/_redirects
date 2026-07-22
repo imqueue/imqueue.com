@@ -10,3 +10,23 @@
 /api/core/3.2.1/*    /api/core/latest/:splat    301
 /api/rpc/3.2.1       /api/rpc/latest/           301
 /api/rpc/3.2.1/*     /api/rpc/latest/:splat     301
+
+# Archived older versions: we keep only the highest minor/patch of each major
+# (core 1.3.15 & 2.0.2, rpc 1.2.12 & 2.0.4). Retired point releases 301 to the
+# kept version of the same major so old deep links still resolve.
+/api/core/1.3.11     /api/core/1.3.15/          301
+/api/core/1.3.11/*   /api/core/1.3.15/:splat    301
+/api/core/1.3.12     /api/core/1.3.15/          301
+/api/core/1.3.12/*   /api/core/1.3.15/:splat    301
+/api/core/1.3.13     /api/core/1.3.15/          301
+/api/core/1.3.13/*   /api/core/1.3.15/:splat    301
+/api/core/1.3.14     /api/core/1.3.15/          301
+/api/core/1.3.14/*   /api/core/1.3.15/:splat    301
+/api/rpc/1.2.8       /api/rpc/1.2.12/           301
+/api/rpc/1.2.8/*     /api/rpc/1.2.12/:splat     301
+/api/rpc/1.2.9       /api/rpc/1.2.12/           301
+/api/rpc/1.2.9/*     /api/rpc/1.2.12/:splat     301
+/api/rpc/1.2.10      /api/rpc/1.2.12/           301
+/api/rpc/1.2.10/*    /api/rpc/1.2.12/:splat     301
+/api/rpc/1.2.11      /api/rpc/1.2.12/           301
+/api/rpc/1.2.11/*    /api/rpc/1.2.12/:splat     301
