@@ -11,7 +11,6 @@ author: mykhailo-stadnyk
 illustration: redis-rpc
 topics: [rpc, queue, transport, patterns]
 ogType: article
-draft: true
 ---
 
 **RPC over Redis** means making one service call a method on another by sending
