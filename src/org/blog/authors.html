@@ -45,13 +45,11 @@ eleventyComputed:
     {%- for post in myPosts -%}
     {%- assign artPartial = "blog-art/" | append: post.data.illustration | append: ".svg" -%}
     <a href="{{ post.url }}" class="post-card">
+      <div class="post-card-meta">{{ post.date | date: "%b %-d, %Y" }}</div>
+      <h3>{{ post.data.title }}</h3>
       <div class="post-card-art">{% include artPartial %}</div>
-      <div class="post-card-body">
-        <div class="post-card-meta">{{ post.date | date: "%b %-d, %Y" }}</div>
-        <h3>{{ post.data.title }}</h3>
-        {% if post.data.summary %}<p>{{ post.data.summary }}</p>{% endif %}
-        <span class="post-card-more">read →</span>
-      </div>
+      {% if post.data.summary %}<p>{{ post.data.summary }}</p>{% endif %}
+      <span class="post-card-more">read →</span>
     </a>
     {%- endfor -%}
   </div>
