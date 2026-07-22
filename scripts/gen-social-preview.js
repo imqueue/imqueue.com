@@ -64,7 +64,7 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
 
 // name, tagline (+ optional second line for long ones), install command
 const CARDS = [
-  { repo: "org", name: "@imqueue", tagline: "RPC over a message queue for Node & TypeScript", cmd: "npm i @imqueue/rpc" },
+  { repo: "org", name: "@imqueue", tagline: "RPC over a message queue for Node & TypeScript", cmd: "npm i -g @imqueue/cli" },
   { repo: "rpc", name: "@imqueue/rpc", tagline: "Type-safe RPC over a message queue", cmd: "npm i @imqueue/rpc" },
   { repo: "core", name: "@imqueue/core", tagline: "The Redis-backed messaging-queue engine", cmd: "npm i @imqueue/core" },
   { repo: "cli", name: "@imqueue/cli", tagline: "Scaffolding & typed-client generation", cmd: "npm i -g @imqueue/cli" },
