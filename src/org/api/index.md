@@ -11,6 +11,40 @@ relatedTopics: [rpc, queue, types, delivery]
 {% assign latest_core = apiVersions.core.latest %}
 {% assign latest_rpc = apiVersions.rpc.latest %}
 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "{{ siteUrl }}/api/#core",
+      "name": "@imqueue/core",
+      "description": "Core messaging-queue engine for @imqueue — the Redis-backed transport shared by the RPC and job packages.",
+      "url": "{{ siteUrl }}/api/core/latest/",
+      "codeRepository": "https://github.com/imqueue/core",
+      "programmingLanguage": ["TypeScript", "JavaScript"],
+      "runtimePlatform": "Node.js",
+      "softwareVersion": "{{ latest_core }}",
+      "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+      "author": { "@id": "{{ siteUrl }}/#org" }
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "{{ siteUrl }}/api/#rpc",
+      "name": "@imqueue/rpc",
+      "description": "Type-safe RPC over a message queue for @imqueue — decorators, clients and services on top of @imqueue/core.",
+      "url": "{{ siteUrl }}/api/rpc/latest/",
+      "codeRepository": "https://github.com/imqueue/rpc",
+      "programmingLanguage": ["TypeScript", "JavaScript"],
+      "runtimePlatform": "Node.js",
+      "softwareVersion": "{{ latest_rpc }}",
+      "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+      "author": { "@id": "{{ siteUrl }}/#org" }
+    }
+  ]
+}
+</script>
+
 [[toc]]
 
 ## Full API Reference
