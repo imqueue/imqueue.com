@@ -3,6 +3,7 @@
   "section": "api",
   "apiPkg": "core",
   "apiVersion": "3.2.2",
+  "apiVersionPath": "latest",
   "apiNav": [
     {
       "group": "Classes",

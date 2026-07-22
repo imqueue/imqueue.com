@@ -136,7 +136,7 @@ function main() {
       // apiVersion carries the real version for display in the layout.
       fs.writeFileSync(
         path.join(outDir, 'latest.11tydata.json'),
-        JSON.stringify({ layout: 'apiref.html', section: 'api', apiPkg: pkg.name, apiVersion: version, apiNav }, null, 2),
+        JSON.stringify({ layout: 'apiref.html', section: 'api', apiPkg: pkg.name, apiVersion: version, apiVersionPath: 'latest', apiNav }, null, 2),
       );
 
       apiVersions[pkg.name] = version;
