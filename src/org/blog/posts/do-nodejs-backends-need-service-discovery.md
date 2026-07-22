@@ -7,7 +7,7 @@ summary: "Consul, etcd, DNS-SD — service discovery is a lot of machinery to st
 description: "When Node.js microservices actually need service discovery versus when a message-queue model (where the queue name is the address) removes the need entirely."
 keywords: "nodejs service discovery alternative, do i need consul, service discovery overkill, microservice addressing, imqueue"
 date: 2026-07-12
-author: maya-torres
+author: mykhailo-stadnyk
 illustration: discovery
 topics: [discovery, architecture, queue]
 ogType: article

@@ -7,7 +7,7 @@ summary: "You don't migrate a monolith by rewriting it. You extract one capabili
 description: "A practical, low-risk approach to starting a monolith-to-microservices migration in Node.js: extract one capability behind a typed service call and iterate, using @imqueue."
 keywords: "monolith to microservices nodejs, extract first microservice, strangler fig nodejs, incremental migration, imqueue"
 date: 2026-06-24
-author: priya-nair
+author: andrii
 illustration: monolith-split
 topics: [architecture, migration, rpc]
 ogType: article
