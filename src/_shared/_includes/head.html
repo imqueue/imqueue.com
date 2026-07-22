@@ -41,6 +41,8 @@
 <meta name="twitter:image:alt" content="{{ siteName }} — {{ site.slogan }}">
 
 <!-- Structured data -->
+{%- assign isArticle = false -%}
+{%- if page.url contains "/tutorial/" or page.url contains "/cli/" or page.url contains "/get-started/" or page.url contains "/intro/" or page.url contains "/using-ai-assistants/" -%}{%- assign isArticle = true -%}{%- endif -%}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -51,7 +53,10 @@
       "name": "@imqueue",
       "url": "{{ siteUrl }}/",
       "logo": "{{ siteUrl }}/images/logo.svg",
-      "sameAs": ["https://github.com/imqueue"]
+      "sameAs": [
+        "https://github.com/imqueue",
+        "https://www.npmjs.com/org/imqueue"
+      ]
     },
     {
       "@type": "WebSite",
@@ -72,6 +77,34 @@
       "description": {{ metaDesc | json }},
       "programmingLanguage": ["TypeScript", "JavaScript"],
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "publisher": { "@id": "{{ siteUrl }}/#org" }
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "{{ siteUrl }}/#sourcecode",
+      "name": "@imqueue",
+      "description": {{ metaDesc | json }},
+      "codeRepository": "https://github.com/imqueue",
+      "programmingLanguage": ["TypeScript", "JavaScript"],
+      "runtimePlatform": "Node.js",
+      "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+      "author": { "@id": "{{ siteUrl }}/#org" }
+    }{% endif %}{% if isArticle %},
+    {
+      "@type": "TechArticle",
+      "@id": "{{ metaUrl }}#article",
+      "headline": {{ metaTitle | json }},
+      "name": {{ metaTitle | json }},
+      "description": {{ metaDesc | json }},
+      "url": "{{ metaUrl }}",
+      "inLanguage": "en",
+      "isPartOf": { "@id": "{{ siteUrl }}/#website" },
+      "about": { "@id": "{{ siteUrl }}/#software" },
+      {%- if page.date %}
+      "datePublished": "{{ page.date | date: '%Y-%m-%d' }}",
+      "dateModified": "{{ page.date | date: '%Y-%m-%d' }}",
+      {%- endif %}
+      "author": { "@id": "{{ siteUrl }}/#org" },
       "publisher": { "@id": "{{ siteUrl }}/#org" }
     }{% endif %}
   ]

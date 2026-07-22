@@ -4,7 +4,34 @@ eleventyExcludeFromCollections: true
 ---
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-{%- for item in collections.all %}
-  <url><loc>{{ siteUrl }}{{ item.url }}</loc></url>
+{%- for item in collections.all -%}
+  {%- comment -%} Only index real HTML pages: skip markdown mirrors, txt feeds, etc. {%- endcomment -%}
+  {%- assign isPage = false -%}
+  {%- if item.url == "/" -%}{%- assign isPage = true -%}{%- endif -%}
+  {%- assign last3 = item.url | slice: -1, 1 -%}
+  {%- if last3 == "/" -%}{%- assign isPage = true -%}{%- endif -%}
+  {%- if item.url contains ".html" -%}{%- assign isPage = true -%}{%- endif -%}
+  {%- if item.url contains ".md" -%}{%- assign isPage = false -%}{%- endif -%}
+  {%- if item.url contains ".txt" -%}{%- assign isPage = false -%}{%- endif -%}
+  {%- if item.url contains ".xml" -%}{%- assign isPage = false -%}{%- endif -%}
+  {%- if isPage -%}
+    {%- comment -%} Priority: home first, human docs next, generated API reference last. {%- endcomment -%}
+    {%- assign prio = "0.7" -%}
+    {%- assign freq = "monthly" -%}
+    {%- if item.url == "/" -%}{%- assign prio = "1.0" -%}{%- assign freq = "weekly" -%}
+    {%- elsif item.url contains "/api/" -%}{%- assign prio = "0.3" -%}{%- assign freq = "yearly" -%}
+    {%- elsif item.url contains "/blog/" -%}{%- assign prio = "0.8" -%}{%- assign freq = "weekly" -%}
+    {%- elsif item.url contains "/docs" or item.url contains "/tutorial" or item.url contains "/cli" or item.url contains "/get-started" or item.url contains "/intro" -%}{%- assign prio = "0.8" -%}
+    {%- elsif item.url contains "/pricing" -%}{%- assign prio = "0.9" -%}
+    {%- endif %}
+  <url>
+    <loc>{{ siteUrl }}{{ item.url }}</loc>
+    {%- if item.date %}
+    <lastmod>{{ item.date | date: "%Y-%m-%d" }}</lastmod>
+    {%- endif %}
+    <changefreq>{{ freq }}</changefreq>
+    <priority>{{ prio }}</priority>
+  </url>
+  {%- endif -%}
 {%- endfor %}
 </urlset>
