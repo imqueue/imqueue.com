@@ -50,13 +50,31 @@ This is worth stating plainly, because it's easy to assume a "simple" queue can'
 - In `@imqueue/rpc`, an `IMQDelay` value (with `ms`/`s`/`m`/`h`/`d` units) lets you delay *any* remote call.
 - In `@imqueue/job`, that surfaces as `push(data, { delay })`.
 
-So scheduling to the millisecond is built in at every layer. What `@imqueue/job` deliberately does *not* include is the richer job-lifecycle machinery below.
+So scheduling to the millisecond is built in at every layer.
+
+## Retries and backoff
+
+`@imqueue/job` retries failed jobs automatically, and the retry *timing* is under your control:
+
+- A handler that **throws** re-schedules the job (with its original delay) — an automatic retry on failure.
+- A handler that **returns a delay in milliseconds** re-runs the job after that delay — so you can shape the backoff (return a growing delay for exponential backoff), and finish by returning nothing.
+- If a **worker dies mid-job**, safe delivery re-queues it after `safeLockTtl`.
+
+```ts
+new JobQueue<string>({ name: 'Fetch' })
+    .onPop(async (url) => {
+        await fetchAndStore(url); // if this throws, the job is retried
+    })
+    .start();
+```
+
+So retries and backoff *do* exist. What BullMQ adds on top is a **declarative** policy — a fixed `attempts` cap plus a named backoff strategy — with the job automatically **dead-lettered** once attempts run out. In `@imqueue/job` you cap attempts yourself (e.g. re-push the job with an incremented counter and stop re-scheduling).
 
 ## Where BullMQ goes further
 
 Be fair about this — if you need these, BullMQ is the better fit and `@imqueue/job` isn't trying to compete:
 
-- **Retries with configurable backoff** (fixed/exponential) and attempt limits.
+- **A declarative retry policy** — `attempts` limit + named backoff strategy + automatic dead-lettering (vs the programmable retries above).
 - **Priorities** across queued jobs.
 - **Repeatable / cron jobs** on a recurring schedule.
 - **Rate limiting** of processing.
@@ -80,7 +98,7 @@ So if your system needs *both* "do this later" (jobs) *and* "give me this now" (
 | Concurrent workers | ✅ competing consumers | ✅ |
 | Delayed / scheduled jobs | ✅ millisecond granularity | ✅ |
 | Job expiration (TTL) | ✅ | ✅ (retention policies) |
-| Retries + backoff | ❌ | ✅ |
+| Retries + backoff | ✅ programmable (retry on error; return a delay to back off) | ✅ declarative (`attempts` + backoff strategy + dead-letter) |
 | Priorities | ❌ | ✅ |
 | Repeatable / cron | ❌ | ✅ |
 | Rate limiting / flows / dashboard | ❌ | ✅ |
