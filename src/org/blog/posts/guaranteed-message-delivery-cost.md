@@ -25,7 +25,7 @@ The first serious question anyone asks about a message-based system is: "if a wo
 
 ## What guaranteed delivery costs
 
-Safety isn't free, and it's useful to know the rough shape of the bill. In `@imqueue`'s published benchmarks, guaranteed delivery runs roughly **1.5–2× slower** than unreliable delivery — call it "about half the throughput" as a planning heuristic (exact numbers depend on your hardware and message sizes; measure yours).
+Safety isn't free, and it's useful to know the shape of the bill. In a recent `@imqueue/core` benchmark run — a 24-core Intel Core Ultra 9 275HX, Node.js 24, ~1 KB messages — unreliable delivery reached **~200,000 round-trip msg/sec** and guaranteed delivery **~120,000 msg/sec**. So safe mode costs roughly **40% of throughput** (about 1.7× slower), keeping ~60%. Your numbers will differ with hardware and message size — see the [benchmark post](/blog/benchmarking-imqueue-throughput/) for the full run and how to reproduce it.
 
 That's a very reasonable price for "never lose this message," and the key insight is that **you don't pay it globally.** You choose per queue. Latency-critical, loss-tolerant paths stay in the fast mode; critical paths run safe. You're not forced into one guarantee for the whole system.
 
