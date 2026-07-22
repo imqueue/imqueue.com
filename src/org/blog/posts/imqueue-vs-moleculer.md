@@ -47,7 +47,6 @@ Moleculer ships a large surface: circuit breakers, bulkheads, retries, request t
 | Load balancing | Competing consumers on a queue | Built-in strategies |
 | Typed clients | Generated from the service | Assemble yourself / runtime validation |
 | Feature breadth | Focused core | Broad (breakers, gateway, metrics, …) |
-| License | GPL-3.0 (commercial available) | MIT |
 
 One thing worth calling out plainly: **licensing differs.** Moleculer is MIT; `@imqueue` is GPL-3.0 with a [commercial license](https://imqueue.com/) for shipping inside closed-source products. That may matter to your legal team either way.
 

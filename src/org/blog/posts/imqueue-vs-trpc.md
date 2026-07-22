@@ -45,7 +45,6 @@ They can coexist cleanly in one system: tRPC (or plain HTTP) at the edge for you
 | How types cross | Client generated from the service | Compile-time inference via shared project |
 | Deployment coupling | Independent repos/services | Best in a shared monorepo |
 | Load balancing | Competing consumers on a queue | Whatever fronts your HTTP server |
-| License | GPL-3.0 (commercial available) | MIT |
 
 ## How to choose
 
