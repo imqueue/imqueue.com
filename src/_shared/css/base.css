@@ -222,17 +222,16 @@ html.lightbox-open { overflow: hidden; }
 @media (max-width: 900px) { .blog-layout { grid-template-columns: 1fr; } }
 
 .post-list { display: flex; flex-direction: column; gap: 18px; }
-.post-card { display: grid; grid-template-columns: 210px 1fr; gap: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; text-decoration: none; color: inherit; transition: border-color .15s ease, transform .15s ease; }
+.post-card { display: flex; flex-direction: column; gap: 13px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px; text-decoration: none; color: inherit; transition: border-color .15s ease, transform .15s ease; }
 .post-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-@media (max-width: 560px) { .post-card { grid-template-columns: 1fr; } }
-.post-card-art { border-radius: 8px; overflow: hidden; border: 1px solid var(--line); background: var(--bg); display: flex; }
-.post-card-art .post-illu, .post-hero .post-illu { width: 100%; height: auto; display: block; }
-.post-card-body { min-width: 0; }
-.post-card-meta { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.post-card-meta { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin: 0; }
 .post-card-meta a { color: var(--accent); text-decoration: none; }
-.post-card-body h3 { font-size: 19px; margin: 0 0 8px; line-height: 1.25; }
-.post-card-body p { font-size: 14px; color: var(--muted); line-height: 1.55; margin: 0; }
-.post-card-more { display: inline-block; margin-top: 12px; font-family: var(--font-mono); font-size: 13px; color: var(--accent); }
+.post-card h3 { font-size: 22px; margin: 0; line-height: 1.25; letter-spacing: -.01em; }
+.post-card-art { border-radius: 8px; border: 1px solid var(--line); background: var(--bg); padding: 12px; display: flex; justify-content: center; }
+.post-card-art .post-illu { width: 100%; max-width: 460px; height: auto; display: block; }
+.post-hero .post-illu { width: 100%; height: auto; display: block; }
+.post-card p { font-size: 15px; color: var(--muted); line-height: 1.6; margin: 0; }
+.post-card-more { font-family: var(--font-mono); font-size: 13px; color: var(--accent); }
 
 .blog-aside { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 88px; }
 .aside-box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
