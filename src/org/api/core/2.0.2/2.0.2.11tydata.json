@@ -1,0 +1,215 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "apiPkg": "core",
+  "apiVersion": "2.0.2",
+  "apiVersionPath": "2.0.2",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "ClusteredRedisQueue",
+          "url": "/api/core/2.0.2/core.clusteredredisqueue/"
+        },
+        {
+          "name": "IMQ",
+          "url": "/api/core/2.0.2/core.imq/"
+        },
+        {
+          "name": "RedisQueue",
+          "url": "/api/core/2.0.2/core.redisqueue/"
+        },
+        {
+          "name": "UDPClusterManager",
+          "url": "/api/core/2.0.2/core.udpclustermanager/"
+        }
+      ]
+    },
+    {
+      "group": "Enumerations",
+      "items": [
+        {
+          "name": "IMQMode",
+          "url": "/api/core/2.0.2/core.imqmode/"
+        },
+        {
+          "name": "LogLevel",
+          "url": "/api/core/2.0.2/core.loglevel/"
+        }
+      ]
+    },
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "buildOptions(defaultOptions, givenOptions)",
+          "url": "/api/core/2.0.2/core.buildoptions/"
+        },
+        {
+          "name": "copyEventEmitter(source, target)",
+          "url": "/api/core/2.0.2/core.copyeventemitter/"
+        },
+        {
+          "name": "intrand(min, max)",
+          "url": "/api/core/2.0.2/core.intrand/"
+        },
+        {
+          "name": "logDebugInfo({ debugTime, debugArgs, className, args, methodName, start, logger, logLevel, }, input)",
+          "url": "/api/core/2.0.2/core.logdebuginfo/"
+        },
+        {
+          "name": "makeRedisSafe(redis)",
+          "url": "/api/core/2.0.2/core.makeredissafe/"
+        },
+        {
+          "name": "pack(data)",
+          "url": "/api/core/2.0.2/core.pack/"
+        },
+        {
+          "name": "profile(options)",
+          "url": "/api/core/2.0.2/core.profile/"
+        },
+        {
+          "name": "promisify(obj, restrict)",
+          "url": "/api/core/2.0.2/core.promisify/"
+        },
+        {
+          "name": "propertiesOf(obj)",
+          "url": "/api/core/2.0.2/core.propertiesof/"
+        },
+        {
+          "name": "sha1(str)",
+          "url": "/api/core/2.0.2/core.sha1/"
+        },
+        {
+          "name": "unpack(data)",
+          "url": "/api/core/2.0.2/core.unpack/"
+        },
+        {
+          "name": "uuid()",
+          "url": "/api/core/2.0.2/core.uuid/"
+        },
+        {
+          "name": "verifyLogLevel(level)",
+          "url": "/api/core/2.0.2/core.verifyloglevel/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "DebugInfoOptions",
+          "url": "/api/core/2.0.2/core.debuginfooptions/"
+        },
+        {
+          "name": "EventMap",
+          "url": "/api/core/2.0.2/core.eventmap/"
+        },
+        {
+          "name": "ILogger",
+          "url": "/api/core/2.0.2/core.ilogger/"
+        },
+        {
+          "name": "IMessage",
+          "url": "/api/core/2.0.2/core.imessage/"
+        },
+        {
+          "name": "IMessageQueue",
+          "url": "/api/core/2.0.2/core.imessagequeue/"
+        },
+        {
+          "name": "IMessageQueueAuthConnection",
+          "url": "/api/core/2.0.2/core.imessagequeueauthconnection/"
+        },
+        {
+          "name": "IMessageQueueConnection",
+          "url": "/api/core/2.0.2/core.imessagequeueconnection/"
+        },
+        {
+          "name": "IMQOptions",
+          "url": "/api/core/2.0.2/core.imqoptions/"
+        },
+        {
+          "name": "IRedisClient",
+          "url": "/api/core/2.0.2/core.iredisclient/"
+        },
+        {
+          "name": "IServerInput",
+          "url": "/api/core/2.0.2/core.iserverinput/"
+        },
+        {
+          "name": "JsonArray",
+          "url": "/api/core/2.0.2/core.jsonarray/"
+        },
+        {
+          "name": "JsonObject",
+          "url": "/api/core/2.0.2/core.jsonobject/"
+        },
+        {
+          "name": "ProfileDecoratorOptions",
+          "url": "/api/core/2.0.2/core.profiledecoratoroptions/"
+        },
+        {
+          "name": "UDPClusterManagerOptions",
+          "url": "/api/core/2.0.2/core.udpclustermanageroptions/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "DEFAULT\\_IMQ\\_OPTIONS",
+          "url": "/api/core/2.0.2/core.default_imq_options/"
+        },
+        {
+          "name": "DEFAULT\\_UDP\\_BROADCAST\\_CLUSTER\\_MANAGER\\_OPTIONS",
+          "url": "/api/core/2.0.2/core.default_udp_broadcast_cluster_manager_options/"
+        },
+        {
+          "name": "IMQ\\_LOG\\_ARGS",
+          "url": "/api/core/2.0.2/core.imq_log_args/"
+        },
+        {
+          "name": "IMQ\\_LOG\\_LEVEL",
+          "url": "/api/core/2.0.2/core.imq_log_level/"
+        },
+        {
+          "name": "IMQ\\_LOG\\_TIME\\_FORMAT",
+          "url": "/api/core/2.0.2/core.imq_log_time_format/"
+        },
+        {
+          "name": "IMQ\\_LOG\\_TIME",
+          "url": "/api/core/2.0.2/core.imq_log_time/"
+        },
+        {
+          "name": "IMQ\\_SHUTDOWN\\_TIMEOUT",
+          "url": "/api/core/2.0.2/core.imq_shutdown_timeout/"
+        }
+      ]
+    },
+    {
+      "group": "Type Aliases",
+      "items": [
+        {
+          "name": "AllowedTimeFormat",
+          "url": "/api/core/2.0.2/core.allowedtimeformat/"
+        },
+        {
+          "name": "AnyJson",
+          "url": "/api/core/2.0.2/core.anyjson/"
+        },
+        {
+          "name": "IJson",
+          "url": "/api/core/2.0.2/core.ijson/"
+        },
+        {
+          "name": "IMessageQueueConstructor",
+          "url": "/api/core/2.0.2/core.imessagequeueconstructor/"
+        }
+      ]
+    }
+  ]
+}

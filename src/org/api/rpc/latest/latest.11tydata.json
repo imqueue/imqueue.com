@@ -3,6 +3,7 @@
   "section": "api",
   "apiPkg": "rpc",
   "apiVersion": "3.2.1",
+  "apiVersionPath": "latest",
   "apiNav": [
     {
       "group": "Classes",
