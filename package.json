@@ -35,6 +35,7 @@
     "build": "npm run build:all",
     "gen-favicons": "node scripts/gen-favicons.mjs",
     "gen-og": "node scripts/gen-og-images.js",
+    "gen-og-blog": "node scripts/gen-og-blog.js",
     "build-docs": "node api-docs",
     "sync-cli-guide": "node scripts/sync-cli-wiki.js",
     "sync-cli-guide:check": "node scripts/sync-cli-wiki.js --check"
