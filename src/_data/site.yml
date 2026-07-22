@@ -1,1 +1,5 @@
 slogan: RPC over an inter-communication messaging queue for Node & TypeScript
+# IndexNow key — proves host ownership so Bing/Yandex/Seznam accept instant-
+# indexing pings. Served at /<key>.txt via src/indexnow.liquid and submitted by
+# scripts/indexnow-ping.js after deploy. Same key works for both hosts.
+indexnow_key: 2b662c62a4e60da3efb133a174ecf84d

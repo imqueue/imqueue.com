@@ -2,8 +2,9 @@
   <div class="nav-inner container">
     {% include "brand-lockup.html", slogan: "RPC enqueued!", lg: true, aria: "@imqueue home" %}
     <div class="nav-links">
-      <a href="/#why" class="nav-link" style="font-family:var(--font-body);">Why commercial</a>
       <a href="/pricing/" class="nav-link{% if section == 'pricing' %} active{% endif %}" style="font-family:var(--font-body);">Pricing</a>
+      <a href="/license/" class="nav-link{% if section == 'license' %} active{% endif %}" style="font-family:var(--font-body);">License</a>
+      <a href="/support/" class="nav-link{% if section == 'support' %} active{% endif %}" style="font-family:var(--font-body);">Support</a>
       <a href="{{ otherUrl }}/" class="nav-link" style="font-family:var(--font-body);">Docs ↗</a>
     </div>
     <div class="nav-actions">
@@ -15,8 +16,9 @@
   </div>
   <div class="mobile-nav" data-mobile-nav>
     <div class="container">
-      <a href="/#why">Why commercial</a>
       <a href="/pricing/">Pricing</a>
+      <a href="/license/">License</a>
+      <a href="/support/">Support</a>
       <a href="{{ otherUrl }}/">Docs ↗</a>
       <a href="{{ otherUrl }}/">Open source ↗</a>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 6px;">

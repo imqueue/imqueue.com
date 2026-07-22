@@ -1,0 +1,168 @@
+---
+layout: base.html
+section: license
+title: "Do you need a commercial license for @imqueue?"
+description: "How @imqueue's dual licensing works: the open-source edition is GPL-3.0, and a commercial license lets you ship it inside a closed-source product. When the GPL applies, when it doesn't, and how to decide."
+keywords: "imqueue license, imqueue commercial license, GPL-3.0 commercial use, dual license explained, GPL-3.0 closed source, GPL commercial exception, is GPL-3.0 ok for commercial projects, Node.js framework license"
+---
+<section class="fx-hero fx-hero--narrow">
+  <div class="fx-center">
+    <div class="fx-pill">Licensing</div>
+    <h1 class="fx-h1" style="font-size:44px;">Do you need a commercial license for @imqueue?</h1>
+    <p class="fx-lead" style="max-width:600px;">@imqueue is dual-licensed. Everything is free and open under <strong>GPL-3.0</strong> on <a href="{{ otherUrl }}/">imqueue.org</a>. A <strong>commercial license</strong> lets you ship the same packages inside a closed-source product without the GPL's source-release obligation — plus support on top.</p>
+    <div class="fx-cta">
+      <a href="/pricing/" class="btn btn-gradient">Get a commercial license →</a>
+      <a href="#decide" class="btn btn-ghost">Do I need one? →</a>
+    </div>
+  </div>
+</section>
+
+<!-- TWO EDITIONS -->
+<section class="fx-section fx-section--tight">
+  <div class="fx-center">
+    <h2 class="fx-h2">Two ways to use it. Same code.</h2>
+    <p class="fx-h2-sub">The packages are identical — the license is what differs. No fork, no separate build, nothing to migrate.</p>
+  </div>
+  <div class="fx-grid-3">
+    <div class="fx-card">
+      <div class="fx-step-n">OSS</div>
+      <h3>Open source · GPL-3.0</h3>
+      <p>Free forever. Use, modify, and distribute the <code>@imqueue/*</code> packages under GPL-3.0. The catch: if you convey or distribute a product built on them, the GPL asks you to release <em>that product's</em> source under the GPL too.</p>
+    </div>
+    <div class="fx-card">
+      <div class="fx-step-n">COM</div>
+      <h3>Commercial license</h3>
+      <p>The right to ship @imqueue inside a closed-source product — the GPL source-release obligation lifted — with SLA-backed support and indemnification. Same packages, same APIs, private source.</p>
+    </div>
+    <div class="fx-card">
+      <div class="fx-step-n">→</div>
+      <h3>Start open, switch anytime</h3>
+      <p>Prototype and build on the open-source edition. When you're ready to ship closed-source, buy a license — you change the terms, not a single line of code.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHEN THE GPL APPLIES -->
+<section class="fx-section">
+  <div class="fx-center">
+    <h2 id="decide" class="fx-h2" style="scroll-margin-top:130px;">When does the GPL-3.0 obligation apply?</h2>
+    <p class="fx-h2-sub">The copyleft trigger is <em>distribution</em>. Here's the plain-language version — use it to figure out which side of the line you're on.</p>
+  </div>
+  <div class="fx-grid-3">
+    <div class="fx-card">
+      <h3>Shipping a closed-source product</h3>
+      <p>You distribute an app, a device, or on-prem software built on @imqueue and don't want to release its source. <strong>A commercial license is the clean path.</strong></p>
+    </div>
+    <div class="fx-card">
+      <h3>Internal-only tools</h3>
+      <p>The software runs inside your organization and isn't distributed outside it. The GPL's distribution trigger generally isn't hit — though many teams still license for support and indemnification.</p>
+    </div>
+    <div class="fx-card">
+      <h3>A SaaS / hosted service</h3>
+      <p>GPL-3.0 is <em>not</em> the AGPL: running @imqueue behind a network service you host usually isn't "conveying," so the source-release obligation generally isn't triggered by SaaS use alone.</p>
+    </div>
+  </div>
+  <p class="fx-note" style="max-width:680px;margin:28px auto 0;text-align:center;">This page explains how the licensing model works in plain terms — it isn't legal advice. If you're unsure how the GPL-3.0 applies to your specific situation, <a href="/pricing/">tell us your use case</a> and we'll help you find the right fit (and involve your counsel where it matters).</p>
+</section>
+
+<!-- QUICK DECISION -->
+<section class="fx-section fx-section--tight">
+  <div class="fx-center">
+    <h2 class="fx-h2" style="font-size:26px;">A 10-second self-check</h2>
+  </div>
+  <div class="fx-grid-3">
+    <div class="fx-card"><div class="fx-step-n">01</div><h3>Are you distributing it?</h3><p>If nothing built on @imqueue leaves your organization, you're almost certainly fine on the open-source edition.</p></div>
+    <div class="fx-card"><div class="fx-step-n">02</div><h3>Do you want your source private?</h3><p>If you distribute a product <em>and</em> need to keep its source closed, that's exactly what the commercial license is for.</p></div>
+    <div class="fx-card"><div class="fx-step-n">03</div><h3>Do you need support or indemnification?</h3><p>Even when the GPL doesn't force your hand, a commercial agreement adds an SLA and legal cover. See <a href="/support/">support</a>.</p></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="fx-section">
+  <div class="fx-center">
+    <h2 class="fx-h2" style="font-size:26px;">Licensing questions</h2>
+  </div>
+  <div class="fx-faq">
+    <details class="fx-acc">
+      <summary>Is @imqueue really free?</summary>
+      <div class="fx-acc-body"><p>Yes. The full framework is open source under GPL-3.0 on <a href="{{ otherUrl }}/">imqueue.org</a> — free to use, modify, and distribute under the GPL's terms. The commercial license is only needed when those terms don't fit your product.</p></div>
+    </details>
+    <details class="fx-acc">
+      <summary>Can I use the GPL-3.0 version in a commercial project?</summary>
+      <div class="fx-acc-body"><p>Yes — GPL-3.0 permits commercial use. The obligation is about <em>source disclosure</em> on distribution, not about charging money. If you distribute a product built on it, the GPL asks you to release that product's source; a commercial license removes that requirement.</p></div>
+    </details>
+    <details class="fx-acc">
+      <summary>Does running @imqueue in a SaaS trigger the GPL?</summary>
+      <div class="fx-acc-body"><p>Generally no. GPL-3.0 is not the AGPL — providing access to a hosted service isn't "conveying" the software, so SaaS use alone typically doesn't trigger the source-release obligation. A commercial license is still available if you want support or indemnification.</p></div>
+    </details>
+    <details class="fx-acc">
+      <summary>Is the commercial code different from the open-source code?</summary>
+      <div class="fx-acc-body"><p>No — the exact same <code>@imqueue/*</code> packages and APIs. A commercial license changes the terms you use them under, not the software. There's no separate fork to install or migrate to.</p></div>
+    </details>
+    <details class="fx-acc">
+      <summary>How is a commercial license priced?</summary>
+      <div class="fx-acc-body"><p>We're shaping licensing around real needs rather than a fixed public price list. <a href="/pricing/">Tell us how you'd use @imqueue</a> — team size and how you ship — and we'll follow up with the right fit.</p></div>
+    </details>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="fx-section" style="padding-bottom:70px;">
+  <div class="fx-cta-banner">
+    <div>
+      <h3>Not sure which side of the line you're on?</h3>
+      <p>Tell us your use case — we'll help you land on the right license.</p>
+    </div>
+    <a href="/pricing/" class="fx-banner-btn">Talk to us →</a>
+  </div>
+</section>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "{{ siteUrl }}{{ page.url }}#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is @imqueue really free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. The full framework is open source under GPL-3.0 on imqueue.org — free to use, modify, and distribute under the GPL's terms. The commercial license is only needed when those terms don't fit your product."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use the GPL-3.0 version in a commercial project?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes — GPL-3.0 permits commercial use. The obligation is about source disclosure on distribution, not about charging money. If you distribute a product built on it, the GPL asks you to release that product's source; a commercial license removes that requirement."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does running @imqueue in a SaaS trigger the GPL?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Generally no. GPL-3.0 is not the AGPL — providing access to a hosted service isn't conveying the software, so SaaS use alone typically doesn't trigger the source-release obligation. A commercial license is still available if you want support or indemnification."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is the commercial code different from the open-source code?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No — the exact same @imqueue/* packages and APIs. A commercial license changes the terms you use them under, not the software. There's no separate fork to install or migrate to."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is a commercial license priced?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We're shaping licensing around real needs rather than a fixed public price list. Tell us how you'd use @imqueue — team size and how you ship — and we'll follow up with the right fit."
+      }
+    }
+  ]
+}
+</script>
