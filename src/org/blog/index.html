@@ -1,14 +1,15 @@
 ---
 layout: base.html
 section: blog
-title: Blog
-description: "News, releases and articles about @imqueue — the message-queue RPC framework for Node & TypeScript microservices."
 keywords: "@imqueue blog, imqueue news, imqueue releases, Node.js microservices articles, message queue RPC updates, TypeScript back-end"
 pagination:
   data: collections.posts
   size: 5
   alias: pagePosts
 permalink: "/blog/{% if pagination.pageNumber > 0 %}page/{{ pagination.pageNumber | plus: 1 }}/{% endif %}"
+eleventyComputed:
+  title: "{% if pagination.pageNumber > 0 %}Blog — Page {{ pagination.pageNumber | plus: 1 }} of {{ pagination.pages.size }}{% else %}Blog{% endif %}"
+  description: "{% if pagination.pageNumber > 0 %}Page {{ pagination.pageNumber | plus: 1 }} of the @imqueue blog — articles on message-queue RPC for Node.js &amp; TypeScript microservices.{% else %}News, releases and articles about @imqueue — the message-queue RPC framework for Node &amp; TypeScript microservices.{% endif %}"
 ---
 <section class="container" style="padding-top:48px;padding-bottom:64px;">
   <div class="section-label" style="margin-bottom:14px;">// BLOG</div>
@@ -112,4 +113,30 @@ permalink: "/blog/{% if pagination.pageNumber > 0 %}page/{{ pagination.pageNumbe
   input.addEventListener('focus', load);
   input.addEventListener('input', function () { load(); run(input.value); });
 })();
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "@id": "{{ siteUrl }}/blog/#blog",
+  "name": "@imqueue Blog",
+  "url": "{{ siteUrl }}/blog/",
+  "description": "Articles about message-queue RPC for Node.js & TypeScript microservices.",
+  "inLanguage": "en",
+  "publisher": { "@id": "{{ siteUrl }}/#org" },
+  "blogPost": [
+    {%- for post in pagePosts -%}
+    {%- assign pa = authors | authorBySlug: post.data.author -%}
+    {
+      "@type": "BlogPosting",
+      "headline": {{ post.data.title | json }},
+      "url": "{{ siteUrl }}{{ post.url }}",
+      {% if post.data.summary %}"description": {{ post.data.summary | json }},{% endif %}
+      "datePublished": "{{ post.date | date: '%Y-%m-%d' }}",
+      "author": { "@type": "Person", "name": {{ pa.name | default: "@imqueue" | json }} }
+    }{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  ]
+}
 </script>
