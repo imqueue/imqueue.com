@@ -7,8 +7,8 @@
     <rect x="242" y="106" width="22" height="22" rx="4" fill="var(--accent)" fill-opacity="0.15" stroke="var(--accent)" stroke-width="1.6"/>
     <rect x="270" y="106" width="22" height="22" rx="4" fill="var(--accent)" fill-opacity="0.4" stroke="var(--accent)" stroke-width="1.6"/>
     <rect x="298" y="106" width="22" height="22" rx="4" fill="var(--accent)" fill-opacity="0.15" stroke="var(--accent)" stroke-width="1.6"/>
-    <circle cx="360" cy="130" r="38" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
-    <path d="M 360 130 L 360 100 M 360 130 L 384 118" stroke="var(--accent)" stroke-width="2.5"/>
-    <path d="M 330 158 A 42 42 0 0 1 390 158" stroke="var(--accent)" stroke-width="2" fill="none"/>
+    <circle cx="374" cy="130" r="38" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 374 130 L 374 100 M 374 130 L 398 118" stroke="var(--accent)" stroke-width="2.5"/>
+    <path d="M 344 158 A 42 42 0 0 1 404 158" stroke="var(--accent)" stroke-width="2" fill="none"/>
   </g>
 </svg>
