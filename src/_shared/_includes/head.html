@@ -51,7 +51,7 @@
 
 <!-- Structured data -->
 {%- assign isArticle = false -%}
-{%- if page.url contains "/tutorial/" or page.url contains "/cli/" or page.url contains "/get-started/" or page.url contains "/intro/" or page.url contains "/using-ai-assistants/" -%}{%- assign isArticle = true -%}{%- endif -%}
+{%- if page.url contains "/tutorial/" or page.url contains "/cli/" or page.url contains "/mcp/" or page.url contains "/get-started/" or page.url contains "/intro/" or page.url contains "/using-ai-assistants/" -%}{%- assign isArticle = true -%}{%- endif -%}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -116,6 +116,20 @@
       {%- endif %}
       "author": { "@id": "{{ siteUrl }}/#org" },
       "publisher": { "@id": "{{ siteUrl }}/#org" }
+    }{% endif %}{% if mcpApp %},
+    {
+      "@type": "SoftwareApplication",
+      "@id": "{{ metaUrl }}#mcp",
+      "name": "@imqueue/mcp",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Node.js",
+      "url": "{{ metaUrl }}",
+      "description": {{ metaDesc | json }},
+      "softwareRequirements": "Node.js >= 18",
+      "downloadUrl": "https://www.npmjs.com/package/@imqueue/mcp",
+      "programmingLanguage": ["TypeScript", "JavaScript"],
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "publisher": { "@id": "{{ siteUrl }}/#org" }
     }{% endif %}
   ]
 }
@@ -133,6 +147,7 @@ Home > Section > [Package >] Leaf; other titled pages get Home > Leaf.
 {%- case bcSeg -%}
 {%- when "api" -%}{%- assign bcLabel = "API reference" -%}{%- assign bcRoot = "/api/" -%}
 {%- when "cli" -%}{%- assign bcLabel = "CLI manual" -%}{%- assign bcRoot = "/cli/" -%}
+{%- when "mcp" -%}{%- assign bcLabel = "MCP server" -%}{%- assign bcRoot = "/mcp/" -%}
 {%- when "tutorial" -%}{%- assign bcLabel = "Tutorial" -%}{%- assign bcRoot = "/tutorial/" -%}
 {%- when "docs" -%}{%- assign bcLabel = "Documentation" -%}{%- assign bcRoot = "/docs/" -%}
 {%- endcase -%}
