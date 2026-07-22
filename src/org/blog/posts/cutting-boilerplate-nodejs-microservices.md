@@ -7,7 +7,9 @@ summary: "Most of a new service's first commit is ceremony — transport wiring,
 description: "Where boilerplate accumulates in Node.js microservices and how scaffolding plus self-describing services with generated clients removes most of it, using @imqueue."
 keywords: "reduce microservice boilerplate nodejs, microservice scaffolding typescript, rapid application development microservices, imqueue cli"
 date: 2026-06-30
-author: The @imqueue team
+author: dan-ivanov
+illustration: boilerplate
+topics: [dx, tooling, clients]
 ogType: article
 ---
 

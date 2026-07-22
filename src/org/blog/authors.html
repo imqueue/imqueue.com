@@ -1,0 +1,43 @@
+---
+layout: base.html
+section: blog
+pagination:
+  data: authors
+  size: 1
+  alias: author
+permalink: "/blog/authors/{{ author.slug }}/"
+eleventyComputed:
+  title: "{{ author.name }}"
+  description: "{{ author.name }} — {{ author.occupation }} at @imqueue. Posts and articles."
+---
+{%- assign avatarPartial = "blog-art/" | append: author.avatar | append: ".svg" -%}
+{%- assign myPosts = collections.posts | byAuthor: author.slug -%}
+<div class="container" style="padding-top:48px;padding-bottom:64px;max-width:900px;">
+  <a href="/blog/" class="nav-link" style="font-family:var(--font-mono);font-size:13px;color:var(--accent);">← all posts</a>
+
+  <header class="author-hero">
+    <div class="author-hero-avatar">{% include avatarPartial %}</div>
+    <div>
+      <div class="section-label" style="margin-bottom:10px;">// AUTHOR</div>
+      <h1 style="font-family:var(--font-display);font-size:34px;line-height:1.1;margin:0 0 6px;">{{ author.name }}</h1>
+      <div style="font-family:var(--font-mono);color:var(--accent);font-size:14px;margin-bottom:14px;">{{ author.occupation }}</div>
+      <p class="muted" style="font-size:16px;line-height:1.7;margin:0;max-width:640px;">{{ author.bio }}</p>
+    </div>
+  </header>
+
+  <h2 class="section-label" style="margin:44px 0 18px;">// POSTS BY {{ author.name | upcase }}</h2>
+  <div class="post-list">
+    {%- for post in myPosts -%}
+    {%- assign artPartial = "blog-art/" | append: post.data.illustration | append: ".svg" -%}
+    <a href="{{ post.url }}" class="post-card">
+      <div class="post-card-art">{% include artPartial %}</div>
+      <div class="post-card-body">
+        <div class="post-card-meta">{{ post.date | date: "%b %-d, %Y" }}</div>
+        <h3>{{ post.data.title }}</h3>
+        {% if post.data.summary %}<p>{{ post.data.summary }}</p>{% endif %}
+        <span class="post-card-more">read →</span>
+      </div>
+    </a>
+    {%- endfor -%}
+  </div>
+</div>

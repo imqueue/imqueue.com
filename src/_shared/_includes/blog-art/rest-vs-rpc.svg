@@ -1,0 +1,10 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <rect width="480" height="260" rx="0" fill="var(--accent)" opacity="0.05"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="44" y="70" width="180" height="40" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="2"/>
+    <text x="134" y="95" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">POST /things</text>
+    <rect x="256" y="150" width="180" height="44" rx="10" fill="var(--accent)" fill-opacity="0.14" stroke="var(--accent)" stroke-width="2.5"/>
+    <text x="346" y="178" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="15" fill="var(--accent)" stroke="none">svc.do()</text>
+    <path d="M 224 90 q 60 30 30 60" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="4 6"/>
+  </g>
+</svg>

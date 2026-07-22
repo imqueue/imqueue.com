@@ -7,7 +7,9 @@ summary: "Moleculer is a full-featured microservices framework with many transpo
 description: "An even-handed comparison of @imqueue and Moleculer for Node.js microservices: transports, typing model, service discovery, feature scope, and when to choose each."
 keywords: "imqueue vs moleculer, moleculer alternative, Node.js microservices framework, TypeScript microservices, message queue RPC, moleculer comparison"
 date: 2026-07-08
-author: The @imqueue team
+author: priya-nair
+illustration: compare-frameworks
+topics: [comparison, frameworks, architecture]
 ogType: article
 ---
 

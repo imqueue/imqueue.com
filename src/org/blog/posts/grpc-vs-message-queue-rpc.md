@@ -7,7 +7,9 @@ summary: "gRPC is the default answer for typed RPC — and a great one, especial
 description: "A comparison of gRPC and message-queue-based RPC (@imqueue) for internal Node.js/TypeScript services: schemas, addressing, load balancing, streaming, and language reach."
 keywords: "grpc vs message queue, grpc alternative nodejs, rpc over redis, grpc nodejs microservices, imqueue, protobuf alternative"
 date: 2026-06-10
-author: The @imqueue team
+author: maya-torres
+illustration: grpc-queue
+topics: [comparison, rpc, transport]
 ogType: article
 ---
 

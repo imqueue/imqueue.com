@@ -1,0 +1,13 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <rect width="480" height="260" rx="0" fill="var(--accent)" opacity="0.05"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="120" y="58" width="180" height="24" rx="6" fill="var(--muted)" fill-opacity="0.25" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="5 5"/>
+    <rect x="120" y="92" width="180" height="24" rx="6" fill="var(--muted)" fill-opacity="0.25" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="5 5"/>
+    <rect x="120" y="126" width="180" height="24" rx="6" fill="var(--muted)" fill-opacity="0.25" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="5 5"/>
+    <rect x="120" y="160" width="180" height="30" rx="7" fill="var(--accent)" fill-opacity="0.15" stroke="var(--accent)" stroke-width="2.5"/>
+    <circle cx="340" cy="90" r="16" fill="none" stroke="var(--accent)" stroke-width="2"/>
+    <circle cx="340" cy="124" r="16" fill="none" stroke="var(--accent)" stroke-width="2"/>
+    <line x1="352" y1="102" x2="392" y2="70" stroke="var(--accent)" stroke-width="2"/>
+    <line x1="352" y1="112" x2="392" y2="144" stroke="var(--accent)" stroke-width="2"/>
+  </g>
+</svg>

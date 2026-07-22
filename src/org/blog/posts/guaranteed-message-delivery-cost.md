@@ -7,7 +7,9 @@ summary: "\"Will I lose messages if a worker dies?\" is the right question — a
 description: "How guaranteed (safe) message delivery works versus fast unreliable delivery, the throughput cost, and a decision guide for choosing per workload with @imqueue."
 keywords: "guaranteed message delivery nodejs, at-least-once delivery, reliable messaging, safe delivery, message loss, imqueue"
 date: 2026-06-16
-author: The @imqueue team
+author: maya-torres
+illustration: delivery
+topics: [delivery, queue, resilience]
 ogType: article
 ---
 

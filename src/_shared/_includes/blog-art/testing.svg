@@ -1,0 +1,10 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <rect width="480" height="260" rx="0" fill="var(--accent)" opacity="0.05"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="240,50 340,210 140,210" fill="var(--accent)" fill-opacity="0.07" stroke="var(--accent)" stroke-width="2"/>
+    <line x1="188" y1="130" x2="292" y2="130" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 5"/>
+    <line x1="164" y1="170" x2="316" y2="170" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 5"/>
+    <path d="M 214 128 l 12 14 l 26 -30" stroke="var(--accent)" stroke-width="2.5"/>
+    <path d="M 196 168 l 10 12 l 22 -26" stroke="var(--muted)" stroke-width="2"/>
+  </g>
+</svg>

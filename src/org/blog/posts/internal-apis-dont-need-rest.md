@@ -7,7 +7,9 @@ summary: "REST is a fine choice for public, resource-oriented APIs. For internal
 description: "Why REST is often the wrong fit for internal Node.js service-to-service APIs, and when function-call (RPC) semantics are simpler — a concept-level look, with @imqueue as one answer."
 keywords: "internal api rpc, rest for internal services, service to service calls nodejs, rpc vs rest concept, imqueue"
 date: 2026-05-19
-author: The @imqueue team
+author: priya-nair
+illustration: rest-vs-rpc
+topics: [rpc, architecture, comparison]
 ogType: article
 ---
 

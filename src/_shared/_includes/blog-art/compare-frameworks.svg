@@ -1,0 +1,13 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <rect width="480" height="260" rx="0" fill="var(--accent)" opacity="0.05"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="40" y="54" width="170" height="152" rx="10" fill="var(--surface)" stroke="var(--muted)" stroke-width="2"/>
+    <rect x="58" y="74" width="134" height="14" rx="4" fill="var(--muted)" fill-opacity="0.35"/>
+    <rect x="58" y="104" width="134" height="14" rx="4" fill="var(--muted)" fill-opacity="0.35"/>
+    <rect x="58" y="134" width="134" height="14" rx="4" fill="var(--muted)" fill-opacity="0.35"/>
+    <rect x="58" y="164" width="134" height="14" rx="4" fill="var(--muted)" fill-opacity="0.35"/>
+    <rect x="270" y="90" width="170" height="80" rx="10" fill="var(--accent)" fill-opacity="0.10" stroke="var(--accent)" stroke-width="2"/>
+    <rect x="288" y="112" width="134" height="14" rx="4" fill="var(--accent)" fill-opacity="0.5"/>
+    <rect x="288" y="136" width="90" height="12" rx="4" fill="var(--accent)" fill-opacity="0.35"/>
+  </g>
+</svg>

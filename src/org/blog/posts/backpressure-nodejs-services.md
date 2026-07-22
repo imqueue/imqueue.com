@@ -7,7 +7,9 @@ summary: "When a downstream service slows down, HTTP tends to turn that into a c
 description: "How back-pressure works for Node.js microservices, why synchronous HTTP calls cause cascading failures under load, and how a message queue buffers spikes — with @imqueue."
 keywords: "nodejs backpressure microservices, cascading failure, handle traffic spikes microservices, overload resilience, imqueue"
 date: 2026-06-23
-author: The @imqueue team
+author: maya-torres
+illustration: backpressure
+topics: [backpressure, queue, resilience]
 ogType: article
 ---
 

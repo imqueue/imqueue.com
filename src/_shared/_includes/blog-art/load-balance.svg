@@ -1,0 +1,21 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <rect width="480" height="260" rx="0" fill="var(--accent)" opacity="0.05"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="70" y="118" width="18" height="18" rx="4" fill="var(--accent)" fill-opacity="0.15" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="93" y="118" width="18" height="18" rx="4" fill="var(--accent)" fill-opacity="0.4" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="116" y="118" width="18" height="18" rx="4" fill="var(--accent)" fill-opacity="0.15" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="139" y="118" width="18" height="18" rx="4" fill="var(--accent)" fill-opacity="0.4" stroke="var(--accent)" stroke-width="1.6"/>
+    <line x1="168" y1="130" x2="300" y2="84" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 300 84 l -7 -4 m 7 4 l -7 4" stroke="var(--accent)" stroke-width="2"/>
+    <line x1="168" y1="130" x2="300" y2="144" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 300 144 l -7 -4 m 7 4 l -7 4" stroke="var(--accent)" stroke-width="2"/>
+    <line x1="168" y1="130" x2="300" y2="204" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 300 204 l -7 -4 m 7 4 l -7 4" stroke="var(--accent)" stroke-width="2"/>
+    <rect x="304" y="54" width="120" height="46" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <rect x="304" y="116" width="120" height="46" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <rect x="304" y="178" width="120" height="46" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <circle cx="330" cy="77" r="7" fill="var(--accent)" fill-opacity="0.3" stroke="var(--accent)" stroke-width="1.6"/>
+    <circle cx="330" cy="139" r="7" fill="var(--accent)" fill-opacity="0.3" stroke="var(--accent)" stroke-width="1.6"/>
+    <circle cx="330" cy="201" r="7" fill="var(--accent)" fill-opacity="0.3" stroke="var(--accent)" stroke-width="1.6"/>
+  </g>
+</svg>
