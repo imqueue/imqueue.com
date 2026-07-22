@@ -227,9 +227,9 @@ html.lightbox-open { overflow: hidden; }
 .post-card-meta { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin: 0; }
 .post-card-meta a { color: var(--accent); text-decoration: none; }
 .post-card h3 { font-size: 22px; margin: 0; line-height: 1.25; letter-spacing: -.01em; }
-.post-card-art { border-radius: 8px; background: var(--surface); padding: 4px 0; display: flex; justify-content: center; }
+.post-card-art { border-radius: 8px; background: color-mix(in srgb, var(--accent) 6%, var(--surface)); padding: 24px 0; display: flex; justify-content: center; }
 .post-card-art .post-illu { width: 100%; max-width: 480px; height: auto; display: block; }
-.post-hero { border-radius: 12px; background: var(--surface); margin-bottom: 24px; display: flex; justify-content: center; }
+.post-hero { border-radius: 12px; background: color-mix(in srgb, var(--accent) 6%, var(--surface)); margin-bottom: 24px; padding: 28px 0; display: flex; justify-content: center; }
 .post-hero .post-illu { width: 100%; max-width: 560px; height: auto; display: block; }
 .post-card p { font-size: 15px; color: var(--muted); line-height: 1.6; margin: 0; }
 .post-card-more { font-family: var(--font-mono); font-size: 13px; color: var(--accent); }
