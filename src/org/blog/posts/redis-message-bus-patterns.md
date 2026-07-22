@@ -6,7 +6,7 @@ title: "Redis as a message bus: patterns beyond pub/sub"
 summary: "Most people know Redis pub/sub and stop there. Redis has richer primitives — lists, blocking pops, and streams — that make it a capable message bus. Here's a tour, and where each fits."
 description: "Patterns for using Redis as a message bus beyond pub/sub: work queues with lists and BLMOVE, reliable delivery, and Redis Streams — plus where @imqueue fits."
 keywords: "redis message bus, redis pub sub, redis queue, redis streams, BLMOVE, work queue redis, reliable messaging redis, imqueue"
-date: 2026-06-03
+date: 2026-06-22
 author: maya-torres
 illustration: message-bus
 topics: [queue, transport, patterns]

@@ -6,7 +6,7 @@ title: "From monolith to services: a low-risk first extraction"
 summary: "You don't migrate a monolith by rewriting it. You extract one capability, keep everything else in place, and repeat. Here's a concrete, low-risk first step for a Node.js team."
 description: "A practical, low-risk approach to starting a monolith-to-microservices migration in Node.js: extract one capability behind a typed service call and iterate, using @imqueue."
 keywords: "monolith to microservices nodejs, extract first microservice, strangler fig nodejs, incremental migration, imqueue"
-date: 2026-05-26
+date: 2026-06-24
 author: priya-nair
 illustration: monolith-split
 topics: [architecture, migration, rpc]

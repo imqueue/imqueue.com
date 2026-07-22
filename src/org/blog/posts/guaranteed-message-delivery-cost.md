@@ -6,7 +6,7 @@ title: "Guaranteed message delivery: what it costs and when you need it"
 summary: "\"Will I lose messages if a worker dies?\" is the right question — and the answer is a trade-off, not a yes/no. Here's how guaranteed delivery works, what it costs, and how to choose per workload."
 description: "How guaranteed (safe) message delivery works versus fast unreliable delivery, the throughput cost, and a decision guide for choosing per workload with @imqueue."
 keywords: "guaranteed message delivery nodejs, at-least-once delivery, reliable messaging, safe delivery, message loss, imqueue"
-date: 2026-06-16
+date: 2026-07-07
 author: maya-torres
 illustration: delivery
 topics: [delivery, queue, resilience]
