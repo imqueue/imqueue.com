@@ -92,6 +92,10 @@ keywords: "imqueue license, imqueue commercial license, GPL-3.0 commercial use, 
       <div class="fx-acc-body"><p>Yes — GPL-3.0 permits commercial use. The obligation is about <em>source disclosure</em> on distribution, not about charging money. If you distribute a product built on it, the GPL asks you to release that product's source; a commercial license removes that requirement.</p></div>
     </details>
     <details class="fx-acc">
+      <summary>Can I use a GPL-3.0 npm package in a closed-source backend?</summary>
+      <div class="fx-acc-body"><p>It depends on whether you <em>distribute</em> that backend. Installing <code>@imqueue/*</code> as a dependency is fine; the copyleft trigger is conveying the software to others. If your backend runs only as a service you host (SaaS), GPL-3.0 — unlike the AGPL — generally isn't triggered, so your source can stay private. If you ship that backend as a product (on-prem, an appliance, downloadable software), the GPL asks you to release its source — and that's exactly when a commercial license keeps it closed.</p></div>
+    </details>
+    <details class="fx-acc">
       <summary>Does running @imqueue in a SaaS trigger the GPL?</summary>
       <div class="fx-acc-body"><p>Generally no. GPL-3.0 is not the AGPL — providing access to a hosted service isn't "conveying" the software, so SaaS use alone typically doesn't trigger the source-release obligation. A commercial license is still available if you want support or indemnification.</p></div>
     </details>
@@ -137,6 +141,14 @@ keywords: "imqueue license, imqueue commercial license, GPL-3.0 commercial use, 
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Yes — GPL-3.0 permits commercial use. The obligation is about source disclosure on distribution, not about charging money. If you distribute a product built on it, the GPL asks you to release that product's source; a commercial license removes that requirement."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use a GPL-3.0 npm package in a closed-source backend?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It depends on whether you distribute that backend. Installing @imqueue/* as a dependency is fine; the copyleft trigger is conveying the software to others. If your backend runs only as a service you host (SaaS), GPL-3.0 — unlike the AGPL — generally isn't triggered, so your source can stay private. If you ship that backend as a product (on-prem, an appliance, downloadable software), the GPL asks you to release its source, and that's exactly when a commercial license keeps it closed."
       }
     },
     {
