@@ -1,0 +1,323 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "apiPkg": "rpc",
+  "apiVersion": "2.1.0",
+  "apiVersionPath": "2.1.0",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "Description",
+          "url": "/api/rpc/2.1.0/rpc.description/"
+        },
+        {
+          "name": "IMQCache",
+          "url": "/api/rpc/2.1.0/rpc.imqcache/"
+        },
+        {
+          "name": "IMQDelay",
+          "url": "/api/rpc/2.1.0/rpc.imqdelay/"
+        },
+        {
+          "name": "IMQLock",
+          "url": "/api/rpc/2.1.0/rpc.imqlock/"
+        },
+        {
+          "name": "IMQMetadata",
+          "url": "/api/rpc/2.1.0/rpc.imqmetadata/"
+        },
+        {
+          "name": "IMQRPCDescription",
+          "url": "/api/rpc/2.1.0/rpc.imqrpcdescription/"
+        },
+        {
+          "name": "RedisCache",
+          "url": "/api/rpc/2.1.0/rpc.rediscache/"
+        }
+      ]
+    },
+    {
+      "group": "Abstract Classes",
+      "items": [
+        {
+          "name": "IMQClient",
+          "url": "/api/rpc/2.1.0/rpc.imqclient/"
+        },
+        {
+          "name": "IMQService",
+          "url": "/api/rpc/2.1.0/rpc.imqservice/"
+        }
+      ]
+    },
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "currentMetadata()",
+          "url": "/api/rpc/2.1.0/rpc.currentmetadata/"
+        },
+        {
+          "name": "expose()",
+          "url": "/api/rpc/2.1.0/rpc.expose/"
+        },
+        {
+          "name": "fileExists(path)",
+          "url": "/api/rpc/2.1.0/rpc.fileexists/"
+        },
+        {
+          "name": "forgetPid(name, id, logger, path)",
+          "url": "/api/rpc/2.1.0/rpc.forgetpid/"
+        },
+        {
+          "name": "imqCallRejector(reject, req, client)",
+          "url": "/api/rpc/2.1.0/rpc.imqcallrejector/"
+        },
+        {
+          "name": "imqCallResolver(resolve, req, client)",
+          "url": "/api/rpc/2.1.0/rpc.imqcallresolver/"
+        },
+        {
+          "name": "IMQError(code, message, stack, method, args, original)",
+          "url": "/api/rpc/2.1.0/rpc.imqerror/"
+        },
+        {
+          "name": "indexed(indexTypedef)",
+          "url": "/api/rpc/2.1.0/rpc.indexed/"
+        },
+        {
+          "name": "lock(enabledOrOptions)",
+          "url": "/api/rpc/2.1.0/rpc.lock/"
+        },
+        {
+          "name": "logged(options)",
+          "url": "/api/rpc/2.1.0/rpc.logged/"
+        },
+        {
+          "name": "mkdir(path)",
+          "url": "/api/rpc/2.1.0/rpc.mkdir/"
+        },
+        {
+          "name": "osUuid()",
+          "url": "/api/rpc/2.1.0/rpc.osuuid/"
+        },
+        {
+          "name": "pid(name, path)",
+          "url": "/api/rpc/2.1.0/rpc.pid/"
+        },
+        {
+          "name": "property(type, isOptional)",
+          "url": "/api/rpc/2.1.0/rpc.property/"
+        },
+        {
+          "name": "remote()",
+          "url": "/api/rpc/2.1.0/rpc.remote/"
+        },
+        {
+          "name": "runWithRequest(request, fn)",
+          "url": "/api/rpc/2.1.0/rpc.runwithrequest/"
+        },
+        {
+          "name": "send(request, response, service)",
+          "url": "/api/rpc/2.1.0/rpc.send/"
+        },
+        {
+          "name": "signature(className, methodName, args)",
+          "url": "/api/rpc/2.1.0/rpc.signature/"
+        },
+        {
+          "name": "writeFile(path, content)",
+          "url": "/api/rpc/2.1.0/rpc.writefile/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "ArgDescription",
+          "url": "/api/rpc/2.1.0/rpc.argdescription/"
+        },
+        {
+          "name": "CacheDecorator",
+          "url": "/api/rpc/2.1.0/rpc.cachedecorator/"
+        },
+        {
+          "name": "CacheDecoratorOptions",
+          "url": "/api/rpc/2.1.0/rpc.cachedecoratoroptions/"
+        },
+        {
+          "name": "ICache",
+          "url": "/api/rpc/2.1.0/rpc.icache/"
+        },
+        {
+          "name": "ICacheConstructor",
+          "url": "/api/rpc/2.1.0/rpc.icacheconstructor/"
+        },
+        {
+          "name": "IMQAfterCall",
+          "url": "/api/rpc/2.1.0/rpc.imqaftercall/"
+        },
+        {
+          "name": "IMQBeforeCall",
+          "url": "/api/rpc/2.1.0/rpc.imqbeforecall/"
+        },
+        {
+          "name": "IMQClientOptions",
+          "url": "/api/rpc/2.1.0/rpc.imqclientoptions/"
+        },
+        {
+          "name": "IMQLockMetadata",
+          "url": "/api/rpc/2.1.0/rpc.imqlockmetadata/"
+        },
+        {
+          "name": "IMQLockMetadataItem",
+          "url": "/api/rpc/2.1.0/rpc.imqlockmetadataitem/"
+        },
+        {
+          "name": "IMQMetricsServerOptions",
+          "url": "/api/rpc/2.1.0/rpc.imqmetricsserveroptions/"
+        },
+        {
+          "name": "IMQRPCError",
+          "url": "/api/rpc/2.1.0/rpc.imqrpcerror/"
+        },
+        {
+          "name": "IMQRPCRequest",
+          "url": "/api/rpc/2.1.0/rpc.imqrpcrequest/"
+        },
+        {
+          "name": "IMQRPCResponse",
+          "url": "/api/rpc/2.1.0/rpc.imqrpcresponse/"
+        },
+        {
+          "name": "IMQServiceOptions",
+          "url": "/api/rpc/2.1.0/rpc.imqserviceoptions/"
+        },
+        {
+          "name": "IRedisCacheOptions",
+          "url": "/api/rpc/2.1.0/rpc.irediscacheoptions/"
+        },
+        {
+          "name": "LockOptions",
+          "url": "/api/rpc/2.1.0/rpc.lockoptions/"
+        },
+        {
+          "name": "LoggedDecoratorOptions",
+          "url": "/api/rpc/2.1.0/rpc.loggeddecoratoroptions/"
+        },
+        {
+          "name": "MethodDescription",
+          "url": "/api/rpc/2.1.0/rpc.methoddescription/"
+        },
+        {
+          "name": "MethodsCollectionDescription",
+          "url": "/api/rpc/2.1.0/rpc.methodscollectiondescription/"
+        },
+        {
+          "name": "PropertyDescription",
+          "url": "/api/rpc/2.1.0/rpc.propertydescription/"
+        },
+        {
+          "name": "ReturnValueDescription",
+          "url": "/api/rpc/2.1.0/rpc.returnvaluedescription/"
+        },
+        {
+          "name": "ServiceClassDescription",
+          "url": "/api/rpc/2.1.0/rpc.serviceclassdescription/"
+        },
+        {
+          "name": "ServiceDescription",
+          "url": "/api/rpc/2.1.0/rpc.servicedescription/"
+        },
+        {
+          "name": "Thunk",
+          "url": "/api/rpc/2.1.0/rpc.thunk/"
+        },
+        {
+          "name": "TypeDescription",
+          "url": "/api/rpc/2.1.0/rpc.typedescription/"
+        },
+        {
+          "name": "TypesDescription",
+          "url": "/api/rpc/2.1.0/rpc.typesdescription/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "AFTER\\_HOOK\\_ERROR",
+          "url": "/api/rpc/2.1.0/rpc.after_hook_error/"
+        },
+        {
+          "name": "BEFORE\\_HOOK\\_ERROR",
+          "url": "/api/rpc/2.1.0/rpc.before_hook_error/"
+        },
+        {
+          "name": "cache",
+          "url": "/api/rpc/2.1.0/rpc.cache/"
+        },
+        {
+          "name": "DEFAULT\\_IMQ\\_CLIENT\\_OPTIONS",
+          "url": "/api/rpc/2.1.0/rpc.default_imq_client_options/"
+        },
+        {
+          "name": "DEFAULT\\_IMQ\\_METRICS\\_SERVER\\_OPTIONS",
+          "url": "/api/rpc/2.1.0/rpc.default_imq_metrics_server_options/"
+        },
+        {
+          "name": "DEFAULT\\_IMQ\\_SERVICE\\_OPTIONS",
+          "url": "/api/rpc/2.1.0/rpc.default_imq_service_options/"
+        },
+        {
+          "name": "DEFAULT\\_REDIS\\_CACHE\\_OPTIONS",
+          "url": "/api/rpc/2.1.0/rpc.default_redis_cache_options/"
+        },
+        {
+          "name": "IMQ\\_PID\\_DIR",
+          "url": "/api/rpc/2.1.0/rpc.imq_pid_dir/"
+        },
+        {
+          "name": "IMQ\\_TMP\\_DIR",
+          "url": "/api/rpc/2.1.0/rpc.imq_tmp_dir/"
+        },
+        {
+          "name": "REDIS\\_CLIENT\\_INIT\\_ERROR",
+          "url": "/api/rpc/2.1.0/rpc.redis_client_init_error/"
+        },
+        {
+          "name": "SIGNALS",
+          "url": "/api/rpc/2.1.0/rpc.signals/"
+        }
+      ]
+    },
+    {
+      "group": "Type Aliases",
+      "items": [
+        {
+          "name": "AcquiredLock",
+          "url": "/api/rpc/2.1.0/rpc.acquiredlock/"
+        },
+        {
+          "name": "ICacheAdapter",
+          "url": "/api/rpc/2.1.0/rpc.icacheadapter/"
+        },
+        {
+          "name": "IMQLockQueue",
+          "url": "/api/rpc/2.1.0/rpc.imqlockqueue/"
+        },
+        {
+          "name": "IMQLockTask",
+          "url": "/api/rpc/2.1.0/rpc.imqlocktask/"
+        },
+        {
+          "name": "LoggedLogLevel",
+          "url": "/api/rpc/2.1.0/rpc.loggedloglevel/"
+        }
+      ]
+    }
+  ]
+}
