@@ -1,4 +1,5 @@
 <svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <rect width="480" height="260" rx="0" fill="var(--accent)" opacity="0.05"/>
   <g fill="none" stroke-linecap="round" stroke-linejoin="round">
     <rect x="40" y="100" width="96" height="60" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
     <text x="88" y="135" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="15" fill="var(--accent)" stroke="none">call</text>
