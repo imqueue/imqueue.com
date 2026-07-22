@@ -7,7 +7,9 @@ summary: "Most people know Redis pub/sub and stop there. Redis has richer primit
 description: "Patterns for using Redis as a message bus beyond pub/sub: work queues with lists and BLMOVE, reliable delivery, and Redis Streams — plus where @imqueue fits."
 keywords: "redis message bus, redis pub sub, redis queue, redis streams, BLMOVE, work queue redis, reliable messaging redis, imqueue"
 date: 2026-06-03
-author: The @imqueue team
+author: maya-torres
+illustration: message-bus
+topics: [queue, transport, patterns]
 ogType: article
 ---
 

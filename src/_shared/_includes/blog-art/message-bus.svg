@@ -1,0 +1,18 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <rect width="480" height="260" rx="0" fill="var(--accent)" opacity="0.05"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="50" y1="150" x2="430" y2="150" stroke="var(--accent)" stroke-width="3"/>
+    <circle cx="80" cy="150" r="9" fill="var(--accent)" fill-opacity="0.2" stroke="var(--accent)" stroke-width="2"/>
+    <rect x="50" y="180" width="60" height="34" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="2"/>
+    <line x1="80" y1="150" x2="80" y2="180" stroke="var(--muted)" stroke-width="1.6"/>
+    <circle cx="175" cy="150" r="9" fill="var(--accent)" fill-opacity="0.2" stroke="var(--accent)" stroke-width="2"/>
+    <rect x="145" y="92" width="60" height="34" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="2"/>
+    <line x1="175" y1="150" x2="175" y2="126" stroke="var(--muted)" stroke-width="1.6"/>
+    <circle cx="270" cy="150" r="9" fill="var(--accent)" fill-opacity="0.2" stroke="var(--accent)" stroke-width="2"/>
+    <rect x="240" y="180" width="60" height="34" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="2"/>
+    <line x1="270" y1="150" x2="270" y2="180" stroke="var(--muted)" stroke-width="1.6"/>
+    <circle cx="365" cy="150" r="9" fill="var(--accent)" fill-opacity="0.2" stroke="var(--accent)" stroke-width="2"/>
+    <rect x="335" y="92" width="60" height="34" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="2"/>
+    <line x1="365" y1="150" x2="365" y2="126" stroke="var(--muted)" stroke-width="1.6"/>
+  </g>
+</svg>
