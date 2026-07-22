@@ -103,6 +103,41 @@ await client.start();
 const user = await client.get('42'); // fully typed, no hand-written client
 ~~~
 
+## MCP server: give your agent live docs & scaffolding
+
+For agents that speak the [Model Context Protocol](https://modelcontextprotocol.io)
+(Claude Code, Cursor, Windsurf, VS Code, Claude Desktop, …), the **`@imqueue/mcp`**
+server is the best integration. Instead of pasting context, your agent gets tools it
+can call directly:
+
+- `search_docs` / `get_doc` — search and read these docs live (always current, never
+  a stale training snapshot).
+- `list_packages` — the @imqueue package catalog with install commands.
+- `scaffold_service` / `scaffold_client` — generate idiomatic `IMQService` code and
+  the typed-client workflow.
+
+**Claude Code:**
+
+~~~bash
+claude mcp add imqueue -- npx -y @imqueue/mcp
+~~~
+
+**Cursor / Windsurf / VS Code / Claude Desktop** — add to your MCP config:
+
+~~~json
+{
+  "mcpServers": {
+    "imqueue": {
+      "command": "npx",
+      "args": ["-y", "@imqueue/mcp"]
+    }
+  }
+}
+~~~
+
+No API keys, no build step — it runs from npm and only ever fetches imqueue.org.
+Source & details: [github.com/imqueue/mcp](https://github.com/imqueue/mcp).
+
 ## Endpoints for AI agents
 
 If you are building an agent, or your assistant can fetch URLs, these endpoints
