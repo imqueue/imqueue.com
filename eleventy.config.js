@@ -80,7 +80,9 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addCollection("contentMd", (api) =>
     api.getAll().filter(
       (item) =>
-        item.inputPath.endsWith(".md") && !(item.url || "").includes("/api/")
+        item.inputPath.endsWith(".md") &&
+        !(item.url || "").includes("/api/") &&
+        !item.data.draft
     )
   );
 

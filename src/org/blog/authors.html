@@ -26,6 +26,21 @@ eleventyComputed:
   </header>
 
   <h2 class="section-label" style="margin:44px 0 18px;">// POSTS BY {{ author.name | upcase }}</h2>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "url": "{{ siteUrl }}/blog/authors/{{ author.slug }}/",
+    "mainEntity": {
+      "@type": "Person",
+      "name": {{ author.name | json }},
+      "jobTitle": {{ author.occupation | json }},
+      "description": {{ author.bio | strip_newlines | strip | json }},
+      "url": "{{ siteUrl }}/blog/authors/{{ author.slug }}/",
+      "worksFor": { "@id": "{{ siteUrl }}/#org" }
+    }
+  }
+  </script>
   <div class="post-list">
     {%- for post in myPosts -%}
     {%- assign artPartial = "blog-art/" | append: post.data.illustration | append: ".svg" -%}

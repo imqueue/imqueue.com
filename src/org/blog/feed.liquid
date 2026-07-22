@@ -1,0 +1,30 @@
+---
+permalink: /blog/feed.xml
+eleventyExcludeFromCollections: true
+---
+<?xml version="1.0" encoding="utf-8"?>
+{%- assign newest = collections.posts | first -%}
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>@imqueue Blog</title>
+  <subtitle>Articles about message-queue RPC for Node.js &amp; TypeScript microservices.</subtitle>
+  <link href="{{ siteUrl }}/blog/feed.xml" rel="self"/>
+  <link href="{{ siteUrl }}/blog/"/>
+  <id>{{ siteUrl }}/blog/</id>
+  {%- if newest %}
+  <updated>{{ newest.date | date: "%Y-%m-%d" }}T00:00:00Z</updated>
+  {%- endif %}
+  <author><name>@imqueue</name><uri>{{ siteUrl }}/</uri></author>
+  {%- for post in collections.posts limit: 20 -%}
+  {%- assign a = authors | authorBySlug: post.data.author -%}
+  <entry>
+    <title>{{ post.data.title | escape }}</title>
+    <link href="{{ siteUrl }}{{ post.url }}"/>
+    <id>{{ siteUrl }}{{ post.url }}</id>
+    <published>{{ post.date | date: "%Y-%m-%d" }}T00:00:00Z</published>
+    <updated>{{ post.date | date: "%Y-%m-%d" }}T00:00:00Z</updated>
+    {%- if a %}<author><name>{{ a.name | escape }}</name><uri>{{ siteUrl }}/blog/authors/{{ a.slug }}/</uri></author>{%- endif %}
+    {%- for topic in post.data.topics %}<category term="{{ topic | escape }}"/>{%- endfor %}
+    {%- if post.data.summary %}<summary type="text">{{ post.data.summary | escape }}</summary>{%- endif %}
+  </entry>
+  {%- endfor %}
+</feed>
