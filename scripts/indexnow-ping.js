@@ -9,7 +9,12 @@
  *   node scripts/indexnow-ping.js com                 # submit every URL in _site-com/sitemap.xml
  *   node scripts/indexnow-ping.js org                 # same for the .org edition
  *   node scripts/indexnow-ping.js com /license/ /support/   # submit only specific paths
+ *   node scripts/indexnow-ping.js org --exclude=/api/ # skip URLs whose path contains /api/
  *   node scripts/indexnow-ping.js com --dry-run       # print what would be sent, submit nothing
+ *
+ * --exclude=<substr> may be repeated; any URL containing one of the substrings
+ * is dropped (how many were dropped is logged, never silently). The bundled
+ * `npm run indexnow:org` excludes /api/ so pings stay on high-value pages.
  *
  * The key file must already be live at https://<host>/<key>.txt (emitted by
  * src/indexnow.liquid). IndexNow verifies it before accepting the URL list.
@@ -57,11 +62,26 @@ async function main() {
     const host = HOSTS[edition];
     const key = readKey();
     const dryRun = rest.includes('--dry-run');
+    const excludes = rest
+        .filter(a => a.startsWith('--exclude='))
+        .map(a => a.slice('--exclude='.length))
+        .filter(Boolean);
     const paths = rest.filter(a => !a.startsWith('--'));
 
-    const urlList = paths.length
+    let urlList = paths.length
         ? paths.map(p => `https://${host}${p.startsWith('/') ? p : '/' + p}`)
         : urlsFromSitemap(edition);
+
+    if (excludes.length) {
+        const before = urlList.length;
+        urlList = urlList.filter(u => !excludes.some(x => u.includes(x)));
+        const dropped = before - urlList.length;
+        if (dropped) {
+            console.log(
+                `Excluded ${dropped} URL(s) matching: ${excludes.join(', ')}`,
+            );
+        }
+    }
 
     if (!urlList.length) {
         console.error('No URLs to submit.');

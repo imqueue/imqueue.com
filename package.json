@@ -39,7 +39,7 @@
     "build-docs": "node api-docs",
     "sync-cli-guide": "node scripts/sync-cli-wiki.js",
     "sync-cli-guide:check": "node scripts/sync-cli-wiki.js --check",
-    "indexnow:org": "node scripts/indexnow-ping.js org",
+    "indexnow:org": "node scripts/indexnow-ping.js org --exclude=/api/",
     "indexnow:com": "node scripts/indexnow-ping.js com",
     "gen-syndication": "node scripts/gen-syndication.js"
   },
