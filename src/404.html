@@ -1,0 +1,36 @@
+---
+layout: base.html
+permalink: /404.html
+noindex: true
+eleventyExcludeFromCollections: true
+title: "Page not found"
+description: "The page you were looking for doesn't exist."
+---
+{% if edition == "com" %}
+<section class="fx-hero fx-hero--narrow">
+  <div class="fx-center">
+    <div class="fx-pill">404</div>
+    <h1 class="fx-h1" style="font-size:44px;">This page took a different queue.</h1>
+    <p class="fx-lead" style="max-width:560px;">We couldn't find what you were looking for. It may have moved, or the link might be off.</p>
+    <div class="fx-cta">
+      <a href="/" class="btn btn-gradient">Home →</a>
+      <a href="/pricing/" class="btn btn-ghost">Commercial license →</a>
+    </div>
+    <p class="fx-note" style="max-width:520px;margin:26px auto 0;">Looking for the docs? They live on <a href="{{ otherUrl }}/">imqueue.org</a>. Need a hand? Email <a href="mailto:support@imqueue.com">support@imqueue.com</a>.</p>
+  </div>
+</section>
+{% else %}
+<div class="page-center">
+<section class="container" style="padding-top:96px;padding-bottom:96px;text-align:center;">
+  <div class="section-label" style="margin-bottom:14px;justify-content:center;">// 404 — NOT FOUND</div>
+  <h1 style="font-family:var(--font-display);font-weight:700;font-size:42px;letter-spacing:-.03em;margin:0 0 12px;">This page took a different queue.</h1>
+  <p class="muted" style="font-size:17px;max-width:520px;margin:0 auto 28px;">We couldn't find that page. It may have moved, or the link might be off.</p>
+  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-family:var(--font-mono);font-size:14px;">
+    <a href="/" style="color:var(--accent);">home →</a>
+    <a href="/docs/" style="color:var(--accent);">docs →</a>
+    <a href="/get-started/" style="color:var(--accent);">get started →</a>
+    <a href="/blog/" style="color:var(--accent);">blog →</a>
+  </div>
+</section>
+</div>
+{% endif %}
