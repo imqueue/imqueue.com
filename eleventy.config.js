@@ -74,6 +74,16 @@ module.exports = function (eleventyConfig) {
   // Build only the active edition's pages.
   eleventyConfig.ignores.add(isCom ? "src/org/**" : "src/com/**");
 
+  // Markdown content pages (docs/tutorial/cli/get-started) — used to emit
+  // per-page ".md" mirrors and the concatenated llms-full.txt. Excludes the
+  // generated API reference, which is HTML-only and too large/thin to mirror.
+  eleventyConfig.addCollection("contentMd", (api) =>
+    api.getAll().filter(
+      (item) =>
+        item.inputPath.endsWith(".md") && !(item.url || "").includes("/api/")
+    )
+  );
+
   // Static assets: shared first, then the active edition's theme css (same /css dir).
   eleventyConfig.addPassthroughCopy({ "src/_shared/fonts": "fonts" });
   eleventyConfig.addPassthroughCopy({ "src/_shared/css": "css" });
