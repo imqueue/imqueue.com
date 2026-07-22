@@ -14,6 +14,8 @@ module.exports = {
   layout: "tutorial.html",
   section: "tutorial",
   tutorialChapters: chapters,
+  // Reverse mesh: blog topics this area is about (drives "From the blog").
+  relatedTopics: ["architecture", "rpc", "testing", "clients", "migration"],
   eleventyComputed: {
     tutPrev: (data) => (data.chapter ? chapters[data.chapter - 2] || null : null),
     tutNext: (data) => (data.chapter ? chapters[data.chapter] || null : null),

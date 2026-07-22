@@ -6,6 +6,7 @@ docLabel: AI ASSISTANTS
 lead: "Build @imqueue services faster with Claude, ChatGPT, Cursor, GitHub Copilot and other coding agents. Paste the context block below into your assistant so it generates correct, idiomatic @imqueue code."
 description: "How to use @imqueue with AI coding assistants like Claude, ChatGPT, Cursor and Copilot — a paste-ready context block and the machine-readable docs endpoints (llms.txt, markdown mirrors) agents can fetch."
 keywords: "@imqueue AI assistant, imqueue Cursor, imqueue Claude, imqueue Copilot, AI coding assistant Node.js RPC, llms.txt, generate imqueue service with AI, TypeScript microservices AI"
+relatedTopics: [dx, tooling, clients]
 ---
 
 [[toc]]

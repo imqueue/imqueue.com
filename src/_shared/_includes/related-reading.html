@@ -1,0 +1,19 @@
+{%- comment -%}
+Reverse internal-link mesh: surface blog posts relevant to a docs/tutorial/cli
+page. Driven by the page's (or area's) `relatedTopics`; omitted entirely when
+there are no on-topic posts. See the `postsByTopics` filter in eleventy.config.js.
+{%- endcomment -%}
+{%- assign relPosts = collections.posts | postsByTopics: relatedTopics, 4 -%}
+{%- if relPosts and relPosts.size > 0 -%}
+<section class="related-reading" aria-label="Related articles">
+  <div class="section-label" style="margin-bottom:16px;">// FROM THE BLOG</div>
+  <ul class="related-reading-list">
+    {%- for r in relPosts -%}
+    <li>
+      <a href="{{ r.url }}" class="rr-title">{{ r.data.title }}</a>
+      {%- if r.data.summary %}<p class="rr-sum">{{ r.data.summary | truncate: 130 }}</p>{% endif -%}
+    </li>
+    {%- endfor -%}
+  </ul>
+</section>
+{%- endif -%}

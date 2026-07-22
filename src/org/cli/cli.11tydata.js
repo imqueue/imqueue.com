@@ -11,6 +11,8 @@ module.exports = {
   layout: "cli.html",
   section: "docs",
   cliChapters: chapters,
+  // Reverse mesh: blog topics this area is about (drives "From the blog").
+  relatedTopics: ["clients", "dx", "tooling", "versioning", "types"],
   eleventyComputed: {
     cliPrev: (data) => (data.chapter ? chapters[data.chapter - 2] || null : null),
     cliNext: (data) => (data.chapter ? chapters[data.chapter] || null : null),

@@ -6,6 +6,7 @@ docLabel: GET STARTED
 lead: "The shortest path from an empty terminal to a running @imqueue service and a generated client. For a deeper, worked example see the Tutorial; the full technical reference lives in the API docs."
 description: "Install @imqueue and ship your first Node & TypeScript service in minutes — the shortest quickstart for building message-queue RPC microservices."
 keywords: "@imqueue getting started, imqueue quickstart, install imqueue, first Node.js service, TypeScript microservice tutorial, npm @imqueue/cli, message queue RPC setup"
+relatedTopics: [rpc, architecture, dx, clients]
 ---
 
 [[toc]]

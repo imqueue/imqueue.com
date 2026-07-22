@@ -63,6 +63,25 @@ section: blog
       </div>
       {%- endif -%}
 
+      {%- comment -%} Forward mesh: docs/API pages relevant to this post's topics (guideLinks.json), deduped, capped. {%- endcomment -%}
+      {%- assign seenUrls = "" -%}{%- assign guideCount = 0 -%}
+      {%- capture guideItems -%}
+        {%- for t in topics -%}{%- assign links = guideLinks[t] -%}{%- if links -%}
+          {%- for l in links -%}
+            {%- unless seenUrls contains l.url -%}{%- if guideCount < 6 -%}
+          <li><a href="{{ l.url }}">{{ l.title }}</a></li>
+          {%- capture seenUrls -%}{{ seenUrls }} {{ l.url }}{%- endcapture -%}{%- assign guideCount = guideCount | plus: 1 -%}
+            {%- endif -%}{%- endunless -%}
+          {%- endfor -%}
+        {%- endif -%}{%- endfor -%}
+      {%- endcapture -%}
+      {%- if guideCount > 0 -%}
+      <div class="aside-box">
+        <h4>Guides &amp; reference</h4>
+        <ul class="aside-links">{{ guideItems }}</ul>
+      </div>
+      {%- endif -%}
+
       <div class="aside-box">
         <h4>Browse</h4>
         <ul class="aside-links">
