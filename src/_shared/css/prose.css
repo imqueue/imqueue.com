@@ -61,8 +61,8 @@
 
 /* Full API Reference — latest-version package cards + older-versions disclosure */
 .prose .api-ref-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 0 0 18px; }
-.prose .api-ref-card { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; transition: border-color .15s ease, transform .15s ease; }
-.prose .api-ref-card:hover { border-color: var(--accent); transform: translateY(-2px); text-decoration: none; }
+.prose .api-ref-card { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; transition: border-color .15s ease; }
+.prose .api-ref-card:hover { border-color: var(--accent); text-decoration: none; }
 .prose .api-ref-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
 .prose .api-ref-name { font-family: var(--font-mono); font-weight: 600; font-size: 19px; color: var(--accent); }
 .prose .api-ref-ver { font-family: var(--font-mono); font-size: 13.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
