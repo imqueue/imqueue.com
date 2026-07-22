@@ -128,6 +128,22 @@ module.exports = function (eleventyConfig) {
     return picked;
   });
 
+  // Reverse mesh: given a list of topics (declared by a docs/tutorial/cli area),
+  // return the blog posts sharing the most topics, newest first. Drafts excluded.
+  // Unlike `related` it does NOT backfill — a docs page only links posts that are
+  // genuinely on-topic (empty result -> the "From the blog" block is omitted).
+  eleventyConfig.addFilter("postsByTopics", (posts, topics, limit) => {
+    const want = new Set(topics || []);
+    if (!want.size) return [];
+    return (posts || [])
+      .filter((p) => !p.data.draft)
+      .map((p) => ({ p, score: (p.data.topics || []).filter((t) => want.has(t)).length }))
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score || b.p.date - a.p.date)
+      .slice(0, limit || 4)
+      .map((x) => x.p);
+  });
+
   // Static assets: shared first, then the active edition's theme css (same /css dir).
   eleventyConfig.addPassthroughCopy({ "src/_shared/fonts": "fonts" });
   eleventyConfig.addPassthroughCopy({ "src/_shared/css": "css" });

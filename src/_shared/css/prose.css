@@ -101,6 +101,15 @@
 }
 .api-archived-banner strong { color: var(--ink); font-weight: 600; }
 .api-archived-banner a { white-space: nowrap; font-weight: 600; color: var(--accent); }
+
+/* internal-link mesh: "From the blog" on docs/tutorial/cli pages */
+.related-reading { margin: 52px 0 0; padding-top: 28px; border-top: 1px solid var(--line); }
+.related-reading-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
+@media (min-width: 640px) { .related-reading-list { grid-template-columns: 1fr 1fr; } }
+.related-reading-list li { margin: 0; }
+.related-reading .rr-title { font-family: var(--font-display); font-weight: 600; font-size: 16px; line-height: 1.3; color: var(--ink); }
+.related-reading .rr-title:hover { color: var(--accent); }
+.related-reading .rr-sum { margin: 5px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--muted); }
 @media (max-width: 900px) {
   .api-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .api-side { position: static; max-height: 320px; margin-bottom: 24px; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
