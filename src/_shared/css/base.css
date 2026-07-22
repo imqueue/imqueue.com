@@ -222,8 +222,8 @@ html.lightbox-open { overflow: hidden; }
 @media (max-width: 900px) { .blog-layout { grid-template-columns: 1fr; } }
 
 .post-list { display: flex; flex-direction: column; gap: 18px; }
-.post-card { display: flex; flex-direction: column; gap: 13px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px; text-decoration: none; color: inherit; transition: border-color .15s ease, transform .15s ease; }
-.post-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.post-card { display: flex; flex-direction: column; gap: 13px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px; text-decoration: none; color: inherit; transition: border-color .15s ease; }
+.post-card:hover { border-color: var(--accent); }
 .post-card-meta { font-family: var(--font-mono); font-size: 13.5px; color: var(--muted); margin: 0; }
 .post-card-meta a { color: var(--accent); text-decoration: none; }
 .post-card h3 { font-size: 25px; margin: 0; line-height: 1.25; letter-spacing: -.01em; }
