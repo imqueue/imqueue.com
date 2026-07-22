@@ -84,6 +84,16 @@ module.exports = function (eleventyConfig) {
     )
   );
 
+  // Blog posts (.org only) — src/org/blog/posts/*.md, oldest→newest by date.
+  // Drafts (front matter `draft: true`) build to their URL but are kept out of
+  // the index listing.
+  eleventyConfig.addCollection("posts", (api) =>
+    api
+      .getFilteredByGlob("src/org/blog/posts/*.md")
+      .filter((item) => !item.data.draft)
+      .sort((a, b) => a.date - b.date)
+  );
+
   // Static assets: shared first, then the active edition's theme css (same /css dir).
   eleventyConfig.addPassthroughCopy({ "src/_shared/fonts": "fonts" });
   eleventyConfig.addPassthroughCopy({ "src/_shared/css": "css" });
