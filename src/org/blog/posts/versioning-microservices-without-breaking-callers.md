@@ -6,7 +6,7 @@ title: "Versioning microservices without breaking every caller"
 summary: "A change to one service's method quietly breaks the services that call it — and you find out in production. Here's how to make breaking changes loud at build time and coordinate releases across a fleet."
 description: "Strategies for versioning Node.js microservices without silently breaking callers: compile-time breakage via regenerated typed clients and coordinated fleet-wide version bumps with @imqueue."
 keywords: "microservice versioning nodejs, breaking change microservices, coordinate service releases, api versioning, imqueue"
-date: 2026-06-02
+date: 2026-07-02
 author: dan-ivanov
 illustration: versioning
 topics: [versioning, types, dx]
