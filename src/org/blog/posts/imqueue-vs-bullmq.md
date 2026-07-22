@@ -104,7 +104,6 @@ So if your system needs *both* "do this later" (jobs) *and* "give me this now" (
 | Rate limiting / flows / dashboard | ❌ | ✅ |
 | Typed request/response RPC | ✅ (via @imqueue/rpc, same core) | ❌ (jobs only) |
 | Dependencies | 1 (`@imqueue/core`) | several |
-| License | GPL-3.0 (commercial available) | MIT |
 
 ## How to choose
 
