@@ -6,7 +6,7 @@ title: "RPC over Redis in Node.js: patterns, pitfalls, and a typed implementatio
 summary: "How request/reply RPC over Redis actually works in Node.js — the correlation, timeout and delivery problems you have to solve yourself, why the old npm packages stalled, and how @imqueue turns it into typed, boilerplate-free calls."
 description: "A practical guide to doing RPC over Redis in Node.js & TypeScript: the request/reply pattern, its real pitfalls (correlation, timeouts, at-least-once delivery, backpressure), and a maintained, fully-typed implementation with @imqueue."
 keywords: "RPC over Redis, redis rpc, redis rpc node.js, typed rpc redis, node.js redis rpc, request reply redis, redis pub/sub rpc, imqueue"
-date: 2026-07-22
+date: 2026-07-23
 author: mykhailo-stadnyk
 illustration: redis-rpc
 topics: [rpc, queue, transport, patterns]
