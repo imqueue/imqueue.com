@@ -82,6 +82,7 @@
       "name": "@imqueue",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Node.js",
+      "softwareVersion": "{{ apiVersions.rpc.latest }}",
       "url": "{{ siteUrl }}/",
       "description": {{ metaDesc | json }},
       "programmingLanguage": ["TypeScript", "JavaScript"],
@@ -119,6 +120,43 @@
   ]
 }
 </script>
+
+{%- comment -%}
+BreadcrumbList — driven by the first URL path segment (unambiguous; `section`
+is "docs" for both /docs/ and /cli/). Blog pages are handled by post.html and
+the home page has none. Category pages (api/cli/tutorial/docs) get
+Home > Section > [Package >] Leaf; other titled pages get Home > Leaf.
+{%- endcomment -%}
+{%- assign bcParts = page.url | split: "/" -%}
+{%- assign bcSeg = bcParts[1] -%}
+{%- assign bcLabel = "" -%}{%- assign bcRoot = "" -%}
+{%- case bcSeg -%}
+{%- when "api" -%}{%- assign bcLabel = "API reference" -%}{%- assign bcRoot = "/api/" -%}
+{%- when "cli" -%}{%- assign bcLabel = "CLI manual" -%}{%- assign bcRoot = "/cli/" -%}
+{%- when "tutorial" -%}{%- assign bcLabel = "Tutorial" -%}{%- assign bcRoot = "/tutorial/" -%}
+{%- when "docs" -%}{%- assign bcLabel = "Documentation" -%}{%- assign bcRoot = "/docs/" -%}
+{%- endcase -%}
+{%- assign bcLeaf = title | split: " · " | first -%}
+{%- unless page.url == "/" or bcSeg == "blog" -%}
+{%- if bcLabel != "" or title -%}
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{ siteUrl }}/"}
+{%- if bcLabel != "" -%}
+,{"@type":"ListItem","position":2,"name":{{ bcLabel | json }},"item":"{{ siteUrl }}{{ bcRoot }}"}
+{%- if bcSeg == "api" and apiPkg -%}
+{%- capture bcPkgRoot -%}/api/{{ apiPkg }}/{{ apiVersionPath | default: 'latest' }}/{%- endcapture -%}
+,{"@type":"ListItem","position":3,"name":{{ apiPkg | prepend: "@imqueue/" | json }},"item":"{{ siteUrl }}{{ bcPkgRoot }}"}
+{%- unless page.url == bcPkgRoot -%},{"@type":"ListItem","position":4,"name":{{ bcLeaf | json }},"item":"{{ metaUrl }}"}{%- endunless -%}
+{%- else -%}
+{%- unless page.url == bcRoot -%},{"@type":"ListItem","position":3,"name":{{ bcLeaf | json }},"item":"{{ metaUrl }}"}{%- endunless -%}
+{%- endif -%}
+{%- else -%}
+,{"@type":"ListItem","position":2,"name":{{ bcLeaf | json }},"item":"{{ metaUrl }}"}
+{%- endif -%}
+]}
+</script>
+{%- endif -%}
+{%- endunless -%}
 
 <!-- No-FOUC theme init: apply stored theme before first paint -->
 <script>(function(){try{var t=localStorage.getItem('imqueue-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
