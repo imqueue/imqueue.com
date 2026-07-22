@@ -57,7 +57,6 @@ And what you give up:
 | Load balancing | Competing consumers | Client-side / mesh |
 | Streaming | Request/response | Full streaming |
 | Wire format | JSON (optional gzip) | Protobuf (binary) |
-| License | GPL-3.0 (commercial available) | Apache-2.0 |
 
 ## How to choose
 

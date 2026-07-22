@@ -48,7 +48,6 @@ Largely, yes — they're not mutually exclusive. You could build a service's int
 | Inter-service typing | Client generated from service | Annotate patterns/payloads yourself |
 | App structure | Unopinionated | Opinionated (DI, modules, controllers) |
 | Scope | Small, focused | Broad ecosystem |
-| License | GPL-3.0 (commercial available) | MIT |
 
 ## How to choose
 
