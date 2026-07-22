@@ -94,7 +94,7 @@ code { color: var(--accent); }
 /* Brand name always uses the Flux (.com) display face so the logo is identical
    across editions, regardless of each theme's --font-display. */
 .brand__name { font-family: 'Space Grotesk', system-ui, sans-serif; font-weight: 700; font-size: 19px; line-height: 1.05; letter-spacing: -.02em; color: var(--ink); }
-.brand__slogan { font-family: var(--font-mono); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); line-height: 1.1; margin-top: 9px; }
+.brand__slogan { font-family: var(--font-mono); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); line-height: 1.1; margin-top: 9px; white-space: nowrap; }
 .brand--lg .brand__name { font-size: 21.5px; }
 
 .nav-links { display: flex; align-items: center; gap: 4px; }
@@ -171,11 +171,11 @@ code { color: var(--accent); }
 /* Nav collapses to the burger *before* its items would run out of room and wrap.
    The com (Flux) nav carries more items than org (Terminal), so each edition
    switches at its own measured width. */
-@media (max-width: 940px) {
+@media (max-width: 1000px) {
   [data-skin="flux"] .nav-links, [data-skin="flux"] .nav-actions { display: none; }
   [data-skin="flux"] .burger { display: inline-flex; }
 }
-@media (max-width: 860px) {
+@media (max-width: 1000px) {
   [data-skin="terminal"] .nav-links, [data-skin="terminal"] .nav-actions { display: none; }
   [data-skin="terminal"] .burger { display: inline-flex; }
 }
