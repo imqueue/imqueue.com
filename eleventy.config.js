@@ -140,10 +140,9 @@ module.exports = function (eleventyConfig) {
   // robots.txt + sitemap.xml are generated per edition (see src/robots.liquid,
   // src/sitemap.liquid) so each domain advertises its own sitemap URL.
 
-  // imqueue.com: 301 legacy content paths to their new home on imqueue.org.
-  if (isCom) {
-    eleventyConfig.addPassthroughCopy({ "src/com/_redirects": "_redirects" });
-  }
+  // Per-edition _redirects (Cloudflare Pages). imqueue.com 301s legacy content
+  // paths to imqueue.org; imqueue.org 301s retired versioned API URLs to /latest/.
+  eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/_redirects`]: "_redirects" });
 
   // Generated API reference docs (api-documenter output) — .org only.
   if (!isCom) {
