@@ -3,7 +3,9 @@
 Top-of-funnel, problem/solution angle (not comparisons). Each targets a search a
 developer runs when they *have the problem but haven't heard of @imqueue yet* —
 the post leads with the problem, then introduces the framework as one answer.
-Kept on the local `blog-draft` branch for review; not yet written.
+Kept on the local `blog-draft` branch. **All 10 below are now written** into
+`src/org/blog/posts/` (drafted 2026-07; review before publishing). The
+"also-ran" ideas at the bottom remain unwritten suggestions.
 
 Guidance applied to all: keep the transport framing generic ("message queue"),
 don't position @imqueue as tied to a single broker, no product-vs-product
