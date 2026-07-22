@@ -32,8 +32,8 @@ Browse the complete generated reference for the latest release — every class, 
 <details class="api-older">
   <summary>Older versions</summary>
   <div class="api-older-body">
-    <div><span class="api-older-pkg">@imqueue/rpc</span> <a href="/api/rpc/2.0.4/">2.0.4</a> <a href="/api/rpc/1.2.12/">1.2.12</a> <a href="/api/rpc/1.2.11/">1.2.11</a> <a href="/api/rpc/1.2.10/">1.2.10</a> <a href="/api/rpc/1.2.9/">1.2.9</a> <a href="/api/rpc/1.2.8/">1.2.8</a></div>
-    <div><span class="api-older-pkg">@imqueue/core</span> <a href="/api/core/2.0.2/">2.0.2</a> <a href="/api/core/1.3.15/">1.3.15</a> <a href="/api/core/1.3.14/">1.3.14</a> <a href="/api/core/1.3.13/">1.3.13</a> <a href="/api/core/1.3.12/">1.3.12</a> <a href="/api/core/1.3.11/">1.3.11</a></div>
+    <div><span class="api-older-pkg">@imqueue/rpc</span> <a href="/api/rpc/2.0.4/">2.0.4</a> <a href="/api/rpc/1.2.12/">1.2.12</a></div>
+    <div><span class="api-older-pkg">@imqueue/core</span> <a href="/api/core/2.0.2/">2.0.2</a> <a href="/api/core/1.3.15/">1.3.15</a></div>
   </div>
 </details>
 
