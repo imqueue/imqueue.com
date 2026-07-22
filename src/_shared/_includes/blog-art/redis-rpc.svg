@@ -1,0 +1,33 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- caller service -->
+    <rect x="24" y="102" width="96" height="58" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="72" y="130" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="14" fill="var(--accent)" stroke="none">client</text>
+    <text x="72" y="148" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">typed</text>
+
+    <!-- request arrow into redis -->
+    <line x1="124" y1="120" x2="196" y2="120" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 196 120 l -7 -4 m 7 4 l -7 4" stroke="var(--accent)" stroke-width="2"/>
+
+    <!-- Redis cylinder -->
+    <g stroke="var(--accent)" stroke-width="2">
+      <path d="M 200 96 q 40 -16 80 0 v 68 q -40 16 -80 0 z" fill="var(--surface)"/>
+      <path d="M 200 96 q 40 16 80 0" fill="none"/>
+      <path d="M 208 120 h 64 M 208 134 h 64 M 208 148 h 52" stroke="var(--accent)" stroke-opacity="0.5" stroke-width="1.6"/>
+    </g>
+    <text x="240" y="190" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">redis</text>
+
+    <!-- reply arrow out to service -->
+    <line x1="284" y1="120" x2="356" y2="120" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 356 120 l -7 -4 m 7 4 l -7 4" stroke="var(--accent)" stroke-width="2"/>
+
+    <!-- callee service -->
+    <rect x="360" y="102" width="96" height="58" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="408" y="130" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="14" fill="var(--accent)" stroke="none">service</text>
+    <text x="408" y="148" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">@expose</text>
+
+    <!-- reply path (dashed, back through the queue) -->
+    <path d="M 384 162 q -144 54 -288 0" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="4 6"/>
+    <path d="M 96 162 l 6 -5 m -6 5 l 6 5" stroke="var(--muted)" stroke-width="1.6"/>
+  </g>
+</svg>
