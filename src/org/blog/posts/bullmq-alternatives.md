@@ -11,7 +11,6 @@ author: mykhailo-stadnyk
 illustration: compare-frameworks
 topics: [comparison, queue, jobs]
 ogType: article
-draft: true
 ---
 
 [BullMQ](https://docs.bullmq.io/) is the name most Node.js teams reach for when they need background jobs on Redis — it's mature, feature-rich, and by far the most downloaded option (~500K weekly). For a lot of projects it's the right answer, and this guide isn't here to talk you out of it.
