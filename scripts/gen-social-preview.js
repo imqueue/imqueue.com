@@ -62,13 +62,14 @@ const glyph = (x, y, scale, color) => `
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-// name, tagline, install command
+// name, tagline (+ optional second line for long ones), install command
 const CARDS = [
   { repo: "org", name: "@imqueue", tagline: "RPC over a message queue for Node & TypeScript", cmd: "npm i @imqueue/rpc" },
   { repo: "rpc", name: "@imqueue/rpc", tagline: "Type-safe RPC over a message queue", cmd: "npm i @imqueue/rpc" },
   { repo: "core", name: "@imqueue/core", tagline: "The Redis-backed messaging-queue engine", cmd: "npm i @imqueue/core" },
   { repo: "cli", name: "@imqueue/cli", tagline: "Scaffolding & typed-client generation", cmd: "npm i -g @imqueue/cli" },
   { repo: "job", name: "@imqueue/job", tagline: "Simple, safe-by-default Redis job queue", cmd: "npm i @imqueue/job" },
+  { repo: "pg-pubsub", name: "@imqueue/pg-pubsub", tagline: "Reliable PostgreSQL LISTEN/NOTIFY", tagline2: "with inter-process lock support", cmd: "npm i @imqueue/pg-pubsub" },
 ];
 
 // Fit the package name: shrink font so it never collides with the right edge.
@@ -78,8 +79,16 @@ function nameSize(name) {
   return 70;
 }
 
-function card({ name, tagline, cmd }) {
+function card({ name, tagline, tagline2, cmd }) {
   const ns = nameSize(name);
+  // One-line tagline sits at y=372 with the command at 486; a second tagline
+  // line tightens the two together and pushes the command down.
+  const ty1 = tagline2 ? 358 : 372;
+  const taglineBlock = tagline2
+    ? `<text x="100" y="${ty1}" font-family="${MONO}" font-weight="400" font-size="40" fill="#d5e2db">${esc(tagline)}</text>
+  <text x="100" y="${ty1 + 52}" font-family="${MONO}" font-weight="400" font-size="40" fill="#d5e2db">${esc(tagline2)}</text>`
+    : `<text x="100" y="${ty1}" font-family="${MONO}" font-weight="400" font-size="40" fill="#d5e2db">${esc(tagline)}</text>`;
+  const cmdY = tagline2 ? 504 : 486;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
   <defs>
     <linearGradient id="gt" x1="0" y1="0" x2="1" y2="1">
@@ -100,9 +109,9 @@ function card({ name, tagline, cmd }) {
     <text x="124" y="82" font-family="${MONO}" font-weight="700" font-size="${ns}" fill="#e8f0ec">${esc(name)}</text>
   </g>
 
-  <text x="100" y="372" font-family="${MONO}" font-weight="400" font-size="40" fill="#d5e2db">${esc(tagline)}</text>
+  ${taglineBlock}
 
-  <text x="100" y="486" font-family="${MONO}" font-weight="700" font-size="32" fill="#63e6a0"><tspan fill="#35d0e0">$</tspan> ${esc(cmd)}</text>
+  <text x="100" y="${cmdY}" font-family="${MONO}" font-weight="700" font-size="32" fill="#63e6a0"><tspan fill="#35d0e0">$</tspan> ${esc(cmd)}</text>
 
   <text x="100" y="590" font-family="${MONO}" font-weight="700" font-size="28" fill="#7f8f89">open source · GPL-3.0</text>
   <text x="1180" y="590" text-anchor="end" font-family="${MONO}" font-weight="700" font-size="28" fill="#7f8f89">imqueue.org</text>
