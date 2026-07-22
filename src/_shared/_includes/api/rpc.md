@@ -37,7 +37,7 @@ Store, and so on.
   `"imq"`.
 - **logger** — a reference to a logger implementation, used by the whole library.
   Default: `console`. The implementation must satisfy the
-  [ILogger](/api/core/{{latest_core}}/interfaces/ilogger.html) interface.
+  [ILogger](/api/core/latest/core.ilogger/) interface.
 - **safeDelivery** — enables or disables safe (guaranteed) message delivery.
   Default: `false` (off). When on, every consumer either processes a message or
   the message is rescheduled for re-handling by another instance of the same
@@ -87,8 +87,8 @@ clients by hand — but that adds significant work, both to build and, more
 importantly, to maintain afterwards.
 
 @imqueue provides the
-[IMQService](/api/rpc/{{latest_rpc}}/classes/imqservice.html) and
-[IMQClient](/api/rpc/{{latest_rpc}}/classes/imqclient.html) abstract base classes
+[IMQService](/api/rpc/latest/rpc.imqservice/) and
+[IMQClient](/api/rpc/latest/rpc.imqclient/) abstract base classes
 for concrete implementations to extend.
 
 Each service is treated as a package containing at least one service class. A
@@ -378,7 +378,7 @@ types.
 Delayed messaging with `@imqueue/rpc` is easy: any exposed service method can be
 called with a delay. This is handy for building scheduling queues. Just pass a
 `delay` parameter (of type
-[IMQDelay](/api/rpc/{{latest_rpc}}/classes/imqdelay.html)) in any client method
+[IMQDelay](/api/rpc/latest/rpc.imqdelay/)) in any client method
 call:
 
 ~~~typescript
@@ -456,7 +456,7 @@ it isn't.
 
 Locking isn't limited to a method decorator. IMQ also provides a general-purpose
 asynchronous lock class,
-[IMQLock](/api/rpc/{{latest_rpc}}/classes/imqlock.html), that you can use
+[IMQLock](/api/rpc/latest/rpc.imqlock/), that you can use
 wherever you need it across your back-end.
 
 ### Caching
@@ -464,13 +464,13 @@ wherever you need it across your back-end.
 Caching is another optimisation tool @imqueue provides. It caches a method's
 results using a caching adapter (Redis is the default, and currently the only
 built-in one). You can supply your own adapter by implementing the
-[ICache](/api/rpc/{{latest_rpc}}/interfaces/icache.html) and
-[ICacheConstructor](/api/rpc/{{latest_rpc}}/interfaces/imcacheconstructor.html)
+[ICache](/api/rpc/latest/rpc.icache/) and
+[ICacheConstructor](/api/rpc/latest/rpc.icacheconstructor/)
 interfaces.
 
 Out of the box, use the `@cache()` decorator on service methods, or work with the
-[IMQCache](/api/rpc/{{latest_rpc}}/classes/imqcache.html) registry and the
-[RedisCache](/api/rpc/{{latest_rpc}}/classes/rediscache.html) engine directly.
+[IMQCache](/api/rpc/latest/rpc.imqcache/) registry and the
+[RedisCache](/api/rpc/latest/rpc.rediscache/) engine directly.
 
 Typical usage:
 

@@ -7,8 +7,8 @@ lead: "Application programming interface documentation for the @imqueue packages
 description: "API reference for @imqueue — core, rpc and cli packages: RPC API, decorators, doc-blocks, the Messaging API and adapters, plus generated per-version reference docs."
 keywords: "@imqueue API reference, imqueue core, imqueue rpc, imqueue cli, RPC decorators, TypeScript RPC API, message queue API, IMQService, IMQClient, @expose decorator"
 ---
-{% assign latest_core = apiVersions.core %}
-{% assign latest_rpc = apiVersions.rpc %}
+{% assign latest_core = apiVersions.core.latest %}
+{% assign latest_rpc = apiVersions.rpc.latest %}
 
 [[toc]]
 
@@ -32,8 +32,8 @@ Browse the complete generated reference for the latest release — every class, 
 <details class="api-older">
   <summary>Older versions</summary>
   <div class="api-older-body">
-    <div><span class="api-older-pkg">@imqueue/rpc</span> <a href="/api/rpc/2.0.4/">2.0.4</a> <a href="/api/rpc/1.2.12/">1.2.12</a></div>
-    <div><span class="api-older-pkg">@imqueue/core</span> <a href="/api/core/2.0.2/">2.0.2</a> <a href="/api/core/1.3.15/">1.3.15</a></div>
+    <div><span class="api-older-pkg">@imqueue/rpc</span> {% for v in apiVersions.rpc.archives %}<a href="/api/rpc/{{ v }}/">{{ v }}</a> {% endfor %}</div>
+    <div><span class="api-older-pkg">@imqueue/core</span> {% for v in apiVersions.core.archives %}<a href="/api/core/{{ v }}/">{{ v }}</a> {% endfor %}</div>
   </div>
 </details>
 
