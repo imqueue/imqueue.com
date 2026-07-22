@@ -1,0 +1,34 @@
+---
+permalink: /llms-full.txt
+eleventyExcludeFromCollections: true
+---
+{%- if edition == "com" -%}
+# @imqueue — Commercial license & support
+
+> Commercial licensing and paid support for @imqueue. The framework itself is open source (GPL-3.0); the full documentation lives at https://imqueue.org (see https://imqueue.org/llms-full.txt).
+
+A commercial license lets you ship @imqueue inside a closed-source product without the GPL-3.0 obligation to release your product's source, and adds SLA-backed support. Contact and pricing: {{ siteUrl }}/pricing/
+{%- else -%}
+# @imqueue — Full documentation
+
+> RPC over an inter-communication messaging queue for service-oriented Node.js & TypeScript back-ends. This file concatenates the framework documentation as a single markdown document for AI ingestion. Canonical HTML: {{ siteUrl }}/. Commercial licensing: https://imqueue.com/. Generated API reference (not included here): {{ siteUrl }}/api/.
+
+{% for item in collections.all -%}
+{%- assign isMd = false -%}
+{%- if item.inputPath contains ".md" -%}{%- assign isMd = true -%}{%- endif -%}
+{%- if item.url contains "/api/" -%}{%- assign isMd = false -%}{%- endif -%}
+{%- if isMd -%}
+{%- assign body = item.rawInput | replace: "[[toc]]", "" -%}
+
+---
+
+# {{ item.data.title | default: item.url }}
+
+Source: {{ siteUrl }}{{ item.url }}
+{% if item.data.lead %}
+{{ item.data.lead }}
+{% endif %}
+{{ body | strip }}
+{% endif -%}
+{%- endfor -%}
+{%- endif -%}

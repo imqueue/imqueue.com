@@ -120,3 +120,45 @@ keywords: "@imqueue pricing, imqueue commercial license price, buy imqueue licen
     </div>
   </div>
 </section>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "{{ siteUrl }}{{ page.url }}#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "When does the GPL obligation kick in?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When you convey or distribute a product built on @imqueue. GPL-3.0's copyleft asks you to release that product's source under the GPL. A commercial license removes that requirement."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a license for internal tools?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Generally no. If the software isn't distributed outside your organization, the GPL obligation usually isn't triggered. The commercial license is for shipping closed-source products — and for support and indemnification."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does the commercial license include?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The right to use @imqueue in closed-source products, SLA-backed support, and indemnification — on the same packages and APIs as the open-source edition."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is the code different from the open-source version?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No — identical @imqueue/* packages. You change the license terms, not the code. No fork, no migration."
+      }
+    }
+  ]
+}
+</script>

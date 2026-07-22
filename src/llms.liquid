@@ -1,0 +1,56 @@
+---
+permalink: /llms.txt
+eleventyExcludeFromCollections: true
+---
+{%- if edition == "com" -%}
+# @imqueue — Commercial license & support
+
+> Commercial licensing and paid support for @imqueue, an RPC framework over an inter-communication messaging queue for Node.js & TypeScript microservices. The framework is open source under GPL-3.0; a commercial license lets you ship it inside a closed-source product without the GPL source-release obligation.
+
+The open-source packages (@imqueue/core, @imqueue/rpc, @imqueue/cli) and their documentation live at https://imqueue.org. This site covers licensing and support only.
+
+## Commercial
+- [Pricing & commercial license]({{ siteUrl }}/pricing/): Lift the GPL-3.0 source-release obligation and get SLA-backed support. Same packages, same APIs.
+- [Home]({{ siteUrl }}/): Overview of commercial licensing for @imqueue.
+
+## Open source & docs
+- [imqueue.org](https://imqueue.org/): Framework home, documentation, tutorial, CLI guide and API reference.
+- [imqueue.org llms.txt](https://imqueue.org/llms.txt): Machine-readable index of the framework documentation.
+{%- else -%}
+# @imqueue
+
+> RPC over an inter-communication messaging queue for service-oriented Node.js & TypeScript back-ends. Self-describing services generate their own strongly-typed clients — no hand-written client code, no service discovery, no load balancer.
+
+@imqueue is an open-source framework (GPL-3.0). Core packages: @imqueue/core (reliable message queue over Redis), @imqueue/rpc (typed RPC with automatic client generation), @imqueue/cli (scaffolding and orchestration of services). Commercial licensing and support for closed-source products: https://imqueue.com
+
+## Getting Started
+{%- for item in collections.all -%}
+{%- if item.url == "/get-started/" or item.url == "/intro/" %}
+- [{{ item.data.title | default: "Introduction" }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %}
+{%- endif -%}
+{%- endfor %}
+
+## Tutorial
+{%- for item in collections.all -%}
+{%- if item.url contains "/tutorial/" %}
+- [{{ item.data.title | default: item.url }}]({{ siteUrl }}{{ item.url }}){% if item.data.lead %}: {{ item.data.lead | strip_newlines }}{% elsif item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %}
+{%- endif -%}
+{%- endfor %}
+
+## CLI Guide
+{%- for item in collections.all -%}
+{%- if item.url contains "/cli/" %}
+- [{{ item.data.title | default: item.url }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %}
+{%- endif -%}
+{%- endfor %}
+
+## Reference
+- [API Documentation]({{ siteUrl }}/api/): Full generated API reference for @imqueue/core and @imqueue/rpc (classes, interfaces, methods, types).
+- [Documentation home]({{ siteUrl }}/docs/): Entry point to all @imqueue documentation.
+
+## Full text
+- [llms-full.txt]({{ siteUrl }}/llms-full.txt): The complete documentation concatenated as a single markdown file for ingestion.
+
+## Commercial
+- [Commercial license & support](https://imqueue.com/): Ship @imqueue inside a closed-source product and get SLA-backed support.
+{%- endif -%}

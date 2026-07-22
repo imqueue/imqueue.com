@@ -1,0 +1,16 @@
+---
+pagination:
+  data: collections.contentMd
+  size: 1
+  alias: doc
+permalink: "{{ doc.url }}index.md"
+eleventyExcludeFromCollections: true
+---
+{%- assign body = doc.rawInput | replace: "[[toc]]", "" -%}
+# {{ doc.data.title | default: doc.url }}
+
+Source: {{ siteUrl }}{{ doc.url }}
+{% if doc.data.lead %}
+{{ doc.data.lead }}
+{% endif %}
+{{ body | strip }}
