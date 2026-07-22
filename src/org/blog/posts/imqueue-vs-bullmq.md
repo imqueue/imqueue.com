@@ -17,7 +17,7 @@ If you need to run background jobs on Redis in Node.js, [BullMQ](https://docs.bu
 
 ## The one-line version
 
-**`@imqueue/job` is a deliberately *simple*, safe-by-default job queue; BullMQ is the *feature-rich* one.** Both run on Redis, both do concurrent workers and delayed jobs. BullMQ adds a much larger job-lifecycle surface (retries with backoff, priorities, repeatable/cron jobs, rate limiting, flows, a dashboard). `@imqueue/job` keeps a tiny footprint and leans on guaranteed delivery being on by default.
+**`@imqueue/job` is a deliberately *simple*, safe-by-default job queue; BullMQ is the *feature-rich* one.** Both run on Redis, both do concurrent workers, delayed jobs, and automatic retries. BullMQ adds a much larger job-lifecycle surface (a *declarative* retry/backoff policy with dead-lettering, priorities, repeatable/cron jobs, rate limiting, flows, a dashboard). `@imqueue/job` keeps a tiny footprint and leans on guaranteed delivery being on by default.
 
 ## What @imqueue/job gives you
 
@@ -107,7 +107,7 @@ So if your system needs *both* "do this later" (jobs) *and* "give me this now" (
 
 ## How to choose
 
-- **Reach for BullMQ** when you need the rich job lifecycle — retries with backoff, priorities, cron/repeatable jobs, rate limiting, flows, or a ready-made dashboard.
+- **Reach for BullMQ** when you need the rich job lifecycle — a declarative retry/backoff policy with dead-lettering, priorities, cron/repeatable jobs, rate limiting, flows, or a ready-made dashboard.
 - **Reach for `@imqueue/job`** when you want a small, dependency-light, safe-by-default job queue with delayed/scheduled jobs — especially if you're already using `@imqueue` for service communication and want one stack for both jobs and RPC.
 
 To try the @imqueue side, [Getting Started](/get-started/) covers the framework, and [`@imqueue/job`](https://github.com/imqueue/job) has the job-queue API.
