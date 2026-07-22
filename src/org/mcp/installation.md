@@ -100,6 +100,10 @@ You can also add it from **Settings → MCP → Add new global MCP server**, whi
 opens the same file. New servers appear under Settings → MCP; toggle **imqueue**
 on if it is not already enabled.
 
+Or install it in one click:
+
+<a href="cursor://anysphere.cursor-deeplink/mcp/install?name=imqueue&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBpbXF1ZXVlL21jcCJdfQ==" style="display:inline-block;font-family:var(--font-mono);font-size:13px;padding:9px 16px;border:1px solid var(--accent);border-radius:8px;color:var(--accent);text-decoration:none;">▶ Add to Cursor</a>
+
 ## VS Code
 
 GitHub Copilot's agent mode reads `.vscode/mcp.json` in your workspace (or run
@@ -123,6 +127,10 @@ Or add it in one line from a terminal:
 ~~~bash
 code --add-mcp '{"name":"imqueue","command":"npx","args":["-y","@imqueue/mcp"]}'
 ~~~
+
+Or install it in one click (opens VS Code):
+
+<a href="https://vscode.dev/redirect/mcp/install?name=imqueue&config=%7B%22type%22%3A%22stdio%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40imqueue%2Fmcp%22%5D%7D" style="display:inline-block;font-family:var(--font-mono);font-size:13px;padding:9px 16px;border:1px solid var(--accent);border-radius:8px;color:var(--accent);text-decoration:none;">▶ Install in VS Code</a>
 
 Open the Copilot Chat **Agent** mode and click the tools icon to confirm imqueue's
 tools are listed and enabled.
