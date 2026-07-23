@@ -5,13 +5,15 @@
       "name": "org",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "serve:org"],
-      "port": 8080
+      "port": 8080,
+      "autoPort": true
     },
     {
       "name": "com",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "serve:com"],
-      "port": 8081
+      "port": 8081,
+      "autoPort": true
     }
   ]
 }
