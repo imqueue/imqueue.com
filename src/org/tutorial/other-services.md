@@ -22,16 +22,18 @@ Here are the requirements.
 
 ### Car service requirements
 
-- Source its car data from any available dataset — for example, this
-  [publicly available vehicle database](https://www.fueleconomy.gov/feg/ws/index.shtml).
-- Cache the data in an in-memory store, refreshed from the remote vehicle
-  database every 24 hours.
+- Source its car data from the EPA fuel-economy bulk dataset
+  ([`vehicles.csv.zip`](https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip)) —
+  download it, unzip it and parse the CSV.
+- Cache the parsed data in an in-memory store, refreshed from the remote dataset
+  every 24 hours.
 - Expose a list of car objects (`CarObject`) with the following fields:
   * unique car identifier (`id: string`)
   * manufacturer name (`make: string`)
   * model name (`model: string`)
   * years of manufacture (`years: number[]`)
-  * type (`type: 'mini' | 'midsize' | 'large'`)
+  * type (`type: string`) — one of `'mini'`, `'midsize'` or `'large'`, derived
+    from the EPA vehicle class
 
 Here is the interface the service is expected to implement:
 
@@ -77,7 +79,10 @@ For implementation details, refer to the
 [source code](https://github.com/imqueue-sandbox/car).
 
 **Something to think about:** synchronising the in-memory data across multiple
-running instances of the service.
+running instances of the service. The reference implementation solves this with
+a Redis `SET … NX` lock, so only one worker per host downloads and refreshes the
+dataset — see `CarsDB` in the
+[source](https://github.com/imqueue-sandbox/car).
 
 ### Time-Table service requirements
 
@@ -144,6 +149,7 @@ It also exposes these complex types:
 `TimeTableOptions`:
  - `start` — the station's opening time, in `HH:MM` format
  - `end` — the station's closing time, in `HH:MM` format
+ - `boxes` — the number of parallel washing boxes (`number`)
  - `baseTime` — the duration options per washing type, as a list of:
    ~~~typescript
    {

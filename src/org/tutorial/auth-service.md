@@ -18,7 +18,7 @@ Now define the Auth service's interface:
  * Logs a user in
  *
  * @param {string} email - user e-mail address
- * @param {string} password - user password hash
+ * @param {string} password - user plain-text password
  * @return {Promise<string | null>} - the issued auth token, or null if authentication failed
  * @throws {Error} - "Password mismatch" or "Blocked"
  */
@@ -123,11 +123,21 @@ class Auth extends IMQService {
 }
 ~~~
 
+> **NOTE.** We use a **dynamic** client here to demonstrate building one at
+> runtime. The finished Auth service in the sandbox actually ships a
+> **statically generated** client for the User service (committed at
+> `src/clients/User.ts`) — the approach we cover in
+> [chapter 5](/tutorial/api-service#building-the-clients). Both are valid; the
+> static one is the better default for real applications.
+
 With the client in place, calling the remote service is straightforward. Here's
 how `verify()` might look:
 
 ~~~typescript
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+
+// the signing secret comes from the environment — never hard-code it:
+const JWT_KEY = process.env['JWT_KEY'] || '';
 // ...
 /**
  * Verifies whether a token is valid and, if so, returns the associated user
@@ -141,7 +151,7 @@ public async verify(token: string): Promise<object | null> {
     let jwtData: any;
 
     try {
-        jwtData = jwt.verify(token, 'some_secret_seed');
+        jwtData = jwt.verify(token, JWT_KEY);
     } catch (err) {
         return null;
     }

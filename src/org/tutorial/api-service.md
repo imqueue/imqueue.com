@@ -37,23 +37,22 @@ server over HTTP rather than a classic @imqueue service, we'll add a few more
 dependencies and rework the start script:
 
 ~~~bash
-npm i --save express express-graphql graphql graphql-relay \
-    graph-fields-list graphql-validity \
-    body-parser compression helmet core-js
-npm i --save-dev @types/body-parser @types/compression \
-    @types/core-js @types/express @types/express-graphql \
-    @types/graphql @types/graphql-relay @types/helmet
+npm i --save express cors graphql graphql-yoga graphql-relay \
+    graphql-fields-list compression helmet reflect-metadata
+npm i --save-dev @types/express @types/cors @types/compression @types/node
 ~~~
 
 > **NOTE.** The exact technology stack here isn't important. You could use Apollo
-> Server instead, or any other solution you prefer. We've picked Facebook's
-> reference stack over Express with a hand-selected set of add-ons, but this is
-> in no way mandatory.
+> Server instead, or any other solution you prefer. We've picked graphql-yoga
+> over Express with a hand-selected set of add-ons, but this is in no way
+> mandatory.
 
-Now remove `./api/src/Api.ts` (we don't need it) and empty out `./api/index.ts`.
-We keep all the npm scripts from the @imqueue boilerplate — they work fine for us
-— but we change what the service does: instead of a classic service, it now
-starts an HTTP server via Express, with an endpoint that serves GraphQL requests.
+Now remove `./api/src/Api.ts` (we don't need it). The root `./api/index.ts`
+becomes a thin bootstrap that runs the `Application` class, and `./api/src/`
+holds the GraphQL application. We keep all the npm scripts from the @imqueue
+boilerplate — they work fine for us — but we change what the service does:
+instead of a classic service, it now starts an HTTP server (Express) with a
+graphql-yoga endpoint that serves GraphQL requests.
 
 We won't walk through that setup in detail — implement it yourself if you're
 comfortable, or refer to the

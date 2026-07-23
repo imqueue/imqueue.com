@@ -43,13 +43,15 @@ and pass it into the service config, so it can be changed at deployment time
 without touching code. Here is one way to adapt `config.ts`:
 
 ~~~typescript
-import {
-    IMQServiceOptions,
-    DEFAULT_IMQ_SERVICE_OPTIONS as opts,
-} from '@imqueue/rpc';
-import { config as initEnvironment } from 'dotenv';
+import type { IMQServiceOptions } from '@imqueue/rpc';
+import { DEFAULT_IMQ_SERVICE_OPTIONS as opts } from '@imqueue/rpc';
 
-initEnvironment();
+try {
+    // native .env file support; throws when there is no .env file
+    process.loadEnvFile();
+} catch {
+    /* no .env file — rely on the process environment */
+}
 
 export const serviceOptions: Partial<IMQServiceOptions> = {
     cluster: (process.env['IMQ_REDIS'] || `${opts.host}:${opts.port}`)
@@ -58,7 +60,15 @@ export const serviceOptions: Partial<IMQServiceOptions> = {
             return { host, port: Number(port) };
         }),
 };
+
+export const USER_DB: string =
+    process.env['USER_DB'] || 'mongodb://localhost/user';
 ~~~
+
+The service reads its `.env` file through Node's own `process.loadEnvFile()` —
+no `dotenv` dependency is needed. `IMQServiceOptions` is a type-only import
+(the scaffold enables `verbatimModuleSyntax`), so it's imported with
+`import type`.
 
 With that in place, you can put a `.env` file in the service's root directory to
 set the Redis configuration for your local environment. For example, if Redis is
@@ -104,11 +114,13 @@ User: writer channel connected, host localhost:6379, pid 27034
 ~~~
 
 That means the service is up and ready. The @imqueue boilerplate always
-scaffolds a service with one remotely callable method — `hello()` — because a
-service needs at least one exposed method to start without errors. Once you've
-implemented your own first method, it's safe to remove the generated `hello()`.
+scaffolds a service with one remotely callable method — `version()` — because a
+service needs at least one exposed method to start without errors. It's
+decorated with `@logged() @lock() @profile() @expose()` and simply returns the
+service's `name`, `version` and `repository`, read from `package.json`. Once
+you've implemented your own methods you can keep `version()` or remove it.
 
-For now, we'll use `hello()` to verify the service. Create a `debug.ts` file in
+For now, we'll use `version()` to verify the service. Create a `debug.ts` file in
 the service's root directory with the following content:
 
 ~~~typescript
@@ -126,7 +138,7 @@ new User(serviceOptions).start().then((service: any) => {
             client = new ns.UserClient(serviceOptions);
 
             await client.start();
-            console.log(await client.hello());
+            console.log(await client.version());
         }
 
         catch (err) {
@@ -140,7 +152,7 @@ new User(serviceOptions).start().then((service: any) => {
 ~~~
 
 This starts the service and a client, then makes a remote call to the service's
-`hello()` method. The output should look like:
+`version()` method. The output should look like:
 
 ~~~
 User: starting single-worker, pid 32372
@@ -148,7 +160,7 @@ User: reader channel connected, host localhost:6379, pid 32372
 User: writer channel connected, host localhost:6379, pid 32372
 UserClient-6a4e92f40a6e4d7e8a650c6c44d79ab2-2:client: reader channel connected, host localhost:6379, pid 32372
 UserClient-6a4e92f40a6e4d7e8a650c6c44d79ab2-2:client: writer channel connected, host localhost:6379, pid 32372
-Hello!
+{ name: 'user', version: '1.0.0-0', repository: 'git@github.com:imqueue-sandbox/user.git' }
 ~~~
 
 That confirms the service works as expected.
@@ -181,7 +193,7 @@ Create `./user/src/schema.ts` (or any path you prefer) with the following
 content:
 
 ~~~typescript
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
 export const schema = new mongoose.Schema({
     email: {
@@ -261,7 +273,14 @@ private UserModel: mongoose.Model<any>;
 ~~~
 
 Opening a database connection is asynchronous, so the natural place to do it is
-by overriding `IMQService.start()`. First, add a private `initDb()` method:
+by overriding `IMQService.start()`. First, add a private `initDb()` method. The
+connection string comes from `config.ts` (the `USER_DB` value we added earlier,
+which defaults to `mongodb://localhost/user`), so import it at the top of the
+file:
+
+~~~typescript
+import { USER_DB } from '../config.js';
+~~~
 
 ~~~typescript
 /**
@@ -271,10 +290,10 @@ by overriding `IMQService.start()`. First, add a private `initDb()` method:
  */
 @profile()
 private async initDb(): Promise<void> {
-    await mongoose.connect('mongodb://localhost/user');
+    await mongoose.connect(USER_DB);
 
     this.db = mongoose.connection;
-    this.UserModel = this.db.model('User', schema);
+    this.UserModel = mongoose.model('User', schema);
 }
 ~~~
 
@@ -453,10 +472,11 @@ reusable complex types.
 
 Complex types that can be exposed remotely **must be defined as classes**. Each
 such class must be annotated with the `@classType()` class decorator, and each
-exposed field with the `@property()` decorator. Under @imqueue v3's standard
-(TC39) decorators, `@property()` only collects field metadata — the class-level
-`@classType()` then registers that metadata as a named type, so both the service
-and the generated client recognise it.
+exposed field with the `@property()` decorator. The scaffold builds with
+TypeScript's `experimentalDecorators` and emitted decorator metadata (via
+`reflect-metadata`): `@property()` collects each field's metadata, and the
+class-level `@classType()` registers that metadata as a named type, so both the
+service and the generated client recognise it.
 
 Create the first type:
 
