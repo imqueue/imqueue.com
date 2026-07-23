@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="imqueue sandbox">
+  <title>@imqueue sandbox glyph badge — imqueue.org</title>
+  <rect width="1024" height="1024" fill="#3ddc84"/>
+  <!-- sandbox = isolated container framing the imqueue mark -->
+  <rect x="118" y="118" width="788" height="788" rx="188" fill="none" stroke="#06120c" stroke-width="40"/>
+  <g transform="translate(195.125,200) scale(13)" fill="none" stroke="#06120c" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M33 12H15a8 8 0 0 0-8 8v8a8 8 0 0 0 8 8h18"/>
+  </g>
+  <g transform="translate(195.125,200) scale(13)" fill="#06120c">
+    <circle cx="16" cy="24" r="2.8"/>
+    <circle cx="24" cy="24" r="2.8"/>
+    <circle cx="41" cy="24" r="3"/>
+  </g>
+</svg>
