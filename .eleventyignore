@@ -1,7 +1,0 @@
-_site
-node_modules
-README.md
-docs
-.idea
-api/**/*.html
-css/icons.html

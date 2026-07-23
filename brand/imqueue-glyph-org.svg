@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="3 10 42 28" width="420" height="280" fill="none" stroke="#3ddc84" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="imqueue">
+  <title>@imqueue glyph — imqueue.org header mark</title>
+  <path d="M33 12H15a8 8 0 0 0-8 8v8a8 8 0 0 0 8 8h18"/>
+  <circle cx="16" cy="24" r="2.6" fill="#3ddc84" stroke="none"/>
+  <circle cx="24" cy="24" r="2.6" fill="#3ddc84" stroke="none"/>
+  <circle cx="41" cy="24" r="2.8" fill="#3ddc84" stroke="none"/>
+</svg>
