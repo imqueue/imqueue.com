@@ -1,0 +1,43 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- broker fleet: three redis cylinders -->
+    <g stroke="var(--accent)" stroke-width="2">
+      <path d="M 88 48 q 32 -13 64 0 v 44 q -32 13 -64 0 z" fill="var(--surface)"/>
+      <path d="M 88 48 q 32 13 64 0" fill="none"/>
+      <path d="M 208 48 q 32 -13 64 0 v 44 q -32 13 -64 0 z" fill="var(--surface)"/>
+      <path d="M 208 48 q 32 13 64 0" fill="none"/>
+      <path d="M 328 48 q 32 -13 64 0 v 44 q -32 13 -64 0 z" fill="var(--surface)"/>
+      <path d="M 328 48 q 32 13 64 0" fill="none"/>
+    </g>
+    <text x="120" y="78" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">redis</text>
+    <text x="240" y="78" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">redis</text>
+    <text x="360" y="78" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">redis</text>
+
+    <!-- announcement waves under each broker -->
+    <g stroke="var(--accent)" stroke-opacity="0.55" stroke-width="1.6">
+      <path d="M 106 112 q 14 10 28 0"/>
+      <path d="M 98 122 q 22 16 44 0"/>
+      <path d="M 226 112 q 14 10 28 0"/>
+      <path d="M 218 122 q 22 16 44 0"/>
+      <path d="M 346 112 q 14 10 28 0"/>
+      <path d="M 338 122 q 22 16 44 0"/>
+    </g>
+
+    <!-- udp heartbeats towards listeners -->
+    <g stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="4 6">
+      <line x1="112" y1="128" x2="116" y2="176"/>
+      <line x1="228" y1="128" x2="146" y2="176"/>
+      <line x1="252" y1="128" x2="334" y2="176"/>
+      <line x1="368" y1="128" x2="364" y2="176"/>
+    </g>
+    <text x="240" y="166" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">udp :63000 · up/down</text>
+
+    <!-- listening services -->
+    <rect x="72" y="180" width="112" height="52" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="128" y="203" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--accent)" stroke="none">service</text>
+    <text x="128" y="220" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="var(--muted)" stroke="none">cluster mgr</text>
+    <rect x="296" y="180" width="112" height="52" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="352" y="203" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--accent)" stroke="none">client</text>
+    <text x="352" y="220" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="var(--muted)" stroke="none">cluster mgr</text>
+  </g>
+</svg>
