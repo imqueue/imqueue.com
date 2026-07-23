@@ -149,6 +149,14 @@ serve the documentation in machine-friendly form:
 - **[/api/](/api/)** — the full generated API reference for `@imqueue/core` and
   `@imqueue/rpc`.
 
+## Agent recipes
+
+Task-focused, machine-oriented instructions your agent can apply directly:
+
+- **[Isolated imq CLI environments](/agents/isolated-imq-environments/)** —
+  managing multiple @imqueue projects on one machine with `IMQ_CLI_HOME`:
+  exact commands, verification steps and failure modes.
+
 ## Next steps
 
 - Work through the [Getting Started](/get-started/) guide.

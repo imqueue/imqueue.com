@@ -1,0 +1,19 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="240" y1="34" x2="240" y2="226" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 7"/>
+    <rect x="44" y="58" width="150" height="144" rx="12" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <rect x="286" y="58" width="150" height="144" rx="12" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <circle cx="66" cy="80" r="7" fill="var(--accent)" fill-opacity="0.3" stroke="var(--accent)" stroke-width="1.6"/>
+    <circle cx="308" cy="80" r="7" fill="var(--accent)" fill-opacity="0.3" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="66" y="112" width="30" height="30" rx="6" fill="var(--accent)" fill-opacity="0.4" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="104" y="112" width="30" height="30" rx="6" fill="var(--accent)" fill-opacity="0.15" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="142" y="112" width="30" height="30" rx="6" fill="var(--accent)" fill-opacity="0.4" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="85" y="158" width="30" height="30" rx="6" fill="var(--accent)" fill-opacity="0.15" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="123" y="158" width="30" height="30" rx="6" fill="var(--accent)" fill-opacity="0.4" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="308" y="112" width="30" height="30" rx="6" fill="var(--accent)" fill-opacity="0.15" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="346" y="112" width="30" height="30" rx="6" fill="var(--accent)" fill-opacity="0.4" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="384" y="112" width="30" height="30" rx="6" fill="var(--accent)" fill-opacity="0.15" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="327" y="158" width="30" height="30" rx="6" fill="var(--accent)" fill-opacity="0.4" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="365" y="158" width="30" height="30" rx="6" fill="var(--accent)" fill-opacity="0.15" stroke="var(--accent)" stroke-width="1.6"/>
+  </g>
+</svg>
