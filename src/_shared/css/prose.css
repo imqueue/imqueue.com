@@ -79,6 +79,18 @@
 .prose .api-older-pkg { color: var(--muted); margin-right: 10px; }
 @media (max-width: 620px) { .prose .api-ref-cards { grid-template-columns: 1fr; } }
 
+/* FAQ accordion */
+.prose .faq { display: flex; flex-direction: column; gap: 10px; margin: 22px 0; }
+.prose .faq details { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; transition: border-color .15s ease; }
+.prose .faq details[open], .prose .faq details:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.prose .faq summary { cursor: pointer; padding: 15px 18px; font-family: var(--font-display); font-weight: 600; font-size: 16.5px; color: var(--ink); list-style: none; display: flex; align-items: flex-start; gap: 12px; transition: color .15s ease; }
+.prose .faq summary::-webkit-details-marker { display: none; }
+.prose .faq summary::before { content: "+"; color: var(--accent); font-family: var(--font-mono); font-size: 19px; line-height: 1.35; width: 14px; flex: none; }
+.prose .faq details[open] summary::before { content: "\2212"; }
+.prose .faq summary:hover, .prose .faq details[open] summary { color: var(--accent); }
+.prose .faq-a { padding: 0 18px 16px 44px; color: var(--muted); line-height: 1.7; }
+.prose .faq-a p { margin: 0; }
+
 /* API reference layout: scrollable symbol sidebar + content */
 .api-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 44px; align-items: start; }
 .api-side { position: sticky; top: 90px; max-height: calc(100vh - 110px); overflow-y: auto; font-family: var(--font-mono); font-size: 14.5px; padding-right: 6px; }
