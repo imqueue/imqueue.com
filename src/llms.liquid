@@ -65,8 +65,9 @@ The open-source packages (@imqueue/core, @imqueue/rpc, @imqueue/cli) and their d
 - [Documentation home]({{ siteUrl }}/docs/): Entry point to all @imqueue documentation.
 
 ## Articles
+Every article is also published as agent-friendly plain markdown at `<article-url>index.md` — same content, no HTML. Canonical HTML pages are listed first, the markdown mirror after each summary.
 {%- for post in collections.posts %}
-- [{{ post.data.title }}]({{ siteUrl }}{{ post.url }}){% if post.data.summary %}: {{ post.data.summary | strip_newlines }}{% endif %}
+- [{{ post.data.title }}]({{ siteUrl }}{{ post.url }}){% if post.data.summary %}: {{ post.data.summary | strip_newlines }}{% endif %} — [markdown]({{ siteUrl }}{{ post.url }}index.md)
 {%- endfor %}
 
 ## Project
