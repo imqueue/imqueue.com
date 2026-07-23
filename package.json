@@ -26,7 +26,10 @@
     }
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0",
+    "test": "npm run check:links",
+    "check:links": "npm run build:all && node scripts/check-links.js",
+    "check:links:external": "npm run build:all && node scripts/check-links.js --external",
+    "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
     "build:org": "EDITION=org eleventy",
     "build:com": "EDITION=com eleventy",
     "build:all": "npm run build:org && npm run build:com",
