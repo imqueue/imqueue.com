@@ -47,7 +47,7 @@ small teams:
   Node.js/TypeScript, @imqueue over Redis, PostgreSQL.
 - **API service** — a GraphQL endpoint that orchestrates access to the services
   above. Stack: Node.js/TypeScript, @imqueue over Redis, graphql, graphql-relay,
-  express, express-graphql.
+  express, graphql-yoga.
 
 The high-level architecture looks like this:
 
@@ -139,9 +139,11 @@ The high-level architecture looks like this:
 ## Setting up the toolchain
 
 The @imqueue command-line tool can wire its scaffolding into third-party
-services — GitHub, DockerHub and Travis CI. When you create a service with the
-tool, you can get a ready-made repository, continuous integration and one-command
-Docker image builds out of the box. So the first step is to install and configure
+services — a git host (GitHub, GitLab or Bitbucket), a container registry (Docker
+Hub, Google Artifact Registry, AWS ECR or Azure ACR) and a CI provider (GitHub
+Actions, CircleCI or Travis). When you create a service with the tool, you can
+get a ready-made repository, continuous integration and one-command Docker image
+builds out of the box. So the first step is to install and configure
 `@imqueue/cli`.
 
 ### Prepare the development environment
@@ -155,14 +157,14 @@ Docker images ([Mongo](https://hub.docker.com/_/mongo/),
 
 ### Install @imqueue/cli
 
-The integrations with GitHub, DockerHub and Travis CI are entirely optional.
-Without them, the tool simply creates local folders and files; you choose during
-installation whether to enable them.
+These git-host, container-registry and CI integrations are entirely optional.
+Without them, the tool simply creates local folders and files; you choose which
+to enable when you configure the tool.
 
-If you do want the integrations, prepare your GitHub and DockerHub namespaces
-(a personal account or an organisation) and create a GitHub personal access token
-granting @imqueue/cli permission to create and write to repositories in that
-namespace.
+If you do want the integrations, prepare your git-host and registry namespaces
+(a personal account or an organisation) and create a personal access token for
+your git host — GitHub, for example — granting @imqueue/cli permission to create
+and write to repositories in that namespace.
 
 Then install the tool:
 
@@ -170,8 +172,15 @@ Then install the tool:
 npm i -g @imqueue/cli
 ~~~
 
-Installation ends with an interactive configuration wizard — follow the steps to
-finish configuring `@imqueue/cli`.
+Then run the interactive configuration wizard once to finish setting up
+`@imqueue/cli`:
+
+~~~bash
+imq config init
+~~~
+
+It walks you through your git host, CI provider, container registry and default
+packages, and stores the answers globally.
 
 For the full setup details — requirements, upgrading and shell completions — see
 the [Installation](/cli/installation/) & [Configuration](/cli/configuration/)

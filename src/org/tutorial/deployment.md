@@ -89,11 +89,8 @@ come from testing and experimentation.
 
 ### Building containers
 
-The @imqueue/cli default template can be configured to build Docker images for
-your services. You can build locally with the service's npm scripts, drive it
-through Travis CI-based continuous integration, or both.
-
-These Docker-related scripts are available in a service created by @imqueue/cli:
+The @imqueue/cli default template gives each service a `Dockerfile` and a set of
+Docker npm scripts, so you can build and run an image for any service locally:
 
 ~~~bash
 npm run docker:build
@@ -104,18 +101,16 @@ npm run docker:ssh
 
 Local builds require, of course, a Docker engine installed on your machine.
 
-Continuous-integration builds are enabled when a service is created with the
-`--dockerize` option and given a valid DockerHub namespace via
-`--docker-namespace`. Both can be pre-set as part of the imq command-line tool's
-global configuration.
+Continuous integration runs on GitHub Actions. Every service created by
+@imqueue/cli ships a `.github/workflows/build.yml` that, on each push and pull
+request, installs dependencies and runs the test suite across the current LTS
+and latest Node.js versions — verifying the build stays green. (Which CI
+provider is wired in depends on how you configured the tool; GitHub Actions is
+the default, with CircleCI and Travis also available.)
 
-Travis CI is configured to build a Docker image on every commit, to verify the
-build stays green. An image is published to the configured DockerHub namespace
-when a version tag is pushed to the GitHub repository. Dev versions — those
-matching the `X.X.X-X` semver format — get the Docker `dev` tag. Release images
-are built from a dedicated `release` branch.
-
-Pre-built Docker images can be pulled and deployed across many cloud
+Building and publishing images to a container registry is left to your own
+deployment pipeline — run `npm run docker:build` there and push the resulting
+image. Pre-built Docker images can then be pulled and deployed across many cloud
 environments — AWS, Azure, Google Cloud Platform and others. From there it's a
 matter of configuring your cloud environment: enabling auto-scaling and anything
 else you need.
@@ -184,9 +179,9 @@ npm run dev
 ~~~
 
 where `[service_dir]` is one of `user`, `auth`, `car`, `time-table` or `api`.
-Remember that the user and auth services communicate via a dynamically built
-runtime client, so start the **user** service before the **auth** service, or
-you'll hit errors.
+The services talk to each other over the message queue and ship pre-generated
+static clients, so you can start them in any order — a service simply queues its
+calls until the peer it needs becomes available.
 
 Once the API service is running, the GraphiQL web interface is available at
 [http://localhost:8888/](http://localhost:8888/).
