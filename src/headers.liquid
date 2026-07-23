@@ -1,0 +1,22 @@
+---
+permalink: /_headers
+eleventyExcludeFromCollections: true
+---
+# Cloudflare Pages response headers.
+# https://developers.cloudflare.com/pages/configuration/headers/
+#
+# The site publishes AI-agent-facing plain-markdown mirrors of its pages
+# (<page-url>index.md), a curated /llms.txt index and a concatenated
+# /llms-full.txt. They intentionally duplicate the canonical HTML content, so
+# keep them out of search-engine indexes (avoiding duplicate-content issues)
+# while leaving them fully fetchable by AI crawlers and agents — robots.txt
+# allows them, noindex only stops SERP indexing, not retrieval.
+
+/*.md
+  X-Robots-Tag: noindex
+
+/llms.txt
+  X-Robots-Tag: noindex
+
+/llms-full.txt
+  X-Robots-Tag: noindex
