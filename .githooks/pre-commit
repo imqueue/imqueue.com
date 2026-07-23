@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# @imqueue.com pre-commit hook: rebuild both editions and crawl for broken
+# links. Blocks the commit if any internal link (page, asset, cross-site
+# .org<->.com, or #anchor) does not resolve.
+#
+# Wired via `git config core.hooksPath .githooks` (done automatically by the
+# `prepare` npm script on `npm install`).
+#
+# Bypass in a genuine emergency with:  git commit --no-verify
+#
+set -e
+
+# Only run in the imqueue.com site repo (the hooks dir is shared via hooksPath).
+if [ ! -f "scripts/check-links.js" ]; then
+  exit 0
+fi
+
+echo "→ pre-commit: building sites and checking for broken links…"
+if ! npm run --silent check:links; then
+  echo "" >&2
+  echo "✗ Broken links found — commit aborted." >&2
+  echo "  Fix the links above, or bypass with: git commit --no-verify" >&2
+  exit 1
+fi
