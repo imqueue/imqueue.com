@@ -8,6 +8,8 @@ const chapters = [
   { n: 4, title: "Domain Services", url: "/tutorial/other-services/" },
   { n: 5, title: "API Integration", url: "/tutorial/api-service/" },
   { n: 6, title: "Deployment", url: "/tutorial/deployment/" },
+  { n: 7, title: "Bonus: REST API", url: "/tutorial/rest-api/" },
+  { n: 8, title: "Bonus: REST Web App", url: "/tutorial/rest-web-app/" },
 ];
 
 module.exports = {

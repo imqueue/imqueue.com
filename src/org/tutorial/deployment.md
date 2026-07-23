@@ -196,4 +196,12 @@ npm start
 You can now use the application at
 [http://localhost:3000/](http://localhost:3000/).
 
-Happy hacking!
+### Bonus: the same fleet, a different API
+
+The tutorial proper ends here. But if you'd like proof that nothing about the
+fleet ties you to GraphQL, carry on to the bonus chapters: we rebuild the API
+gateway as a [REST/OpenAPI service](/tutorial/rest-api/) and re-point
+[the web application](/tutorial/rest-web-app/) at it — without changing a
+single line in the back-end services.
+
+Next up: [Bonus: REST API](/tutorial/rest-api).
