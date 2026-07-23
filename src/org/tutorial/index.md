@@ -49,6 +49,12 @@ small teams:
   above. Stack: Node.js/TypeScript, @imqueue over Redis, graphql, graphql-relay,
   express, graphql-yoga.
 
+> **NOTE.** The GraphQL choice is just that — a choice. In two bonus chapters
+> at the end of the tutorial we swap this GraphQL gateway for a
+> [REST/OpenAPI one](/tutorial/rest-api/) and re-point
+> [the web app](/tutorial/rest-web-app/) at it, leaving every back-end service
+> untouched.
+
 The high-level architecture looks like this:
 
 <figure class="hla-fig">
