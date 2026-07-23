@@ -17,3 +17,11 @@
 /blog/*         https://imqueue.org/blog/:splat         301
 /api            https://imqueue.org/api/                301
 /api/*          https://imqueue.org/api/:splat          301
+
+# Legacy open-source pages (old British-spelled /licence/ and /contributing/,
+# which had no sub-pages) now live on imqueue.org. The old /licence/ maps to the
+# refreshed /license/ page there.
+/licence        https://imqueue.org/license/            301
+/licence/*      https://imqueue.org/license/            301
+/contributing   https://imqueue.org/contributing/       301
+/contributing/* https://imqueue.org/contributing/       301
