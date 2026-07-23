@@ -17,6 +17,27 @@ to our repositories in any other way, you agree to do so under the terms of that
 license. If you do not agree to those terms, please do not submit issues, pull
 requests or other contributions.
 
+## Contribution terms
+
+@imqueue is [dual-licensed](/license/): the same code is offered as open source
+under GPL-3.0 and, separately, under a paid commercial license for closed-source
+use. To keep that possible, please read the following before contributing.
+
+By submitting a contribution (code, documentation, or any other material) to an
+@imqueue repository, you agree that:
+
+- You are the author of the contribution, or otherwise have the right to submit
+  it, and you submit it under the project's GPL-3.0 license.
+- You grant the @imqueue maintainers a perpetual, worldwide, royalty-free,
+  irrevocable right to use, modify, sublicense and relicense your contribution,
+  including the right to **include it in versions distributed under the
+  commercial license**.
+- You **do not** acquire any claim to commercial fees, royalties, revenue share
+  or other compensation as a result of your contribution, and you waive any such
+  claim. Commercial license revenue belongs to the project maintainers.
+
+If you cannot agree to these terms, please do not submit contributions.
+
 ## Reporting issues
 
 Report issues directly on the package they relate to:
