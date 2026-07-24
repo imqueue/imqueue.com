@@ -50,9 +50,10 @@ small teams:
   express, graphql-yoga.
 
 > **NOTE.** The GraphQL choice is just that — a choice. In two bonus chapters
-> at the end of the tutorial we swap this GraphQL gateway for a
-> [REST/OpenAPI one](/tutorial/rest-api/) and re-point
-> [the web app](/tutorial/rest-web-app/) at it, leaving every back-end service
+> at the end of the tutorial we put a [REST/OpenAPI gateway](/tutorial/rest-api/)
+> in front of the very same fleet and give it
+> [a front-end of its own](/tutorial/rest-web-app/) — one that speaks REST
+> natively rather than imitating Relay — leaving every back-end service
 > untouched.
 
 The high-level architecture looks like this:
