@@ -37,6 +37,39 @@ Jump to your tool: [Claude Code](#claude-code) · [Claude Desktop](#claude-deskt
 > `servers` key with an explicit `"type": "stdio"`. Copying the wrong shape into
 > those two is the single most common setup mistake.
 
+## Two ways to connect: local or hosted
+
+- **Local (`npx`, recommended for building)** — the server runs on your machine
+  over stdio and exposes **every** tool, including the CLI-bridge that creates
+  services, generates live-introspected clients and manages your fleet. All the
+  per-client sections below cover this.
+- **Hosted (zero-install, for exploring)** — point an HTTP-capable client at
+  **`https://mcp.imqueue.org/mcp`**. No Node, no npm, no account; it serves the
+  documentation and scaffolding tools. The CLI-bridge tools hand off to a local
+  install.
+
+### Connect to the hosted endpoint
+
+Clients that support remote (HTTP) MCP servers take a **`url`** instead of a
+`command`:
+
+~~~json
+{
+  "mcpServers": {
+    "imqueue": { "url": "https://mcp.imqueue.org/mcp" }
+  }
+}
+~~~
+
+- **Claude Code:** `claude mcp add --transport http imqueue https://mcp.imqueue.org/mcp`
+- **VS Code / Visual Studio:** use the `servers` shape with `"type": "http"`:
+  ~~~json
+  { "servers": { "imqueue": { "type": "http", "url": "https://mcp.imqueue.org/mcp" } } }
+  ~~~
+- **Cursor, Windsurf, JetBrains and others:** the `url` form above (in place of `command`/`args`).
+
+Everything below is the **local** (stdio) setup — the full-power option.
+
 ## Claude Code
 
 One command adds it for your user account:

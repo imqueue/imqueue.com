@@ -3,7 +3,7 @@ chapter: 1
 title: "MCP Server"
 docLabel: "MCP SERVER — 01 / 05"
 lead: "Connect your AI coding agent to @imqueue: live documentation search, idiomatic service & client scaffolding, and control of your local fleet — as tools the agent calls directly."
-description: "The @imqueue MCP server (@imqueue/mcp) gives AI coding agents — Claude, Cursor, VS Code, JetBrains and more — tools to search the @imqueue docs, scaffold typed services and clients, and drive the imq CLI. Runs from npm over stdio, no API keys."
+description: "The @imqueue MCP server (@imqueue/mcp) gives AI coding agents — Claude, Cursor, VS Code, JetBrains and more — tools to search the @imqueue docs, scaffold typed services and clients, and drive the imq CLI. Run it locally (npx, stdio) or use the hosted HTTP endpoint at mcp.imqueue.org — no API keys."
 keywords: "@imqueue mcp, imqueue mcp server, model context protocol imqueue, npx @imqueue/mcp, org.imqueue/mcp, ai coding agent microservices, mcp server nodejs typescript"
 ogType: article
 mcpApp: true
@@ -51,6 +51,32 @@ use a slightly different shape — see
 No API keys, no build step, no account. It runs straight from npm and only ever
 talks to `imqueue.org`. → **[Full setup for every client](/mcp/installation/)**
 
+## Or skip the install — use the hosted endpoint
+
+Prefer to try it with zero setup? Point any HTTP-capable MCP client at the live
+hosted server:
+
+~~~
+https://mcp.imqueue.org/mcp
+~~~
+
+~~~json
+{
+  "mcpServers": {
+    "imqueue": { "url": "https://mcp.imqueue.org/mcp" }
+  }
+}
+~~~
+
+The hosted endpoint serves the **documentation** and **scaffolding** tools
+(`search_docs`, `get_doc`, `list_packages`, `scaffold_service`, `scaffold_client`)
+over Streamable HTTP — instant, no Node, no npm, no account. The **CLI-bridge**
+tools (`create_service`, `generate_client`, `fleet`, …) act on *your* project and
+running services, so they only work with the **local** install above; called on
+the hosted server they simply return the one-liner to install locally.
+
+**Rule of thumb: hosted to explore and scaffold, local to build.**
+
 ## What your agent can do
 
 The server groups its tools into three capabilities:
@@ -84,7 +110,8 @@ local fleet — `cli_status`, `cli_install`, `cli_help`, `create_service`,
 You are wiring an autonomous agent to a tool that can read your docs and, with the
 CLI, touch your filesystem. The server is designed for that:
 
-- **Local & private** — runs on your machine over stdio; nothing is sent anywhere except doc fetches to imqueue.org.
+- **Local & private (the `npx` install)** — runs on your machine over stdio; nothing is sent anywhere except doc fetches to imqueue.org.
+- **The hosted endpoint is sandboxed** — `mcp.imqueue.org` never touches your filesystem or CLI: it serves only the stateless docs & scaffolding tools, processes each request independently, and hands everything else off to a local install.
 - **Host-locked** — `get_doc` will only ever fetch `imqueue.org`.
 - **Safe by default** — `create_service` runs as a **dry-run** unless you explicitly opt in; read-only tools (`search_docs`, `cli_status`, `config get`, `fleet status`) are clearly separated from ones that change state.
 - **No telemetry, no keys** — nothing to sign up for.
@@ -97,7 +124,8 @@ CLI, touch your filesystem. The server is designed for that:
 |---|---|
 | **Package** | [`@imqueue/mcp`](https://www.npmjs.com/package/@imqueue/mcp) on npm |
 | **Registry ID** | `org.imqueue/mcp` (official MCP registry) |
-| **Transport** | stdio (local) |
-| **Runtime** | Node.js ≥ 18 |
+| **Transport** | stdio (local) · Streamable HTTP (hosted) |
+| **Hosted endpoint** | [`https://mcp.imqueue.org/mcp`](https://mcp.imqueue.org/mcp) — docs + scaffolding |
+| **Runtime** | Node.js ≥ 18 (local install) |
 | **Source** | [github.com/imqueue/mcp](https://github.com/imqueue/mcp) |
 | **License** | GPL-3.0 |
