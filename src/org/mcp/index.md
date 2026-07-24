@@ -51,7 +51,7 @@ use a slightly different shape — see
 No API keys, no build step, no account. It runs straight from npm and only ever
 talks to `imqueue.org`. → **[Full setup for every client](/mcp/installation/)**
 
-## Or skip the install — use the hosted endpoint
+## Or skip the install — use the hosted endpoint {#hosted-endpoint}
 
 Prefer to try it with zero setup? Point any HTTP-capable MCP client at the live
 hosted server:
