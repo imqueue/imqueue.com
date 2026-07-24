@@ -200,8 +200,9 @@ You can now use the application at
 
 The tutorial proper ends here. But if you'd like proof that nothing about the
 fleet ties you to GraphQL, carry on to the bonus chapters: we rebuild the API
-gateway as a [REST/OpenAPI service](/tutorial/rest-api/) and re-point
-[the web application](/tutorial/rest-web-app/) at it — without changing a
-single line in the back-end services.
+gateway as a [REST/OpenAPI service](/tutorial/rest-api/) and add
+[a second front-end](/tutorial/rest-web-app/) that speaks REST natively — both
+stacks running side by side, without changing a single line in the back-end
+services.
 
 Next up: [Bonus: REST API](/tutorial/rest-api).

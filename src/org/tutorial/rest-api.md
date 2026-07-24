@@ -13,7 +13,7 @@ services and noted, in passing, that the exact technology stack of the API
 layer isn't important. This bonus chapter proves that claim: we rebuild the
 same gateway as a **REST/OpenAPI** service — without touching a single line of
 the back-end fleet. In the [next bonus chapter](/tutorial/rest-web-app) we'll
-re-point the web application at it, too.
+build a front-end that speaks to it, too.
 
 The finished service is on GitHub:
 [api-rest](https://github.com/imqueue-sandbox/api-rest).
@@ -178,9 +178,9 @@ Failures are emitted in a GraphQL-compatible envelope:
 
 …with a proper HTTP status on top (401 for auth failures, 404 for missing
 resources, 409 for a duplicate e-mail, 400 otherwise). Keeping the error shape
-identical across both gateways is a deliberate choice: a single front-end
-error-mapping routine works against either one — which pays off in the next
-chapter.
+identical across both gateways is a deliberate choice: the same error-mapping
+routine works against either one, so a client switching gateways has nothing to
+relearn — which pays off in the next chapter.
 
 ### Running it
 
