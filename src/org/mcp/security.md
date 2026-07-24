@@ -41,7 +41,7 @@ and offline scaffolding tools are active.
 ## Local or hosted — which should you use?
 
 Both connect the same catalog of tools; the difference is *where the server runs*.
-The [hosted endpoint](/mcp/#or-skip-the-install--use-the-hosted-endpoint)
+The [hosted endpoint](/mcp/#hosted-endpoint)
 (`mcp.imqueue.org`) is a great zero-install way to explore the docs and scaffold
 snippets. But for real development work, **the local `npx` install is the better
 choice** — here's why.
