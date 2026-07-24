@@ -2,9 +2,9 @@
 chapter: 8
 title: "Bonus: REST Web App"
 docLabel: TUTORIAL — BONUS 2
-lead: "Re-point the front-end at the REST gateway without rewriting the UI — every presentational component reused unchanged."
-description: "Bonus chapter: the @imqueue tutorial web app re-pointed from GraphQL/Relay to the REST gateway — same UI components, a thin REST data layer swapped in."
-keywords: "@imqueue REST web app, replace Relay with REST, react-relay shim, REST data layer React, GraphQL to REST migration front-end, Vite alias react-relay"
+lead: "A second front-end, native to REST — no Relay, no shims, no compromises. Same fleet, same features, a client that is idiomatic for the protocol it speaks."
+description: "Bonus chapter: a REST front-end for the @imqueue tutorial fleet — its own store model built from fetch and React hooks, standing next to the GraphQL/Relay app."
+keywords: "@imqueue REST web app, REST data layer React hooks, fetch store model React, GraphQL vs REST front-end, React TypeScript REST client, transport-agnostic microservices"
 ogType: article
 ---
 
@@ -12,138 +12,180 @@ In the [previous chapter](/tutorial/rest-api) we put a REST/OpenAPI gateway in
 front of the fleet. One piece is missing for a complete alternative stack: a
 front-end that speaks REST. The tutorial's
 [web-app](https://github.com/imqueue-sandbox/web-app) is built on
-React/Relay/GraphQL — so we made a REST edition of it:
+React/Relay/GraphQL — so alongside it lives a REST edition:
 [web-app-rest](https://github.com/imqueue-sandbox/web-app-rest).
 
-The rule of the game, same as before, is to change as little as possible:
-every presentational component is reused **unchanged** from the Relay-based
-app — identical look and feel — and only the data layer is replaced.
+It is worth being precise about what "edition" means here, because the obvious
+approach is a trap. You *can* keep the Relay components untouched and alias
+`react-relay` to a compatibility shim that fakes fragment containers over REST
+responses. That works — and it proves the wrong thing. It shows that a REST
+gateway can be made to imitate Relay's data-fetching model, when the claim we
+actually want to demonstrate is that the fleet does not care which model you
+bring.
 
-### The data layer swap
+So `web-app-rest` carries no Relay at all: no `react-relay`, no
+`relay-runtime`, no `graphql` tags, no alias in the Vite config. It has its own
+store model, built from `fetch` and React hooks, and its components are typed
+against the REST DTOs the gateway actually returns. Both apps are React 19 +
+TypeScript with function components throughout; they share a look and a feature
+set, not a data layer and not a type model.
 
-At the bottom sits a thin REST client
-([`src/rest/client.js`](https://github.com/imqueue-sandbox/web-app-rest/blob/main/src/rest/client.js)):
-a `fetch` wrapper that attaches the auth token from the local store as the
-`X-Auth-User` header — the same header contract both gateways share — and
+### The client
+
+At the bottom sits a small `fetch` wrapper
+([`src/store/client.ts`](https://github.com/imqueue-sandbox/web-app-rest/blob/main/src/store/client.ts)):
+it prefixes the gateway URL, attaches the auth token from the local store as
+the `X-Auth-User` header — the same header contract both gateways share — and
 parses JSON responses:
 
-~~~javascript
+~~~typescript
 export const client = {
-    get: path => request('GET', path),
-    post: (path, body) => request('POST', path, body ?? {}),
-    patch: (path, body) => request('PATCH', path, body ?? {}),
-    del: path => request('DELETE', path),
+    get: <T = unknown>(path: string) => request<T>('GET', path),
+    post: <T = unknown>(path: string, body?: unknown) =>
+        request<T>('POST', path, body ?? {}),
+    patch: <T = unknown>(path: string, body?: unknown) =>
+        request<T>('PATCH', path, body ?? {}),
+    del: <T = unknown>(path: string) => request<T>('DELETE', path),
 };
 ~~~
 
-On failure it throws a `RestError` carrying the error list from the gateway's
-GraphQL-compatible envelope (`[{ message, extensions: { code } }]`). Remember
-how the REST gateway deliberately kept that error shape? This is where it pays
-off: the unchanged components keep consuming errors exactly the way they did
-with Relay.
+On failure it rejects with a `RestError` carrying the error list from the
+gateway's envelope (`[{ message, extensions: { code } }]`). Remember how the
+REST gateway deliberately kept that error shape? This is where it pays off:
+both front-ends map gateway error codes onto form fields with the same small
+routine, because the payload they receive is the same.
 
-### Keeping the `react-relay` imports alive
+### Queries are hooks
 
-The reused components still contain `import { createFragmentContainer,
-graphql } from 'react-relay'` — but this build has no Relay runtime at all.
-Instead, Vite aliases the `react-relay` module to a small compatibility shim:
+There is no `QueryRenderer` and no data-loading HOC — just hooks, one per thing
+the app reads
+([`src/store/queries.ts`](https://github.com/imqueue-sandbox/web-app-rest/blob/main/src/store/queries.ts)):
 
-~~~javascript
-resolve: {
-    alias: {
-        'react-relay': fileURLToPath(
-            new URL('./src/rest/reactRelayShim.jsx', import.meta.url),
-        ),
-    },
-},
+~~~typescript
+export function useAppRoot(vars: AppRootVars): QueryState<AppRootData>
+export function useCarBrands(): QueryState<string[]>
+export function useCarModels(brand?: string): QueryState<Car[]>
+export function useReservations(date?: Date): QueryState<Reservation[]>
 ~~~
 
-The [shim](https://github.com/imqueue-sandbox/web-app-rest/blob/main/src/rest/reactRelayShim.jsx)
-is pleasantly boring:
+Each returns `{ data, loading, error, reload }`, so a component says what it
+needs and renders the three states plainly:
 
-- `graphql` becomes a no-op tagged template — the fragment texts inside the
-  components turn into inert strings nobody reads;
-- `createFragmentContainer` becomes a transparent pass-through: with Relay the
-  container read its slice of data off the store, here the parent already
-  passes the resolved plain object as the same prop;
-- `createRefetchContainer` seeds its data from props and exposes the
-  `relay.refetch()` method the time-table component relies on — implemented as
-  a `GET /reservations?date=…` call that re-renders the wrapped component with
-  the refreshed data.
+~~~typescript
+const { data, loading, error } = useAppRoot(vars);
+~~~
 
-### Queries become descriptors
+Where the GraphQL app selects several root fields in one round-trip, the REST
+hook issues the equivalent requests in parallel and merges them. The `vars` are
+the same flags the GraphQL query used, so a route still asks for exactly the
+data it displays:
 
-Relay's `QueryRenderer` HOC is replaced by a
-[`withQuery`](https://github.com/imqueue-sandbox/web-app-rest/blob/main/src/relay/queries/Query.jsx)
-data loader with the same public contract (`vars`, `onError`, `onLoading`,
-`childProps`), driven by plain descriptor objects. A descriptor exposes an
-async `fetch(vars)` that assembles, over REST, the same data shape the GraphQL
-query used to return:
+~~~typescript
+const load = useMemo<Loader<AppRootData>>(
+    () => async () => {
+        const tasks: Promise<void>[] = [];
+        const result: AppRootData = {};
 
-~~~javascript
-export const AppRootQuery = {
-    async fetch(vars = {}) {
-        const tasks = [];
-        const result = {};
-
-        if (vars.withUser || vars.withUserCars) {
-            tasks.push(client.get('/users/me').then(user => {
+        if (withUser || withUserCars) {
+            tasks.push(client.get<User>('/users/me').then(user => {
                 result.user = user;
             }));
         }
 
-        if (vars.withOptions) {
-            tasks.push(client.get('/options').then(options => {
+        if (withOptions) {
+            tasks.push(client.get<Options>('/options').then(options => {
                 result.options = options;
             }));
         }
 
-        if (vars.withReservations) {
-            tasks.push(client.get('/reservations').then(res => {
-                result.reservations = res.reservations;
-            }));
+        if (withReservations) {
+            tasks.push(client
+                .get<{ reservations: Reservation[] }>('/reservations')
+                .then(res => {
+                    result.reservations = res.reservations;
+                }));
         }
 
         await Promise.all(tasks);
 
         return result;
     },
-};
+    [withUser, withUserCars, withOptions, withReservations],
+);
+
+return useQuery(load, true);
 ~~~
 
-Where one GraphQL query selected several root fields in a single round-trip,
-the descriptor issues the equivalent REST calls in parallel and merges the
-results — the consuming components can't tell the difference.
+All four hooks are built on one internal `useQuery` engine, which is where the
+unglamorous but essential parts live: a request whose inputs have since changed
+is discarded rather than allowed to overwrite newer data, and a hook with
+nothing to fetch — no brand picked yet, no date selected — issues no request at
+all instead of asking the gateway for nothing.
 
-### Mutations become plain requests
+### Mutations are hooks too
 
-Each mutation keeps its original module, signature and callback contract, and
-simply swaps `commitMutation` for a REST call:
+Each operation is a module exporting a hook that returns the commit function
+and an in-flight flag — the flag being what disables the submit button while
+the request is out:
 
-~~~javascript
-export function reserve({ carId, type, duration }, success, failure) {
-    client
-        .post('/reservations', {
-            carId,
-            type,
-            duration: duration.map(item => item.toISOString()),
-        })
-        .then(payload => success && success(payload))
-        .catch(err => failure && failure(err.errors || [err]));
+~~~typescript
+export function useReserve(): [
+    (reservation: ReserveInput, options?: ReserveOptions) => void,
+    boolean,
+] {
+    const [isInFlight, setInFlight] = useInFlight();
+    const reserve = useCallback(async (
+        { carId, type, duration }: ReserveInput,
+        { success, failure }: ReserveOptions = {},
+    ) => {
+        setInFlight(true);
+
+        try {
+            const payload = await client.post<ReservePayload>('/reservations', {
+                carId,
+                type,
+                duration: duration.map(item => item.toISOString()),
+            });
+
+            success && success(payload);
+        } catch (err) {
+            logger.error('reserveMutation:request', err);
+            failure && failure(toErrorList(err));
+        } finally {
+            setInFlight(false);
+        }
+    }, [setInFlight]);
+
+    return [reserve, isInFlight];
 }
 ~~~
 
-### Reproducing Relay's reactivity
+### Reactivity without a normalized store
 
-One thing Relay gave us for free was store reactivity: when a mutation
-returned updated records, every fragment container reading them re-rendered
-automatically. A REST build has no normalized store, so the app reproduces the
-behaviour with a tiny invalidation bus
-([`src/rest/bus.js`](https://github.com/imqueue-sandbox/web-app-rest/blob/main/src/rest/bus.js)):
-mutations that change root-query data call `emitDataChange()`, and the
-`withQuery` loader re-fetches **in the background**, updating the data in
-place without flashing a loading state. The list just updates — exactly as it
-did before.
+One thing Relay gives you for free is store reactivity: when a mutation returns
+updated records, everything reading them re-renders. A `fetch`-based app has no
+normalized cache, so this one earns the same effect with an invalidation bus
+([`src/store/bus.ts`](https://github.com/imqueue-sandbox/web-app-rest/blob/main/src/store/bus.ts))
+— about twenty lines around a `Set` of listeners:
+
+~~~typescript
+export function onDataChange(handler: DataChangeHandler): Unsubscribe
+export function emitDataChange(): void
+~~~
+
+The mutations that change the current user (`updateUser`, `addCar`,
+`removeCar`) announce it, and the hooks marked *live* reload **in the
+background** — no loading flag raised, the last good data left on screen until
+the new data arrives. The list just updates, exactly as it did with Relay. The
+catalog hooks are not live, because car makes and models do not change under
+the user.
+
+This is the honest trade to look at closely. Relay's store buys you automatic,
+fine-grained invalidation and costs you a compiler, generated artifacts and a
+fragment discipline. The bus buys you a re-fetch of whole queries for a handful
+of lines and no build step. Which is the better deal depends entirely on the
+app — and that judgement is yours to make per client, which is the whole point
+of keeping it out of the services.
 
 ### Running it
 
@@ -158,22 +200,29 @@ npm i
 npm start
 ~~~
 
-The dev server listens on port **3001** — deliberately, so it can run
-alongside the GraphQL web-app on port 3000. It points at the REST gateway on
+The dev server listens on port **3001** — deliberately, so it can run alongside
+the GraphQL web-app on port 3000. It points at the REST gateway on
 `http://localhost:8080/` by default (override with `VITE_WEB_API_URL`).
 
-If you've followed every chapter, you now have two complete stacks running
-side by side — GraphQL/Relay at
-[http://localhost:3000/](http://localhost:3000/) and REST/OpenAPI at
-[http://localhost:3001/](http://localhost:3001/) — with the same pixel-perfect
-UI, orchestrating the **same four @imqueue services** over the same message
-queue.
+If you've followed every chapter, you now have two complete stacks running side
+by side — GraphQL/Relay at [http://localhost:3000/](http://localhost:3000/) and
+REST/OpenAPI at [http://localhost:3001/](http://localhost:3001/) — with the
+same features, orchestrating the **same four @imqueue services** over the same
+message queue. Each app's title bar carries a protocol badge, `GraphQL` or
+`REST`, so you always know which one you are looking at.
+
+Try it: register a customer in one, then log into the other. Add a car on
+:3000 and watch it appear in the garage on :3001. Book a washing slot over
+REST and cancel it over GraphQL. There is one fleet behind both, and it never
+learns which protocol asked.
 
 ### The takeaway
 
 Nothing in an @imqueue fleet ties you to any particular API technology. The
 services expose typed, transport-agnostic RPC over the queue; whatever sits in
-front of them — GraphQL, REST, or anything else you might need tomorrow — is
-a thin, replaceable orchestration shell.
+front of them — GraphQL, REST, or anything else you might need tomorrow — is a
+thin, replaceable orchestration shell. And because that shell is thin, each
+client is free to be *good* at the protocol it speaks rather than pretending to
+speak another one.
 
 Happy hacking!
