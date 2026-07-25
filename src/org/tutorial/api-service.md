@@ -34,7 +34,7 @@ imq service create api ./api
 
 This installs everything needed to work with @imqueue. Since we want a GraphQL
 server over HTTP rather than a classic @imqueue service, we'll add a few more
-dependencies and rework the start script:
+dependencies:
 
 ~~~bash
 npm i --save express cors graphql graphql-yoga graphql-relay \
@@ -66,35 +66,40 @@ of the `Application` class. There we instantiate all the @imqueue/rpc clients
 used to orchestrate requests to the underlying services, and start them as part
 of the API service's start-up.
 
-The resulting execution context is then handed to the GraphQL layer, which passes
-it down to every resolver in the schema — so any resolver can reach our services
-whenever it needs to.
+The started clients are then spread into the per-request context that
+graphql-yoga builds — together with the user resolved from the `X-Auth-User`
+header — and GraphQL passes that context down to every resolver in the schema,
+so any resolver can reach our services whenever it needs to.
 
 ~~~typescript
 import { clientOptions } from '../config.js';
 import { user, auth, car, timeTable } from './clients/index.js';
 
-class Application {
+export class Application {
     // ...
+    private static context: {
+        user: user.UserClient;
+        auth: auth.AuthClient;
+        car: car.CarClient;
+        timeTable: timeTable.TimeTableClient;
+    };
+
     /**
-     * Initializes the runtime context for the GraphQL application
-     *
-     * @return {Promise<any>} - the initialized context
+     * Instantiates and starts the @imqueue/rpc clients used to orchestrate
+     * requests to the back-end services
      */
-    private static async bootstrapContext(): Promise<any> {
-        const context: any = {
+    private static async bootstrapContext(): Promise<void> {
+        Application.context = {
             user: new user.UserClient(clientOptions),
             auth: new auth.AuthClient(clientOptions),
             car: new car.CarClient(clientOptions),
             timeTable: new timeTable.TimeTableClient(clientOptions),
         };
 
-        await context.user.start();
-        await context.auth.start();
-        await context.car.start();
-        await context.timeTable.start();
-
-        return context;
+        await Application.context.user.start();
+        await Application.context.auth.start();
+        await Application.context.car.start();
+        await Application.context.timeTable.start();
     }
     // ...
 }
@@ -186,9 +191,16 @@ export const schema = new GraphQLSchema({
 });
 ~~~
 
-Because the context is built during the API service's start-up and GraphQL
-exposes it to every resolver, we can call remote services and fetch whatever data
-we need, right where we need it.
+The sample above keeps everything in one file to stay readable. In the finished
+service the schema is assembled in
+[`src/schema.ts`](https://github.com/imqueue-sandbox/api/blob/master/src/schema.ts)
+from the field definitions under `src/queries/` and `src/mutations/`, the
+resolver bodies live in `src/helpers/resolvers.ts`, and the `Context` type in
+`src/types/Context.ts`.
+
+Because the clients are started during the API service's start-up and GraphQL
+exposes them to every resolver through the context, we can call remote services
+and fetch whatever data we need, right where we need it.
 
 As the example shows, there's very little to do on the client side — just build
 and use. All the real implementation lives in one place: the service itself.
