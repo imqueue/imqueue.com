@@ -114,17 +114,19 @@ User: writer channel connected, host localhost:6379, pid 27034
 ~~~
 
 That means the service is up and ready. The @imqueue boilerplate always
-scaffolds a service with one remotely callable method — `version()` — because a
-service needs at least one exposed method to start without errors. It's
-decorated with `@logged() @lock() @profile() @expose()` and simply returns the
-service's `name`, `version` and `repository`, read from `package.json`. Once
-you've implemented your own methods you can keep `version()` or remove it.
+scaffolds a service with remotely callable methods already in place, because a
+service needs at least one exposed method to start without errors. You get two:
+`version()`, decorated with `@logged() @lock() @profile() @expose()`, which
+returns the service's `name`, `version` and `repository` read from
+`package.json`; and `info()`, which adds the package `description` to that.
+Once you've implemented your own methods you can keep them or remove them.
 
 For now, we'll use `version()` to verify the service. Create a `debug.ts` file in
 the service's root directory with the following content:
 
 ~~~typescript
-import { IMQClient, ILogger } from '@imqueue/rpc';
+import type { ILogger } from '@imqueue/rpc';
+import { IMQClient } from '@imqueue/rpc';
 import { User } from './src/index.js';
 import { serviceOptions } from './config.js';
 
@@ -152,7 +154,14 @@ new User(serviceOptions).start().then((service: any) => {
 ~~~
 
 This starts the service and a client, then makes a remote call to the service's
-`version()` method. The output should look like:
+`version()` method. `npm run dev` only runs the service's own entry point, so
+compile and run this file directly:
+
+~~~bash
+npm run build && node debug.js
+~~~
+
+The output should look like:
 
 ~~~
 User: starting single-worker, pid 32372
@@ -489,7 +498,7 @@ Put the following inside:
 
 ~~~typescript
 import { classType, property } from '@imqueue/rpc';
-import { UserCarObject } from './UserCarObject.js';
+import type { UserCarObject } from './UserCarObject.js';
 
 /**
  * Serializable user type

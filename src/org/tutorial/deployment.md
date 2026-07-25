@@ -66,8 +66,9 @@ to understand what you're doing and what the consequences are.
 Services are designed to run in multi-process environments. Since JavaScript on
 Node.js is single-threaded by nature, one process uses the power of only one
 core. On a multi-core machine you'll usually want to use all available cores,
-which you can do with a couple of configuration options. These are service (or
-client) options, and can be set in `config.ts`:
+which you can do with a couple of configuration options. These are service
+options (they live on `IMQServiceOptions`), and can be set in the service's
+`config.ts`:
 
 ~~~typescript
 export const serviceOptions: Partial<IMQServiceOptions> = {
@@ -164,17 +165,29 @@ git clone git@github.com:imqueue-sandbox/web-app.git
 ~~~
 
 Next, make sure Redis, MongoDB and PostgreSQL are running on your development
-machine.
+machine. Out of the box the services look for them at the standard local
+addresses — `localhost:6379`, `localhost:27017` and `localhost:5432`.
 
 You'll also need a PostgreSQL database named `tutmq`, owned by a user `tutmq`
-with the password `tutmq` — or change the time-table service's configuration to
-use different names.
+with the password `tutmq` — or point the time-table service at a different
+database through its `DB_CONN_STR` environment variable. The schema itself is
+created on start-up, so there's nothing to migrate by hand.
 
-Then run each service in its own terminal window (or use a multiplexer such as
-`screen` or `tmux` if you prefer):
+The auth service signs its JWTs with a secret you supply and refuses to start
+without one. `.env` files are git-ignored, so a fresh clone has none — generate
+your own secret before starting the fleet:
+
+~~~bash
+cd ~/imqueue-sandbox/auth
+echo "JWT_KEY=$(openssl rand -hex 32)" > .env
+~~~
+
+Then install dependencies and run each service in its own terminal window (or
+use a multiplexer such as `screen` or `tmux` if you prefer):
 
 ~~~bash
 cd ~/imqueue-sandbox/[service_dir]
+npm i
 npm run dev
 ~~~
 
@@ -186,14 +199,17 @@ calls until the peer it needs becomes available.
 Once the API service is running, the GraphiQL web interface is available at
 [http://localhost:8888/](http://localhost:8888/).
 
-Finally, start the React-based web interface:
+Finally, install and start the React-based web interface:
 
 ~~~bash
 cd ~/imqueue-sandbox/web-app
+npm i
 npm start
 ~~~
 
-You can now use the application at
+`npm start` first runs the Relay compiler over the TypeScript sources —
+regenerating the typed query artifacts in the `__generated__` directories — and
+then starts the Vite dev server. You can now use the application at
 [http://localhost:3000/](http://localhost:3000/).
 
 ### Bonus: the same fleet, a different API

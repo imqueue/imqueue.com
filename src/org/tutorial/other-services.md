@@ -2,9 +2,9 @@
 chapter: 4
 title: Domain Services
 docLabel: TUTORIAL — CHAPTER 4
-lead: "Add the remaining domain services — Car and Time-Table — and choose how their typed clients are generated."
-description: "Add the remaining @imqueue domain services (Car, Time-Table) and choose how their typed clients are generated — self-describing services in practice."
-keywords: "@imqueue domain services, typed client generation, self-describing services, code generation RPC, PostgreSQL microservice, TypeScript service client"
+lead: "Add the remaining domain services — Car and Time-Table — an in-memory car catalog and a PostgreSQL-backed reservation time-table."
+description: "Add the remaining @imqueue domain services: Car, an in-memory catalog built from the EPA dataset, and Time-Table, PostgreSQL-backed reservations via Sequelize."
+keywords: "@imqueue domain services, car catalog microservice, self-describing services, Sequelize RPC microservice, PostgreSQL microservice, TypeScript service client"
 ogType: article
 ---
 
@@ -93,8 +93,8 @@ Here is the interface expected for this service:
 
 ~~~typescript
 /**
- * Returns reservations starting from a given time (or from the current time if
- * omitted)
+ * Returns the list of reservations for a given date (or for the current date
+ * if omitted)
  *
  * @param {string} [date] - date to select reservations for; defaults to the current date
  * @param {string[]} [fields] - fields to select for each reservation
