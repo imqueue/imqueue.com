@@ -62,12 +62,18 @@ notifications
     .catch(err => console.error('reminder failed', err));
 ~~~
 
-Fill that metadata slot rather than skipping it. Both trailing parameters are
-optional, but they're stripped by identity, not by position: an explicit
-`undefined` type-checks and then travels as a real argument, so a method whose
-parameters are all required rejects the call with `IMQ_RPC_INVALID_ARGS_COUNT`.
-Dropping the delay straight into the metadata slot is the mirror image — it runs,
-but it doesn't type-check. Pass a bag, even a thin one, and keep the delay last.
+> **Updated for `@imqueue/rpc` 3.3.1**, released the day this went out: the
+> metadata slot can now be skipped with `undefined`. The sample above is
+> unchanged — it works on every version.
+
+Fill that metadata slot, or pass `undefined` for it. Both trailing parameters are
+optional, but they're stripped by identity, not by position — so on 3.3.0 and
+earlier an explicit `undefined` type-checked and then travelled as a real
+argument, and a method whose parameters are all required rejected the call with
+`IMQ_RPC_INVALID_ARGS_COUNT`. From 3.3.1 the client drops that placeholder once
+it has popped a delay, so both spellings work. Dropping the delay straight into
+the metadata slot is the mirror image — it runs, but it doesn't type-check, on
+any version. Keep the delay last.
 `IMQDelay` takes a number plus one of `ms`, `s`, `m`, `h`, `d`. What comes back is a
 real request/reply promise, pending across the whole delay, so don't `await` one
 inside a request handler: its resolver lives only in the caller's memory, and a
