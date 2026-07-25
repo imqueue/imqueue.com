@@ -43,8 +43,9 @@ small teams:
   over Redis, JSON Web Tokens.
 - **Car service** — serves car data. Stack: Node.js/TypeScript, @imqueue over
   Redis, a static data source cached in a custom in-memory store.
-- **Time-Table service** — manages reservations and reservation events. Stack:
-  Node.js/TypeScript, @imqueue over Redis, PostgreSQL.
+- **Time-Table service** — manages the washing schedule: reservations and the
+  station's working-hours options. Stack: Node.js/TypeScript, @imqueue over
+  Redis, PostgreSQL.
 - **API service** — a GraphQL endpoint that orchestrates access to the services
   above. Stack: Node.js/TypeScript, @imqueue over Redis, graphql, graphql-relay,
   express, graphql-yoga.
