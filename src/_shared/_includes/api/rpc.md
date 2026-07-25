@@ -413,6 +413,44 @@ declared parameters are all required rejects the call with
 is the mirror image — it works at runtime, but it does not type-check without a
 cast. Pass a bag, even a thin one, and keep the delay last.
 
+For the patterns this enables — one-shot reminders, sweepers, backoff — see
+[delayed and scheduled work without a job
+system](/blog/scheduled-work-without-a-job-system/).
+
+### Reading call metadata
+
+Whatever a caller puts in the metadata bag travels with the request, and the
+service reads it without threading it through its own method signatures.
+`IMQService` binds every in-flight request to the async execution context, so
+[currentMetadata()](/api/rpc/latest/rpc.currentmetadata/) works inside any
+exposed method — and inside anything that method awaits:
+
+~~~typescript
+import { IMQService, expose, currentMetadata } from '@imqueue/rpc';
+
+class OrderService extends IMQService {
+    /**
+     * Ships the order with the given identifier
+     *
+     * @param {string} orderId - order identifier
+     * @return {Promise<void>}
+     */
+    @expose()
+    public async ship(orderId: string): Promise<void> {
+        const meta = currentMetadata();
+
+        this.logger.info('shipping', orderId, meta?.reason);
+    }
+}
+~~~
+
+The bag is opaque, and it arrives as plain JSON — read its fields directly
+rather than expecting an `IMQMetadata` instance. Outside of a request, at
+start-up for instance, `currentMetadata()` returns `undefined`. Don't declare an
+`IMQMetadata` parameter on an exposed method to receive it: the generator treats
+a trailing `IMQMetadata` or `IMQDelay` parameter as its own and strips it from
+the client it builds.
+
 ### Locking
 
 Locking is a powerful tool in `@imqueue/rpc` for optimising remote calls.
