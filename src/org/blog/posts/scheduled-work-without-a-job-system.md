@@ -257,7 +257,7 @@ Deferral-as-a-parameter fits when the work is a call you already expose and
   category, not a bigger delay.
 
 If none of those apply, you probably don't need a job system for this — you need
-one extra argument on a call you already make. The
+an extra argument or two on a call you already make. The
 [`IMQDelay` reference](/api/rpc/latest/rpc.imqdelay/) has the exact signature,
 and [Getting Started](/get-started/) gets you a service to schedule against in a
 couple of minutes.
