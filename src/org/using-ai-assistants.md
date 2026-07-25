@@ -163,6 +163,10 @@ Task-focused, machine-oriented instructions your agent can apply directly:
 - **[Isolated imq CLI environments](/agents/isolated-imq-environments/)** —
   managing multiple @imqueue projects on one machine with `IMQ_CLI_HOME`:
   exact commands, verification steps and failure modes.
+- **[Delayed & scheduled work](/agents/delayed-scheduled-work/)** — running work
+  later without adding a job system: choosing the mechanism, the exact
+  `IMQDelay` call contract, recurrence by self-re-arming chain, and the Redis
+  commands to verify it.
 
 ## Next steps
 
