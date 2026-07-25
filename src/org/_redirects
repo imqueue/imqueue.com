@@ -185,3 +185,4 @@
 /api/rpc/3.3.0/*  /api/rpc/latest/:splat  301
 /api/rpc/3.3.1/*  /api/rpc/latest/:splat  301
 /api/rpc/3.4.0/*  /api/rpc/latest/:splat  301
+/api/rpc/3.4.1/*  /api/rpc/latest/:splat  301
