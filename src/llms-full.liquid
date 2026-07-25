@@ -11,7 +11,7 @@ A commercial license lets you ship @imqueue inside a closed-source product witho
 {%- else -%}
 # @imqueue — Full documentation
 
-> RPC over an inter-communication messaging queue for service-oriented Node.js & TypeScript back-ends. This file concatenates the framework documentation as a single markdown document for AI ingestion. Canonical HTML: {{ siteUrl }}/. Commercial licensing: https://imqueue.com/. Generated API reference (not included here): {{ siteUrl }}/api/.
+> RPC over an inter-communication messaging queue for service-oriented Node.js & TypeScript back-ends. This file concatenates the framework documentation as a single markdown document for AI ingestion. Canonical HTML: {{ siteUrl }}/. Commercial licensing: https://imqueue.com/. The hand-written API guide is included at the end; the generated per-symbol API reference is not — browse it at {{ siteUrl }}/api/.
 
 {% for item in collections.all -%}
 {%- assign isMd = false -%}
@@ -32,4 +32,20 @@ Source: {{ siteUrl }}{{ item.url }}
 {{ body | strip }}
 {% endif -%}
 {%- endfor -%}
+
+---
+
+# API guide
+
+Source: {{ siteUrl }}/api/
+
+The guide below is included from the same source the HTML page renders, as the
+loop above skips everything under /api/ to keep the generated per-symbol
+reference out of this file.
+
+{% include "api/intro.md" %}
+{% include "api/rpc.md" %}
+{% include "api/mq.md" %}
+{% include "api/misc.md" %}
+{% include "api/migration.md" %}
 {%- endif -%}
