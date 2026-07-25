@@ -37,7 +37,7 @@ Because `@imqueue` clients are **generated from the service**, the contract has 
 // Service change: `get(id: string)` becomes `get(id: string, opts: GetOpts)`.
 // After regenerating the client, this caller no longer compiles —
 // you find out now, in CI, not at 2 a.m. in production:
-const user = await users.get('42'); // TS error: expected 2 arguments
+const user = await users.get('42'); // TS2554: expected 2-4 arguments, but got 1
 ```
 
 That's the whole game: the compiler becomes your integration test for contract changes. You still decide *how* to evolve the API, but you can no longer do it *silently*.

@@ -404,10 +404,11 @@ client
     .then((result: any) => client.logger.log(result));
 ~~~
 
-Fill the metadata slot rather than skipping it. Both trailing parameters are
-optional, but the client strips them by identity, not by position: an explicit
-`undefined` type-checks and then travels on as a real call argument, so a method
-whose declared parameters are all required rejects the call with
+Both trailing parameters are optional, and an ordinary call passes neither. But
+when you do pass a delay, fill the metadata slot rather than skipping it — the
+client strips these two by identity, not by position, so an explicit `undefined`
+type-checks and then travels on as a real call argument, and a method whose
+declared parameters are all required rejects the call with
 `IMQ_RPC_INVALID_ARGS_COUNT`. Passing the delay straight into the metadata slot
 is the mirror image — it works at runtime, but it does not type-check without a
 cast. Pass a bag, even a thin one, and keep the delay last.
