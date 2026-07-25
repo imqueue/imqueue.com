@@ -62,18 +62,20 @@ notifications
     .catch(err => console.error('reminder failed', err));
 ~~~
 
-> **Updated for `@imqueue/rpc` 3.3.1**, released the day this went out: the
-> metadata slot can now be skipped with `undefined`. The sample above is
-> unchanged — it works on every version.
+> **Updated for `@imqueue/rpc` 3.4.0.** When this went out, skipping the metadata
+> slot with `undefined` failed outright; 3.3.1 made it work for one placeholder,
+> and 3.4.0 made it the rule — on a delayed call a trailing `undefined` is never
+> delivered. The sample above works on every version, so it stands unchanged.
 
 Fill that metadata slot, or pass `undefined` for it. Both trailing parameters are
-optional, but they're stripped by identity, not by position — so on 3.3.0 and
-earlier an explicit `undefined` type-checked and then travelled as a real
-argument, and a method whose parameters are all required rejected the call with
-`IMQ_RPC_INVALID_ARGS_COUNT`. From 3.3.1 the client drops that placeholder once
-it has popped a delay, so both spellings work. Dropping the delay straight into
-the metadata slot is the mirror image — it runs, but it doesn't type-check, on
-any version. Keep the delay last.
+optional, but they're stripped by identity, not by position — which is why the
+placeholder took two releases to settle. On 3.3.0 and earlier an explicit
+`undefined` type-checked and then travelled as a real argument, so a method whose
+parameters are all required rejected the call with
+`IMQ_RPC_INVALID_ARGS_COUNT`. From 3.4.0 a trailing `undefined` on a delayed call
+is dropped, so both spellings work and a skipped optional argument falls back to
+its default. Dropping the delay straight into the metadata slot is the mirror
+image — it runs, but it doesn't type-check, on any version. Keep the delay last.
 `IMQDelay` takes a number plus one of `ms`, `s`, `m`, `h`, `d`. What comes back is a
 real request/reply promise, pending across the whole delay, so don't `await` one
 inside a request handler: its resolver lives only in the caller's memory, and a
