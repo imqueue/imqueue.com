@@ -17,13 +17,13 @@ If you need to run background jobs on Redis in Node.js, [BullMQ](https://docs.bu
 
 ## The one-line version
 
-**`@imqueue/job` is a deliberately *simple*, safe-by-default job queue; BullMQ is the *feature-rich* one.** Both run on Redis, both do concurrent workers, delayed jobs, and automatic retries. BullMQ adds a much larger job-lifecycle surface (a *declarative* retry/backoff policy with dead-lettering, priorities, repeatable/cron jobs, rate limiting, flows, a dashboard). `@imqueue/job` keeps a tiny footprint and leans on guaranteed delivery being on by default.
+**`@imqueue/job` is a deliberately *simple*, safe-by-default job queue; BullMQ is the *feature-rich* one.** Both run on Redis, both do concurrent workers and delayed jobs, and both can retry a failed job. BullMQ adds a much larger job-lifecycle surface (a *declarative* retry/backoff policy with dead-lettering, priorities, repeatable/cron jobs, rate limiting, flows, a dashboard). `@imqueue/job` keeps a tiny footprint and leans on guaranteed delivery being on by default.
 
 ## What @imqueue/job gives you
 
 `@imqueue/job` is a Redis-backed job queue with a small, focused feature set:
 
-- **Guaranteed processing by default.** Safe delivery is on out of the box: if a worker grabs a job and dies mid-processing, the job is re-queued for another worker (a per-worker lock TTL, `safeLockTtl`, controls how long before it's considered dead). No data loss.
+- **Guaranteed delivery by default.** Safe delivery is on out of the box, with a per-worker lease TTL (`safeLockTtl`) deciding when a holder counts as dead: a job a dying worker was holding is re-queued for another worker rather than vanishing with the process. The lease covers the hand-off, not your handler — a worker killed three seconds into an `await` still loses that attempt — so *at-least-once* is the honest guarantee, and handlers should be safe to re-run.
 - **Concurrent workers** on one queue — competing consumers with natural load balancing, no separate balancer.
 - **Delayed / scheduled jobs** to millisecond granularity: `push(data, { delay })`.
 - **Job expiration (TTL)** — a job can live forever or expire after a set time.
@@ -54,21 +54,31 @@ So scheduling to the millisecond is built in at every layer.
 
 ## Retries and backoff
 
-`@imqueue/job` retries failed jobs automatically, and the retry *timing* is under your control:
+`@imqueue/job` gives you a retry *primitive* rather than a retry policy — the timing is entirely yours:
 
-- A handler that **throws** re-schedules the job (with its original delay) — an automatic retry on failure.
-- A handler that **returns a delay in milliseconds** re-runs the job after that delay — so you can shape the backoff (return a growing delay for exponential backoff), and finish by returning nothing.
-- If a **worker dies mid-job**, safe delivery re-queues it after `safeLockTtl`.
+- A handler that **returns a delay in milliseconds** re-runs the same job after that delay — so you shape the backoff (return a growing delay for exponential backoff) and stop by returning nothing or a negative number. Returning `0` isn't a stop: it re-runs immediately, a hot loop.
+- A handler that **throws** re-schedules with the job's *original* delay — so a job pushed without one is dropped rather than retried. Catch your own errors instead of leaning on a throw.
+- If a **worker dies during the hand-off**, safe delivery re-queues the job after `safeLockTtl`.
 
 ```ts
-new JobQueue<string>({ name: 'Fetch' })
-    .onPop(async (url) => {
-        await fetchAndStore(url); // if this throws, the job is retried
+new JobQueue<{ url: string; attempt: number }>({ name: 'Fetch' })
+    .onPop(async (job) => {
+        try {
+            await fetchAndStore(job.url);
+        } catch (err) {
+            job.attempt += 1;
+
+            if (job.attempt > 5) {
+                return -1; // negative: stop retrying
+            }
+
+            return 1000 * 2 ** (job.attempt - 1); // 1s, 2s, 4s, 8s, 16s
+        }
     })
     .start();
 ```
 
-So retries and backoff *do* exist. What BullMQ adds on top is a **declarative** policy — a fixed `attempts` cap plus a named backoff strategy — with the job automatically **dead-lettered** once attempts run out. In `@imqueue/job` you cap attempts yourself (e.g. re-push the job with an incremented counter and stop re-scheduling).
+So retries and backoff *are* expressible — you just write them. What BullMQ adds on top is a **declarative** policy — a fixed `attempts` cap plus a named backoff strategy — with the job automatically **dead-lettered** once attempts run out. In `@imqueue/job` the counter in the payload above is the only attempt cap there is (re-scheduling re-sends the same envelope, so it carries forward), and parking an exhausted job is your own code.
 
 ## Where BullMQ goes further
 
@@ -94,11 +104,11 @@ So if your system needs *both* "do this later" (jobs) *and* "give me this now" (
 | | @imqueue/job | BullMQ |
 |---|---|---|
 | Backing store | Redis | Redis |
-| Guaranteed processing | ✅ on by default (re-queue on worker death) | ✅ (stalled-job recovery) |
+| Guaranteed delivery | ✅ at-least-once, on by default (re-queue on worker death) | ✅ (stalled-job recovery) |
 | Concurrent workers | ✅ competing consumers | ✅ |
 | Delayed / scheduled jobs | ✅ millisecond granularity | ✅ |
 | Job expiration (TTL) | ✅ | ✅ (retention policies) |
-| Retries + backoff | ✅ programmable (retry on error; return a delay to back off) | ✅ declarative (`attempts` + backoff strategy + dead-letter) |
+| Retries + backoff | ✅ programmable (return a delay to back off; no attempt cap) | ✅ declarative (`attempts` + backoff strategy + dead-letter) |
 | Priorities | ❌ | ✅ |
 | Repeatable / cron | ❌ | ✅ |
 | Rate limiting / flows / dashboard | ❌ | ✅ |
