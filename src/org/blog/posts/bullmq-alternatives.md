@@ -65,7 +65,7 @@ BullMQ is an excellent default. You'd reasonably shop around when:
 
 ### @imqueue/job — minimal and safe-by-default
 
-[`@imqueue/job`](https://github.com/imqueue/job) is the Redis-backed job queue inside the `@imqueue` framework. Its point of difference is being **small and safe by default**: guaranteed processing is on out of the box (if a worker grabs a job and dies, the job is re-queued for another worker after a lock TTL), with delayed/scheduled jobs to millisecond granularity and programmable retry/backoff. It's TypeScript-first and has a single dependency.
+[`@imqueue/job`](https://github.com/imqueue/job) is the Redis-backed job queue inside the `@imqueue` framework. Its point of difference is being **small and safe by default**: guaranteed delivery is on out of the box, so a job a dying worker was holding is re-queued for another worker after a lock TTL — the lease covers the hand-off rather than your handler, making *at-least-once* the real guarantee — with delayed/scheduled jobs to millisecond granularity and programmable retry/backoff. It's TypeScript-first and has a single dependency.
 
 It makes most sense when you **already use `@imqueue` for service-to-service RPC** (the job queue shares the same core, serialization and conventions), or when you specifically want a tiny queue where "don't lose jobs" is the default rather than something you configure.
 
@@ -92,7 +92,7 @@ A quick decision guide:
 - **Primary datastore is Postgres and you'd rather not add Redis?** → **pg-boss**.
 - **On MongoDB and mostly need recurring/cron scheduling?** → **Agenda**.
 - **Want zero queue infrastructure to operate?** → a **cloud queue** (SQS / Cloud Tasks).
-- **Already building services with `@imqueue`, or you want a minimal queue that won't drop jobs by default?** → **[`@imqueue/job`](/get-started/)**.
+- **Already building services with `@imqueue`, or you want a minimal queue where at-least-once delivery is the default?** → **[`@imqueue/job`](/get-started/)**.
 
 The honest summary: **BullMQ remains the safe, capable default on Redis.** The alternatives win when a *specific* constraint — your datastore, your appetite for features, your ops budget, or your framework — points elsewhere.
 
