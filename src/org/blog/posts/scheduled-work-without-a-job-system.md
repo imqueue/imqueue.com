@@ -260,4 +260,6 @@ If none of those apply, you probably don't need a job system for this — you ne
 an extra argument or two on a call you already make. The
 [`IMQDelay` reference](/api/rpc/latest/rpc.imqdelay/) has the exact signature,
 and [Getting Started](/get-started/) gets you a service to schedule against in a
-couple of minutes.
+couple of minutes. If an AI assistant writes this code for you, point it at the
+machine-readable version of these recipes:
+[/agents/delayed-scheduled-work/](/agents/delayed-scheduled-work/).
