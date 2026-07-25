@@ -59,16 +59,16 @@ Clients:
     const user = await client.update({ ... });
 - Every generated method takes two extra optional trailing params, in this
   order: `imqMetadata?: IMQMetadata`, then `imqDelay?: IMQDelay`. They are
-  stripped by identity, not by position. To delay a call on any version, pass
-  BOTH:
-    client.update({ ... }, new IMQMetadata({}), new IMQDelay(1, 'h'));
-  On @imqueue/rpc >= 3.3.1 an `undefined` placeholder works too, because one
-  trailing `undefined` is dropped once a delay has been popped:
+  stripped by identity, not by position. To delay a call, skip the metadata slot
+  and keep the delay last:
     client.update({ ... }, undefined, new IMQDelay(1, 'h'));
-  On <= 3.3.0 that placeholder travels on as a real argument and the call fails
-  with IMQ_RPC_INVALID_ARGS_COUNT, so check the installed version before
-  emitting it. Passing the delay alone, in the metadata slot, runs but does not
-  type-check on any version — do not silence that error with a cast.
+  From @imqueue/rpc 3.4.0 a trailing `undefined` on a delayed call is a
+  placeholder and is never delivered. On <= 3.3.0 it travels on as a real
+  argument and the call fails with IMQ_RPC_INVALID_ARGS_COUNT, so on those
+  versions pass a bag instead:
+    client.update({ ... }, new IMQMetadata({}), new IMQDelay(1, 'h'));
+  Passing the delay alone, in the metadata slot, runs but does not type-check on
+  any version — do not silence that error with a cast.
 - There is no service discovery or load balancer to configure; the queue handles
   routing.
 
