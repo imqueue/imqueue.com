@@ -404,14 +404,27 @@ client
     .then((result: any) => client.logger.log(result));
 ~~~
 
-Both trailing parameters are optional, and an ordinary call passes neither. But
-when you do pass a delay, fill the metadata slot rather than skipping it — the
-client strips these two by identity, not by position, so an explicit `undefined`
-type-checks and then travels on as a real call argument, and a method whose
-declared parameters are all required rejects the call with
-`IMQ_RPC_INVALID_ARGS_COUNT`. Passing the delay straight into the metadata slot
-is the mirror image — it works at runtime, but it does not type-check without a
-cast. Pass a bag, even a thin one, and keep the delay last.
+Both trailing parameters are optional, and an ordinary call passes neither. The
+client strips these two **by identity, not by position**, which is why the
+metadata slot needs care when all you want is a delay:
+
+- Passing a bag, even a thin one, works on every version — that is the form
+  above.
+- Skipping the slot with an explicit `undefined` works from **3.3.1** onwards:
+  once the delay has been popped, one trailing `undefined` is dropped. On
+  **3.3.0 and earlier** that `undefined` travels on as a real call argument, and
+  a method whose declared parameters are all required rejects the call with
+  `IMQ_RPC_INVALID_ARGS_COUNT`.
+- Passing the delay straight into the metadata slot is the mirror image — it
+  works at runtime on every version, but it does not type-check without a cast.
+  Keep the delay last instead.
+
+Two details worth knowing before you rely on the placeholder. Only **one**
+trailing `undefined` is dropped, and only on a delayed call — so skipping an
+*optional declared* parameter as well (`doScheduledStuff(data, undefined,
+undefined, delay)`) still delivers that parameter, and delivers it as `null`
+rather than `undefined`, which means a defaulted parameter will not fall back to
+its default. And an undelayed call drops nothing on any version.
 
 For the patterns this enables — one-shot reminders, sweepers, backoff — see
 [delayed and scheduled work without a job
