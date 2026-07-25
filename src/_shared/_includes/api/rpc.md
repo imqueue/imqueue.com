@@ -398,33 +398,31 @@ await client.start();
 client
     .doScheduledStuff(
         data,
-        new IMQMetadata({ reason: 'scheduled-stuff' }), // metadata slot first
-        new IMQDelay(1, 'h'),                           // delay is always last
+        undefined,            // metadata slot — skipped
+        new IMQDelay(1, 'h'), // delay is always last
     )
     .then((result: any) => client.logger.log(result));
 ~~~
 
-Both trailing parameters are optional, and an ordinary call passes neither. The
-client strips these two **by identity, not by position**, which is why the
-metadata slot needs care when all you want is a delay:
+Both trailing parameters are optional, and an ordinary call passes neither. When
+all you want is a delay, skip the metadata slot with `undefined` as above: from
+**3.4.0** a trailing `undefined` on a delayed call is a placeholder and is never
+delivered to the service. Pass a real
+[IMQMetadata](/api/rpc/latest/rpc.imqmetadata/) bag there when you have one —
+tracing context, an audit reason — and the delay still goes last.
 
-- Passing a bag, even a thin one, works on every version — that is the form
-  above.
-- Skipping the slot with an explicit `undefined` works from **3.3.1** onwards:
-  once the delay has been popped, one trailing `undefined` is dropped. On
-  **3.3.0 and earlier** that `undefined` travels on as a real call argument, and
-  a method whose declared parameters are all required rejects the call with
-  `IMQ_RPC_INVALID_ARGS_COUNT`.
-- Passing the delay straight into the metadata slot is the mirror image — it
-  works at runtime on every version, but it does not type-check without a cast.
-  Keep the delay last instead.
+The one form to avoid is the delay dropped straight into the metadata slot. The
+client strips these two parameters **by identity, not by position**, so it works
+at runtime — but it does not type-check without a cast, and the cast is what
+makes the placeholder rules below observable. Keep the delay last instead.
 
-Two details worth knowing before you rely on the placeholder. Only **one**
-trailing `undefined` is dropped, and only on a delayed call — so skipping an
-*optional declared* parameter as well (`doScheduledStuff(data, undefined,
-undefined, delay)`) still delivers that parameter, and delivers it as `null`
-rather than `undefined`, which means a defaulted parameter will not fall back to
-its default. And an undelayed call drops nothing on any version.
+On older versions the placeholder behaves differently. **3.3.1** dropped only one
+trailing `undefined`, and only when no metadata was passed, so skipping an
+optional declared argument as well still delivered it — as `null`, which means a
+defaulted parameter did not fall back to its default. **3.3.0 and earlier**
+delivered the placeholder itself, and a method whose declared parameters are all
+required rejected the call with `IMQ_RPC_INVALID_ARGS_COUNT`. An undelayed call
+drops nothing, on every version.
 
 For the patterns this enables — one-shot reminders, sweepers, backoff — see
 [delayed and scheduled work without a job
