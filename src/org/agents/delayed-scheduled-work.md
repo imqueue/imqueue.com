@@ -67,18 +67,29 @@ parameters, in this order: `imqMetadata?: IMQMetadata`, then
 a unit of `'ms' | 's' | 'm' | 'h' | 'd'`, defaulting to `'ms'`.
 
 Those two parameters are stripped from the request **by identity
-(`instanceof`), not by position**. Three consequences, all measured — do not
-guess between them:
+(`instanceof`), not by position** — which makes the placeholder question
+version-dependent. All of the following are measured; do not guess between them:
 
-- `method(data, undefined, delay)` type-checks and then **fails at runtime**.
-  The explicit `undefined` is not an `IMQDelay` or an `IMQMetadata`, so it
-  survives into the request as a real argument (serialized `null`) and the
-  service rejects the call with **`IMQ_RPC_INVALID_ARGS_COUNT`**.
+- `method(data, new IMQMetadata({ ... }), delay)` compiles and runs on **every**
+  version. **Emit this form** when the installed version is older or unknown.
+- `method(data, undefined, delay)` works on **`@imqueue/rpc` >= 3.3.1**, where
+  `remoteCall` drops one trailing `undefined` after popping the delay. On
+  **<= 3.3.0** the placeholder survives into the request as a real argument
+  (serialized `null`) and the service rejects the call with
+  **`IMQ_RPC_INVALID_ARGS_COUNT`**. Check the installed version before emitting
+  it.
 - `method(data, delay)` **runs**, but fails type-check with **TS2345**
-  (`IMQDelay` is not assignable to `IMQMetadata`).
-- `method(data, new IMQMetadata({ ... }), delay)` is the only form that both
-  compiles and runs. **Emit this form.**
-- A method with at least one *optional* declared parameter tolerates the extra
+  (`IMQDelay` is not assignable to `IMQMetadata`) on every version. Do not emit
+  it, and do not reach for `as any` to silence it.
+- Only **one** trailing `undefined` is dropped, and only when a delay is
+  present. So `method(a, undefined, undefined, delay)` — the type-correct way to
+  skip an optional declared param on a delayed call — drops the metadata slot
+  and still delivers the other placeholder, as **`null`**, not `undefined`. A
+  defaulted parameter therefore does not fall back to its default. Skipping an
+  optional param is not the same as omitting it.
+- Nothing is dropped when there is no delay, on any version: `method(a,
+  undefined)` delivers `null`.
+- A method with at least one *optional* declared parameter tolerates an extra
   argument, because the arity check switches from `===` to `>=`. A passing call
   therefore proves nothing about the others — do not generalise from it.
 
@@ -148,7 +159,7 @@ await notifications.start();
 notifications
     .sendTrialEndingEmail(
         { userId, plan },
-        new IMQMetadata({ reason: 'trial-expiry' }), // fill the slot, do not pass undefined
+        new IMQMetadata({ reason: 'trial-expiry' }), // or `undefined` on >= 3.3.1
         new IMQDelay(24, 'h'),                       // delay is always last
     )
     .catch(err => logger.error('deferred call failed to enqueue', err));
@@ -243,8 +254,9 @@ you chose; and run the handler twice to prove it is idempotent.
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| `IMQ_RPC_INVALID_ARGS_COUNT` on a delayed call | explicit `undefined` in the metadata slot is forwarded as a real argument | pass an `IMQMetadata` bag and keep the delay last |
+| `IMQ_RPC_INVALID_ARGS_COUNT` on a delayed call | on `<= 3.3.0` an explicit `undefined` in the metadata slot is forwarded as a real argument | upgrade to `>= 3.3.1`, or pass an `IMQMetadata` bag |
 | TS2345, `IMQDelay` not assignable to `IMQMetadata` | delay passed in the metadata slot | keep the delay in the last position |
+| A skipped optional param arrives as `null` and its default never fires | `undefined` serializes to `null`, and only one trailing placeholder is dropped | pass the real value, or declare the param nullable |
 | Delayed call never settles in the caller | caller restarted, or no `callTimeout` set | set `callTimeout`; never `await` a long delay in a request handler |
 | Everything arrives ~5 s late | keyspace notifications lack `Ex`, so the polling fallback is doing the work | enable `notify-keyspace-events Ex`, or accept the `watcherCheckDelay` sweep |
 | Delay ignored entirely | fractional milliseconds, or an unrecognised `IMQDelay` unit | pass whole integer ms and a valid unit |
