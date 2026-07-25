@@ -47,7 +47,7 @@ new JobQueue<string>({ name: 'Emails' })
 This is worth stating plainly, because it's easy to assume a "simple" queue can't schedule: **delayed delivery is a core capability across the whole framework, not an afterthought.**
 
 - In `@imqueue/core`, the fundamental `send(toQueue, message, delay?)` takes a delay, implemented with a dedicated delayed-set scored by due time, promoted by Redis keyspace notifications (with a polling fallback) — a proper scheduler, not a hack.
-- In `@imqueue/rpc`, an `IMQDelay` value (with `ms`/`s`/`m`/`h`/`d` units) lets you delay *any* remote call.
+- In `@imqueue/rpc`, an `IMQDelay` value (with `ms`/`s`/`m`/`h`/`d` units) lets you delay *any* remote call — passed after the call-metadata slot, as [delayed and scheduled work without a job system](/blog/scheduled-work-without-a-job-system/) spells out.
 - In `@imqueue/job`, that surfaces as `push(data, { delay })`.
 
 So scheduling to the millisecond is built in at every layer.
