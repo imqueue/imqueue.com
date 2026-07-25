@@ -376,13 +376,13 @@ types.
 ### Delayed messaging
 
 Delayed messaging with `@imqueue/rpc` is easy: any exposed service method can be
-called with a delay. This is handy for building scheduling queues. Just pass a
-`delay` parameter (of type
-[IMQDelay](/api/rpc/latest/rpc.imqdelay/)) in any client method
-call:
+called with a delay. This is handy for building scheduling queues. The generator
+appends two optional trailing parameters to every generated client method — call
+metadata (of type [IMQMetadata](/api/rpc/latest/rpc.imqmetadata/)) first, then
+the delay (of type [IMQDelay](/api/rpc/latest/rpc.imqdelay/)):
 
 ~~~typescript
-import { IMQDelay } from '@imqueue/rpc';
+import { IMQDelay, IMQMetadata } from '@imqueue/rpc';
 import { UserObject, UserClient } from './clients';
 
 const client = new UserClient();
@@ -395,9 +395,22 @@ const data: UserObject = {
 await client.start();
 // run the scheduled work in 1 hour, and handle the result asynchronously
 // once it completes, without blocking:
-client.doScheduledStuff(data, new IMQDelay(1, 'h'))
+client
+    .doScheduledStuff(
+        data,
+        new IMQMetadata({ reason: 'scheduled-stuff' }), // metadata slot first
+        new IMQDelay(1, 'h'),                           // delay is always last
+    )
     .then((result: any) => client.logger.log(result));
 ~~~
+
+Fill the metadata slot rather than skipping it. Both trailing parameters are
+optional, but the client strips them by identity, not by position: an explicit
+`undefined` type-checks and then travels on as a real call argument, so a method
+whose declared parameters are all required rejects the call with
+`IMQ_RPC_INVALID_ARGS_COUNT`. Passing the delay straight into the metadata slot
+is the mirror image — it works at runtime, but it does not type-check without a
+cast. Pass a bag, even a thin one, and keep the delay last.
 
 ### Locking
 
