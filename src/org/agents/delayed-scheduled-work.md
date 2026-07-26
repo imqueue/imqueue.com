@@ -87,9 +87,13 @@ not by position**. All of the following are measured; do not guess between them:
   what a skipped optional param delivers.
 - Nothing is dropped when there is no delay, on any version: `method(a,
   undefined)` delivers `null`, so a default does not fire.
-- A method with at least one *optional* declared parameter tolerates an extra
-  argument, because the arity check switches from `===` to `>=`. A passing call
-  therefore proves nothing about the others — do not generalise from it.
+- The service-side arity check is `declared === received` when every declared
+  parameter is required, and `declared >= received` when at least one is
+  optional. So a method with an optional parameter accepts a call that *omits*
+  trailing arguments, and a surviving placeholder that lands in an optional slot
+  passes the check instead of being rejected. A count *above* the declared total
+  is rejected either way. A passing call therefore proves nothing about a method
+  with a different signature — do not generalise from it.
 
 **Caller-side.** `callTimeout` has no default, and unset means wait forever; a
 delay extends its budget rather than firing early. The pending promise's
