@@ -66,9 +66,12 @@ agent-friendly plain markdown at `<page-url>index.md` — same content, no HTML.
 Start from a package index to see every exported symbol with its summary, then
 follow the symbol link for signature, parameters, return value, exceptions and
 remarks. Only the current major is mirrored; archived majors are HTML-only.
+To look a symbol up by name, fetch {{ siteUrl }}/api/search-index.json — every
+exported symbol of the current majors as `{name, kind, package, url, summary}`,
+with `deprecated: true` on obsolete members.
 - [API Documentation]({{ siteUrl }}/api/): Full generated API reference for @imqueue/core and @imqueue/rpc (classes, interfaces, methods, types). — [markdown]({{ siteUrl }}/api/index.md)
-- [@imqueue/core API reference]({{ siteUrl }}/api/core/latest/): Every exported symbol of @imqueue/core {{ apiVersions.core.latest }} — the Redis-backed message queue: IMQ factory, RedisQueue, ClusteredRedisQueue, IMQOptions, the profile decorator and the cluster-manager extension points. — [markdown]({{ siteUrl }}/api/core/latest/index.md)
-- [@imqueue/rpc API reference]({{ siteUrl }}/api/rpc/latest/): Every exported symbol of @imqueue/rpc {{ apiVersions.rpc.latest }} — typed RPC: IMQService, IMQClient, the expose/property/classType/lock/cache/logged decorators, the service Description shape used for client generation, and the cache and lock APIs. — [markdown]({{ siteUrl }}/api/rpc/latest/index.md)
+- [@imqueue/core API reference]({{ siteUrl }}/api/core/latest/): Every exported symbol of @imqueue/core, generated from {{ apiVersions.core.latest }} — this URL always serves the current major. The Redis-backed message queue: IMQ factory, RedisQueue, ClusteredRedisQueue, IMQOptions, the profile decorator and the cluster-manager extension points. — [markdown]({{ siteUrl }}/api/core/latest/index.md)
+- [@imqueue/rpc API reference]({{ siteUrl }}/api/rpc/latest/): Every exported symbol of @imqueue/rpc, generated from {{ apiVersions.rpc.latest }} — this URL always serves the current major. Typed RPC: IMQService, IMQClient, the expose/property/classType/lock/cache/logged decorators, the service Description shape used for client generation, and the cache and lock APIs. — [markdown]({{ siteUrl }}/api/rpc/latest/index.md)
 - [Documentation home]({{ siteUrl }}/docs/): Entry point to all @imqueue documentation.
 
 ## Articles
