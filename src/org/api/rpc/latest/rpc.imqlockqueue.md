@@ -8,6 +8,8 @@ title: "IMQLockQueue type · @imqueue/rpc"
 
 ## IMQLockQueue type
 
+The FIFO queue of callers waiting on a single lock key, drained in arrival order when the lock is released.
+
 **Signature:**
 
 ```typescript

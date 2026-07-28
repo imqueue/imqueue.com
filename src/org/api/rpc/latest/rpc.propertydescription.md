@@ -8,7 +8,7 @@ title: "PropertyDescription interface · @imqueue/rpc"
 
 ## PropertyDescription interface
 
-Type property description
+Description of one property of an exposed complex type.
 
 **Signature:**
 
@@ -54,6 +54,8 @@ boolean
 
 </td><td>
 
+Whether the property is optional, from the second argument of [property()](/api/rpc/latest/rpc.property/)<!-- -->. Defaults to `false`<!-- -->, and is never inferred from a TypeScript `?` modifier.
+
 
 </td></tr>
 <tr><td>
@@ -70,6 +72,8 @@ string
 
 
 </td><td>
+
+The property's RPC type as a string — a literal type name, a constructor's name, or a name with `[]` appended for the array form.
 
 
 </td></tr>

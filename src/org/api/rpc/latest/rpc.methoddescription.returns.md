@@ -8,6 +8,8 @@ title: "MethodDescription.returns property · @imqueue/rpc"
 
 ## MethodDescription.returns property
 
+The method's return value description. Always present.
+
 **Signature:**
 
 ```typescript

@@ -8,8 +8,15 @@ title: "IMQRPCRequest.from property · @imqueue/rpc"
 
 ## IMQRPCRequest.from property
 
+Name of the caller's own queue — the call's reply address.
+
 **Signature:**
 
 ```typescript
 from: string;
 ```
+
+## Remarks
+
+The service publishes the response to exactly this queue, so it is not a human-readable client label. Rewriting it in a `beforeCall` hook redirects the reply.
+

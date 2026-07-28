@@ -56,5 +56,5 @@ key to read the value for
 
 Promise&lt;any&gt;
 
-{<!-- -->Promise<any>} - stored value, or undefined if not found
+stored value, or undefined if not found
 

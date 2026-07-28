@@ -8,12 +8,22 @@ title: "UDPClusterManager class · @imqueue/core"
 
 ## UDPClusterManager class
 
+Cluster manager that discovers redis cluster members from UDP broadcast announcements. Supply instances through [IMQOptions.clusterManagers](/api/core/latest/core.imqoptions.clustermanagers/)<!-- -->.
+
 **Signature:**
 
 ```typescript
 export declare class UDPClusterManager extends ClusterManager 
 ```
-**Extends:** ClusterManager
+**Extends:** [ClusterManager](/api/core/latest/core.clustermanager/)
+
+## Remarks
+
+It runs a supervised worker thread holding the broadcast socket and applies each announcement to every registered cluster, skipping servers that are already known. Managers created with the same broadcast settings share one socket and worker thread, reference-counted so the worker lives until the last of them is destroyed; the `logger` and `handleSignals` options are not part of that identity. If the worker dies unexpectedly it is logged and re-spawned after one second with all live managers re-attached, so membership tracking resumes on its own.
+
+Announcements are not filtered by queue name: every cluster registered with a manager listening on a given address and port receives every server announced there. Isolate unrelated services by giving them distinct broadcast addresses or ports.
+
+Wire format — each announcement is one UDP datagram containing five tab-separated fields: queue name, unique server id, `up` or `down`<!-- -->, `host:port`<!-- -->, and the liveness timeout in seconds. Datagrams with a missing field, a port outside 1-65535, or a negative timeout are ignored. An `up` announcement adds the server and refreshes its liveness deadline; a `down` announcement removes it immediately.
 
 ## Constructors
 
@@ -43,7 +53,7 @@ Description
 
 </td><td>
 
-Constructs a new instance of the `UDPClusterManager` class
+Creates the manager and starts listening for broadcasts immediately, joining an existing worker when another manager already uses the same broadcast settings.
 
 
 </td></tr>
@@ -76,6 +86,8 @@ Description
 
 
 </td><td>
+
+Stops this manager and releases its share of the broadcast worker.
 
 
 </td></tr>

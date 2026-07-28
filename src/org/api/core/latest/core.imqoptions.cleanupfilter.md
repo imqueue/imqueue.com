@@ -8,12 +8,15 @@ title: "IMQOptions.cleanupFilter property · @imqueue/core"
 
 ## IMQOptions.cleanupFilter property
 
-Cleanup pattern for queue names that should be removed during cleanup
-
- {<!-- -->string<!-- -->}
+Redis glob pattern, appended to the prefix as `<prefix>:<cleanupFilter>`<!-- -->, selecting which keys the cleanup sweep considers. Defaults to `'*'` — every key in the namespace.
 
 **Signature:**
 
 ```typescript
 cleanupFilter: string;
 ```
+
+## Remarks
+
+This matches Redis key names, not queue names. The same pattern is also matched against connection names when deciding which keys belong to live clients. Used only when [IMQOptions.cleanup](/api/core/latest/core.imqoptions.cleanup/) is enabled.
+

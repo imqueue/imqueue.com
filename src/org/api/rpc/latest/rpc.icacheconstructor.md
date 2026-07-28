@@ -8,13 +8,17 @@ title: "ICacheConstructor interface · @imqueue/rpc"
 
 ## ICacheConstructor interface
 
-Constructor signature for cache adapter implementations.
+Constructor signature the registry uses to instantiate a cache adapter class.
 
 **Signature:**
 
 ```typescript
 export interface ICacheConstructor 
 ```
+
+## Remarks
+
+The registry always calls it with no arguments. The optional `name` argument is a legacy affordance that no built-in adapter accepts and that the registry never supplies, so implementations must be constructible with zero arguments and set their own [ICache.name](/api/rpc/latest/rpc.icache.name/)<!-- -->.
 
 ## Methods
 

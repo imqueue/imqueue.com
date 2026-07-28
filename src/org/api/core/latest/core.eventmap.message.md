@@ -8,6 +8,8 @@ title: "EventMap.message property · @imqueue/core"
 
 ## EventMap.message property
 
+Emitted for every message consumed from the queue, with the payload, the message id, and the name of the queue that sent it.
+
 **Signature:**
 
 ```typescript

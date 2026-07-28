@@ -8,7 +8,7 @@ title: "ILogger.warn() method · @imqueue/core"
 
 ## ILogger.warn() method
 
-Warning level function
+Writes a message at the `warn` level.
 
 **Signature:**
 
@@ -45,6 +45,8 @@ unknown\[\]
 
 
 </td><td>
+
+values to log
 
 
 </td></tr>

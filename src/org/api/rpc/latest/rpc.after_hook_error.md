@@ -8,8 +8,15 @@ title: "AFTER_HOOK_ERROR variable · @imqueue/rpc"
 
 ## AFTER\_HOOK\_ERROR variable
 
+Prefix used when logging a failure inside an `afterCall` hook.
+
 **Signature:**
 
 ```typescript
 AFTER_HOOK_ERROR = "After call hook error:"
 ```
+
+## Remarks
+
+The hook always runs after the response has been sent (service side) or after the call promise has settled (client side), so a throwing after-hook cannot change the call's outcome. It is a log prefix, not an [IMQRPCError.code](/api/rpc/latest/rpc.imqrpcerror.code/) value.
+

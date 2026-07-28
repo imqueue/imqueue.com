@@ -8,6 +8,8 @@ title: "LoggedDecoratorOptions.logger property · @imqueue/rpc"
 
 ## LoggedDecoratorOptions.logger property
 
+An explicit logger, taking precedence over the instance, class and console fallbacks.
+
 **Signature:**
 
 ```typescript

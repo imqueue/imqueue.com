@@ -8,10 +8,15 @@ title: "TypeDescription interface · @imqueue/rpc"
 
 ## TypeDescription interface
 
-Type properties collection description
+The property bag of a single exposed type: property name to property description.
 
 **Signature:**
 
 ```typescript
 export interface TypeDescription 
 ```
+
+## Remarks
+
+Despite the singular name this does not describe a whole type — the per-type record, which also carries `inherits` and `indexType`<!-- -->, is the value type of [TypesDescription](/api/rpc/latest/rpc.typesdescription/)<!-- -->.
+

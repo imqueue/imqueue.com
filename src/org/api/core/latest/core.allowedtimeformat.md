@@ -8,8 +8,15 @@ title: "AllowedTimeFormat type · @imqueue/core"
 
 ## AllowedTimeFormat type
 
+Units in which profiled execution time can be rendered.
+
 **Signature:**
 
 ```typescript
 export type AllowedTimeFormat = 'microseconds' | 'milliseconds' | 'seconds';
 ```
+
+## Remarks
+
+Used as the declared type of [IMQ\_LOG\_TIME\_FORMAT](/api/core/latest/core.imq_log_time_format/)<!-- -->. Note that the environment value is cast rather than validated, so an out-of-range string is possible at runtime and behaves as `microseconds`<!-- -->.
+

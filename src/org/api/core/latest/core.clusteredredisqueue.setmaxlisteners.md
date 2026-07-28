@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.setMaxListeners() method · @imqueue/core"
 
 ## ClusteredRedisQueue.setMaxListeners() method
 
+Sets the maximum listener count on every server's queue and on the internal template.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ any\[\]
 
 </td><td>
 
+the arguments `EventEmitter.setMaxListeners` accepts
+
 
 </td></tr>
 </tbody></table>
@@ -51,4 +55,6 @@ any\[\]
 **Returns:**
 
 this
+
+this queue instance
 

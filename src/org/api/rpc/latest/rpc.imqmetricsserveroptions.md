@@ -54,7 +54,7 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Start the metrics HTTP listener when true.
 
 
 </td></tr>
@@ -73,7 +73,7 @@ number
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ TCP port to bind on all interfaces.
 
 
 </td></tr>
@@ -92,7 +92,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Renders the response body from the current queue length and the metric name, which is always the literal `'queue_length'`<!-- -->.
 
 
 </td></tr>

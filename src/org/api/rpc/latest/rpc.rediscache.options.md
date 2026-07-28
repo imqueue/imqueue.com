@@ -8,8 +8,15 @@ title: "RedisCache.options property · @imqueue/rpc"
 
 ## RedisCache.options property
 
+The effective options after merging user input over [DEFAULT\_REDIS\_CACHE\_OPTIONS](/api/rpc/latest/rpc.default_redis_cache_options/)<!-- -->.
+
 **Signature:**
 
 ```typescript
 options: IRedisCacheOptions;
 ```
+
+## Remarks
+
+Populated only by [RedisCache.init()](/api/rpc/latest/rpc.rediscache.init/) — it is `undefined` until then, which is why every instance must be initialized before use even when another instance already opened the shared connection.
+

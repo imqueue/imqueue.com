@@ -8,10 +8,18 @@ title: "IMessageQueueConstructor type · @imqueue/core"
 
 ## IMessageQueueConstructor type
 
+Constructor contract every queue adapter must satisfy: it takes the queue name, optional partial options and an optional [IMQMode](/api/core/latest/core.imqmode/)<!-- -->, and yields an [IMessageQueue](/api/core/latest/core.imessagequeue/)<!-- -->.
+
+[IMQ.create()](/api/core/latest/core.imq.create/) resolves an adapter of this shape from the registered vendor adapters and instantiates it.
+
 **Signature:**
 
 ```typescript
 export type IMessageQueueConstructor = new (name: string, options?: Partial<IMQOptions>, mode?: IMQMode) => IMessageQueue;
 ```
 **References:** [IMQOptions](/api/core/latest/core.imqoptions/)<!-- -->, [IMQMode](/api/core/latest/core.imqmode/)<!-- -->, [IMessageQueue](/api/core/latest/core.imessagequeue/)
+
+## Remarks
+
+The built-in adapters are registered through an explicit cast rather than structural assignment, so do not expect a clean assignment from a concrete queue class to this type.
 

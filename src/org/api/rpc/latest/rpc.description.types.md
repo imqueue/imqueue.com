@@ -8,8 +8,15 @@ title: "Description.types property · @imqueue/rpc"
 
 ## Description.types property
 
+Every complex type registered in the service's process.
+
 **Signature:**
 
 ```typescript
 types: TypesDescription;
 ```
+
+## Remarks
+
+This is the process-global type registry, embedded by reference and unfiltered — so it includes types this service does not use, and each becomes a generated interface in every client.
+

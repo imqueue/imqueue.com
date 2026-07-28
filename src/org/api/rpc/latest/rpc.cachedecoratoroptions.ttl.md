@@ -8,8 +8,15 @@ title: "CacheDecoratorOptions.ttl property · @imqueue/rpc"
 
 ## CacheDecoratorOptions.ttl property
 
+Time-to-live in milliseconds.
+
 **Signature:**
 
 ```typescript
 ttl?: number;
 ```
+
+## Remarks
+
+Omitted or non-positive means the entry never expires. A non-integer value is rejected by Redis, which makes the write throw rather than return falsy.
+

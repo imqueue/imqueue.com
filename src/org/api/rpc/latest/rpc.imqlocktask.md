@@ -8,6 +8,8 @@ title: "IMQLockTask type · @imqueue/rpc"
 
 ## IMQLockTask type
 
+Internal representation of one queued waiter: its promise's `[resolve, reject]` pair, selected by [IMQLock.release()](/api/rpc/latest/rpc.imqlock.release/) according to whether an error was supplied.
+
 **Signature:**
 
 ```typescript

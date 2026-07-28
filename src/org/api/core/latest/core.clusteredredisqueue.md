@@ -8,7 +8,7 @@ title: "ClusteredRedisQueue class · @imqueue/core"
 
 ## ClusteredRedisQueue class
 
-Class ClusteredRedisQueue Implements the possibility to scale queues horizontally between several redis instances.
+Scales a single logical queue horizontally across several redis instances. This is what [IMQ.create()](/api/core/latest/core.imq.create/) returns when [IMQOptions.cluster](/api/core/latest/core.imqoptions.cluster/) or [IMQOptions.clusterManagers](/api/core/latest/core.imqoptions.clustermanagers/) is supplied.
 
 **Signature:**
 
@@ -16,6 +16,14 @@ Class ClusteredRedisQueue Implements the possibility to scale queues horizontall
 export declare class ClusteredRedisQueue implements IMessageQueue, EventEmitter<EventMap> 
 ```
 **Implements:** [IMessageQueue](/api/core/latest/core.imessagequeue/)<!-- -->, EventEmitter&lt;[EventMap](/api/core/latest/core.eventmap/)<!-- -->&gt;
+
+## Remarks
+
+Distribution is asymmetric, and this is the most important thing to know about the class: [ClusteredRedisQueue.send()](/api/core/latest/core.clusteredredisqueue.send/) routes each message to exactly one server, chosen by health-aware round-robin that skips instances whose writer connection is not ready. Every other operation — `start`<!-- -->, `stop`<!-- -->, `clear`<!-- -->, `destroy`<!-- -->, `publish`<!-- -->, `subscribe`<!-- -->, `unsubscribe` and `queueLength` — fans out to every server.
+
+Every fan-out uses `Promise.all`<!-- -->, so one failing host fails the whole call with no partial-failure reporting and no rollback.
+
+The class only `implements` the `EventEmitter` interface rather than extending it, so `instanceof EventEmitter` is false and every emitter method is a delegating shim — see the individual methods for their fan-out semantics, and note in particular that [ClusteredRedisQueue.once()](/api/core/latest/core.clusteredredisqueue.once/) is per-server.
 
 ## Constructors
 
@@ -45,7 +53,7 @@ Description
 
 </td><td>
 
-Class constructor
+Creates a clustered queue.
 
 
 </td></tr>
@@ -89,9 +97,7 @@ Description
 
 </td><td>
 
-Logger instance associated with this queue instance
-
- {<!-- -->ILogger<!-- -->}
+Logger used for this cluster's own messages, defaulting to [IMQOptions.logger](/api/core/latest/core.imqoptions.logger/) or `console`<!-- -->.
 
 
 </td></tr>
@@ -109,6 +115,8 @@ string
 
 
 </td><td>
+
+Name of this queue, used as the queue name for every per-host queue in the cluster.
 
 
 </td></tr>
@@ -142,6 +150,8 @@ Description
 
 </td><td>
 
+Registers a listener on every server's queue and on the internal template. Alias of [ClusteredRedisQueue.on()](/api/core/latest/core.clusteredredisqueue.on/)<!-- -->.
+
 
 </td></tr>
 <tr><td>
@@ -156,7 +166,7 @@ Description
 
 </td><td>
 
-Adds new servers to the cluster
+Adds a single server to the cluster and returns its registration record.
 
 
 </td></tr>
@@ -170,7 +180,7 @@ Adds new servers to the cluster
 
 </td><td>
 
-Clears queue data in queue host application. Supposed to be an async function.
+Deletes this queue's data on every redis host in the cluster, concurrently.
 
 
 </td></tr>
@@ -184,7 +194,7 @@ Clears queue data in queue host application. Supposed to be an async function.
 
 </td><td>
 
-Safely destroys the current queue, unregistered all set event listeners and connections. Supposed to be an async function.
+Destroys every server's queue — closing their connections and removing their event listeners — then unregisters this cluster from all configured cluster managers.
 
 
 </td></tr>
@@ -198,6 +208,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 </td><td>
 
+Emits an event on every server's queue and on the internal template, so each listener registered through this class runs once per server.
+
 
 </td></tr>
 <tr><td>
@@ -209,6 +221,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 
 </td><td>
+
+Returns the event names reported by a single representative emitter.
 
 
 </td></tr>
@@ -222,6 +236,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 </td><td>
 
+Returns the maximum listener count of the internal template emitter.
+
 
 </td></tr>
 <tr><td>
@@ -233,6 +249,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 
 </td><td>
+
+Returns the listener count reported by a single representative emitter.
 
 
 </td></tr>
@@ -246,6 +264,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 </td><td>
 
+Returns the listeners of every server's queue plus the internal template, concatenated.
+
 
 </td></tr>
 <tr><td>
@@ -257,6 +277,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 
 </td><td>
+
+Removes a listener from every server's queue and from the internal template.
 
 
 </td></tr>
@@ -270,6 +292,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 </td><td>
 
+Registers a listener on every server's queue and on the internal template used to seed servers that join later.
+
 
 </td></tr>
 <tr><td>
@@ -281,6 +305,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 
 </td><td>
+
+Registers a one-shot listener on every server's queue and on the internal template.
 
 
 </td></tr>
@@ -294,6 +320,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 </td><td>
 
+Registers a listener at the front of the queue on every server's queue and on the internal template.
+
 
 </td></tr>
 <tr><td>
@@ -305,6 +333,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 
 </td><td>
+
+Registers a one-shot listener at the front of the queue on every server's queue and on the internal template.
 
 
 </td></tr>
@@ -318,6 +348,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 </td><td>
 
+Publishes the payload on every redis host in the cluster.
+
 
 </td></tr>
 <tr><td>
@@ -329,6 +361,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 
 </td><td>
+
+Returns the total number of messages waiting, summed across every redis host in the cluster.
 
 
 </td></tr>
@@ -342,6 +376,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 </td><td>
 
+Returns the raw listeners of every server's queue plus the internal template, concatenated.
+
 
 </td></tr>
 <tr><td>
@@ -354,6 +390,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 </td><td>
 
+Removes every listener from every server's queue and from the internal template, so servers that join later also start clean.
+
 
 </td></tr>
 <tr><td>
@@ -365,6 +403,8 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 
 </td><td>
+
+Removes a listener from every server's queue and from the internal template. Alias of [ClusteredRedisQueue.off()](/api/core/latest/core.clusteredredisqueue.off/)<!-- -->.
 
 
 </td></tr>
@@ -380,7 +420,7 @@ Safely destroys the current queue, unregistered all set event listeners and conn
 
 </td><td>
 
-Removes server from the cluster
+Removes a server from the cluster, matching by `id` or by host and port.
 
 
 </td></tr>
@@ -394,7 +434,7 @@ Removes server from the cluster
 
 </td><td>
 
-Sends a message to a given queue name with the given data. Supposed to be an async function.
+Sends a message to one server of the cluster, selected by health-aware round-robin.
 
 
 </td></tr>
@@ -408,6 +448,8 @@ Sends a message to a given queue name with the given data. Supposed to be an asy
 
 </td><td>
 
+Sets the maximum listener count on every server's queue and on the internal template.
+
 
 </td></tr>
 <tr><td>
@@ -420,7 +462,7 @@ Sends a message to a given queue name with the given data. Supposed to be an asy
 
 </td><td>
 
-Starts the messaging queue. Supposed to be an async function.
+Starts every server's queue concurrently.
 
 
 </td></tr>
@@ -434,7 +476,7 @@ Starts the messaging queue. Supposed to be an async function.
 
 </td><td>
 
-Stops the queue (should stop handling queue messages). Supposed to be an async function.
+Stops message handling on every server concurrently.
 
 
 </td></tr>
@@ -448,6 +490,8 @@ Stops the queue (should stop handling queue messages). Supposed to be an async f
 
 </td><td>
 
+Subscribes the given handler on every redis host in the cluster, and remembers the subscription so servers that join later are subscribed automatically.
+
 
 </td></tr>
 <tr><td>
@@ -459,6 +503,8 @@ Stops the queue (should stop handling queue messages). Supposed to be an async f
 
 
 </td><td>
+
+Unsubscribes from the channel on every redis host and forgets the remembered subscription, so servers joining later are no longer subscribed automatically.
 
 
 </td></tr>

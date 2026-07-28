@@ -8,9 +8,7 @@ title: "IMQService.stop() method · @imqueue/rpc"
 
 ## IMQService.stop() method
 
-Stops service from handling messages
-
- {<!-- -->Promise<void>}
+Stops consuming messages from the queue.
 
 **Signature:**
 
@@ -20,4 +18,8 @@ stop(): Promise<void>;
 **Returns:**
 
 Promise&lt;void&gt;
+
+## Remarks
+
+Connections, signal handlers and the metrics server are all left in place — use [IMQService.destroy()](/api/rpc/latest/rpc.imqservice.destroy/) for full teardown. Calling this first is not a prerequisite for `destroy()`<!-- -->.
 

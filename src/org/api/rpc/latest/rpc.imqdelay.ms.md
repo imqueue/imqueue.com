@@ -8,12 +8,15 @@ title: "IMQDelay.ms property · @imqueue/rpc"
 
 ## IMQDelay.ms property
 
-Returns this delay converted to milliseconds.
-
- {<!-- -->number<!-- -->}
+Returns [IMQDelay.timer](/api/rpc/latest/rpc.imqdelay.timer/) converted to milliseconds.
 
 **Signature:**
 
 ```typescript
 get ms(): number;
 ```
+
+## Remarks
+
+Not rounded, so a fractional `timer` yields a fractional result. If [IMQDelay.unit](/api/rpc/latest/rpc.imqdelay.unit/) has been set to a value outside the supported set — possible from untyped callers — the result is `undefined`<!-- -->; a client treats any non-finite or negative value as no delay.
+

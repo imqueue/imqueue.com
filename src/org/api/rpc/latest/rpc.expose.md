@@ -8,9 +8,7 @@ title: "expose() function · @imqueue/rpc"
 
 ## expose() function
 
-Expose decorator factory. Applied to a service method, it registers that method in the RPC service description. (Complex argument/return types are registered separately via the '<!-- -->@<!-- -->classType' decorator on those classes.)
-
- {<!-- -->(value: any, context: ClassMethodDecoratorContext) =<!-- -->&gt; void<!-- -->}
+Makes a service method callable remotely by registering it in the RPC service description.
 
 **Signature:**
 
@@ -20,4 +18,34 @@ export declare function expose(): any;
 **Returns:**
 
 any
+
+a dual-mode method decorator, typed `any` so one function serves both decorator protocols. It never replaces or wraps the decorated method: under standard (TC39) decorators it registers a `context.addInitializer()` hook and returns `undefined`<!-- -->; under legacy decorators it registers immediately and returns the property descriptor unchanged.
+
+## Remarks
+
+Applying this is mandatory for remote callability: a service rejects calls to any class method absent from the service description with the `IMQ_RPC_NO_ACCESS` error. Undecorated methods remain callable in-process only.
+
+Every exposed method must carry a JSDoc block with typed `@param` and `@returns` tags. Standard decorators provide no runtime type reflection, so JSDoc is the only type source: undocumented types fall back to `any` in generated clients, and the documented `@param` list is also what the service's argument-count check validates — it must match the method's real arity, or calls fail with `IMQ_RPC_INVALID_ARGS_COUNT`<!-- -->. Consuming projects must therefore compile with `removeComments: false`<!-- -->.
+
+Decorator order matters: this must be the innermost decorator (listed last, closest to the method) when combined with [lock()](/api/rpc/latest/rpc.lock/)<!-- -->, [cache](/api/rpc/latest/rpc.cache/) or [logged()](/api/rpc/latest/rpc.logged/)<!-- -->. Those replace the method with a `(...args)` wrapper, and if this decorator is applied after them it records the wrapper's rest parameter as the method's only argument, breaking both argument validation and generated client signatures.
+
+Registration timing differs by protocol. Under standard decorators the class is not available at decoration time, so registration is deferred to an initializer that runs on first construction of an instance — the service description stays empty until then. Under legacy decorators it happens at class-definition time.
+
+Instance (prototype) methods only. Applied to a `static` method it silently registers under the pseudo-class name `Function` and the method stays unreachable remotely. Methods inherited from a base class are registered under the class that declares them and resolved through the description's `inherits` chain, so that base class must be loaded for the subclass description to be complete.
+
+Complex argument and return types are registered separately, by [classType()](/api/rpc/latest/rpc.classtype/) or [indexed()](/api/rpc/latest/rpc.indexed/) on those classes.
+
+## Example
+
+
+```typescript
+import { expose, IMQService } from '@imqueue/rpc';
+
+class UserService extends IMQService {
+    @expose()
+    public async count(active: boolean): Promise<number> {
+        return 0;
+    }
+}
+```
 

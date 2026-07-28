@@ -8,7 +8,7 @@ title: "ServiceClassDescription interface · @imqueue/rpc"
 
 ## ServiceClassDescription interface
 
-Service class description
+The exposed methods a single class declares, plus its parent's name.
 
 **Signature:**
 
@@ -54,6 +54,8 @@ string
 
 </td><td>
 
+Name of the class this one extends, read from the runtime prototype chain. The literal `'Function'` means there is no class parent.
+
 
 </td></tr>
 <tr><td>
@@ -70,6 +72,8 @@ string
 
 
 </td><td>
+
+Methods declared directly by this class, keyed by name.
 
 
 </td></tr>

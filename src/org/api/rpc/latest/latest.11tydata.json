@@ -2,7 +2,7 @@
   "layout": "apiref.html",
   "section": "api",
   "apiPkg": "rpc",
-  "apiVersion": "3.4.4",
+  "apiVersion": "3.5.0",
   "apiVersionPath": "latest",
   "apiNav": [
     {
@@ -44,6 +44,10 @@
         {
           "name": "IMQClient",
           "url": "/api/rpc/latest/rpc.imqclient/"
+        },
+        {
+          "name": "IMQClient.create()",
+          "url": "/api/rpc/latest/rpc.imqclient.create/"
         },
         {
           "name": "IMQService",
@@ -128,8 +132,16 @@
           "url": "/api/rpc/latest/rpc.cachedecorator/"
         },
         {
+          "name": "cache",
+          "url": "/api/rpc/latest/rpc.cache/"
+        },
+        {
           "name": "CacheDecoratorOptions",
           "url": "/api/rpc/latest/rpc.cachedecoratoroptions/"
+        },
+        {
+          "name": "cache",
+          "url": "/api/rpc/latest/rpc.cache/"
         },
         {
           "name": "ICache",
@@ -188,12 +200,24 @@
           "url": "/api/rpc/latest/rpc.irediscacheoptions/"
         },
         {
+          "name": "RedisCache.init()",
+          "url": "/api/rpc/latest/rpc.rediscache.init/"
+        },
+        {
           "name": "LockOptions",
           "url": "/api/rpc/latest/rpc.lockoptions/"
         },
         {
+          "name": "lock()",
+          "url": "/api/rpc/latest/rpc.lock/"
+        },
+        {
           "name": "LoggedDecoratorOptions",
           "url": "/api/rpc/latest/rpc.loggeddecoratoroptions/"
+        },
+        {
+          "name": "logged()",
+          "url": "/api/rpc/latest/rpc.logged/"
         },
         {
           "name": "MethodDescription",
@@ -220,8 +244,20 @@
           "url": "/api/rpc/latest/rpc.servicedescription/"
         },
         {
+          "name": "IMQRPCDescription.serviceDescription",
+          "url": "/api/rpc/latest/rpc.imqrpcdescription.servicedescription/"
+        },
+        {
           "name": "Thunk",
           "url": "/api/rpc/latest/rpc.thunk/"
+        },
+        {
+          "name": "property()",
+          "url": "/api/rpc/latest/rpc.property/"
+        },
+        {
+          "name": "indexed()",
+          "url": "/api/rpc/latest/rpc.indexed/"
         },
         {
           "name": "TypeDescription",
@@ -237,11 +273,11 @@
       "group": "Variables",
       "items": [
         {
-          "name": "AFTER\\_HOOK\\_ERROR",
+          "name": "AFTER_HOOK_ERROR",
           "url": "/api/rpc/latest/rpc.after_hook_error/"
         },
         {
-          "name": "BEFORE\\_HOOK\\_ERROR",
+          "name": "BEFORE_HOOK_ERROR",
           "url": "/api/rpc/latest/rpc.before_hook_error/"
         },
         {
@@ -249,24 +285,32 @@
           "url": "/api/rpc/latest/rpc.cache/"
         },
         {
-          "name": "DEFAULT\\_IMQ\\_CLIENT\\_OPTIONS",
+          "name": "DEFAULT_IMQ_CLIENT_OPTIONS",
           "url": "/api/rpc/latest/rpc.default_imq_client_options/"
         },
         {
-          "name": "DEFAULT\\_IMQ\\_METRICS\\_SERVER\\_OPTIONS",
+          "name": "DEFAULT_IMQ_METRICS_SERVER_OPTIONS",
           "url": "/api/rpc/latest/rpc.default_imq_metrics_server_options/"
         },
         {
-          "name": "DEFAULT\\_IMQ\\_SERVICE\\_OPTIONS",
+          "name": "DEFAULT_IMQ_SERVICE_OPTIONS",
           "url": "/api/rpc/latest/rpc.default_imq_service_options/"
         },
         {
-          "name": "DEFAULT\\_REDIS\\_CACHE\\_OPTIONS",
+          "name": "DEFAULT_REDIS_CACHE_OPTIONS",
           "url": "/api/rpc/latest/rpc.default_redis_cache_options/"
         },
         {
-          "name": "REDIS\\_CLIENT\\_INIT\\_ERROR",
+          "name": "RedisCache",
+          "url": "/api/rpc/latest/rpc.rediscache/"
+        },
+        {
+          "name": "REDIS_CLIENT_INIT_ERROR",
           "url": "/api/rpc/latest/rpc.redis_client_init_error/"
+        },
+        {
+          "name": "RedisCache",
+          "url": "/api/rpc/latest/rpc.rediscache/"
         }
       ]
     },
@@ -276,6 +320,14 @@
         {
           "name": "AcquiredLock",
           "url": "/api/rpc/latest/rpc.acquiredlock/"
+        },
+        {
+          "name": "IMQLock.acquire()",
+          "url": "/api/rpc/latest/rpc.imqlock.acquire/"
+        },
+        {
+          "name": "IMQLock.release()",
+          "url": "/api/rpc/latest/rpc.imqlock.release/"
         },
         {
           "name": "ICacheAdapter",
@@ -290,8 +342,16 @@
           "url": "/api/rpc/latest/rpc.imqlocktask/"
         },
         {
+          "name": "IMQLock.release()",
+          "url": "/api/rpc/latest/rpc.imqlock.release/"
+        },
+        {
           "name": "LoggedLogLevel",
           "url": "/api/rpc/latest/rpc.loggedloglevel/"
+        },
+        {
+          "name": "logged()",
+          "url": "/api/rpc/latest/rpc.logged/"
         }
       ]
     }

@@ -8,12 +8,15 @@ title: "IMQOptions.watcherCheckDelay property · @imqueue/core"
 
 ## IMQOptions.watcherCheckDelay property
 
-Delay period (in milliseconds) between watcher availability checks. Used to ensure at least one watcher is available for queue operations.
-
- {<!-- -->number<!-- -->}
+Interval in milliseconds of the periodic watcher check. Defaults to 5000.
 
 **Signature:**
 
 ```typescript
 watcherCheckDelay?: number;
 ```
+
+## Remarks
+
+Each tick re-elects a watcher owner if none exists and, on worker-capable instances, releases due delayed messages — acting as the fallback when Redis keyspace notifications are unavailable. That makes this value the worst-case extra latency for a delayed message. Setting it to `0` disables both behaviours.
+

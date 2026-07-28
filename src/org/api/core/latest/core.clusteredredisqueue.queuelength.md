@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.queueLength() method · @imqueue/core"
 
 ## ClusteredRedisQueue.queueLength() method
 
+Returns the total number of messages waiting, summed across every redis host in the cluster.
+
 **Signature:**
 
 ```typescript
@@ -16,4 +18,10 @@ queueLength(): Promise<number>;
 **Returns:**
 
 Promise&lt;number&gt;
+
+sum of the per-host queue lengths
+
+## Remarks
+
+Resolves to `0` when the cluster has no servers, and rejects if any single host cannot be queried. As with [RedisQueue.queueLength()](/api/core/latest/core.redisqueue.queuelength/)<!-- -->, delayed and in-flight messages are not counted.
 

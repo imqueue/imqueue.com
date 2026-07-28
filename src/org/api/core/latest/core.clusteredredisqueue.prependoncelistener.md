@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.prependOnceListener() method · @imqueue/core"
 
 ## ClusteredRedisQueue.prependOnceListener() method
 
+Registers a one-shot listener at the front of the queue on every server's queue and on the internal template.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ any\[\]
 
 </td><td>
 
+the arguments `EventEmitter.prependOnceListener` accepts
+
 
 </td></tr>
 </tbody></table>
@@ -51,4 +55,10 @@ any\[\]
 **Returns:**
 
 this
+
+this queue instance
+
+## Remarks
+
+As with [ClusteredRedisQueue.once()](/api/core/latest/core.clusteredredisqueue.once/)<!-- -->, the listener is armed per server, so it may fire more than once across the cluster.
 

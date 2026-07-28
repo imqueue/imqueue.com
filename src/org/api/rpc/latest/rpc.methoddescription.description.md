@@ -8,6 +8,8 @@ title: "MethodDescription.description property · @imqueue/rpc"
 
 ## MethodDescription.description property
 
+The method's JSDoc summary, or an empty string when undocumented.
+
 **Signature:**
 
 ```typescript

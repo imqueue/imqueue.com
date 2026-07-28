@@ -8,8 +8,15 @@ title: "IMQRPCRequest.args property · @imqueue/rpc"
 
 ## IMQRPCRequest.args property
 
+Positional arguments for the method, applied in order.
+
 **Signature:**
 
 ```typescript
 args: any[];
 ```
+
+## Remarks
+
+The client removes the trailing [IMQMetadata](/api/rpc/latest/rpc.imqmetadata/) and [IMQDelay](/api/rpc/latest/rpc.imqdelay/) slots and, on a delayed call, any trailing `undefined` placeholders — so this array carries only real arguments. Its length is checked against the exposed method description before the method runs.
+

@@ -8,8 +8,19 @@ title: "IMQClientOptions.timeout property · @imqueue/rpc"
 
 ## IMQClientOptions.timeout property
 
+Milliseconds the client generator waits for the target service to answer its description request before failing.
+
 **Signature:**
 
 ```typescript
 timeout: number;
 ```
+
+## Default Value
+
+30000
+
+## Remarks
+
+Despite the name this is not an RPC timeout and has no effect on runtime calls — use [IMQClientOptions.callTimeout](/api/rpc/latest/rpc.imqclientoptions.calltimeout/) for those.
+

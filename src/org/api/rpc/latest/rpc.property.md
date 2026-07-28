@@ -8,6 +8,8 @@ title: "property() function · @imqueue/rpc"
 
 ## property() function
 
+Marks a class field as part of an exposed complex type, so it is described to clients and appears in the generated client interfaces.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ string \| [Thunk](/api/rpc/latest/rpc.thunk/) \| any
 
 </td><td>
 
+the field's RPC type: a type-definition string (`'string'`<!-- -->, `'Address'`<!-- -->, `'Array<Address>'`<!-- -->), a constructor (its `name` is used), a single-element array such as `[Address]` (which yields `Address[]`<!-- -->), or an anonymous [Thunk](/api/rpc/latest/rpc.thunk/) returning any of those — required for self- or forward-referencing types, since a thunk is not invoked until the description is first read. A named function is treated as a constructor, not a thunk.
+
 
 </td></tr>
 <tr><td>
@@ -58,7 +62,7 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ marks the field optional in the generated type. Not inferred from the TypeScript `?` modifier — pass `true` explicitly.
 
 
 </td></tr>
@@ -67,4 +71,48 @@ _(Optional)_
 **Returns:**
 
 any
+
+a dual-mode field decorator `(target, context) => any`<!-- -->, typed `any` so one function serves both decorator protocols. Under standard (TC39) decorators it records the field on the class's decorator metadata for a later flush and returns `undefined`<!-- -->; under legacy decorators it writes the field into the RPC type description immediately.
+
+## Remarks
+
+Every class that uses `@property` must also carry a class-level [classType()](/api/rpc/latest/rpc.classtype/) — or [indexed()](/api/rpc/latest/rpc.indexed/)<!-- -->, which does the same flush — when compiling with standard (TC39) decorators, the protocol this package targets. Standard field decorators cannot see their class, so a class-level decorator is what registers the collected fields under the class name. Omitting it fails silently: the type simply never appears in the RPC type description, and generated clients reference an undeclared type.
+
+Passing a falsy `type` returns `undefined`<!-- -->, which TypeScript accepts as a no-op decoration — the field is then silently absent from the type description.
+
+## Example
+
+
+```typescript
+import { classType, property, expose, IMQService } from '@imqueue/rpc';
+
+// every class using @property also needs a class-level @classType()
+@classType()
+class Address {
+    @property('string')
+    country!: string;
+
+    @property('string', true)
+    zipCode?: string; // optional
+}
+
+@classType()
+class User {
+    @property('string')
+    firstName!: string;
+
+    // thunk + array form, for a forward reference
+    @property(() => [Address], true)
+    addresses?: Address[];
+}
+
+class UserService extends IMQService {
+    // exposed methods need a JSDoc block with typed @param/@returns tags —
+    // see the `expose` decorator
+    @expose()
+    public async save(user: User): Promise<boolean> {
+        return true;
+    }
+}
+```
 

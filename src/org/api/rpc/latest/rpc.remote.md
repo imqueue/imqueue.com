@@ -10,8 +10,6 @@ title: "remote() function · @imqueue/rpc"
 
 Creates a `@remote()` method decorator for client classes. The decorated method has the remote method name appended to its arguments and is then forwarded to `remoteCall()`<!-- -->. The returned decorator is dual-mode: it works both as a standard (TC39) and as a legacy (experimentalDecorators) method decorator.
 
- {<!-- -->Function<!-- -->} - a dual-mode method decorator
-
 **Signature:**
 
 ```typescript
@@ -20,4 +18,6 @@ export declare function remote(): any;
 **Returns:**
 
 any
+
+a dual-mode method decorator
 

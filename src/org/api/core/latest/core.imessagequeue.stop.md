@@ -8,7 +8,7 @@ title: "IMessageQueue.stop() method · @imqueue/core"
 
 ## IMessageQueue.stop() method
 
-Stops the queue from handling messages.
+Stops consuming, so no further `message` events fire.
 
 **Signature:**
 
@@ -19,5 +19,9 @@ stop(): Promise<IMessageQueue>;
 
 Promise&lt;[IMessageQueue](/api/core/latest/core.imessagequeue/)<!-- -->&gt;
 
-{<!-- -->Promise<IMessageQueue>}
+this queue instance
+
+## Remarks
+
+Only the reader is torn down. The writer connection, the watcher lock and the watcher/maintenance timers all stay active, and [IMessageQueue.send()](/api/core/latest/core.imessagequeue.send/) and [IMessageQueue.publish()](/api/core/latest/core.imessagequeue.publish/) keep working — call [IMessageQueue.destroy()](/api/core/latest/core.imessagequeue.destroy/) to release those. Safe to call when not started, and [IMessageQueue.start()](/api/core/latest/core.imessagequeue.start/) may be called again afterwards.
 

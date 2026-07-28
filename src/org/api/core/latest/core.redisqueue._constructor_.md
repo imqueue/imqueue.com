@@ -8,12 +8,13 @@ title: "RedisQueue.(constructor) · @imqueue/core"
 
 ## RedisQueue.(constructor)
 
-Constructs a new instance of the `RedisQueue` class
+Creates a queue handle. No connection is opened here — call [RedisQueue.start()](/api/core/latest/core.redisqueue.start/)<!-- -->, or [RedisQueue.send()](/api/core/latest/core.redisqueue.send/)<!-- -->, which starts the queue implicitly.
 
 **Signature:**
 
 ```typescript
-constructor(name: string, options?: Partial<IMQOptions>, mode?: IMQMode);
+constructor(
+    name: string, options?: Partial<IMQOptions>, mode?: IMQMode);
 ```
 
 ## Parameters
@@ -46,6 +47,8 @@ string
 
 </td><td>
 
+queue name; the underlying Redis list key becomes `<prefix>:<name>`
+
 
 </td></tr>
 <tr><td>
@@ -60,7 +63,7 @@ Partial&lt;[IMQOptions](/api/core/latest/core.imqoptions/)<!-- -->&gt;
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ partial options merged over [DEFAULT\_IMQ\_OPTIONS](/api/core/latest/core.default_imq_options/)
 
 
 </td></tr>
@@ -76,9 +79,13 @@ mode
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ whether this handle produces, consumes, or both; defaults to [IMQMode.BOTH](/api/core/latest/core.imqmode/)
 
 
 </td></tr>
 </tbody></table>
+
+## Remarks
+
+The constructor performs no I/O. It resolves the effective options, selects the serializer pair from [IMQOptions.useGzip](/api/core/latest/core.imqoptions.usegzip/) once, and derives the `host:port` key under which the shared connections are stored — so changing `useGzip`<!-- -->, `host` or `port` on `options` afterwards has no effect.
 

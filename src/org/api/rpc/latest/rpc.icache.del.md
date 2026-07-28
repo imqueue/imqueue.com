@@ -56,5 +56,5 @@ key to remove
 
 Promise&lt;boolean&gt;
 
-{<!-- -->Promise<boolean>}
+true if a key was actually removed, false if it did not exist — which is not an error
 

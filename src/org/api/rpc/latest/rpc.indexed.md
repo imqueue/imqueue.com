@@ -8,7 +8,7 @@ title: "indexed() function · @imqueue/rpc"
 
 ## indexed() function
 
-Implements '<!-- -->@<!-- -->indexed' decorator factory This is used to specify complex service types which are need to expose types containing indexed definition, for example:
+Exposes a complex service type that carries an index signature.
 
 **Signature:**
 
@@ -46,6 +46,8 @@ string \| [Thunk](/api/rpc/latest/rpc.thunk/)
 
 </td><td>
 
+the index signature as raw source text, for example `'[fieldName: string]: any'`<!-- -->, or a [Thunk](/api/rpc/latest/rpc.thunk/) returning it. A falsy value makes the decoration a silent no-op; a non-string is coerced with `String()`<!-- -->.
+
 
 </td></tr>
 </tbody></table>
@@ -54,11 +56,28 @@ string \| [Thunk](/api/rpc/latest/rpc.thunk/)
 
 any
 
+a dual-mode class decorator `(value, context?) => any`<!-- -->. Under standard (TC39) decorators it flushes the class's `@property` fields and records the index signature, returning `undefined`<!-- -->; under legacy decorators the fields are already registered, so it only attaches the index signature and returns the class unchanged.
+
+## Remarks
+
+Under standard decorators this is a superset of [classType()](/api/rpc/latest/rpc.classtype/) — it performs the same `@property` flush in addition to recording the index signature.
+
+The index signature is injected verbatim into generated client interfaces and is not validated, so a malformed string produces a client that does not compile. A thunk is evaluated once, on first use.
+
 ## Example
 
-\~\~\~typescript import { type } from '<!-- -->@<!-- -->imqueue/rpc';
 
-@<!-- -->indexed('\[fieldName: string\]: any') class Schema { \[fieldName: string\]: any } \~\~\~
+```typescript
+import { indexed, property } from '@imqueue/rpc';
 
- {<!-- -->(constructor: Function) =<!-- -->&gt; void<!-- -->}
+// @indexed() also flushes this class's @property fields,
+// so a separate @classType() is not needed
+@indexed('[fieldName: string]: any')
+class Schema {
+    @property('string')
+    name!: string;
+
+    [fieldName: string]: any;
+}
+```
 

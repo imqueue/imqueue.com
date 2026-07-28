@@ -56,8 +56,6 @@ string
 
 Adapter (cache) name.
 
- {<!-- -->string<!-- -->}
-
 
 </td></tr>
 <tr><td>
@@ -76,8 +74,6 @@ boolean
 </td><td>
 
 Whether the cache adapter is initialized and ready to use.
-
- {<!-- -->boolean<!-- -->}
 
 
 </td></tr>
@@ -136,7 +132,7 @@ Initializes the cache adapter with the given adapter-specific options.
 
 </td><td>
 
-Purges all keys from the cache matching the given wildcard mask.
+Deletes every key matching the given wildcard mask.
 
 
 </td></tr>

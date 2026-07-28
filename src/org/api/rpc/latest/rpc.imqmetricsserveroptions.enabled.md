@@ -8,8 +8,19 @@ title: "IMQMetricsServerOptions.enabled property · @imqueue/rpc"
 
 ## IMQMetricsServerOptions.enabled property
 
+Start the metrics HTTP listener when true.
+
 **Signature:**
 
 ```typescript
 enabled?: boolean;
 ```
+
+## Default Value
+
+false
+
+## Remarks
+
+The listener serves a single route, `GET /metrics`<!-- -->, is unauthenticated, and is bound to all interfaces. Every process that starts the service — including the cluster primary in `multiProcess` mode — attempts to bind the port.
+

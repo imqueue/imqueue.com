@@ -8,6 +8,8 @@ title: "ReturnValueDescription.description property · @imqueue/rpc"
 
 ## ReturnValueDescription.description property
 
+Prose describing the return value, from the `@returns` JSDoc line.
+
 **Signature:**
 
 ```typescript

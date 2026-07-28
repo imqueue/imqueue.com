@@ -8,8 +8,15 @@ title: "EventMap.error property · @imqueue/core"
 
 ## EventMap.error property
 
+Emitted for background failures, with the error and the name of the internal routine that caught it — a diagnostic label such as `OnMessage`<!-- -->, `OnReadSafe` or `OnWatch`<!-- -->, not an error code.
+
 **Signature:**
 
 ```typescript
 error: [error: Error, eventName: string];
 ```
+
+## Remarks
+
+Emitted only when at least one `error` listener is attached; otherwise the error is logged and swallowed so a background routine cannot crash the process. Errors are always written to [IMQOptions.logger](/api/core/latest/core.imqoptions.logger/) as well, and emission is informational — the queue keeps running.
+

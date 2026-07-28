@@ -8,7 +8,7 @@ title: "ClusteredRedisQueue.clear() method · @imqueue/core"
 
 ## ClusteredRedisQueue.clear() method
 
-Clears queue data in queue host application. Supposed to be an async function.
+Deletes this queue's data on every redis host in the cluster, concurrently.
 
 **Signature:**
 
@@ -19,5 +19,5 @@ clear(): Promise<ClusteredRedisQueue>;
 
 Promise&lt;[ClusteredRedisQueue](/api/core/latest/core.clusteredredisqueue/)<!-- -->&gt;
 
-{<!-- -->Promise<ClusteredRedisQueue>}
+this queue instance
 

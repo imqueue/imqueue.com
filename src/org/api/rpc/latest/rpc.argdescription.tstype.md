@@ -8,6 +8,8 @@ title: "ArgDescription.tsType property · @imqueue/rpc"
 
 ## ArgDescription.tsType property
 
+The argument's type as written in the method's JSDoc, defaulting to `'any'` when undocumented. This is what a generated client emits into the method signature. Never empty.
+
 **Signature:**
 
 ```typescript

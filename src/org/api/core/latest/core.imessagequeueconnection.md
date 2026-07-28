@@ -8,12 +8,18 @@ title: "IMessageQueueConnection interface · @imqueue/core"
 
 ## IMessageQueueConnection interface
 
+A single queue-host endpoint: where to connect and, optionally, how to authenticate.
+
 **Signature:**
 
 ```typescript
 export interface IMessageQueueConnection extends IMessageQueueAuthConnection 
 ```
 **Extends:** [IMessageQueueAuthConnection](/api/core/latest/core.imessagequeueauthconnection/)
+
+## Remarks
+
+Used both as the element type of [IMQOptions.cluster](/api/core/latest/core.imqoptions.cluster/) and, through `Partial`<!-- -->, as the connection part of [IMQOptions](/api/core/latest/core.imqoptions/) itself — where it defaults to `localhost:6379` without authentication.
 
 ## Properties
 
@@ -53,9 +59,7 @@ string
 
 </td><td>
 
-Message queue network host
-
- {<!-- -->string<!-- -->}
+Host name or IP address of the queue host. Defaults to `localhost`<!-- -->.
 
 
 </td></tr>
@@ -74,9 +78,7 @@ string
 
 </td><td>
 
-_(Optional)_ Message queue network unique identifier, optional property
-
- {<!-- -->string \| undefined<!-- -->}
+_(Optional)_ Identifier used to match this endpoint against cluster membership. Meaningful on `cluster` entries only, not at the top level of [IMQOptions](/api/core/latest/core.imqoptions/)<!-- -->.
 
 
 </td></tr>
@@ -95,9 +97,7 @@ number
 
 </td><td>
 
-Message queue network port
-
- {<!-- -->number<!-- -->}
+TCP port of the queue host. Defaults to `6379`<!-- -->.
 
 
 </td></tr>

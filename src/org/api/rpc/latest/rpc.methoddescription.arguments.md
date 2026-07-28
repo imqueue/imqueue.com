@@ -8,8 +8,15 @@ title: "MethodDescription.arguments property · @imqueue/rpc"
 
 ## MethodDescription.arguments property
 
+The method's arguments, in positional order.
+
 **Signature:**
 
 ```typescript
 arguments: ArgDescription[];
 ```
+
+## Remarks
+
+The client generator rewrites this array in place — it drops framework arguments the service declared and appends the canonical optional `imqMetadata`<!-- -->/`imqDelay` pair — so it can differ before and after client generation in the same process.
+

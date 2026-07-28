@@ -8,9 +8,7 @@ title: "IMQClient.unsubscribe() method · @imqueue/rpc"
 
 ## IMQClient.unsubscribe() method
 
-Destroys subscription channel to service
-
- {<!-- -->Promise<void>}
+Stops receiving service events: unsubscribes the channel, discards every handler registered through [IMQClient.subscribe()](/api/rpc/latest/rpc.imqclient.subscribe/)<!-- -->, and closes the dedicated subscription connection.
 
 **Signature:**
 
@@ -20,4 +18,8 @@ unsubscribe(): Promise<void>;
 **Returns:**
 
 Promise&lt;void&gt;
+
+## Remarks
+
+Safe when not subscribed, and it does not affect remote calls. [IMQClient.destroy()](/api/rpc/latest/rpc.imqclient.destroy/) performs it automatically; afterwards [IMQClient.subscribe()](/api/rpc/latest/rpc.imqclient.subscribe/) can be used again with a fresh connection.
 

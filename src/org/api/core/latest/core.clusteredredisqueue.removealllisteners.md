@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.removeAllListeners() method · @imqueue/core"
 
 ## ClusteredRedisQueue.removeAllListeners() method
 
+Removes every listener from every server's queue and from the internal template, so servers that join later also start clean.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ any\[\]
 
 </td><td>
 
+the arguments `EventEmitter.removeAllListeners` accepts
+
 
 </td></tr>
 </tbody></table>
@@ -51,4 +55,6 @@ any\[\]
 **Returns:**
 
 this
+
+this queue instance
 

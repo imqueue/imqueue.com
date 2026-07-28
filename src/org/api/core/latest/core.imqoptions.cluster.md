@@ -8,12 +8,17 @@ title: "IMQOptions.cluster property · @imqueue/core"
 
 ## IMQOptions.cluster property
 
-Queue cluster instances, if MQ should be clustered
-
- {<!-- -->IMessageQueueConnection\[\]<!-- -->}
+Redis servers to spread this queue across. Supplying this — or [IMQOptions.clusterManagers](/api/core/latest/core.imqoptions.clustermanagers/) — makes [IMQ.create()](/api/core/latest/core.imq.create/) return a [ClusteredRedisQueue](/api/core/latest/core.clusteredredisqueue/)<!-- -->.
 
 **Signature:**
 
 ```typescript
 cluster?: IMessageQueueConnection[];
 ```
+
+## Remarks
+
+Each entry carries its own host, port and optional `id` used for cluster-membership matching. Sends are distributed across the servers by health-aware round-robin, preferring ones whose connection is ready.
+
+Note that per-entry `username` and `password` are currently ignored — the underlying queues authenticate with the top-level credentials.
+

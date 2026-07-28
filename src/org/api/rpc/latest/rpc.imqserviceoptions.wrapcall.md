@@ -8,6 +8,8 @@ title: "IMQServiceOptions.wrapCall property · @imqueue/rpc"
 
 ## IMQServiceOptions.wrapCall property
 
+Around hook wrapping the method invocation. See [IMQWrapCall](/api/rpc/latest/rpc.imqwrapcall/)<!-- -->.
+
 **Signature:**
 
 ```typescript

@@ -85,6 +85,7 @@
 /api/core/3.2.3/*  /api/core/latest/:splat  301
 /api/core/3.2.4/*  /api/core/latest/:splat  301
 /api/core/3.2.5/*  /api/core/latest/:splat  301
+/api/core/3.3.0/*  /api/core/latest/:splat  301
 /api/rpc/1.2.0/*  /api/rpc/1.17.1/:splat  301
 /api/rpc/1.2.1/*  /api/rpc/1.17.1/:splat  301
 /api/rpc/1.2.2/*  /api/rpc/1.17.1/:splat  301
@@ -192,3 +193,4 @@
 /api/rpc/3.4.2/*  /api/rpc/latest/:splat  301
 /api/rpc/3.4.3/*  /api/rpc/latest/:splat  301
 /api/rpc/3.4.4/*  /api/rpc/latest/:splat  301
+/api/rpc/3.5.0/*  /api/rpc/latest/:splat  301

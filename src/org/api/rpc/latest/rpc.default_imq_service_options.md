@@ -8,12 +8,17 @@ title: "DEFAULT_IMQ_SERVICE_OPTIONS variable · @imqueue/rpc"
 
 ## DEFAULT\_IMQ\_SERVICE\_OPTIONS variable
 
-Default service options
-
- {<!-- -->IMQServiceOptions<!-- -->}
+Default options applied to every IMQ service: the core queue defaults, plus cleanup enabled with a `'*:client'` filter, single-process mode, and one worker per core.
 
 **Signature:**
 
 ```typescript
 DEFAULT_IMQ_SERVICE_OPTIONS: IMQServiceOptions
 ```
+
+## Remarks
+
+Note the two deliberate overrides of the core defaults: `cleanup` is `true` (core defaults to `false`<!-- -->) and `cleanupFilter` is `'*:client'` (core `'*'`<!-- -->). So a starting service prunes abandoned client queue keys, and the filter deliberately excludes service queues.
+
+Metrics-server defaults are not part of this object — they live in [DEFAULT\_IMQ\_METRICS\_SERVER\_OPTIONS](/api/rpc/latest/rpc.default_imq_metrics_server_options/) and are merged in separately by the service constructor.
+

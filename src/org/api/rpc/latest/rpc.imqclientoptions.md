@@ -17,6 +17,10 @@ export interface IMQClientOptions extends IMQOptions
 ```
 **Extends:** IMQOptions
 
+## Remarks
+
+Extends the core queue options, so all transport settings are accepted as well. Note that `path`<!-- -->, `compile`<!-- -->, `write` and `timeout` affect code generation only and have no effect on an already-generated client at runtime.
+
 ## Properties
 
 <table><thead><tr><th>
@@ -55,7 +59,7 @@ Description
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Post-settle hook. See [IMQAfterCall](/api/rpc/latest/rpc.imqaftercall/)<!-- -->.
 
 
 </td></tr>
@@ -74,7 +78,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Pre-dispatch hook. See [IMQBeforeCall](/api/rpc/latest/rpc.imqbeforecall/)<!-- -->; on a client it receives the request only.
 
 
 </td></tr>
@@ -93,7 +97,7 @@ number
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Per-call timeout in milliseconds.
 
 
 </td></tr>
@@ -112,6 +116,8 @@ boolean
 
 </td><td>
 
+Transpile the generated client and evaluate it in-process, returning its exports.
+
 
 </td></tr>
 <tr><td>
@@ -128,6 +134,8 @@ string
 
 
 </td><td>
+
+Directory the generated client is written to, resolved relative to the process working directory.
 
 
 </td></tr>
@@ -146,7 +154,7 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Share a single reply queue and transport connection across every client in the process, instead of one per client.
 
 
 </td></tr>
@@ -165,6 +173,8 @@ number
 
 </td><td>
 
+Milliseconds the client generator waits for the target service to answer its description request before failing.
+
 
 </td></tr>
 <tr><td>
@@ -181,6 +191,8 @@ boolean
 
 
 </td><td>
+
+Persist the generated `.ts` and `.js` pair in [IMQClientOptions.path](/api/rpc/latest/rpc.imqclientoptions.path/)<!-- -->.
 
 
 </td></tr>

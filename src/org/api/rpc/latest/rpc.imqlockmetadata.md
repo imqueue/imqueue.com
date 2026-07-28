@@ -8,6 +8,8 @@ title: "IMQLockMetadata interface · @imqueue/rpc"
 
 ## IMQLockMetadata interface
 
+Map from lock key to the metadata describing the call currently associated with that key.
+
 **Signature:**
 
 ```typescript

@@ -8,7 +8,7 @@ title: "ProfileDecoratorOptions.enableDebugTime property · @imqueue/core"
 
 ## ProfileDecoratorOptions.enableDebugTime property
 
-Turns on/off execution time debugging
+Turns on/off execution time debugging, overriding [IMQ\_LOG\_TIME](/api/core/latest/core.imq_log_time/)<!-- -->.
 
 **Signature:**
 

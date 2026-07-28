@@ -8,10 +8,15 @@ title: "ServiceDescription interface · @imqueue/rpc"
 
 ## ServiceDescription interface
 
-Service description
+Raw registry of every class that declares exposed methods, keyed by class name — the storage format behind [IMQRPCDescription.serviceDescription](/api/rpc/latest/rpc.imqrpcdescription.servicedescription/)<!-- -->.
 
 **Signature:**
 
 ```typescript
 export interface ServiceDescription 
 ```
+
+## Remarks
+
+This is not the payload a service returns from `describe()`<!-- -->. That is [Description](/api/rpc/latest/rpc.description/)<!-- -->, whose `service` field is `\{ name, methods \}` with the inheritance chain already flattened.
+

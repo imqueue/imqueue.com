@@ -8,8 +8,15 @@ title: "RedisCache.ready property · @imqueue/rpc"
 
 ## RedisCache.ready property
 
+True once [RedisCache.init()](/api/rpc/latest/rpc.rediscache.init/) has completed successfully.
+
 **Signature:**
 
 ```typescript
 ready: boolean;
 ```
+
+## Remarks
+
+Never reset: [RedisCache.destroy()](/api/rpc/latest/rpc.rediscache.destroy/) closes the shared connection without clearing this flag.
+

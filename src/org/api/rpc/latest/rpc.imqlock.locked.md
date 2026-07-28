@@ -56,5 +56,3 @@ key to check the lock state for
 
 boolean
 
-{<!-- -->boolean<!-- -->}
-

@@ -8,8 +8,15 @@ title: "IMQMetricsServerOptions.port property · @imqueue/rpc"
 
 ## IMQMetricsServerOptions.port property
 
+TCP port to bind on all interfaces.
+
 **Signature:**
 
 ```typescript
 port?: number;
 ```
+
+## Default Value
+
+9090
+

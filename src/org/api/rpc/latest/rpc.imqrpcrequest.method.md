@@ -8,8 +8,15 @@ title: "IMQRPCRequest.method property · @imqueue/rpc"
 
 ## IMQRPCRequest.method property
 
+Name of the service method to invoke.
+
 **Signature:**
 
 ```typescript
 method: string;
 ```
+
+## Remarks
+
+Not supplied by the caller: the [remote()](/api/rpc/latest/rpc.remote/) decorator appends it to the argument list and the client pops it back off. The service uses it for the method lookup and to authorize the call against its exposed description.
+

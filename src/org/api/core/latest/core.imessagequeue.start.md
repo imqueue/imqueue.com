@@ -8,7 +8,7 @@ title: "IMessageQueue.start() method · @imqueue/core"
 
 ## IMessageQueue.start() method
 
-Starts the messaging queue.
+Starts the queue: opens its connections, joins watcher election and begins consuming, so `message` events start arriving.
 
 **Signature:**
 
@@ -19,5 +19,15 @@ start(): Promise<IMessageQueue>;
 
 Promise&lt;[IMessageQueue](/api/core/latest/core.imessagequeue/)<!-- -->&gt;
 
-{<!-- -->Promise<IMessageQueue>}
+this queue instance
+
+## Exceptions
+
+TypeError when the queue was constructed without a name
+
+## Remarks
+
+A no-op when the queue is already started, and it may be called again after [IMessageQueue.stop()](/api/core/latest/core.imessagequeue.stop/)<!-- -->. A reader is opened only in [IMQMode.BOTH](/api/core/latest/core.imqmode/) or [IMQMode.WORKER](/api/core/latest/core.imqmode/) mode, so a publisher-only queue never emits `message`<!-- -->. Unless [IMQOptions.handleSignals](/api/core/latest/core.imqoptions.handlesignals/) is disabled, this also installs process-wide signal handlers.
+
+Required before [IMessageQueue.publish()](/api/core/latest/core.imessagequeue.publish/)<!-- -->; [IMessageQueue.send()](/api/core/latest/core.imessagequeue.send/) starts the queue implicitly.
 

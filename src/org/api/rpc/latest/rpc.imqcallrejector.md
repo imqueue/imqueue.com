@@ -78,7 +78,7 @@ client
 
 </td><td>
 
-the client the call belongs to  {<!-- -->(err: any, res?: IMQRPCResponse) =<!-- -->&gt; void<!-- -->} - a hook-aware rejector
+the client the call belongs to
 
 
 </td></tr>
@@ -87,4 +87,6 @@ the client the call belongs to  {<!-- -->(err: any, res?: IMQRPCResponse) =<!-- 
 **Returns:**
 
 (err: any, res?: [IMQRPCResponse](/api/rpc/latest/rpc.imqrpcresponse/)<!-- -->) =&gt; void
+
+a hook-aware rejector
 

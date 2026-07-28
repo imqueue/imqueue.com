@@ -8,8 +8,15 @@ title: "IMQRPCError.message property · @imqueue/rpc"
 
 ## IMQRPCError.message property
 
+Human-readable failure description.
+
 **Signature:**
 
 ```typescript
 message: string;
 ```
+
+## Remarks
+
+Framework-generated messages name the service and method. For a method failure it is the thrown value's `message` copied verbatim, so throwing a non-`Error` leaves this absent from the delivered message.
+

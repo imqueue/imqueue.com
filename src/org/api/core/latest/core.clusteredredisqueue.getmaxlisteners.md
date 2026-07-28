@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.getMaxListeners() method · @imqueue/core"
 
 ## ClusteredRedisQueue.getMaxListeners() method
 
+Returns the maximum listener count of the internal template emitter.
+
 **Signature:**
 
 ```typescript
@@ -16,4 +18,10 @@ getMaxListeners(): number;
 **Returns:**
 
 number
+
+the template's maximum listener count
+
+## Remarks
+
+Reads the template only — never the underlying per-server queues.
 

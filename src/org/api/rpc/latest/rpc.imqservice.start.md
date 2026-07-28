@@ -10,8 +10,6 @@ title: "IMQService.start() method · @imqueue/rpc"
 
 Initializes this instance of service and starts handling request messages.
 
- {<!-- -->Promise<!-- -->&lt;<!-- -->IMessageQueue \| undefined<!-- -->&gt;<!-- -->}
-
 **Signature:**
 
 ```typescript
@@ -20,4 +18,12 @@ start(): Promise<IMessageQueue | undefined>;
 **Returns:**
 
 Promise&lt;IMessageQueue \| undefined&gt;
+
+the started message queue instance
+
+## Remarks
+
+In single-process mode this starts the queue in the current process. With [IMQServiceOptions.multiProcess](/api/rpc/latest/rpc.imqserviceoptions.multiprocess/) the cluster primary forks `cpus().length * childrenPerCore` workers, each receiving its index in the `workerId` environment variable, and installs an exit watcher that terminates the process with code 1 as soon as one worker dies — workers are never respawned, so supervision is left to the process manager.
+
+Note that the primary also starts its own queue consumer and metrics listener after forking, so a service configured for N workers runs N+1 consumers and N+1 processes attempt to bind the metrics port.
 

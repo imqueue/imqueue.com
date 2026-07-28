@@ -8,8 +8,15 @@ title: "ClusteredRedisQueue.name property · @imqueue/core"
 
 ## ClusteredRedisQueue.name property
 
+Name of this queue, used as the queue name for every per-host queue in the cluster.
+
 **Signature:**
 
 ```typescript
 name: string;
 ```
+
+## Remarks
+
+It is read when a server joins, so changing it after construction affects only servers added later — which would silently split the cluster across two queue names. Avoid reassigning it.
+

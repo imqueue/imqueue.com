@@ -17,6 +17,10 @@ export interface IMQServiceOptions extends IMQOptions
 ```
 **Extends:** IMQOptions
 
+## Remarks
+
+Extends the core queue options, so all transport settings — `host`<!-- -->, `port`<!-- -->, `prefix`<!-- -->, `safeDelivery`<!-- -->, `useGzip`<!-- -->, `cluster`<!-- -->, `logger` and the rest — are accepted and forwarded to the queue factory.
+
 ## Properties
 
 <table><thead><tr><th>
@@ -55,7 +59,7 @@ Description
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Post-response hook. See [IMQAfterCall](/api/rpc/latest/rpc.imqaftercall/)<!-- -->.
 
 
 </td></tr>
@@ -74,7 +78,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Pre-dispatch hook. See [IMQBeforeCall](/api/rpc/latest/rpc.imqbeforecall/)<!-- -->.
 
 
 </td></tr>
@@ -93,6 +97,8 @@ number
 
 </td><td>
 
+Workers to fork per CPU core. Ignored unless [IMQServiceOptions.multiProcess](/api/rpc/latest/rpc.imqserviceoptions.multiprocess/) is true.
+
 
 </td></tr>
 <tr><td>
@@ -110,7 +116,7 @@ number
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Built-in metrics HTTP listener settings.
 
 
 </td></tr>
@@ -129,6 +135,8 @@ boolean
 
 </td><td>
 
+Fork one cluster worker per CPU core, multiplied by [IMQServiceOptions.childrenPerCore](/api/rpc/latest/rpc.imqserviceoptions.childrenpercore/)<!-- -->.
+
 
 </td></tr>
 <tr><td>
@@ -146,7 +154,7 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Around hook wrapping the method invocation. See [IMQWrapCall](/api/rpc/latest/rpc.imqwrapcall/)<!-- -->.
 
 
 </td></tr>

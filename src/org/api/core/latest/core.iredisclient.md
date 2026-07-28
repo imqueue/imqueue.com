@@ -8,9 +8,7 @@ title: "IRedisClient interface · @imqueue/core"
 
 ## IRedisClient interface
 
-Extends the default Redis type to allow dynamic properties access on it
-
- {<!-- -->IRedisClient<!-- -->}
+The ioredis `Redis` client type augmented with the two internal bookkeeping flags imq stamps onto the connections it creates. Not intended for use as an option or parameter type by consumers.
 
 **Signature:**
 
@@ -57,7 +55,7 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Internal marker stamped on every Redis connection created by the queue, identifying it as imq-owned. Currently written but not read by the framework. Not part of the supported API.
 
 
 </td></tr>
@@ -76,7 +74,7 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Internal flag marking a watcher connection whose keyspace subscriptions and maintenance interval have already been installed, so watcher setup runs at most once per connection. Not part of the supported API.
 
 
 </td></tr>

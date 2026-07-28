@@ -8,12 +8,19 @@ title: "UDPClusterManagerOptions.aliveTimeoutCorrection property · @imqueue/cor
 
 ## UDPClusterManagerOptions.aliveTimeoutCorrection property
 
-Message queue alive timeout correction. Used to correct waiting time to check if the server is alive
-
- 5000  {<!-- -->number<!-- -->}
+Grace period in milliseconds added to the liveness timeout each server advertises in its broadcast.
 
 **Signature:**
 
 ```typescript
 aliveTimeoutCorrection: number;
 ```
+
+## Default Value
+
+5000
+
+## Remarks
+
+A server is dropped from the cluster when no new announcement arrives within its advertised timeout plus this correction. Raise it on lossy networks to avoid dropping healthy servers. It has no effect when [UDPClusterManagerOptions.useAliveCheck](/api/core/latest/core.udpclustermanageroptions.usealivecheck/) is disabled.
+

@@ -8,7 +8,7 @@ title: "IMQClient.create() method · @imqueue/rpc"
 
 ## IMQClient.create() method
 
-Creates client for a service with the given name
+Generates a client for the service registered under the given queue name and resolves to the generated namespace object — not to a client instance, and not to an [IMQClient](/api/rpc/latest/rpc.imqclient/)<!-- -->.
 
 **Signature:**
 
@@ -46,6 +46,8 @@ string
 
 </td><td>
 
+name of the queue the target service listens on (its service name, which is the class name by default). Also used as the base name of the generated files.
+
 
 </td></tr>
 <tr><td>
@@ -60,7 +62,7 @@ Partial&lt;[IMQClientOptions](/api/rpc/latest/rpc.imqclientoptions/)<!-- -->&gt;
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ client options, merged over [DEFAULT\_IMQ\_CLIENT\_OPTIONS](/api/rpc/latest/rpc.default_imq_client_options/)
 
 
 </td></tr>
@@ -70,5 +72,27 @@ _(Optional)_
 
 Promise&lt;any&gt;
 
-{<!-- -->IMQClient<!-- -->}
+the generated namespace object, exposing the generated client class (`<Service>Client`<!-- -->, with a trailing `Service` replaced by `Client`<!-- -->) plus one interface per registered service type. It is produced at runtime, so it is typed `any` — cast it or type the call site yourself. Resolves to `null` instead when [IMQClientOptions.compile](/api/rpc/latest/rpc.imqclientoptions.compile/) is false.
+
+## Exceptions
+
+EvalError when the target service does not answer within [IMQClientOptions.timeout](/api/rpc/latest/rpc.imqclientoptions.timeout/) milliseconds
+
+## Remarks
+
+Generating a client requires the target service to be running: this sends a live description request over the queue and fails if no answer arrives in time.
+
+It always transpiles the generated source by spawning TypeScript synchronously, so the call blocks the event loop, and it rejects if transpilation emits nothing. When [IMQClientOptions.write](/api/rpc/latest/rpc.imqclientoptions.write/) is set — the default — it writes both `<path>/<name>.ts` and `<path>/<name>.js`<!-- -->, silently overwriting any existing files, and creates `path` only one level deep.
+
+The identifiers inside the generated module come from the service's own reported class name, so if that differs from `name` the file name and the namespace/class names differ too.
+
+## Example
+
+
+```typescript
+const ns = await IMQClient.create('UserService');
+const client = new ns.UserClient();
+
+await client.start();
+```
 

@@ -8,7 +8,7 @@ title: "ClusteredRedisQueue.removeServer() method · @imqueue/core"
 
 ## ClusteredRedisQueue.removeServer() method
 
-Removes server from the cluster
+Removes a server from the cluster, matching by `id` or by host and port.
 
 **Signature:**
 
@@ -46,6 +46,8 @@ server
 
 </td><td>
 
+address of the server to remove
+
 
 </td></tr>
 </tbody></table>
@@ -54,5 +56,9 @@ server
 
 void
 
-{<!-- -->void<!-- -->}
+## Remarks
+
+A silent no-op when no server matches. Routing stops using the host immediately, but teardown of its redis connections is started in the background and not awaited: in-flight work on that host is not drained, and teardown errors are only logged.
+
+Because the underlying queues are matched by host and port, all entries sharing an address are removed together.
 

@@ -104,5 +104,3 @@ _(Optional)_ store only if the key does not exist yet
 
 Promise&lt;boolean&gt;
 
-{<!-- -->Promise<boolean>}
-

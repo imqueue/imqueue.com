@@ -8,8 +8,15 @@ title: "DEFAULT_REDIS_CACHE_OPTIONS variable · @imqueue/rpc"
 
 ## DEFAULT\_REDIS\_CACHE\_OPTIONS variable
 
+Default options for [RedisCache](/api/rpc/latest/rpc.rediscache/)<!-- -->: the standard queue defaults, with `prefix` overridden to `imq-cache` so cache keys never collide with queue keys under the `imq` prefix.
+
 **Signature:**
 
 ```typescript
 DEFAULT_REDIS_CACHE_OPTIONS: IMQOptions
 ```
+
+## Remarks
+
+User options are merged over these, so keys default to `imq-cache:RedisCache:<key>`<!-- -->.
+

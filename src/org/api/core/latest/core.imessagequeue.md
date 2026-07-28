@@ -8,7 +8,9 @@ title: "IMessageQueue interface · @imqueue/core"
 
 ## IMessageQueue interface
 
-Generic messaging queue implementation interface
+Contract every messaging queue implementation fulfils. Implement it to add a transport of your own, or program against it to stay adapter-agnostic.
+
+A queue is an `EventEmitter` typed by [EventMap](/api/core/latest/core.eventmap/)<!-- -->, so it emits exactly two events: `message`<!-- -->, with the payload, the message id and the sending queue's name; and `error`<!-- -->, with the error and the name of the internal routine that caught it. The `error` event fires only when a listener is attached — attach one if background failures must be observed.
 
 **Signature:**
 
@@ -19,9 +21,65 @@ export interface IMessageQueue extends EventEmitter<EventMap>
 
 ## Example
 
-\~\~\~typescript import { IMessageQueue, EventEmitter } from '<!-- -->@<!-- -->imqueue/core'; import { randomUUID } from 'node:crypto';
+Implementing an adapter:
 
-class SomeMQAdapter extends EventEmitter implements IMessageQueue { public async start(): Promise<SomeMQAdapter> { // ... implementation goes here return this; } public async stop(): Promise<SomeMQAdapter> { // ... implementation goes here return this; } public async send( toQueue: string, message: JsonObject, delay?: number, ): Promise<string> { const messageId = randomUUID(); // ... implementation goes here return messageId; } public async destroy(): Promise<void> { // ... implementation goes here } public async clear(): Promise<SomeMQAdapter> { // ... implementation goes here return this; } } \~\~\~
+```typescript
+import {
+    type IMessageQueue,
+    type EventMap,
+    type JsonObject,
+    EventEmitter,
+} from '@imqueue/core';
+import { randomUUID } from 'node:crypto';
+
+class SomeMQAdapter extends EventEmitter<EventMap>
+    implements IMessageQueue
+{
+    public async start(): Promise<SomeMQAdapter> {
+        // ... implementation goes here
+        return this;
+    }
+    public async stop(): Promise<SomeMQAdapter> {
+        // ... implementation goes here
+        return this;
+    }
+    public async send(
+        toQueue: string,
+        message: JsonObject,
+        delay?: number,
+    ): Promise<string> {
+        const messageId = randomUUID();
+        // ... implementation goes here
+        return messageId;
+    }
+    public async subscribe(
+        channel: string,
+        handler: (data: JsonObject) => void,
+    ): Promise<void> {
+        // ... implementation goes here
+    }
+    public async unsubscribe(): Promise<void> {
+        // ... implementation goes here
+    }
+    public async publish(
+        data: JsonObject,
+        toName?: string,
+    ): Promise<void> {
+        // ... implementation goes here
+    }
+    public async queueLength(): Promise<number> {
+        // ... implementation goes here
+        return 0;
+    }
+    public async clear(): Promise<SomeMQAdapter> {
+        // ... implementation goes here
+        return this;
+    }
+    public async destroy(): Promise<void> {
+        // ... implementation goes here
+    }
+}
+```
 
 ## Methods
 
@@ -43,7 +101,7 @@ Description
 
 </td><td>
 
-Clears all queue data from the queue host application.
+Deletes this queue's pending messages — both the main list and the delayed set for `<prefix>:<name>`<!-- -->.
 
 
 </td></tr>
@@ -54,7 +112,7 @@ Clears all queue data from the queue host application.
 
 </td><td>
 
-Safely destroys the current queue, unregistering all event listeners and closing connections.
+Releases this queue handle: removes all event listeners, stops the maintenance timers, releases the watcher lock if held, disconnects the reader, and drops this instance's reference to the shared writer.
 
 
 </td></tr>
@@ -78,7 +136,7 @@ If toName is specified, publishes to a pubsub with a different name. This can be
 
 </td><td>
 
-Retrieves the current count of messages in the queue. Supposed to be an async function.
+Returns the number of messages currently waiting in this queue's main list.
 
 
 </td></tr>
@@ -100,7 +158,7 @@ Sends a message to the specified queue with the given data.
 
 </td><td>
 
-Starts the messaging queue.
+Starts the queue: opens its connections, joins watcher election and begins consuming, so `message` events start arriving.
 
 
 </td></tr>
@@ -111,7 +169,7 @@ Starts the messaging queue.
 
 </td><td>
 
-Stops the queue from handling messages.
+Stops consuming, so no further `message` events fire.
 
 
 </td></tr>
@@ -122,7 +180,7 @@ Stops the queue from handling messages.
 
 </td><td>
 
-Creates or uses a subscription channel with the given name and sets message handler on data receive
+Subscribes to the pub/sub channel with the given name and registers a handler for the data it delivers. The effective channel is `<prefix>:<channel>`<!-- -->.
 
 
 </td></tr>
@@ -133,7 +191,7 @@ Creates or uses a subscription channel with the given name and sets message hand
 
 </td><td>
 
-Closes the subscription channel
+Closes the subscription channel and drops every handler registered through [IMessageQueue.subscribe()](/api/core/latest/core.imessagequeue.subscribe/)<!-- -->, resetting the instance so a later subscription may use a different channel name.
 
 
 </td></tr>

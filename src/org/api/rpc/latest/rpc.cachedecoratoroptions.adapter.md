@@ -8,8 +8,19 @@ title: "CacheDecoratorOptions.adapter property · @imqueue/rpc"
 
 ## CacheDecoratorOptions.adapter property
 
+Cache adapter as a constructor, an instance, or a built-in adapter name.
+
 **Signature:**
 
 ```typescript
 adapter?: string | ICache | ICacheConstructor;
 ```
+
+## Default Value
+
+RedisCache
+
+## Remarks
+
+Only built-in adapters can be referenced by name — currently just `'RedisCache'`<!-- -->. Any other string throws a `TypeError`<!-- -->.
+

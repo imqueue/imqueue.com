@@ -8,6 +8,8 @@ title: "REDIS_CLIENT_INIT_ERROR variable · @imqueue/rpc"
 
 ## REDIS\_CLIENT\_INIT\_ERROR variable
 
+Message of the `TypeError` thrown by any [RedisCache](/api/rpc/latest/rpc.rediscache/) operation invoked before a connection has been established. Exported so callers can match on it.
+
 **Signature:**
 
 ```typescript

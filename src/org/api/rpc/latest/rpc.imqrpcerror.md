@@ -8,7 +8,9 @@ title: "IMQRPCError interface · @imqueue/rpc"
 
 ## IMQRPCError interface
 
-Response error data structure, which service returns if error occurred during service method execution.
+Failure descriptor for a remote call.
+
+Produced by a service when a method throws, and also before dispatch when the method does not exist, is not exposed, or was called with the wrong number of arguments. A client additionally synthesizes one locally on call timeout.
 
 **Signature:**
 
@@ -16,6 +18,10 @@ Response error data structure, which service returns if error occurred during se
 export interface IMQRPCError extends JsonObject 
 ```
 **Extends:** JsonObject
+
+## Remarks
+
+A rejected client call rejects with this object as-is — it is not an `Error` instance, so `err instanceof Error` is false, `err.stack` describes the remote process rather than the caller's frames, and `message` is a plain property rather than an `Error` message.
 
 ## Properties
 
@@ -55,6 +61,8 @@ string
 
 </td><td>
 
+The call's arguments serialized as a pretty-printed JSON string, not an array — parse it before use.
+
 
 </td></tr>
 <tr><td>
@@ -71,6 +79,8 @@ string
 
 
 </td><td>
+
+Machine-readable failure code.
 
 
 </td></tr>
@@ -89,6 +99,8 @@ string
 
 </td><td>
 
+Human-readable failure description.
+
 
 </td></tr>
 <tr><td>
@@ -105,6 +117,8 @@ string
 
 
 </td><td>
+
+Bare name of the method the call targeted, unqualified by service name. Empty string rather than absent when unknown.
 
 
 </td></tr>
@@ -123,7 +137,7 @@ any
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ The error the service method threw, as a JSON string — not an object, despite the `any` type.
 
 
 </td></tr>
@@ -141,6 +155,8 @@ string
 
 
 </td><td>
+
+Stack trace as a string, from the service process. Empty string rather than absent when unavailable.
 
 
 </td></tr>

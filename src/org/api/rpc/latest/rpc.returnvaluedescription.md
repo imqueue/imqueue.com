@@ -8,13 +8,17 @@ title: "ReturnValueDescription interface · @imqueue/rpc"
 
 ## ReturnValueDescription interface
 
-Return value description
+Description of an exposed method's return value, as parsed from its JSDoc.
 
 **Signature:**
 
 ```typescript
 export interface ReturnValueDescription 
 ```
+
+## Remarks
+
+Always present on a [MethodDescription](/api/rpc/latest/rpc.methoddescription/)<!-- -->, even when the method has no `@returns` tag — in which case the type is `'any'`<!-- -->.
 
 ## Properties
 
@@ -54,6 +58,8 @@ string
 
 </td><td>
 
+Prose describing the return value, from the `@returns` JSDoc line.
+
 
 </td></tr>
 <tr><td>
@@ -71,6 +77,8 @@ string
 
 </td><td>
 
+The return type from the method's `@returns` JSDoc, defaulting to `'any'`<!-- -->.
+
 
 </td></tr>
 <tr><td>
@@ -87,6 +95,8 @@ string
 
 
 </td><td>
+
+Legacy duplicate of [ReturnValueDescription.tsType](/api/rpc/latest/rpc.returnvaluedescription.tstype/) — always the identical string.
 
 
 </td></tr>

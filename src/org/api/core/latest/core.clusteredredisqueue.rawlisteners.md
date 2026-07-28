@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.rawListeners() method · @imqueue/core"
 
 ## ClusteredRedisQueue.rawListeners() method
 
+Returns the raw listeners of every server's queue plus the internal template, concatenated.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ any\[\]
 
 </td><td>
 
+the arguments `EventEmitter.rawListeners` accepts
+
 
 </td></tr>
 </tbody></table>
@@ -51,4 +55,10 @@ any\[\]
 **Returns:**
 
 any\[\]
+
+the aggregated raw listeners across the cluster
+
+## Remarks
+
+Aggregated in the same way as [ClusteredRedisQueue.listeners()](/api/core/latest/core.clusteredredisqueue.listeners/)<!-- -->, with the same multiplicity caveat.
 

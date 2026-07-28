@@ -8,12 +8,15 @@ title: "IMQOptions.vendor property · @imqueue/core"
 
 ## IMQOptions.vendor property
 
-Message queue vendor
-
- {<!-- -->string<!-- -->}
+Queue adapter vendor name. Defaults to `'Redis'`<!-- -->, which is the only supported value.
 
 **Signature:**
 
 ```typescript
 vendor?: string;
 ```
+
+## Remarks
+
+Honoured only by [IMQ.create()](/api/core/latest/core.imq.create/)<!-- -->, which throws a `TypeError` for any other value. Ignored when a queue class is instantiated directly, because [DEFAULT\_IMQ\_OPTIONS](/api/core/latest/core.default_imq_options/) carries no `vendor` key.
+

@@ -8,8 +8,15 @@ title: "ArgDescription.isOptional property · @imqueue/rpc"
 
 ## ArgDescription.isOptional property
 
+Whether the argument was documented as optional, i.e. written `[name]` in the JSDoc. A TypeScript `?` or a default value alone does not set this.
+
 **Signature:**
 
 ```typescript
 isOptional: boolean;
 ```
+
+## Remarks
+
+Affects the service's argument-count check: as soon as one argument is optional, any call with at most the declared number of arguments is accepted — including calls that omit required ones.
+

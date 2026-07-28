@@ -44,7 +44,7 @@ string
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ legacy, and never supplied by the registry
 
 
 </td></tr>

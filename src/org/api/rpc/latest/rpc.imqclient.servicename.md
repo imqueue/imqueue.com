@@ -8,8 +8,15 @@ title: "IMQClient.serviceName property · @imqueue/rpc"
 
 ## IMQClient.serviceName property
 
+The remote side: the queue every request is addressed to, and the pub/sub channel [IMQClient.subscribe()](/api/rpc/latest/rpc.imqclient.subscribe/) listens on.
+
 **Signature:**
 
 ```typescript
 readonly serviceName: string;
 ```
+
+## Remarks
+
+Defaults to this client's base name with a trailing `Client` removed, so `UserClient` talks to the queue `User`<!-- -->.
+

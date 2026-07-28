@@ -8,8 +8,15 @@ title: "IMQServiceOptions.metricsServer property · @imqueue/rpc"
 
 ## IMQServiceOptions.metricsServer property
 
+Built-in metrics HTTP listener settings.
+
 **Signature:**
 
 ```typescript
 metricsServer?: IMQMetricsServerOptions;
 ```
+
+## Remarks
+
+Merged separately over [DEFAULT\_IMQ\_METRICS\_SERVER\_OPTIONS](/api/rpc/latest/rpc.default_imq_metrics_server_options/)<!-- -->, so supplying a partial object keeps the default port and formatter.
+

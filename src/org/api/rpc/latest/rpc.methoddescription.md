@@ -8,7 +8,7 @@ title: "MethodDescription interface · @imqueue/rpc"
 
 ## MethodDescription interface
 
-Method description
+Description of one exposed method: its summary, its positional arguments and its return value.
 
 **Signature:**
 
@@ -54,6 +54,8 @@ Description
 
 </td><td>
 
+The method's arguments, in positional order.
+
 
 </td></tr>
 <tr><td>
@@ -71,6 +73,8 @@ string
 
 </td><td>
 
+The method's JSDoc summary, or an empty string when undocumented.
+
 
 </td></tr>
 <tr><td>
@@ -87,6 +91,8 @@ string
 
 
 </td><td>
+
+The method's return value description. Always present.
 
 
 </td></tr>

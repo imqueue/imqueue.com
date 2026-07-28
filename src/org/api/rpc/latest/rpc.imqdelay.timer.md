@@ -8,6 +8,8 @@ title: "IMQDelay.timer property · @imqueue/rpc"
 
 ## IMQDelay.timer property
 
+The delay magnitude, expressed in [IMQDelay.unit](/api/rpc/latest/rpc.imqdelay.unit/)<!-- -->. Mutable after construction, and read by [IMQDelay.ms](/api/rpc/latest/rpc.imqdelay.ms/)<!-- -->.
+
 **Signature:**
 
 ```typescript

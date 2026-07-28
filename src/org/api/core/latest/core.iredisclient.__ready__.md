@@ -8,6 +8,8 @@ title: "IRedisClient.__ready__ property · @imqueue/core"
 
 ## IRedisClient.\_\_ready\_\_ property
 
+Internal flag marking a watcher connection whose keyspace subscriptions and maintenance interval have already been installed, so watcher setup runs at most once per connection. Not part of the supported API.
+
 **Signature:**
 
 ```typescript

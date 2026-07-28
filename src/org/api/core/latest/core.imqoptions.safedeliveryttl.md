@@ -10,12 +10,21 @@ title: "IMQOptions.safeDeliveryTtl property · @imqueue/core"
 
 Lease deadline (in milliseconds) stamped onto the worker key when safeDelivery moves a message out of the queue, and the interval on which the watcher sweeps for expired keys. A worker key still present once its deadline has passed is treated as abandoned, and its message is moved back onto the main queue.
 
-This is a recovery deadline for an abandoned hand-off, not a processing deadline. The key is released when the message is dispatched, so a slow handler is neither interrupted nor re-queued for taking too long, and raising this value extends no protection over long-running work — tune it for how quickly an abandoned message should come back. Only effective when safeDelivery is enabled.
-
- 5000  {<!-- -->number<!-- -->}
+This is a recovery deadline for an abandoned hand-off, not a processing deadline. The key is released when the message is dispatched, so a slow handler is neither interrupted nor re-queued for taking too long, and raising this value extends no protection over long-running work — tune it for how quickly an abandoned message should come back.
 
 **Signature:**
 
 ```typescript
 safeDeliveryTtl?: number;
 ```
+
+## Default Value
+
+5000
+
+## Remarks
+
+This value applies whether or not [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/) is on: it always sets the period of the watcher's maintenance sweep, which also drives the [IMQOptions.cleanup](/api/core/latest/core.imqoptions.cleanup/) pass. Setting it to `null` or `undefined` disables that interval altogether, so neither lease recovery nor cleanup runs.
+
+In safe-delivery mode it additionally sets the reader's blocking-pop timeout to half the TTL, with a 100 ms floor, after which the reader regenerates the lease and blocks again. Very small values therefore increase Redis round-trips without further reducing latency.
+

@@ -8,7 +8,7 @@ title: "ILogger.info() method · @imqueue/core"
 
 ## ILogger.info() method
 
-Info level function
+Writes a message at the `info` level.
 
 **Signature:**
 
@@ -45,6 +45,8 @@ unknown\[\]
 
 
 </td><td>
+
+values to log
 
 
 </td></tr>

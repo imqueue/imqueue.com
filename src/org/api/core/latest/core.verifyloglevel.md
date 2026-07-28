@@ -8,7 +8,7 @@ title: "verifyLogLevel() function · @imqueue/core"
 
 ## verifyLogLevel() function
 
-Validates a log level value or returns the default
+Normalizes an arbitrary value into a [LogLevel](/api/core/latest/core.loglevel/)<!-- -->.
 
 **Signature:**
 
@@ -46,7 +46,7 @@ unknown
 
 </td><td>
 
-the level to validate
+the value to validate
 
 
 </td></tr>
@@ -56,5 +56,9 @@ the level to validate
 
 [LogLevel](/api/core/latest/core.loglevel/)
 
-{<!-- -->LogLevel<!-- -->} - validated log level or INFO if invalid
+`level` unchanged when it is one of `log`<!-- -->, `info`<!-- -->, `warn` or `error`<!-- -->; otherwise [LogLevel.INFO](/api/core/latest/core.loglevel/)
+
+## Remarks
+
+Never throws — `null`<!-- -->, `undefined` and unrelated types all resolve to [LogLevel.INFO](/api/core/latest/core.loglevel/)<!-- -->, which makes this the safe way to sanitize an untrusted level string.
 

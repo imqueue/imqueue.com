@@ -8,8 +8,15 @@ title: "IMQ_SHUTDOWN_TIMEOUT variable · @imqueue/core"
 
 ## IMQ\_SHUTDOWN\_TIMEOUT variable
 
+Time in milliseconds allowed for releasing watcher locks when a shutdown signal is received, before the process is force-exited. Defaults to 1000; override with the `IMQ_SHUTDOWN_TIMEOUT` environment variable.
+
 **Signature:**
 
 ```typescript
 IMQ_SHUTDOWN_TIMEOUT: number
 ```
+
+## Remarks
+
+This is not a drain period — running `message` handlers are not awaited. The value is read once when the module is loaded, and a non-numeric value falls back to the default. Relevant only while [IMQOptions.handleSignals](/api/core/latest/core.imqoptions.handlesignals/) is enabled.
+

@@ -8,6 +8,8 @@ title: "LockOptions interface · @imqueue/rpc"
 
 ## LockOptions interface
 
+Options for the [lock()](/api/rpc/latest/rpc.lock/) decorator.
+
 **Signature:**
 
 ```typescript
@@ -52,7 +54,7 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Set to `true` to turn locking off for the decorated method.
 
 
 </td></tr>
@@ -71,7 +73,7 @@ number\[\]
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Positional indices of arguments to exclude when computing the lock key — useful for request-context or callback arguments that must not affect similarity.
 
 
 </td></tr>

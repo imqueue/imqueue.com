@@ -8,7 +8,7 @@ title: "profile() function · @imqueue/core"
 
 ## profile() function
 
-Implements '<!-- -->@<!-- -->profile' decorator.
+Wraps a class method so that its execution time and/or its call arguments are logged through the `logger` property of the decorated instance.
 
 **Signature:**
 
@@ -46,7 +46,7 @@ options
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ profiling options; omitted fields fall back to the [IMQ\_LOG\_TIME](/api/core/latest/core.imq_log_time/)<!-- -->, [IMQ\_LOG\_ARGS](/api/core/latest/core.imq_log_args/) and [IMQ\_LOG\_LEVEL](/api/core/latest/core.imq_log_level/) environment defaults
 
 
 </td></tr>
@@ -56,15 +56,42 @@ _(Optional)_
 
 any
 
-{<!-- -->( target: any, methodName: (string), descriptor: TypedPropertyDescriptor<!-- -->&lt;<!-- -->(...args: any\[\]) =<!-- -->&gt; any<!-- -->&gt;<!-- -->, ) =<!-- -->&gt; void<!-- -->}
+a dual-mode method decorator. Under standard (TC39) decorators it is called as `(method, context)` and returns the replacement method; under legacy decorators it is called as `(target, propertyKey, descriptor)`<!-- -->, replaces `descriptor.value` and returns that same descriptor object. Only method decoration is supported.
+
+## Remarks
+
+Output is written through the decorated instance's `logger` property (any [ILogger](/api/core/latest/core.ilogger/)<!-- -->). If the instance has no `logger`<!-- -->, or its logger lacks the selected level method, profiling runs and produces no output at all — no warning is emitted. Static methods are never logged, because the logger is looked up on instances only.
+
+Async methods are handled: when the wrapped method returns a thenable, logging is deferred until it settles and the measured time covers the full asynchronous duration. The original promise is returned unchanged, so identity, chaining and rejection propagation are unaffected. A rejection is logged with the same message as a success — the error itself is neither included nor captured.
+
+The wrapper is installed unconditionally; when profiling is disabled it delegates straight to the original method. Because decoration replaces the method, its `name` becomes `"wrapper"` and its `length` becomes `0` — do not rely on the reflected name or arity of a profiled method. Whether timing and argument logging are enabled is resolved once, when the class is defined.
+
+Precedence: `enableDebugTime` and `enableDebugArgs` override the environment defaults only when passed as real booleans; any other value is ignored. `logLevel` overrides [IMQ\_LOG\_LEVEL](/api/core/latest/core.imq_log_level/)<!-- -->, but an unrecognized level resolves to `info` rather than falling back to the environment value.
+
+Under legacy decorators the supplied property descriptor is mutated in place. Only method decoration is supported: applied to anything else it either throws a `TypeError` (legacy form, no descriptor) or installs the wrapper in the wrong slot (standard form — `context.kind` is not validated).
 
 ## Example
 
-\~\~\~typescript import { profile } from '<!-- -->@<!-- -->imqueue/core';
+
+```typescript
+import { profile } from '@imqueue/core';
 
 class MyClass {
+    // the decorator logs through this property only;
+    // without a logger nothing is ever written
+    public logger = console;
 
-@<!-- -->profile(true) // forced profiling public myMethod() { // ... }
+    // always profiled, whatever IMQ_LOG_TIME / IMQ_LOG_ARGS say
+    @profile({ enableDebugTime: true, enableDebugArgs: true })
+    public myMethod() {
+        // ...
+    }
 
-@<!-- -->profile() // profiling happens only depending on env DEBUG flag private innerMethod() { // ... } } \~\~\~
+    // profiled only when IMQ_LOG_TIME=1 and/or IMQ_LOG_ARGS=1
+    @profile()
+    private innerMethod() {
+        // ...
+    }
+}
+```
 

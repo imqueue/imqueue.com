@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.listeners() method · @imqueue/core"
 
 ## ClusteredRedisQueue.listeners() method
 
+Returns the listeners of every server's queue plus the internal template, concatenated.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ any\[\]
 
 </td><td>
 
+the arguments `EventEmitter.listeners` accepts
+
 
 </td></tr>
 </tbody></table>
@@ -51,4 +55,12 @@ any\[\]
 **Returns:**
 
 any\[\]
+
+the aggregated listeners across the cluster
+
+## Remarks
+
+Because registration is replicated, one listener registered through this class appears once per server plus once for the template — so the array length is a multiple of the logical listener count, not the count itself. Do not compare it against [ClusteredRedisQueue.listenerCount()](/api/core/latest/core.clusteredredisqueue.listenercount/)<!-- -->, which reports a single server.
+
+The return type is deliberately widened to `any[]`<!-- -->, so Node's per-event listener typing is not available here.
 

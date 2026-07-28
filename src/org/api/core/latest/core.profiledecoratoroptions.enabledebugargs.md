@@ -8,7 +8,7 @@ title: "ProfileDecoratorOptions.enableDebugArgs property · @imqueue/core"
 
 ## ProfileDecoratorOptions.enableDebugArgs property
 
-Turns on/off arguments debugging
+Turns on/off arguments debugging, overriding [IMQ\_LOG\_ARGS](/api/core/latest/core.imq_log_args/)<!-- -->.
 
 **Signature:**
 

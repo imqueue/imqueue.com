@@ -19,5 +19,3 @@ start(): Promise<void>;
 
 Promise&lt;void&gt;
 
-{<!-- -->Promise<void>}
-

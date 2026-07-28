@@ -10,8 +10,6 @@ title: "IMQLock.logger property · @imqueue/rpc"
 
 Logger used to log errors that appear during locked calls
 
- {<!-- -->ILogger<!-- -->}
-
 **Signature:**
 
 ```typescript

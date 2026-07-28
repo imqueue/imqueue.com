@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.eventNames() method · @imqueue/core"
 
 ## ClusteredRedisQueue.eventNames() method
 
+Returns the event names reported by a single representative emitter.
+
 **Signature:**
 
 ```typescript
@@ -16,4 +18,10 @@ eventNames(): (keyof EventMap)[];
 **Returns:**
 
 (keyof [EventMap](/api/core/latest/core.eventmap/)<!-- -->)\[\]
+
+the event names from the first server's queue, or from the internal template when the cluster is empty
+
+## Remarks
+
+Like [ClusteredRedisQueue.listenerCount()](/api/core/latest/core.clusteredredisqueue.listenercount/)<!-- -->, this does not aggregate across the cluster.
 

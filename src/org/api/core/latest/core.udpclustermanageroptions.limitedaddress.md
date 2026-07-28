@@ -8,12 +8,15 @@ title: "UDPClusterManagerOptions.limitedAddress property · @imqueue/core"
 
 ## UDPClusterManagerOptions.limitedAddress property
 
-Message-queue-limited broadcast address
-
- "255.255.255.255"  {<!-- -->string<!-- -->}
+Limited-broadcast address marker. No default: when unset, the worker tries to bind the local interface matching [UDPClusterManagerOptions.address](/api/core/latest/core.udpclustermanageroptions.address/)<!-- -->.
 
 **Signature:**
 
 ```typescript
 limitedAddress?: string;
 ```
+
+## Remarks
+
+This is only ever compared against `address`<!-- -->; it is never itself used as a bind or destination address. Setting it to the same value as `address` makes the worker bind all interfaces (`0.0.0.0`<!-- -->) instead of selecting one.
+

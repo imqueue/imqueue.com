@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.off() method · @imqueue/core"
 
 ## ClusteredRedisQueue.off() method
 
+Removes a listener from every server's queue and from the internal template.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ any\[\]
 
 </td><td>
 
+the arguments `EventEmitter.off` accepts
+
 
 </td></tr>
 </tbody></table>
@@ -51,4 +55,6 @@ any\[\]
 **Returns:**
 
 this
+
+this queue instance
 

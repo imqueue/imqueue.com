@@ -8,11 +8,17 @@ title: "IServerInput interface · @imqueue/core"
 
 ## IServerInput interface
 
+Address of a cluster server, as supplied to the cluster membership operations [ICluster.add](/api/core/latest/core.icluster.add/)<!-- -->, [ICluster.remove](/api/core/latest/core.icluster.remove/) and [ICluster.find](/api/core/latest/core.icluster.find/)<!-- -->.
+
 **Signature:**
 
 ```typescript
 export interface IServerInput 
 ```
+
+## Remarks
+
+Servers are matched by `id` when both sides carry one, and by host and port otherwise. This is [IMessageQueueConnection](/api/core/latest/core.imessagequeueconnection/) without the credentials.
 
 ## Properties
 
@@ -52,9 +58,7 @@ string
 
 </td><td>
 
-Message queue network host
-
- {<!-- -->string<!-- -->}
+Host name or IP address of the server.
 
 
 </td></tr>
@@ -73,9 +77,7 @@ string
 
 </td><td>
 
-_(Optional)_ Message queue network unique identifier, optional property
-
- {<!-- -->string \| undefined<!-- -->}
+_(Optional)_ Identifier used to match this server against cluster membership. When omitted, matching falls back to host and port.
 
 
 </td></tr>
@@ -94,9 +96,7 @@ number
 
 </td><td>
 
-Message queue network port
-
- {<!-- -->number<!-- -->}
+TCP port the server listens on.
 
 
 </td></tr>

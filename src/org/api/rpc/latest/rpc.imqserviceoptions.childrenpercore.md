@@ -8,8 +8,15 @@ title: "IMQServiceOptions.childrenPerCore property · @imqueue/rpc"
 
 ## IMQServiceOptions.childrenPerCore property
 
+Workers to fork per CPU core. Ignored unless [IMQServiceOptions.multiProcess](/api/rpc/latest/rpc.imqserviceoptions.multiprocess/) is true.
+
 **Signature:**
 
 ```typescript
 childrenPerCore: number;
 ```
+
+## Default Value
+
+1
+

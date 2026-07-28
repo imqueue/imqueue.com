@@ -8,8 +8,15 @@ title: "LockOptions.disabled property · @imqueue/rpc"
 
 ## LockOptions.disabled property
 
+Set to `true` to turn locking off for the decorated method.
+
 **Signature:**
 
 ```typescript
 disabled?: boolean;
 ```
+
+## Remarks
+
+Inverted sense: omitted or `false` means locking is enabled.
+

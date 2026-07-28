@@ -19,5 +19,3 @@ isPublisher(): boolean;
 
 boolean
 
-{<!-- -->boolean<!-- -->}
-

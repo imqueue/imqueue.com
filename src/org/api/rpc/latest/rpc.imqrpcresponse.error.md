@@ -8,8 +8,15 @@ title: "IMQRPCResponse.error property · @imqueue/rpc"
 
 ## IMQRPCResponse.error property
 
+`null` on success, otherwise the failure descriptor.
+
 **Signature:**
 
 ```typescript
 error: IMQRPCError | null;
 ```
+
+## Remarks
+
+The client checks this field first and rejects the call with it, ignoring [IMQRPCResponse.data](/api/rpc/latest/rpc.imqrpcresponse.data/) — so the two are effectively mutually exclusive.
+

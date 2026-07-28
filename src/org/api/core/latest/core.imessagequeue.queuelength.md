@@ -8,7 +8,7 @@ title: "IMessageQueue.queueLength() method · @imqueue/core"
 
 ## IMessageQueue.queueLength() method
 
-Retrieves the current count of messages in the queue. Supposed to be an async function.
+Returns the number of messages currently waiting in this queue's main list.
 
 **Signature:**
 
@@ -19,5 +19,11 @@ queueLength(): Promise<number>;
 
 Promise&lt;number&gt;
 
-{<!-- -->Promise<number>}
+count of messages waiting to be consumed
+
+## Remarks
+
+Delayed messages that are not yet due, and messages currently leased to a worker under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/)<!-- -->, are not counted — so this is not the amount of outstanding work.
+
+Returns `0` when the queue has no writer connection, which makes "disconnected" indistinguishable from "empty".
 
