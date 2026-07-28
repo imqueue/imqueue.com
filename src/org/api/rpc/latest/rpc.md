@@ -857,7 +857,7 @@ Internal representation of one queued waiter: its promise's `[resolve, reject]` 
 
 </td><td>
 
-Names of the  methods [logged()](/api/rpc/latest/rpc.logged/) can use to record a caught error.
+Names of the `ILogger` methods [logged()](/api/rpc/latest/rpc.logged/) can use to record a caught error.
 
 
 </td></tr>

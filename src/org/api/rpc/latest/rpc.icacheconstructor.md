@@ -40,6 +40,8 @@ Description
 
 </td><td>
 
+Constructs a cache adapter instance, ready to be initialized.
+
 
 </td></tr>
 </tbody></table>

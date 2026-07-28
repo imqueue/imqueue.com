@@ -73,7 +73,7 @@ _(Optional)_ Set to `true` to swallow the error after logging it, in which case 
 
 </td><td>
 
-_(Optional)_ Which  method records the error.
+_(Optional)_ Which `ILogger` method records the error.
 
 
 </td></tr>
