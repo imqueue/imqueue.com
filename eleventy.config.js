@@ -75,15 +75,23 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.ignores.add(isCom ? "src/org/**" : "src/com/**");
 
   // Markdown content pages (docs/tutorial/cli/get-started) — used to emit
-  // per-page ".md" mirrors and the concatenated llms-full.txt. Excludes the
-  // generated API reference, which is HTML-only and too large/thin to mirror.
+  // per-page ".md" mirrors, which is what AI agents read: the @imqueue MCP
+  // server's get_doc fetches "<page-url>index.md".
+  //
+  // The generated API reference is included, but only its /latest/ pages plus
+  // the /api/ landing page. Archived majors are left out deliberately: they are
+  // already noindex, and an agent should never be handed a stale API surface.
+  const API_MIRRORED = /^\/api\/$|^\/api\/[^/]+\/latest\//;
   eleventyConfig.addCollection("contentMd", (api) =>
-    api.getAll().filter(
-      (item) =>
-        item.inputPath.endsWith(".md") &&
-        !(item.url || "").includes("/api/") &&
-        !item.data.draft
-    )
+    api.getAll().filter((item) => {
+      const url = item.url || "";
+
+      if (!item.inputPath.endsWith(".md") || item.data.draft) {
+        return false;
+      }
+
+      return url.includes("/api/") ? API_MIRRORED.test(url) : true;
+    })
   );
 
   // Blog posts (.org only) — src/org/blog/posts/*.md, newest→oldest by date.
