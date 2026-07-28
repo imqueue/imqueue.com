@@ -8,7 +8,7 @@ title: "IMQOptions.handleSignals property · @imqueue/core"
 
 ## IMQOptions.handleSignals property
 
-Enable process signal handling (SIGTERM, SIGINT, SIGABRT) by the queue. When enabled, the queue releases its watcher lock and exits gracefully on these signals. Disable if the host application manages shutdown.
+Enable process signal handling (SIGTERM, SIGINT, SIGABRT) by the queue. When enabled, the queue releases its watcher lock on these signals and then exits the process. It does not wait for in-flight `message` handlers to finish, so drain those yourself if work in progress must not be lost. Disable if the host application manages shutdown.
 
  true  {<!-- -->boolean<!-- -->}
 
