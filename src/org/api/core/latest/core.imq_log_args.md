@@ -8,12 +8,17 @@ title: "IMQ_LOG_ARGS variable · @imqueue/core"
 
 ## IMQ\_LOG\_ARGS variable
 
-Environment variable IMQ\_LOG\_ARGS=\[1, 0\]. Enable or disable logging of profiled call arguments.
-
- {<!-- -->boolean<!-- -->}
+Whether call-argument profiling is on by default, from the `IMQ_LOG_ARGS` environment variable.
 
 **Signature:**
 
 ```typescript
 IMQ_LOG_ARGS: boolean
 ```
+
+## Remarks
+
+Coerced numerically exactly as [IMQ\_LOG\_TIME](/api/core/latest/core.imq_log_time/) is, with the same caveat that `IMQ_LOG_ARGS=true` evaluates to disabled — use `IMQ_LOG_ARGS=1`<!-- -->.
+
+Read once when the module is first imported. Individual decorators override this via [ProfileDecoratorOptions.enableDebugArgs](/api/core/latest/core.profiledecoratoroptions.enabledebugargs/)<!-- -->.
+

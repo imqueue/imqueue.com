@@ -8,8 +8,15 @@ title: "IMQClient.hostName property · @imqueue/rpc"
 
 ## IMQClient.hostName property
 
+Machine-scoped identity, `"<osUuid>-<id>:client"`<!-- -->, where `osUuid` is a hash of the OS machine id.
+
 **Signature:**
 
 ```typescript
 readonly hostName: string;
 ```
+
+## Remarks
+
+This is not a network hostname. The `:client` suffix is what makes the default `cleanupFilter` of `'*:client'` match client queues. In `singleQueue` mode it is inherited from the shared queue's name instead.
+

@@ -8,9 +8,7 @@ title: "IMessage.message property · @imqueue/core"
 
 ## IMessage.message property
 
-Message data. Any JSON-compatible data allowed
-
- {<!-- -->JsonObject<!-- -->}
+The message payload. Must be a JSON object — a bare string, number or array is not a valid message body.
 
 **Signature:**
 

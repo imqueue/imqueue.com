@@ -8,8 +8,15 @@ title: "CacheDecoratorOptions.nx property · @imqueue/rpc"
 
 ## CacheDecoratorOptions.nx property
 
+Store only when the key does not already exist.
+
 **Signature:**
 
 ```typescript
 nx?: boolean;
 ```
+
+## Remarks
+
+Honoured by the built-in Redis adapter, but outside the [ICache](/api/rpc/latest/rpc.icache/) interface, so custom adapters may ignore it. When it suppresses a write, the existing value and its remaining TTL are left untouched.
+

@@ -46,7 +46,7 @@ string
 
 </td><td>
 
-wildcard mask to match keys against  {<!-- -->Promise<boolean>}
+wildcard mask to match keys against
 
 
 </td></tr>

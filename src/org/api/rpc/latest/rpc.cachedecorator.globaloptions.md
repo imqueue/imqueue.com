@@ -8,8 +8,15 @@ title: "CacheDecorator.globalOptions property · @imqueue/rpc"
 
 ## CacheDecorator.globalOptions property
 
+Process-wide defaults, merged under each call's own options.
+
 **Signature:**
 
 ```typescript
 globalOptions?: CacheDecoratorOptions;
 ```
+
+## Remarks
+
+Merging happens when a decorator is applied, so this must be set before any decorated class is imported.
+

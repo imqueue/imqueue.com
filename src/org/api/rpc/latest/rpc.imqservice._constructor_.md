@@ -8,7 +8,7 @@ title: "IMQService.(constructor) · @imqueue/rpc"
 
 ## IMQService.(constructor)
 
-Class constructor
+Constructs a service.
 
 **Signature:**
 
@@ -46,7 +46,7 @@ Partial&lt;[IMQServiceOptions](/api/rpc/latest/rpc.imqserviceoptions/)<!-- -->&g
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ service options, shallow-merged over [DEFAULT\_IMQ\_SERVICE\_OPTIONS](/api/rpc/latest/rpc.default_imq_service_options/)<!-- -->, except `metricsServer` which is merged separately over [DEFAULT\_IMQ\_METRICS\_SERVER\_OPTIONS](/api/rpc/latest/rpc.default_imq_metrics_server_options/)
 
 
 </td></tr>
@@ -62,9 +62,19 @@ string
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ overrides the class name as the service/queue name, and as the description cache key
 
 
 </td></tr>
 </tbody></table>
+
+## Exceptions
+
+TypeError when [IMQService](/api/rpc/latest/rpc.imqservice/) is instantiated directly. Note the check is by resolved name, so passing `'IMQService'` as the `name` of a subclass throws as well.
+
+## Remarks
+
+Constructing a service installs process signal handlers for `SIGTERM`<!-- -->, `SIGINT`<!-- -->, `SIGHUP` and `SIGQUIT`<!-- -->. On any of them the service tears the queue down, closes the metrics server, and then force-exits with code 0 after `IMQ_SHUTDOWN_TIMEOUT` — a fixed timer, not a drain: requests still being processed are not awaited.
+
+The merged options are passed straight to the queue factory, so `vendor` and `cluster`<!-- -->/`clusterManagers` select the transport implementation.
 

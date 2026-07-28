@@ -8,12 +8,15 @@ title: "IMQOptions.logger property · @imqueue/core"
 
 ## IMQOptions.logger property
 
-Logger instance to use for message queue logging at runtime
-
- {<!-- -->ILogger<!-- -->}
+Logger used for queue diagnostics. Defaults to `console`<!-- -->.
 
 **Signature:**
 
 ```typescript
 logger?: ILogger;
 ```
+
+## Remarks
+
+Connection lifecycle messages and all internal errors are written here regardless of [IMQOptions.verbose](/api/core/latest/core.imqoptions.verbose/) — only verbose messages are gated by it. Pass a no-op [ILogger](/api/core/latest/core.ilogger/) to silence the queue entirely.
+

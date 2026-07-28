@@ -8,12 +8,17 @@ title: "DEFAULT_IMQ_CLIENT_OPTIONS variable · @imqueue/rpc"
 
 ## DEFAULT\_IMQ\_CLIENT\_OPTIONS variable
 
-Default client options
-
- {<!-- -->IMQClientOptions<!-- -->}
+Default options applied to every generated IMQ client: the core queue defaults, plus cleanup enabled with a `'*:client'` filter and the code-generation settings.
 
 **Signature:**
 
 ```typescript
 DEFAULT_IMQ_CLIENT_OPTIONS: IMQClientOptions
 ```
+
+## Remarks
+
+What is intentionally absent matters as much as what is present: [IMQClientOptions.callTimeout](/api/rpc/latest/rpc.imqclientoptions.calltimeout/) is unset, so runtime calls never time out unless you set it, and [IMQClientOptions.singleQueue](/api/rpc/latest/rpc.imqclientoptions.singlequeue/) is unset, so every client creates its own queue.
+
+As with the service defaults, `cleanup: true` and `cleanupFilter: '*:client'` override the core defaults, and `timeout` applies to the generator only.
+

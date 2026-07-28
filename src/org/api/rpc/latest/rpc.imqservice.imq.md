@@ -8,6 +8,8 @@ title: "IMQService.imq property · @imqueue/rpc"
 
 ## IMQService.imq property
 
+The underlying message queue this service consumes requests from.
+
 **Signature:**
 
 ```typescript

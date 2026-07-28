@@ -8,10 +8,21 @@ title: "IMQBeforeCall interface · @imqueue/rpc"
 
 ## IMQBeforeCall interface
 
-Hook invoked before a service method call is dispatched.
+Hook invoked before a call is dispatched.
 
 **Signature:**
 
 ```typescript
 export interface IMQBeforeCall<_T> 
 ```
+
+## Remarks
+
+On a service the hook receives `(request, response)`<!-- -->; on a client it receives `(request)` only, and `res` is always `undefined`<!-- -->.
+
+Assigning `res.error` aborts the call — the method is never invoked and the error is returned to the caller. This is the supported way to reject a request from a hook. Assigning `res.data` has no effect, since it is overwritten by the method's result.
+
+Throwing does not abort anything: the error is logged as a warning (see [BEFORE\_HOOK\_ERROR](/api/rpc/latest/rpc.before_hook_error/)<!-- -->) and dispatch proceeds.
+
+The hook is invoked bound to the service or client instance, so a `function` expression can reach `this.logger` and `this.options` — but the type parameter is decorative, so `this` is not typed, and an arrow function does not receive the instance at all.
+

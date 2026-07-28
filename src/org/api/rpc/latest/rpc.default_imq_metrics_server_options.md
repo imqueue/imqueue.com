@@ -10,8 +10,6 @@ title: "DEFAULT_IMQ_METRICS_SERVER_OPTIONS variable · @imqueue/rpc"
 
 Default metrics server options
 
- {<!-- -->NonNullable<IMQMetricsServerOptions>}
-
 **Signature:**
 
 ```typescript

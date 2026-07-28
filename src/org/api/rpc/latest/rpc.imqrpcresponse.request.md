@@ -8,8 +8,15 @@ title: "IMQRPCResponse.request property · @imqueue/rpc"
 
 ## IMQRPCResponse.request property
 
+The originating request, echoed back in full — method, arguments and metadata included.
+
 **Signature:**
 
 ```typescript
 request: IMQRPCRequest;
 ```
+
+## Remarks
+
+Always present: the client reads `request.method` when it cannot match the response to a pending call, in order to re-emit it as an event. Note that this round-trips every argument value back to the caller.
+

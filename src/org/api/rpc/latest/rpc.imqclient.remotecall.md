@@ -8,7 +8,9 @@ title: "IMQClient.remoteCall() method · @imqueue/rpc"
 
 ## IMQClient.remoteCall() method
 
-Sends call to remote service method
+Sends a call to the remote service method.
+
+Intended to be invoked as `this.remoteCall<T>(...arguments)` from a method decorated with [remote()](/api/rpc/latest/rpc.remote/)<!-- -->, which appends the method name for you.
 
 **Signature:**
 
@@ -46,7 +48,7 @@ any\[\]
 
 </td><td>
 
- T
+the method's own arguments, followed by the remote method name as the last element. An optional trailing [IMQDelay](/api/rpc/latest/rpc.imqdelay/) (delivery delay) and [IMQMetadata](/api/rpc/latest/rpc.imqmetadata/) (tracing metadata) are consumed by the framework and never reach the service; on a delayed call, trailing `undefined` placeholders are dropped so service-side defaults still apply.
 
 
 </td></tr>
@@ -56,5 +58,13 @@ any\[\]
 
 Promise&lt;T&gt;
 
-{<!-- -->Promise<T>}
+the service's response payload, cast to `T`
+
+## Remarks
+
+[IMQClient.start()](/api/rpc/latest/rpc.imqclient.start/) must have completed first. Otherwise the request is sent but no reply router is installed, so the returned promise never settles.
+
+Rejections are plain [IMQRPCError](/api/rpc/latest/rpc.imqrpcerror/) objects, not `Error` instances — `err instanceof Error` is false, and `err.stack` describes the remote process. The code is `IMQ_RPC_CALL_ERROR` for a service-side failure and `IMQ_RPC_CALL_TIMEOUT` once [IMQClientOptions.callTimeout](/api/rpc/latest/rpc.imqclientoptions.calltimeout/) elapses (plus any requested delay). With `callTimeout` unset — the default — a hung service leaves the promise pending indefinitely.
+
+`beforeCall` and `afterCall` hook failures are logged as warnings and otherwise ignored.
 

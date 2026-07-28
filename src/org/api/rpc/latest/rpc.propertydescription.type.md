@@ -8,8 +8,15 @@ title: "PropertyDescription.type property · @imqueue/rpc"
 
 ## PropertyDescription.type property
 
+The property's RPC type as a string — a literal type name, a constructor's name, or a name with `[]` appended for the array form.
+
 **Signature:**
 
 ```typescript
 type: string;
 ```
+
+## Remarks
+
+With standard decorators this is a read-only lazy getter, not a writable field: the type is resolved the first time it is read, so a [Thunk](/api/rpc/latest/rpc.thunk/) runs then rather than at class-definition time, and assignment has no effect. With legacy decorators it is an already-resolved plain string.
+

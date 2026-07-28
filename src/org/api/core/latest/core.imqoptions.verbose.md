@@ -8,12 +8,19 @@ title: "IMQOptions.verbose property · @imqueue/core"
 
 ## IMQOptions.verbose property
 
-Enables/disables verbose logging
-
- false  {<!-- -->boolean<!-- -->}
+Enables/disables verbose logging.
 
 **Signature:**
 
 ```typescript
 verbose?: boolean;
 ```
+
+## Default Value
+
+false
+
+## Remarks
+
+Only informational tracing is gated by this. Connection lifecycle messages and internal errors are always written to [IMQOptions.logger](/api/core/latest/core.imqoptions.logger/)<!-- -->.
+

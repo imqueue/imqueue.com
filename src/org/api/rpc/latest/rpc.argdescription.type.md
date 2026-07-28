@@ -8,8 +8,15 @@ title: "ArgDescription.type property · @imqueue/rpc"
 
 ## ArgDescription.type property
 
+Legacy duplicate of [ArgDescription.tsType](/api/rpc/latest/rpc.argdescription.tstype/) — always the identical string.
+
 **Signature:**
 
 ```typescript
 type: string;
 ```
+
+## Remarks
+
+Despite the pairing there is no wire-type/language-type distinction here. This field is only read to recognise the framework's own [IMQDelay](/api/rpc/latest/rpc.imqdelay/) and [IMQMetadata](/api/rpc/latest/rpc.imqmetadata/) argument slots. Treat `tsType` as the single source of truth.
+

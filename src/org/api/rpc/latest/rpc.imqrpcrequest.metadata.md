@@ -8,8 +8,15 @@ title: "IMQRPCRequest.metadata property · @imqueue/rpc"
 
 ## IMQRPCRequest.metadata property
 
+Optional metadata attached by the caller.
+
 **Signature:**
 
 ```typescript
 metadata?: IMQMetadata;
 ```
+
+## Remarks
+
+Absent rather than `null` when none was passed. Service code should read it through `currentMetadata()`<!-- -->; the value there is the JSON round-trip of the caller's bag, so it is a plain object, not an [IMQMetadata](/api/rpc/latest/rpc.imqmetadata/) instance.
+

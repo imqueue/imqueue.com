@@ -8,6 +8,8 @@ title: "PropertyDescription.isOptional property · @imqueue/rpc"
 
 ## PropertyDescription.isOptional property
 
+Whether the property is optional, from the second argument of [property()](/api/rpc/latest/rpc.property/)<!-- -->. Defaults to `false`<!-- -->, and is never inferred from a TypeScript `?` modifier.
+
 **Signature:**
 
 ```typescript

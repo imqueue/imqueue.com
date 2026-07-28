@@ -8,7 +8,7 @@ title: "RedisQueue.stop() method · @imqueue/core"
 
 ## RedisQueue.stop() method
 
-Stops current queue routines
+Stops consuming messages by tearing down this instance's reader connection.
 
 **Signature:**
 
@@ -19,5 +19,11 @@ stop(): Promise<RedisQueue>;
 
 Promise&lt;[RedisQueue](/api/core/latest/core.redisqueue/)<!-- -->&gt;
 
-{<!-- -->Promise<RedisQueue>}
+this queue instance
+
+## Remarks
+
+The queue remains usable as a producer: the shared writer, any held watcher lock, the watcher-check and maintenance intervals, the subscription connection and the process signal handlers all stay in place, and [RedisQueue.start()](/api/core/latest/core.redisqueue.start/) can resume consumption. Use [RedisQueue.destroy()](/api/core/latest/core.redisqueue.destroy/) to release resources — an instance that is only stopped stays registered in a process-wide registry and is not garbage-collected.
+
+The reader socket is dropped immediately rather than closed with a graceful `QUIT`<!-- -->, so Redis stops treating it as a consumer at once and cannot hand it a message the torn-down read loop would drop.
 

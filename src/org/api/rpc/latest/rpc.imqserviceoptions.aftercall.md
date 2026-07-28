@@ -8,6 +8,8 @@ title: "IMQServiceOptions.afterCall property · @imqueue/rpc"
 
 ## IMQServiceOptions.afterCall property
 
+Post-response hook. See [IMQAfterCall](/api/rpc/latest/rpc.imqaftercall/)<!-- -->.
+
 **Signature:**
 
 ```typescript

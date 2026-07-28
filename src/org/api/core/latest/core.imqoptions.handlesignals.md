@@ -10,10 +10,17 @@ title: "IMQOptions.handleSignals property · @imqueue/core"
 
 Enable process signal handling (SIGTERM, SIGINT, SIGABRT) by the queue. When enabled, the queue releases its watcher lock on these signals and then exits the process. It does not wait for in-flight `message` handlers to finish, so drain those yourself if work in progress must not be lost. Disable if the host application manages shutdown.
 
- true  {<!-- -->boolean<!-- -->}
-
 **Signature:**
 
 ```typescript
 handleSignals?: boolean;
 ```
+
+## Default Value
+
+true
+
+## Remarks
+
+The handlers are installed once per process, by the first started queue that does not disable them, and they release the watcher locks of every started queue in the process before calling `process.exit(0)` — forced after `IMQ_SHUTDOWN_TIMEOUT` milliseconds, with exit code 1 if a lock could not be released. Because they are process-wide, disabling this on one instance does not prevent exit when another instance leaves it enabled.
+

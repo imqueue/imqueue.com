@@ -78,7 +78,7 @@ service
 
 </td><td>
 
-imq service to bind  {<!-- -->Promise<string>} - send result message identifier
+imq service to bind
 
 
 </td></tr>
@@ -87,4 +87,6 @@ imq service to bind  {<!-- -->Promise<string>} - send result message identifier
 **Returns:**
 
 Promise&lt;string&gt;
+
+send result message identifier
 

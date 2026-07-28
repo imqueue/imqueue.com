@@ -10,10 +10,13 @@ title: "ICache.name property · @imqueue/rpc"
 
 Adapter (cache) name.
 
- {<!-- -->string<!-- -->}
-
 **Signature:**
 
 ```typescript
 name: string;
 ```
+
+## Remarks
+
+The name is load-bearing twice over: it is the key the adapter is registered under, and it is a segment of every physical cache key (`<prefix>:<name>:<key>` in the Redis adapter). It must therefore be stable — changing it at runtime moves the namespace and orphans existing entries.
+

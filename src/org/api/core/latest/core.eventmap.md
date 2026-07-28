@@ -8,11 +8,17 @@ title: "EventMap interface · @imqueue/core"
 
 ## EventMap interface
 
+Typed event map for a queue's `EventEmitter` base, giving compile-time signatures for the only two events a queue emits.
+
 **Signature:**
 
 ```typescript
 export interface EventMap 
 ```
+
+## Remarks
+
+The map is closed, so `emit`<!-- -->/`on` with any other event name is a type error — there is no `connect`<!-- -->, `close`<!-- -->, `ready` or `drain` event on a queue.
 
 ## Properties
 
@@ -52,6 +58,8 @@ Description
 
 </td><td>
 
+Emitted for background failures, with the error and the name of the internal routine that caught it — a diagnostic label such as `OnMessage`<!-- -->, `OnReadSafe` or `OnWatch`<!-- -->, not an error code.
+
 
 </td></tr>
 <tr><td>
@@ -68,6 +76,8 @@ Description
 
 
 </td><td>
+
+Emitted for every message consumed from the queue, with the payload, the message id, and the name of the queue that sent it.
 
 
 </td></tr>

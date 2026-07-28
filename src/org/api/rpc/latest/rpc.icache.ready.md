@@ -10,10 +10,13 @@ title: "ICache.ready property · @imqueue/rpc"
 
 Whether the cache adapter is initialized and ready to use.
 
- {<!-- -->boolean<!-- -->}
-
 **Signature:**
 
 ```typescript
 ready: boolean;
 ```
+
+## Remarks
+
+For the built-in Redis adapter this flag is never reset — destroying the shared connection leaves it `true`<!-- -->, so a `true` value does not guarantee a live connection after an explicit destroy.
+

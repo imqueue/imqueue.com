@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.prependListener() method · @imqueue/core"
 
 ## ClusteredRedisQueue.prependListener() method
 
+Registers a listener at the front of the queue on every server's queue and on the internal template.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ any\[\]
 
 </td><td>
 
+the arguments `EventEmitter.prependListener` accepts
+
 
 </td></tr>
 </tbody></table>
@@ -51,4 +55,6 @@ any\[\]
 **Returns:**
 
 this
+
+this queue instance
 

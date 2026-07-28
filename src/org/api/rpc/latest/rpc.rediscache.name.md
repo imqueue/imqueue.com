@@ -8,6 +8,8 @@ title: "RedisCache.name property · @imqueue/rpc"
 
 ## RedisCache.name property
 
+This adapter instance's name, `'RedisCache'`<!-- -->. Used as the registry key and as a segment of every cache key.
+
 **Signature:**
 
 ```typescript

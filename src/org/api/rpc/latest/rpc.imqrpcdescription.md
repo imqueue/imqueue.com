@@ -8,11 +8,17 @@ title: "IMQRPCDescription class · @imqueue/rpc"
 
 ## IMQRPCDescription class
 
+Process-global registry of RPC metadata gathered by the decorators.
+
 **Signature:**
 
 ```typescript
 export declare class IMQRPCDescription 
 ```
+
+## Remarks
+
+Not instantiable and has no instance members — the two static maps are the whole API. [expose()](/api/rpc/latest/rpc.expose/) populates `serviceDescription`<!-- -->; [property()](/api/rpc/latest/rpc.property/) and [indexed()](/api/rpc/latest/rpc.indexed/) populate `typesDescription`<!-- -->. A service's `describe()` reads both to build the description it serves to clients, which is what the client generator consumes.
 
 ## Properties
 
@@ -54,6 +60,8 @@ Description
 
 </td><td>
 
+All classes that declare exposed methods, keyed by class name (not service name).
+
 
 </td></tr>
 <tr><td>
@@ -72,6 +80,8 @@ Description
 
 
 </td><td>
+
+All complex types registered via [property()](/api/rpc/latest/rpc.property/) or [indexed()](/api/rpc/latest/rpc.indexed/)<!-- -->, keyed by class name.
 
 
 </td></tr>

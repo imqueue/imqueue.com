@@ -8,8 +8,19 @@ title: "IMQServiceOptions.multiProcess property · @imqueue/rpc"
 
 ## IMQServiceOptions.multiProcess property
 
+Fork one cluster worker per CPU core, multiplied by [IMQServiceOptions.childrenPerCore](/api/rpc/latest/rpc.imqserviceoptions.childrenpercore/)<!-- -->.
+
 **Signature:**
 
 ```typescript
 multiProcess: boolean;
 ```
+
+## Default Value
+
+false
+
+## Remarks
+
+The cluster primary also starts its own queue consumer and metrics listener after forking, so a service configured for N workers runs N+1 consumers. Workers are never respawned: when one dies the whole process exits with code 1, leaving supervision to the process manager.
+

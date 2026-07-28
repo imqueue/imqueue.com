@@ -56,5 +56,3 @@ key to remove
 
 Promise&lt;boolean&gt;
 
-{<!-- -->Promise<boolean>}
-

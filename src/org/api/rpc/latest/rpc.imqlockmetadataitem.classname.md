@@ -8,6 +8,8 @@ title: "IMQLockMetadataItem.className property · @imqueue/rpc"
 
 ## IMQLockMetadataItem.className property
 
+Name of the class whose method holds the lock.
+
 **Signature:**
 
 ```typescript

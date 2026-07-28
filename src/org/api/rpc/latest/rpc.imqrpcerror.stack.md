@@ -8,8 +8,15 @@ title: "IMQRPCError.stack property · @imqueue/rpc"
 
 ## IMQRPCError.stack property
 
+Stack trace as a string, from the service process. Empty string rather than absent when unavailable.
+
 **Signature:**
 
 ```typescript
 stack: string;
 ```
+
+## Remarks
+
+For pre-dispatch failures it is captured at the framework check and points into the service internals, not into application code; for a method failure it is the thrown error's own stack.
+

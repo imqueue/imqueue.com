@@ -8,8 +8,15 @@ title: "ArgDescription.name property · @imqueue/rpc"
 
 ## ArgDescription.name property
 
+Parameter name, from the JSDoc `@param` when documented, otherwise read from the method's own signature.
+
 **Signature:**
 
 ```typescript
 name: string;
 ```
+
+## Remarks
+
+Emitted verbatim into generated client code, so it must be a valid identifier.
+

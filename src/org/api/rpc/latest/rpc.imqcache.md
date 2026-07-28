@@ -8,13 +8,17 @@ title: "IMQCache class · @imqueue/rpc"
 
 ## IMQCache class
 
-Generic cache registry
+Process-wide static registry of cache adapters.
 
 **Signature:**
 
 ```typescript
 export declare class IMQCache 
 ```
+
+## Remarks
+
+All state is static and shared by every consumer in the process; there is no instance form and no way to unregister or reset an adapter. Adapters are keyed by name, so a single adapter class can only be registered once — two different configurations of the same class cannot coexist.
 
 ## Properties
 
@@ -55,6 +59,8 @@ Description
 
 
 </td><td>
+
+The registry of adapter instances, keyed by adapter name.
 
 
 </td></tr>

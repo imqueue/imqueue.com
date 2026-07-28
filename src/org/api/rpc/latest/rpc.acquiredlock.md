@@ -8,8 +8,15 @@ title: "AcquiredLock type · @imqueue/rpc"
 
 ## AcquiredLock type
 
+What [IMQLock.acquire()](/api/rpc/latest/rpc.imqlock.acquire/) resolves to: the literal `true` when this caller acquired the lock and must perform the work, or the value the lock holder passed to [IMQLock.release()](/api/rpc/latest/rpc.imqlock.release/) when this caller had to wait.
+
 **Signature:**
 
 ```typescript
 export type AcquiredLock<T> = T | boolean;
 ```
+
+## Remarks
+
+Because the acquired case is the literal `true`<!-- -->, it cannot be told apart from a resolved value of `true`<!-- -->. Always use [IMQLock.locked()](/api/rpc/latest/rpc.imqlock.locked/) immediately after awaiting to decide whether you are the holder — never inspect the returned value.
+

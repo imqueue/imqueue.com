@@ -13,7 +13,9 @@ Constructs a new instance of the `IMQDelay` class
 **Signature:**
 
 ```typescript
-constructor(timer: number, unit?: 'ms' | 's' | 'm' | 'h' | 'd');
+constructor(
+    timer: number, 
+    unit?: 'ms' | 's' | 'm' | 'h' | 'd');
 ```
 
 ## Parameters
@@ -62,7 +64,7 @@ unit
 
 </td><td>
 
-_(Optional)_ time unit of the timer value, defaults to 'ms'
+_(Optional)_ time unit of the timer value; defaults to `'ms'`
 
 
 </td></tr>

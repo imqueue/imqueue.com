@@ -19,5 +19,3 @@ static init(): Promise<any>;
 
 Promise&lt;any&gt;
 
-{<!-- -->Promise<any>}
-

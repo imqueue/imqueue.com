@@ -8,11 +8,19 @@ title: "Description class · @imqueue/rpc"
 
 ## Description class
 
+The self-description a service serves to its clients, and the input to client generation.
+
 **Signature:**
 
 ```typescript
 export declare class Description 
 ```
+
+## Remarks
+
+Declared as a class for historical reasons but never instantiated: a service returns a plain object literal, and a client receives its JSON round-trip. So do not use `new Description()` or `instanceof Description`<!-- -->.
+
+A service memoizes its description after the first request for it.
 
 ## Properties
 
@@ -52,6 +60,8 @@ Description
 
 </td><td>
 
+The service itself: its name, and every exposed method with the inheritance chain already flattened.
+
 
 </td></tr>
 <tr><td>
@@ -68,6 +78,8 @@ Description
 
 
 </td><td>
+
+Every complex type registered in the service's process.
 
 
 </td></tr>

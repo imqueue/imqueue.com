@@ -8,10 +8,15 @@ title: "RedisQueue.available property · @imqueue/core"
 
 ## RedisQueue.available property
 
-Returns false only when this queue is known to be unable to accept writes right now — i.e., it has a writer connection currently in a non-ready (reconnecting/closed) state. A queue that has not yet connected is considered available, since a sending lazily connects it. Used for health-aware routing in the clustered queue.
+Returns false only when this queue is known to be unable to accept writes right now — i.e., it has a writer connection currently in a non-ready (reconnecting/closed) state. A queue that has not yet connected is considered available, since sending connects it lazily. Used for health-aware routing in the clustered queue.
 
 **Signature:**
 
 ```typescript
 get available(): boolean;
 ```
+
+## Remarks
+
+The writer connection is shared per `host:port` within the process, so this reflects the health of that server connection rather than of this instance alone — every queue pointing at the same server reports the same value.
+

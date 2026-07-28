@@ -8,6 +8,8 @@ title: "IMQRPCError.method property · @imqueue/rpc"
 
 ## IMQRPCError.method property
 
+Bare name of the method the call targeted, unqualified by service name. Empty string rather than absent when unknown.
+
 **Signature:**
 
 ```typescript

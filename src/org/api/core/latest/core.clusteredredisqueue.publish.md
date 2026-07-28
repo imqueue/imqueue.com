@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.publish() method · @imqueue/core"
 
 ## ClusteredRedisQueue.publish() method
 
+Publishes the payload on every redis host in the cluster.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ data
 
 </td><td>
 
+payload to publish as a channel message
+
 
 </td></tr>
 <tr><td>
@@ -58,7 +62,7 @@ string
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ optional different pub/sub name to publish to
 
 
 </td></tr>
@@ -67,4 +71,14 @@ _(Optional)_
 **Returns:**
 
 Promise&lt;void&gt;
+
+## Exceptions
+
+TypeError propagated from any host that has no writer connection
+
+## Remarks
+
+This is the opposite of [ClusteredRedisQueue.send()](/api/core/latest/core.clusteredredisqueue.send/)<!-- -->: the same payload goes to all hosts. A subscriber connected to several of them therefore receives one copy per host.
+
+Publication is not atomic — if any host has no writer connection the call rejects even though other hosts may already have published. On an empty cluster it resolves without publishing anything, and unlike `send()` it does not wait for a server to appear.
 

@@ -8,8 +8,17 @@ title: "IMQClientOptions.callTimeout property · @imqueue/rpc"
 
 ## IMQClientOptions.callTimeout property
 
+Per-call timeout in milliseconds.
+
 **Signature:**
 
 ```typescript
 callTimeout?: number;
 ```
+
+## Remarks
+
+When set to a positive number, every remote call that has not received a response within the given time — plus any requested [IMQDelay](/api/rpc/latest/rpc.imqdelay/) — is rejected with an `IMQ_RPC_CALL_TIMEOUT` error and its pending resolver is released. The internal timer is unref'd, so a pending call does not keep the process alive.
+
+Unset by default, which means calls wait indefinitely and a hung or absent service keeps the caller's promise pending forever. Enabling it is recommended for production use.
+

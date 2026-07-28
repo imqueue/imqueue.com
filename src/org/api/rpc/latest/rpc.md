@@ -8,6 +8,46 @@ title: "rpc package · @imqueue/rpc"
 
 ## rpc package
 
+Type-safe RPC over a message queue — services, clients and the decorators that describe them, built on `@imqueue/core`<!-- -->.
+
+Write a service by extending `IMQService` and marking each remotely callable method with `@expose()`<!-- -->. Complex argument and return types need a class-level `@classType()` (or `@indexed()`<!-- -->) plus `@property()` on each field. Then generate a typed client for that service with `IMQClient.create()`<!-- -->, which reads the running service's own description.
+
+## Remarks
+
+Decorator protocol. This package targets standard (TC39) decorators. Consuming projects must compile with `experimentalDecorators: false`<!-- -->, `removeComments: false`<!-- -->, and `esnext.decorators` in `lib`<!-- -->. The decorators still work under legacy compilation, but behaviour differs — see `classType`<!-- -->, which is required under standard decorators and a no-op under legacy, and `expose`<!-- -->, whose registration is deferred to first construction under standard decorators.
+
+`removeComments: false` is not optional: standard decorators provide no runtime type reflection, so an exposed method's JSDoc is the only source of argument and return types for the generated client, and the documented `@param` list is what the service's argument-count check validates.
+
+Importing this package installs a global `Symbol.metadata` polyfill, which standard decorator metadata depends on.
+
+Re-exports. This package re-exports the entire `@imqueue/core` surface, so core types and helpers can be imported from either package. The one exception is core's default-exported `IMQ` factory: `export *` never forwards a default, so `import IMQ from '@imqueue/rpc'` yields `undefined` — import it from `@imqueue/core` directly.
+
+## Example
+
+
+```typescript
+import { IMQService, IMQClient, expose } from '@imqueue/rpc';
+
+class UserService extends IMQService {
+    // NOTE: a real service needs a JSDoc block here with typed
+    // @param / @returns tags — that is where the generated client
+    // gets its types from
+    @expose()
+    public async count(active: boolean): Promise<number> {
+        return 42;
+    }
+}
+
+await new UserService().start();
+
+// elsewhere — generates and loads a typed client
+const ns = await IMQClient.create('UserService');
+const client = new ns.UserClient();
+
+await client.start();
+console.log(await client.count(true));
+```
+
 ## Classes
 
 <table><thead><tr><th>
@@ -28,6 +68,8 @@ Description
 
 </td><td>
 
+The self-description a service serves to its clients, and the input to client generation.
+
 
 </td></tr>
 <tr><td>
@@ -37,7 +79,7 @@ Description
 
 </td><td>
 
-Generic cache registry
+Process-wide static registry of cache adapters.
 
 
 </td></tr>
@@ -59,7 +101,7 @@ Represents a delay expressed as a numeric timer value in a given time unit. Used
 
 </td><td>
 
-Class IMQLock. Implements promise-based locks.
+In-process, promise-based locks used to collapse concurrent identical calls: the first caller executes the work while later callers for the same key wait and are then resolved with the first caller's result.
 
 
 </td></tr>
@@ -80,6 +122,8 @@ Arbitrary, JSON-serializable metadata bag carried alongside an IMQ request. Each
 
 
 </td><td>
+
+Process-global registry of RPC metadata gathered by the decorators.
 
 
 </td></tr>
@@ -116,7 +160,9 @@ Description
 
 </td><td>
 
-Class IMQClient - base abstract class for service clients.
+Base class for service clients.
+
+Subclass it and declare every remote method as `@remote() async m(...args) \{ return await this.remoteCall<T>(...arguments); \}`<!-- -->, or let [IMQClient.create()](/api/rpc/latest/rpc.imqclient.create/) generate the subclass from a running service's description.
 
 
 </td></tr>
@@ -153,9 +199,7 @@ Description
 
 </td><td>
 
-Implements the '<!-- -->@<!-- -->classType' decorator factory.
-
-Applied to a complex-type class, it registers the class's '<!-- -->@<!-- -->property' field definitions into the RPC type description so the type can be exposed to service clients. It is required on any class that uses '<!-- -->@<!-- -->property': standard (TC39) field decorators cannot see the class they belong to, so a class-level decorator is needed to flush the collected properties under the class name.
+Registers a complex-type class's `@property` field definitions into the RPC type description, so the type can be exposed to service clients.
 
 
 </td></tr>
@@ -168,8 +212,6 @@ Applied to a complex-type class, it registers the class's '<!-- -->@<!-- -->prop
 
 Returns the metadata of the in-flight IMQ request for the current async execution, if any. Returns `undefined` outside of a `runWithRequest()` scope. The transport carries metadata as an opaque bag; callers interpret its fields.
 
- {<!-- -->IMQMetadata \| undefined<!-- -->}
-
 
 </td></tr>
 <tr><td>
@@ -179,9 +221,7 @@ Returns the metadata of the in-flight IMQ request for the current async executio
 
 </td><td>
 
-Expose decorator factory. Applied to a service method, it registers that method in the RPC service description. (Complex argument/return types are registered separately via the '<!-- -->@<!-- -->classType' decorator on those classes.)
-
- {<!-- -->(value: any, context: ClassMethodDecoratorContext) =<!-- -->&gt; void<!-- -->}
+Makes a service method callable remotely by registering it in the RPC service description.
 
 
 </td></tr>
@@ -225,7 +265,7 @@ Builds a JSON representation of an IMQ error.
 
 </td><td>
 
-Implements '<!-- -->@<!-- -->indexed' decorator factory This is used to specify complex service types which are need to expose types containing indexed definition, for example:
+Exposes a complex service type that carries an index signature.
 
 
 </td></tr>
@@ -271,6 +311,8 @@ The text may be TypeScript (type annotations, generics, modifiers, decorators), 
 
 </td><td>
 
+Marks a class field as part of an exposed complex type, so it is described to clients and appears in the generated client interfaces.
+
 
 </td></tr>
 <tr><td>
@@ -280,7 +322,7 @@ The text may be TypeScript (type annotations, generics, modifiers, decorators), 
 
 </td><td>
 
-Flushes  definitions collected on a class into the RPC type description. Invoked by class-level decorators once the class (and hence its name) is available.
+Flushes `@property` definitions collected on a class into the RPC type description. Invoked by class-level decorators once the class (and hence its name) is available.
 
 
 </td></tr>
@@ -292,8 +334,6 @@ Flushes  definitions collected on a class into the RPC type description. Invoked
 </td><td>
 
 Creates a `@remote()` method decorator for client classes. The decorated method has the remote method name appended to its arguments and is then forwarded to `remoteCall()`<!-- -->. The returned decorator is dual-mode: it works both as a standard (TC39) and as a legacy (experimentalDecorators) method decorator.
-
- {<!-- -->Function<!-- -->} - a dual-mode method decorator
 
 
 </td></tr>
@@ -343,7 +383,7 @@ Description
 
 </td><td>
 
-Method argument description
+Description of one argument of an exposed method, as parsed from its JSDoc.
 
 
 </td></tr>
@@ -354,6 +394,8 @@ Method argument description
 
 </td><td>
 
+The type of the [cache](/api/rpc/latest/rpc.cache/) export: a decorator factory that also carries process-wide defaults.
+
 
 </td></tr>
 <tr><td>
@@ -362,6 +404,8 @@ Method argument description
 
 
 </td><td>
+
+Per-method options for the [cache](/api/rpc/latest/rpc.cache/) decorator.
 
 
 </td></tr>
@@ -383,7 +427,7 @@ Generic cache adapter interface. Any cache engine implementation must conform to
 
 </td><td>
 
-Constructor signature for cache adapter implementations.
+Constructor signature the registry uses to instantiate a cache adapter class.
 
 
 </td></tr>
@@ -394,7 +438,7 @@ Constructor signature for cache adapter implementations.
 
 </td><td>
 
-Hook invoked after a service method call has been handled.
+Hook invoked after a call has been handled.
 
 
 </td></tr>
@@ -405,7 +449,7 @@ Hook invoked after a service method call has been handled.
 
 </td><td>
 
-Hook invoked before a service method call is dispatched.
+Hook invoked before a call is dispatched.
 
 
 </td></tr>
@@ -427,6 +471,8 @@ Options accepted by a generated IMQ client.
 
 </td><td>
 
+Map from lock key to the metadata describing the call currently associated with that key.
+
 
 </td></tr>
 <tr><td>
@@ -435,6 +481,8 @@ Options accepted by a generated IMQ client.
 
 
 </td><td>
+
+Diagnostic description of a locked call.
 
 
 </td></tr>
@@ -456,7 +504,9 @@ Options for the built-in metrics server.
 
 </td><td>
 
-Response error data structure, which service returns if error occurred during service method execution.
+Failure descriptor for a remote call.
+
+Produced by a service when a method throws, and also before dispatch when the method does not exist, is not exposed, or was called with the wrong number of arguments. A client additionally synthesizes one locally on call timeout.
 
 
 </td></tr>
@@ -467,7 +517,7 @@ Response error data structure, which service returns if error occurred during se
 
 </td><td>
 
-Request message data structure to be handled by a service.
+Wire format of a remote call, produced by a client and consumed by a service.
 
 
 </td></tr>
@@ -511,6 +561,8 @@ Around hook wrapping the actual service method invocation. It receives the reque
 
 </td><td>
 
+Options accepted by [RedisCache.init()](/api/rpc/latest/rpc.rediscache.init/)<!-- -->.
+
 
 </td></tr>
 <tr><td>
@@ -519,6 +571,8 @@ Around hook wrapping the actual service method invocation. It receives the reque
 
 
 </td><td>
+
+Options for the [lock()](/api/rpc/latest/rpc.lock/) decorator.
 
 
 </td></tr>
@@ -529,6 +583,8 @@ Around hook wrapping the actual service method invocation. It receives the reque
 
 </td><td>
 
+Options for the [logged()](/api/rpc/latest/rpc.logged/) decorator.
+
 
 </td></tr>
 <tr><td>
@@ -538,7 +594,7 @@ Around hook wrapping the actual service method invocation. It receives the reque
 
 </td><td>
 
-Method description
+Description of one exposed method: its summary, its positional arguments and its return value.
 
 
 </td></tr>
@@ -549,7 +605,7 @@ Method description
 
 </td><td>
 
-Methods collection description
+Map of method name to method description.
 
 
 </td></tr>
@@ -560,7 +616,7 @@ Methods collection description
 
 </td><td>
 
-Type property description
+Description of one property of an exposed complex type.
 
 
 </td></tr>
@@ -571,7 +627,7 @@ Type property description
 
 </td><td>
 
-Return value description
+Description of an exposed method's return value, as parsed from its JSDoc.
 
 
 </td></tr>
@@ -582,7 +638,7 @@ Return value description
 
 </td><td>
 
-Service class description
+The exposed methods a single class declares, plus its parent's name.
 
 
 </td></tr>
@@ -593,7 +649,7 @@ Service class description
 
 </td><td>
 
-Service description
+Raw registry of every class that declares exposed methods, keyed by class name — the storage format behind [IMQRPCDescription.serviceDescription](/api/rpc/latest/rpc.imqrpcdescription.servicedescription/)<!-- -->.
 
 
 </td></tr>
@@ -604,6 +660,10 @@ Service description
 
 </td><td>
 
+A zero-argument function whose return value is resolved lazily.
+
+Used by [property()](/api/rpc/latest/rpc.property/) and [indexed()](/api/rpc/latest/rpc.indexed/) so a type definition can reference a class that is not yet initialized at decoration time — self-references and forward references.
+
 
 </td></tr>
 <tr><td>
@@ -613,7 +673,7 @@ Service description
 
 </td><td>
 
-Type properties collection description
+The property bag of a single exposed type: property name to property description.
 
 
 </td></tr>
@@ -624,7 +684,7 @@ Type properties collection description
 
 </td><td>
 
-Entire service types metadata structure
+Every exposed complex type, keyed by class name.
 
 
 </td></tr>
@@ -650,6 +710,8 @@ Description
 
 </td><td>
 
+Prefix used when logging a failure inside an `afterCall` hook.
+
 
 </td></tr>
 <tr><td>
@@ -658,6 +720,8 @@ Description
 
 
 </td><td>
+
+Prefix used when logging a failure inside a `beforeCall` hook.
 
 
 </td></tr>
@@ -679,9 +743,7 @@ Creates a `@cache()` method decorator that memoizes the decorated method's resul
 
 </td><td>
 
-Default client options
-
- {<!-- -->IMQClientOptions<!-- -->}
+Default options applied to every generated IMQ client: the core queue defaults, plus cleanup enabled with a `'*:client'` filter and the code-generation settings.
 
 
 </td></tr>
@@ -694,8 +756,6 @@ Default client options
 
 Default metrics server options
 
- {<!-- -->NonNullable<IMQMetricsServerOptions>}
-
 
 </td></tr>
 <tr><td>
@@ -705,9 +765,7 @@ Default metrics server options
 
 </td><td>
 
-Default service options
-
- {<!-- -->IMQServiceOptions<!-- -->}
+Default options applied to every IMQ service: the core queue defaults, plus cleanup enabled with a `'*:client'` filter, single-process mode, and one worker per core.
 
 
 </td></tr>
@@ -718,6 +776,8 @@ Default service options
 
 </td><td>
 
+Default options for [RedisCache](/api/rpc/latest/rpc.rediscache/)<!-- -->: the standard queue defaults, with `prefix` overridden to `imq-cache` so cache keys never collide with queue keys under the `imq` prefix.
+
 
 </td></tr>
 <tr><td>
@@ -726,6 +786,8 @@ Default service options
 
 
 </td><td>
+
+Message of the `TypeError` thrown by any [RedisCache](/api/rpc/latest/rpc.rediscache/) operation invoked before a connection has been established. Exported so callers can match on it.
 
 
 </td></tr>
@@ -751,6 +813,8 @@ Description
 
 </td><td>
 
+What [IMQLock.acquire()](/api/rpc/latest/rpc.imqlock.acquire/) resolves to: the literal `true` when this caller acquired the lock and must perform the work, or the value the lock holder passed to [IMQLock.release()](/api/rpc/latest/rpc.imqlock.release/) when this caller had to wait.
+
 
 </td></tr>
 <tr><td>
@@ -771,6 +835,8 @@ Accepted cache adapter references: a constructor, an instance, or an adapter nam
 
 </td><td>
 
+The FIFO queue of callers waiting on a single lock key, drained in arrival order when the lock is released.
+
 
 </td></tr>
 <tr><td>
@@ -780,6 +846,8 @@ Accepted cache adapter references: a constructor, an instance, or an adapter nam
 
 </td><td>
 
+Internal representation of one queued waiter: its promise's `[resolve, reject]` pair, selected by [IMQLock.release()](/api/rpc/latest/rpc.imqlock.release/) according to whether an error was supplied.
+
 
 </td></tr>
 <tr><td>
@@ -788,6 +856,8 @@ Accepted cache adapter references: a constructor, an instance, or an adapter nam
 
 
 </td><td>
+
+Names of the  methods [logged()](/api/rpc/latest/rpc.logged/) can use to record a caught error.
 
 
 </td></tr>

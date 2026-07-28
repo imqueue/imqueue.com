@@ -8,9 +8,7 @@ title: "IMessageQueueConnection.host property · @imqueue/core"
 
 ## IMessageQueueConnection.host property
 
-Message queue network host
-
- {<!-- -->string<!-- -->}
+Host name or IP address of the queue host. Defaults to `localhost`<!-- -->.
 
 **Signature:**
 

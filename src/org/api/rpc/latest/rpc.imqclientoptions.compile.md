@@ -8,8 +8,19 @@ title: "IMQClientOptions.compile property · @imqueue/rpc"
 
 ## IMQClientOptions.compile property
 
+Transpile the generated client and evaluate it in-process, returning its exports.
+
 **Signature:**
 
 ```typescript
 compile: boolean;
 ```
+
+## Default Value
+
+true
+
+## Remarks
+
+With `false`<!-- -->, generation only emits files and client creation resolves to `null`<!-- -->.
+

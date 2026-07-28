@@ -8,7 +8,7 @@ title: "IMQClient.broadcast() method · @imqueue/rpc"
 
 ## IMQClient.broadcast() method
 
-Broadcasts given payload to all other service clients subscribed. So this is like client-to-clients publishing.
+Publishes the given payload on this client's own queue channel ([IMQClient.queueName](/api/rpc/latest/rpc.imqclient.queuename/)<!-- -->).
 
 **Signature:**
 
@@ -46,7 +46,7 @@ JsonObject
 
 </td><td>
 
- {<!-- -->Promise<void>}
+data to publish
 
 
 </td></tr>
@@ -55,4 +55,12 @@ JsonObject
 **Returns:**
 
 Promise&lt;void&gt;
+
+## Exceptions
+
+TypeError when the client's queue has no writer connection, i.e. when called before [IMQClient.start()](/api/rpc/latest/rpc.imqclient.start/)
+
+## Remarks
+
+Note that [IMQClient.subscribe()](/api/rpc/latest/rpc.imqclient.subscribe/) listens on the service channel, so a broadcast is not received by other clients of the same service through the standard client API — a consumer must subscribe to this client's `queueName` channel explicitly.
 

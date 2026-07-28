@@ -8,6 +8,8 @@ title: "LogLevel enum · @imqueue/core"
 
 ## LogLevel enum
 
+Logger method to which profiling output is dispatched. Each value is the literal name of the corresponding [ILogger](/api/core/latest/core.ilogger/) method, so the level is used as a property lookup on the logger.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ ERROR
 
 </td><td>
 
+Dispatches to [ILogger.error()](/api/core/latest/core.ilogger.error/)<!-- -->.
+
 
 </td></tr>
 <tr><td>
@@ -57,6 +61,8 @@ INFO
 
 
 </td><td>
+
+Dispatches to [ILogger.info()](/api/core/latest/core.ilogger.info/)<!-- -->. This is the default level.
 
 
 </td></tr>
@@ -72,6 +78,8 @@ LOG
 
 </td><td>
 
+Dispatches to [ILogger.log()](/api/core/latest/core.ilogger.log/)<!-- -->.
+
 
 </td></tr>
 <tr><td>
@@ -85,6 +93,8 @@ WARN
 
 
 </td><td>
+
+Dispatches to [ILogger.warn()](/api/core/latest/core.ilogger.warn/)<!-- -->.
 
 
 </td></tr>

@@ -8,8 +8,15 @@ title: "BEFORE_HOOK_ERROR variable · @imqueue/rpc"
 
 ## BEFORE\_HOOK\_ERROR variable
 
+Prefix used when logging a failure inside a `beforeCall` hook.
+
 **Signature:**
 
 ```typescript
 BEFORE_HOOK_ERROR = "Before call hook error:"
 ```
+
+## Remarks
+
+A throwing before-hook is warned about and then ignored — the call proceeds — so this string is how such failures are recognized in logs. It is a log prefix, not an [IMQRPCError.code](/api/rpc/latest/rpc.imqrpcerror.code/) value.
+

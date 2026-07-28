@@ -8,6 +8,10 @@ title: "IMessageQueueAuthConnection interface · @imqueue/core"
 
 ## IMessageQueueAuthConnection interface
 
+Optional credentials for a queue host, forwarded to the Redis client as `username` and `password`<!-- -->.
+
+Supply both for a Redis ACL user, or just `password` for a `requirepass`<!-- -->-only server. Omit both to connect unauthenticated, which is the default.
+
 **Signature:**
 
 ```typescript
@@ -52,9 +56,7 @@ string
 
 </td><td>
 
-_(Optional)_ Message queue password
-
- {<!-- -->string<!-- -->}
+_(Optional)_ Password for the queue host.
 
 
 </td></tr>
@@ -73,9 +75,7 @@ string
 
 </td><td>
 
-_(Optional)_ Message queue username
-
- {<!-- -->string<!-- -->}
+_(Optional)_ Redis ACL user name. Omit for a server that only uses `requirepass`<!-- -->.
 
 
 </td></tr>

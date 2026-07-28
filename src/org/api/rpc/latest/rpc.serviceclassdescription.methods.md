@@ -8,8 +8,15 @@ title: "ServiceClassDescription.methods property · @imqueue/rpc"
 
 ## ServiceClassDescription.methods property
 
+Methods declared directly by this class, keyed by name.
+
 **Signature:**
 
 ```typescript
 methods: MethodsCollectionDescription;
 ```
+
+## Remarks
+
+Inherited methods live under their declaring class and are merged only when a service builds the description it serves. Includes the inherited framework `describe` method, which client generators skip.
+

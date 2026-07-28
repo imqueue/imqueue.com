@@ -8,10 +8,15 @@ title: "ProfileDecoratorOptions.logLevel property · @imqueue/core"
 
 ## ProfileDecoratorOptions.logLevel property
 
-Defines log/level for logger, By default, is a log
+Logger method used for the profiling output — one of `log`<!-- -->, `info`<!-- -->, `warn` or `error`<!-- -->. Overrides [IMQ\_LOG\_LEVEL](/api/core/latest/core.imq_log_level/)<!-- -->, which itself defaults to `info`<!-- -->.
 
 **Signature:**
 
 ```typescript
 logLevel?: LogLevel;
 ```
+
+## Remarks
+
+An unrecognized level resolves to `info` rather than falling back to the environment value.
+

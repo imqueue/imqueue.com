@@ -8,6 +8,8 @@ title: "UDPClusterManager.destroy() method · @imqueue/core"
 
 ## UDPClusterManager.destroy() method
 
+Stops this manager and releases its share of the broadcast worker.
+
 **Signature:**
 
 ```typescript
@@ -16,4 +18,10 @@ destroy(): Promise<void>;
 **Returns:**
 
 Promise&lt;void&gt;
+
+## Remarks
+
+Safe to call more than once. The shared worker is only shut down when this is the last manager using it — otherwise the call just releases this manager's reference and the worker keeps running for the others. Shutdown asks the worker to close its socket and waits up to five seconds for confirmation before terminating the thread.
+
+Process signal handlers installed by this manager are not removed, and registered clusters are not cleared — use [ClusterManager.remove()](/api/core/latest/core.clustermanager.remove/) for that, which itself calls this method once the last cluster is gone.
 

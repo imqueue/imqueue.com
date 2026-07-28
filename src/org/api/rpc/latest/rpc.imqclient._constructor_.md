@@ -8,7 +8,7 @@ title: "IMQClient.(constructor) · @imqueue/rpc"
 
 ## IMQClient.(constructor)
 
-Class constructor
+Constructs a client.
 
 **Signature:**
 
@@ -46,7 +46,7 @@ Partial&lt;[IMQClientOptions](/api/rpc/latest/rpc.imqclientoptions/)<!-- -->&gt;
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ client options, merged over [DEFAULT\_IMQ\_CLIENT\_OPTIONS](/api/rpc/latest/rpc.default_imq_client_options/)
 
 
 </td></tr>
@@ -62,7 +62,7 @@ string
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ the queue calls are addressed to. Defaults to this client's own name with a trailing `Client` removed.
 
 
 </td></tr>
@@ -78,9 +78,19 @@ string
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ this client's base name. Defaults to the constructor's name, so pass it explicitly if your build renames classes — a minifier would otherwise silently retarget the RPC.
 
 
 </td></tr>
 </tbody></table>
+
+## Exceptions
+
+TypeError when [IMQClient](/api/rpc/latest/rpc.imqclient/) is constructed directly rather than through a subclass
+
+## Remarks
+
+Construction has side effects. It reserves an instance id by creating a pid file under `$TMPDIR/.imq-rpc`<!-- -->, opens its message queue (two in `singleQueue` mode), raises the process max-listener limit once per process, and installs `SIGTERM`<!-- -->/`SIGINT`<!-- -->/`SIGHUP`<!-- -->/`SIGQUIT` handlers that destroy the client and then exit the process after `IMQ_SHUTDOWN_TIMEOUT`<!-- -->. Any library embedding a client inherits that process-terminating behaviour.
+
+Only [IMQClient.destroy()](/api/rpc/latest/rpc.imqclient.destroy/) releases the pid file and removes those handlers.
 

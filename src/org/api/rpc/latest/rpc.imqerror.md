@@ -126,7 +126,7 @@ unknown
 
 </td><td>
 
-_(Optional)_ original error thrown (JSON-serialized), if any  {<!-- -->IMQRPCError<!-- -->}
+_(Optional)_ original error thrown (JSON-serialized), if any
 
 
 </td></tr>

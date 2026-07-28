@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.once() method · @imqueue/core"
 
 ## ClusteredRedisQueue.once() method
 
+Registers a one-shot listener on every server's queue and on the internal template.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ any\[\]
 
 </td><td>
 
+the arguments `EventEmitter.once` accepts
+
 
 </td></tr>
 </tbody></table>
@@ -51,4 +55,10 @@ any\[\]
 **Returns:**
 
 this
+
+this queue instance
+
+## Remarks
+
+Because registration is replicated per server, this arms one independent one-shot listener per server — so the callback may run once for each server in the cluster rather than once overall, and more as servers join. Use [ClusteredRedisQueue.on()](/api/core/latest/core.clusteredredisqueue.on/) plus explicit de-registration if you need at-most-once semantics.
 

@@ -74,5 +74,11 @@ _(Optional)_ optional different pubsub name to publish to
 
 Promise&lt;void&gt;
 
-{<!-- -->Promise<void>}
+## Exceptions
+
+TypeError when the queue has no writer connection
+
+## Remarks
+
+Unlike [IMessageQueue.send()](/api/core/latest/core.imessagequeue.send/)<!-- -->, this does not start the queue implicitly — [IMessageQueue.start()](/api/core/latest/core.imessagequeue.start/) must have completed first. The payload is always plain JSON ([IMQOptions.useGzip](/api/core/latest/core.imqoptions.usegzip/) does not apply), and pub/sub delivery is not persisted, so subscribers that are not connected at publish time never receive the message.
 

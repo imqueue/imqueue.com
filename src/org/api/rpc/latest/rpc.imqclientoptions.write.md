@@ -8,8 +8,19 @@ title: "IMQClientOptions.write property · @imqueue/rpc"
 
 ## IMQClientOptions.write property
 
+Persist the generated `.ts` and `.js` pair in [IMQClientOptions.path](/api/rpc/latest/rpc.imqclientoptions.path/)<!-- -->.
+
 **Signature:**
 
 ```typescript
 write: boolean;
 ```
+
+## Default Value
+
+true
+
+## Remarks
+
+Existing files are silently overwritten.
+

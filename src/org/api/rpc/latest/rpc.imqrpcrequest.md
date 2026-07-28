@@ -8,7 +8,7 @@ title: "IMQRPCRequest interface · @imqueue/rpc"
 
 ## IMQRPCRequest interface
 
-Request message data structure to be handled by a service.
+Wire format of a remote call, produced by a client and consumed by a service.
 
 **Signature:**
 
@@ -16,6 +16,10 @@ Request message data structure to be handled by a service.
 export interface IMQRPCRequest extends JsonObject 
 ```
 **Extends:** JsonObject
+
+## Remarks
+
+`from`<!-- -->, `method` and `args` are always present; `metadata` is absent — not `null` — when the caller passed none. The whole structure is JSON-serialized, so any `undefined` inside it is dropped in transit.
 
 ## Properties
 
@@ -55,6 +59,8 @@ any\[\]
 
 </td><td>
 
+Positional arguments for the method, applied in order.
+
 
 </td></tr>
 <tr><td>
@@ -71,6 +77,8 @@ string
 
 
 </td><td>
+
+Name of the caller's own queue — the call's reply address.
 
 
 </td></tr>
@@ -89,7 +97,7 @@ string
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Optional metadata attached by the caller.
 
 
 </td></tr>
@@ -107,6 +115,8 @@ string
 
 
 </td><td>
+
+Name of the service method to invoke.
 
 
 </td></tr>

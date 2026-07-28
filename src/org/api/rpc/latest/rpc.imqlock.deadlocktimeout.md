@@ -10,8 +10,6 @@ title: "IMQLock.deadlockTimeout property · @imqueue/rpc"
 
 Deadlock timeout in milliseconds
 
- {<!-- -->number<!-- -->}
-
 **Signature:**
 
 ```typescript

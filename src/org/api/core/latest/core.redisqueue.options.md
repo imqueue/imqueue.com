@@ -8,12 +8,15 @@ title: "RedisQueue.options property · @imqueue/core"
 
 ## RedisQueue.options property
 
-This queue instance options
-
- {<!-- -->IMQOptions<!-- -->}
+The effective options for this queue: [DEFAULT\_IMQ\_OPTIONS](/api/core/latest/core.default_imq_options/) merged with the values passed to the constructor.
 
 **Signature:**
 
 ```typescript
 options: IMQOptions;
 ```
+
+## Remarks
+
+Treat this as read-only configuration. Some options are captured at construction time — `useGzip`<!-- -->, `host` and `port` — so changing them here has no effect, while `safeDelivery`<!-- -->, `safeDeliveryTtl`<!-- -->, `cleanup`<!-- -->, `cleanupFilter` and `verbose` are re-read at runtime.
+

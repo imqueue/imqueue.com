@@ -8,6 +8,8 @@ title: "Description.service property · @imqueue/rpc"
 
 ## Description.service property
 
+The service itself: its name, and every exposed method with the inheritance chain already flattened.
+
 **Signature:**
 
 ```typescript

@@ -55,6 +55,8 @@ string
 
 </td><td>
 
+This adapter instance's name, `'RedisCache'`<!-- -->. Used as the registry key and as a segment of every cache key.
+
 
 </td></tr>
 <tr><td>
@@ -72,6 +74,8 @@ string
 
 </td><td>
 
+The effective options after merging user input over [DEFAULT\_REDIS\_CACHE\_OPTIONS](/api/rpc/latest/rpc.default_redis_cache_options/)<!-- -->.
+
 
 </td></tr>
 <tr><td>
@@ -88,6 +92,8 @@ boolean
 
 
 </td><td>
+
+True once [RedisCache.init()](/api/rpc/latest/rpc.rediscache.init/) has completed successfully.
 
 
 </td></tr>

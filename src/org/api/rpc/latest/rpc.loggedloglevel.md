@@ -8,6 +8,8 @@ title: "LoggedLogLevel type · @imqueue/rpc"
 
 ## LoggedLogLevel type
 
+Names of the  methods [logged()](/api/rpc/latest/rpc.logged/) can use to record a caught error.
+
 **Signature:**
 
 ```typescript

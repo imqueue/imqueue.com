@@ -8,7 +8,7 @@ title: "IMQClient.subscribe() method · @imqueue/rpc"
 
 ## IMQClient.subscribe() method
 
-Adds subscription to service event channel
+Subscribes to the service's event channel, named after [IMQClient.serviceName](/api/rpc/latest/rpc.imqclient.servicename/) — the same channel a service's `publish()` writes to, so every client of that service receives every published payload.
 
 **Signature:**
 
@@ -46,7 +46,7 @@ handler
 
 </td><td>
 
- {<!-- -->Promise<void>}
+invoked with the parsed JSON payload of each published message
 
 
 </td></tr>
@@ -55,4 +55,8 @@ handler
 **Returns:**
 
 Promise&lt;void&gt;
+
+## Remarks
+
+This is fan-out, not a private channel. Subscribing uses a dedicated connection and does not require [IMQClient.start()](/api/rpc/latest/rpc.imqclient.start/)<!-- -->. Calling it more than once registers additional handlers rather than replacing the existing one, and the subscription is re-established automatically on reconnect.
 

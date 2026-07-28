@@ -8,8 +8,15 @@ title: "IMQClient.queueName property · @imqueue/rpc"
 
 ## IMQClient.queueName property
 
+The local side: the queue replies come back on, and the value placed in `request.from`<!-- -->.
+
 **Signature:**
 
 ```typescript
 readonly queueName: string;
 ```
+
+## Remarks
+
+Equals [IMQClient.name](/api/rpc/latest/rpc.imqclient.name/)<!-- -->, or [IMQClient.hostName](/api/rpc/latest/rpc.imqclient.hostname/) when `singleQueue` is enabled. Also the channel [IMQClient.broadcast()](/api/rpc/latest/rpc.imqclient.broadcast/) publishes to.
+

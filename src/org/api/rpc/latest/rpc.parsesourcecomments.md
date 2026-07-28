@@ -66,7 +66,7 @@ string
 
 </td><td>
 
-class to extract method docs for  {<!-- -->{ \[method: string\]: string }<!-- -->} - map of method name to raw JSDoc block body (delimiters excluded, as acorn reports comment values)
+class to extract method docs for
 
 
 </td></tr>
@@ -75,4 +75,6 @@ class to extract method docs for  {<!-- -->{ \[method: string\]: string }<!-- --
 **Returns:**
 
 { \[method: string\]: string; }
+
+map of method name to raw JSDoc block body (delimiters excluded, as acorn reports comment values)
 

@@ -8,8 +8,21 @@ title: "IMQClientOptions.singleQueue property · @imqueue/rpc"
 
 ## IMQClientOptions.singleQueue property
 
+Share a single reply queue and transport connection across every client in the process, instead of one per client.
+
 **Signature:**
 
 ```typescript
 singleQueue?: boolean;
 ```
+
+## Default Value
+
+false
+
+## Remarks
+
+`queueName` then becomes the shared host-level name rather than a per-client one, and each client keeps a private queue only for subscriptions. Shared-queue teardown is reference-counted, so destroying one client leaves the others working — but stopping one client stops reply delivery for every client in the process.
+
+Use it to bound Redis connections when a process instantiates many clients.
+

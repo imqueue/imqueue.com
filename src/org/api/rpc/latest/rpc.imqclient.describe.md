@@ -56,5 +56,3 @@ _(Optional)_ optional delivery delay; forwarded to the service through `argument
 
 Promise&lt;[Description](/api/rpc/latest/rpc.description/)<!-- -->&gt;
 
-{<!-- -->Promise<Description>}
-

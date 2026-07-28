@@ -8,9 +8,7 @@ title: "IMessageQueueAuthConnection.username property · @imqueue/core"
 
 ## IMessageQueueAuthConnection.username property
 
-Message queue username
-
- {<!-- -->string<!-- -->}
+Redis ACL user name. Omit for a server that only uses `requirepass`<!-- -->.
 
 **Signature:**
 

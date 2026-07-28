@@ -8,11 +8,19 @@ title: "UDPClusterManagerOptions interface · @imqueue/core"
 
 ## UDPClusterManagerOptions interface
 
+Configuration for [UDPClusterManager](/api/core/latest/core.udpclustermanager/)<!-- -->.
+
+Pass any subset to the constructor; unspecified values come from [DEFAULT\_UDP\_CLUSTER\_MANAGER\_OPTIONS](/api/core/latest/core.default_udp_cluster_manager_options/)<!-- -->.
+
 **Signature:**
 
 ```typescript
 export interface UDPClusterManagerOptions 
 ```
+
+## Remarks
+
+All the broadcast-related values — `address`<!-- -->, `port`<!-- -->, `limitedAddress`<!-- -->, `aliveTimeoutCorrection` and `useAliveCheck` — together identify the shared broadcast worker, so two managers agreeing on all of them share one socket and one worker thread. `logger` and `handleSignals` are not part of that identity.
 
 ## Properties
 
@@ -52,9 +60,7 @@ string
 
 </td><td>
 
-Message queue broadcast address
-
- {<!-- -->number<!-- -->}
+Broadcast address the cluster announces on.
 
 
 </td></tr>
@@ -73,9 +79,7 @@ number
 
 </td><td>
 
-Message queue alive timeout correction. Used to correct waiting time to check if the server is alive
-
- 5000  {<!-- -->number<!-- -->}
+Grace period in milliseconds added to the liveness timeout each server advertises in its broadcast.
 
 
 </td></tr>
@@ -96,8 +100,6 @@ boolean
 
 Enable process signal handling (SIGTERM, SIGINT, SIGABRT) by the manager. When enabled, the manager stops its UDP workers on these signals and then re-raises the signal, so the process terminates through the default signal behavior. Disable if the host application manages its own shutdown sequence.
 
- true  {<!-- -->boolean<!-- -->}
-
 
 </td></tr>
 <tr><td>
@@ -115,9 +117,7 @@ string
 
 </td><td>
 
-_(Optional)_ Message-queue-limited broadcast address
-
- "255.255.255.255"  {<!-- -->string<!-- -->}
+_(Optional)_ Limited-broadcast address marker. No default: when unset, the worker tries to bind the local interface matching [UDPClusterManagerOptions.address](/api/core/latest/core.udpclustermanageroptions.address/)<!-- -->.
 
 
 </td></tr>
@@ -138,8 +138,6 @@ _(Optional)_ Message-queue-limited broadcast address
 
 Logger used for worker supervision messages
 
- console  {<!-- -->ILogger<!-- -->}
-
 
 </td></tr>
 <tr><td>
@@ -157,9 +155,7 @@ number
 
 </td><td>
 
-Message queue broadcast port
-
- 63000  {<!-- -->number<!-- -->}
+UDP port the manager listens on for cluster announcements.
 
 
 </td></tr>
@@ -178,9 +174,7 @@ boolean
 
 </td><td>
 
-Message queue alive-server check flag. If set to false, the server will not be checked for liveness on each broadcast message with a timeout. Can be specified by the environment variable if the given option is not bypassed: IMQ\_UDP\_CLUSTER\_MANAGER\_ALIVE\_CHECK
-
- true  {<!-- -->boolean<!-- -->}
+Whether announced servers are expired when they stop broadcasting.
 
 
 </td></tr>

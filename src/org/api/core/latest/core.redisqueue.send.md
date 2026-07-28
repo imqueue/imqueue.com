@@ -8,7 +8,7 @@ title: "RedisQueue.send() method · @imqueue/core"
 
 ## RedisQueue.send() method
 
-Sends a given message to a given queue (by name)
+Sends a given message to a given queue (by name).
 
 **Signature:**
 
@@ -46,6 +46,8 @@ string
 
 </td><td>
 
+name of the destination queue
+
 
 </td></tr>
 <tr><td>
@@ -59,6 +61,8 @@ message
 
 
 </td><td>
+
+message payload; must be a JSON object
 
 
 </td></tr>
@@ -74,7 +78,7 @@ number
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ if specified, the message becomes available in the target queue only after this many milliseconds. This is a minimum, not a schedule — the message is released by the watcher, so availability may lag by up to [IMQOptions.watcherCheckDelay](/api/core/latest/core.imqoptions.watchercheckdelay/)<!-- -->. A delay of `0` or `undefined` sends immediately.
 
 
 </td></tr>
@@ -90,7 +94,7 @@ errorHandler
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ invoked when the write to Redis fails; this is the only way to observe such a failure, since the returned promise does not reject for it
 
 
 </td></tr>
@@ -100,5 +104,15 @@ _(Optional)_
 
 Promise&lt;string&gt;
 
-{<!-- -->Promise<RedisQueue>}
+the identifier assigned to the message. It is generated locally before the write is issued, so it is available even if the write later fails.
+
+## Exceptions
+
+TypeError when the queue is in [IMQMode.WORKER](/api/core/latest/core.imqmode/)<!-- -->-only mode, or when a writer connection cannot be established
+
+## Remarks
+
+The returned promise resolves as soon as the write has been dispatched — the Redis reply is not awaited — so a resolved promise is not evidence that the message was enqueued.
+
+Starts the queue implicitly when it has not been started yet, which has process-wide side effects: it may install signal handlers and make this instance the watcher owner.
 

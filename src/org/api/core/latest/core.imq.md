@@ -8,13 +8,17 @@ title: "IMQ class · @imqueue/core"
 
 ## IMQ class
 
-Message Queue Factory
+Message queue factory. This is also the default export of `@imqueue/core`<!-- -->.
 
 **Signature:**
 
 ```typescript
 export default class IMQ 
 ```
+
+## Remarks
+
+The factory only selects and instantiates an adapter — it performs no I/O, so the queue it returns is not connected. Call `start()` on it (or `send()`<!-- -->, which starts the queue implicitly) before use.
 
 ## Methods
 
@@ -46,7 +50,9 @@ Description
 
 </td><td>
 
-Instantiate proper message queue instance using given user-options
+Instantiates the queue adapter matching the given options and returns it ready to be started.
+
+The adapter is chosen from `options.vendor`<!-- -->, of which only `'Redis'` is supported. When either `options.cluster` or `options.clusterManagers` is present, the clustered adapter is returned instead of the single-server one.
 
 
 </td></tr>

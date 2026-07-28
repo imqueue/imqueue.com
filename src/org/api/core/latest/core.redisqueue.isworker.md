@@ -19,5 +19,3 @@ isWorker(): boolean;
 
 boolean
 
-{<!-- -->boolean<!-- -->}
-

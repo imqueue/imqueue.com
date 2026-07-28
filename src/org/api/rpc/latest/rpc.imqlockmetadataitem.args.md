@@ -8,6 +8,8 @@ title: "IMQLockMetadataItem.args property · @imqueue/rpc"
 
 ## IMQLockMetadataItem.args property
 
+Arguments the locked method was called with.
+
 **Signature:**
 
 ```typescript

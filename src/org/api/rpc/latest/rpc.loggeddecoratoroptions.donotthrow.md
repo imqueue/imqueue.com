@@ -8,8 +8,15 @@ title: "LoggedDecoratorOptions.doNotThrow property · @imqueue/rpc"
 
 ## LoggedDecoratorOptions.doNotThrow property
 
+Set to `true` to swallow the error after logging it, in which case the method resolves to `undefined`<!-- -->.
+
 **Signature:**
 
 ```typescript
 doNotThrow?: boolean;
 ```
+
+## Remarks
+
+Inverted sense: by default the error is re-thrown.
+

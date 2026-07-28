@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.addListener() method · @imqueue/core"
 
 ## ClusteredRedisQueue.addListener() method
 
+Registers a listener on every server's queue and on the internal template. Alias of [ClusteredRedisQueue.on()](/api/core/latest/core.clusteredredisqueue.on/)<!-- -->.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ any\[\]
 
 </td><td>
 
+the arguments `EventEmitter.addListener` accepts
+
 
 </td></tr>
 </tbody></table>
@@ -51,4 +55,6 @@ any\[\]
 **Returns:**
 
 this
+
+this queue instance
 

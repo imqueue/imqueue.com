@@ -10,8 +10,6 @@ title: "currentMetadata() function · @imqueue/rpc"
 
 Returns the metadata of the in-flight IMQ request for the current async execution, if any. Returns `undefined` outside of a `runWithRequest()` scope. The transport carries metadata as an opaque bag; callers interpret its fields.
 
- {<!-- -->IMQMetadata \| undefined<!-- -->}
-
 **Signature:**
 
 ```typescript

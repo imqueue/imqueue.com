@@ -8,12 +8,15 @@ title: "ClusteredRedisQueue.logger property · @imqueue/core"
 
 ## ClusteredRedisQueue.logger property
 
-Logger instance associated with this queue instance
-
- {<!-- -->ILogger<!-- -->}
+Logger used for this cluster's own messages, defaulting to [IMQOptions.logger](/api/core/latest/core.imqoptions.logger/) or `console`<!-- -->.
 
 **Signature:**
 
 ```typescript
 logger: ILogger;
 ```
+
+## Remarks
+
+Replacing it affects cluster-level logging only — each per-host queue keeps the logger it was constructed with.
+

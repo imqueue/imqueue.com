@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.emit() method · @imqueue/core"
 
 ## ClusteredRedisQueue.emit() method
 
+Emits an event on every server's queue and on the internal template, so each listener registered through this class runs once per server.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ any\[\]
 
 </td><td>
 
+the arguments `EventEmitter.emit` accepts
+
 
 </td></tr>
 </tbody></table>
@@ -51,4 +55,10 @@ any\[\]
 **Returns:**
 
 boolean
+
+always `true`
+
+## Remarks
+
+The per-emitter results are discarded, so unlike `EventEmitter.emit` the return value does not report whether the event had any listeners — it is `true` even for an empty cluster with no listeners at all.
 

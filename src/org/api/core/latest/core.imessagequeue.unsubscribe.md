@@ -8,7 +8,7 @@ title: "IMessageQueue.unsubscribe() method · @imqueue/core"
 
 ## IMessageQueue.unsubscribe() method
 
-Closes the subscription channel
+Closes the subscription channel and drops every handler registered through [IMessageQueue.subscribe()](/api/core/latest/core.imessagequeue.subscribe/)<!-- -->, resetting the instance so a later subscription may use a different channel name.
 
 **Signature:**
 
@@ -19,5 +19,7 @@ unsubscribe(): Promise<void>;
 
 Promise&lt;void&gt;
 
-{<!-- -->Promise<void>}
+## Remarks
+
+A no-op when no subscription exists, and it never rejects — teardown failures are only logged. There is no way to remove an individual handler.
 

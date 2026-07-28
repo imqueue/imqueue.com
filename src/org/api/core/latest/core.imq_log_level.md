@@ -8,8 +8,17 @@ title: "IMQ_LOG_LEVEL variable · @imqueue/core"
 
 ## IMQ\_LOG\_LEVEL variable
 
+Default logger method for profiling output, from the `IMQ_LOG_LEVEL` environment variable.
+
+Accepts `log`<!-- -->, `info`<!-- -->, `warn` or `error`<!-- -->; any other or missing value resolves to `info` without warning.
+
 **Signature:**
 
 ```typescript
 IMQ_LOG_LEVEL: LogLevel
 ```
+
+## Remarks
+
+Read once when the module is first imported, so later changes to `process.env` have no effect. Individual decorators override it via [ProfileDecoratorOptions.logLevel](/api/core/latest/core.profiledecoratoroptions.loglevel/)<!-- -->.
+

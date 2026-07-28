@@ -8,11 +8,19 @@ title: "ProfileDecoratorOptions interface · @imqueue/core"
 
 ## ProfileDecoratorOptions interface
 
+Options accepted by the [profile()](/api/core/latest/core.profile/) decorator.
+
+Every field is optional; omitted fields fall back to the [IMQ\_LOG\_TIME](/api/core/latest/core.imq_log_time/)<!-- -->, [IMQ\_LOG\_ARGS](/api/core/latest/core.imq_log_args/) and [IMQ\_LOG\_LEVEL](/api/core/latest/core.imq_log_level/) environment defaults.
+
 **Signature:**
 
 ```typescript
 export interface ProfileDecoratorOptions 
 ```
+
+## Remarks
+
+`enableDebugTime` and `enableDebugArgs` override the environment defaults only when passed as real booleans — any other value is ignored and the environment default applies.
 
 ## Properties
 
@@ -52,7 +60,7 @@ boolean
 
 </td><td>
 
-_(Optional)_ Turns on/off arguments debugging
+_(Optional)_ Turns on/off arguments debugging, overriding [IMQ\_LOG\_ARGS](/api/core/latest/core.imq_log_args/)<!-- -->.
 
 
 </td></tr>
@@ -71,7 +79,7 @@ boolean
 
 </td><td>
 
-_(Optional)_ Turns on/off execution time debugging
+_(Optional)_ Turns on/off execution time debugging, overriding [IMQ\_LOG\_TIME](/api/core/latest/core.imq_log_time/)<!-- -->.
 
 
 </td></tr>
@@ -90,7 +98,7 @@ _(Optional)_ Turns on/off execution time debugging
 
 </td><td>
 
-_(Optional)_ Defines log/level for logger, By default, is a log
+_(Optional)_ Logger method used for the profiling output — one of `log`<!-- -->, `info`<!-- -->, `warn` or `error`<!-- -->. Overrides [IMQ\_LOG\_LEVEL](/api/core/latest/core.imq_log_level/)<!-- -->, which itself defaults to `info`<!-- -->.
 
 
 </td></tr>

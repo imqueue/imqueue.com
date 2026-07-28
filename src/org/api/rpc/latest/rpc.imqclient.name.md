@@ -8,8 +8,15 @@ title: "IMQClient.name property · @imqueue/rpc"
 
 ## IMQClient.name property
 
+This client's unique identity, `"<baseName>-<hostName>"`<!-- -->.
+
 **Signature:**
 
 ```typescript
 readonly name: string;
 ```
+
+## Remarks
+
+Also used as the name of the dedicated subscription queue in `singleQueue` mode.
+

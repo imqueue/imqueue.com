@@ -8,9 +8,7 @@ title: "IServerInput.host property · @imqueue/core"
 
 ## IServerInput.host property
 
-Message queue network host
-
- {<!-- -->string<!-- -->}
+Host name or IP address of the server.
 
 **Signature:**
 

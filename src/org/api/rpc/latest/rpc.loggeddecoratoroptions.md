@@ -8,6 +8,8 @@ title: "LoggedDecoratorOptions interface · @imqueue/rpc"
 
 ## LoggedDecoratorOptions interface
 
+Options for the [logged()](/api/rpc/latest/rpc.logged/) decorator.
+
 **Signature:**
 
 ```typescript
@@ -52,7 +54,7 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Set to `true` to swallow the error after logging it, in which case the method resolves to `undefined`<!-- -->.
 
 
 </td></tr>
@@ -71,7 +73,7 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Which  method records the error.
 
 
 </td></tr>
@@ -90,7 +92,7 @@ ILogger
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ An explicit logger, taking precedence over the instance, class and console fallbacks.
 
 
 </td></tr>

@@ -8,8 +8,15 @@ title: "IMQService.metricsServer property · @imqueue/rpc"
 
 ## IMQService.metricsServer property
 
+The metrics HTTP server, present only while [IMQMetricsServerOptions.enabled](/api/rpc/latest/rpc.imqmetricsserveroptions.enabled/) is set.
+
 **Signature:**
 
 ```typescript
 protected metricsServer?: Server<any, any>;
 ```
+
+## Remarks
+
+[IMQService.destroy()](/api/rpc/latest/rpc.imqservice.destroy/) does not close it — do that yourself, or the open listener keeps the process alive.
+

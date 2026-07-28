@@ -46,7 +46,7 @@ boolean \| [LockOptions](/api/rpc/latest/rpc.lockoptions/)
 
 </td><td>
 
-_(Optional)_ whether locking is enabled, or the lock options  {<!-- -->Function<!-- -->} - a dual-mode method decorator
+_(Optional)_ whether locking is enabled, or the lock options
 
 
 </td></tr>
@@ -55,4 +55,6 @@ _(Optional)_ whether locking is enabled, or the lock options  {<!-- -->Function<
 **Returns:**
 
 any
+
+a dual-mode method decorator
 

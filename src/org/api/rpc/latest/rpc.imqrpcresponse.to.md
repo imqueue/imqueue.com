@@ -8,8 +8,15 @@ title: "IMQRPCResponse.to property · @imqueue/rpc"
 
 ## IMQRPCResponse.to property
 
+Correlation identifier: the queue-assigned message id of the request this response answers.
+
 **Signature:**
 
 ```typescript
 to: string;
 ```
+
+## Remarks
+
+This is not an address. The client matches it against its table of pending calls, so it must be echoed back exactly. The response is delivered to [IMQRPCRequest.from](/api/rpc/latest/rpc.imqrpcrequest.from/) instead.
+

@@ -8,6 +8,8 @@ title: "IMQRPCDescription.typesDescription property · @imqueue/rpc"
 
 ## IMQRPCDescription.typesDescription property
 
+All complex types registered via [property()](/api/rpc/latest/rpc.property/) or [indexed()](/api/rpc/latest/rpc.indexed/)<!-- -->, keyed by class name.
+
 **Signature:**
 
 ```typescript

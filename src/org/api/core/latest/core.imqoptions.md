@@ -8,7 +8,9 @@ title: "IMQOptions interface · @imqueue/core"
 
 ## IMQOptions interface
 
-Message queue options
+Options accepted by every queue implementation.
+
+Anything omitted falls back to [DEFAULT\_IMQ\_OPTIONS](/api/core/latest/core.default_imq_options/) — `localhost:6379`<!-- -->, prefix `imq`<!-- -->, cleanup off, safe delivery off, gzip off, a 5000 ms watcher check and safe-delivery TTL, and signal handling on.
 
 **Signature:**
 
@@ -16,6 +18,12 @@ Message queue options
 export interface IMQOptions extends Partial<IMessageQueueConnection> 
 ```
 **Extends:** Partial&lt;[IMessageQueueConnection](/api/core/latest/core.imessagequeueconnection/)<!-- -->&gt;
+
+## Remarks
+
+Only `cleanup` and `cleanupFilter` are required by the type, even though every constructor and [IMQ.create()](/api/core/latest/core.imq.create/) accepts a `Partial<IMQOptions>` — prefer `Partial<IMQOptions>` when declaring option literals.
+
+The inherited `id` is meaningful only on [IMQOptions.cluster](/api/core/latest/core.imqoptions.cluster/) entries; the queue itself never reads it.
 
 ## Properties
 
@@ -55,9 +63,7 @@ boolean
 
 </td><td>
 
-Turns on/off cleanup of the message queues
-
- {<!-- -->boolean<!-- -->}
+Turns on/off the watcher's periodic removal of orphaned keys. Defaults to `false`<!-- -->.
 
 
 </td></tr>
@@ -76,9 +82,7 @@ string
 
 </td><td>
 
-Cleanup pattern for queue names that should be removed during cleanup
-
- {<!-- -->string<!-- -->}
+Redis glob pattern, appended to the prefix as `<prefix>:<cleanupFilter>`<!-- -->, selecting which keys the cleanup sweep considers. Defaults to `'*'` — every key in the namespace.
 
 
 </td></tr>
@@ -97,9 +101,7 @@ Cleanup pattern for queue names that should be removed during cleanup
 
 </td><td>
 
-_(Optional)_ Queue cluster instances, if MQ should be clustered
-
- {<!-- -->IMessageQueueConnection\[\]<!-- -->}
+_(Optional)_ Redis servers to spread this queue across. Supplying this — or [IMQOptions.clusterManagers](/api/core/latest/core.imqoptions.clustermanagers/) — makes [IMQ.create()](/api/core/latest/core.imq.create/) return a [ClusteredRedisQueue](/api/core/latest/core.clusteredredisqueue/)<!-- -->.
 
 
 </td></tr>
@@ -113,14 +115,12 @@ _(Optional)_ Queue cluster instances, if MQ should be clustered
 
 </td><td>
 
-ClusterManager\[\]
+[ClusterManager](/api/core/latest/core.clustermanager/)<!-- -->\[\]
 
 
 </td><td>
 
-_(Optional)_ Array of cluster managers used to handle cluster operations. Any manager implements specific cluster server detection.
-
- {<!-- -->ClusterManager\[\]<!-- -->}
+_(Optional)_ Cluster managers that discover and maintain cluster servers dynamically. Supplying this — or [IMQOptions.cluster](/api/core/latest/core.imqoptions.cluster/) — makes [IMQ.create()](/api/core/latest/core.imq.create/) return a [ClusteredRedisQueue](/api/core/latest/core.clusteredredisqueue/)<!-- -->.
 
 
 </td></tr>
@@ -141,8 +141,6 @@ boolean
 
 _(Optional)_ Enable process signal handling (SIGTERM, SIGINT, SIGABRT) by the queue. When enabled, the queue releases its watcher lock on these signals and then exits the process. It does not wait for in-flight `message` handlers to finish, so drain those yourself if work in progress must not be lost. Disable if the host application manages shutdown.
 
- true  {<!-- -->boolean<!-- -->}
-
 
 </td></tr>
 <tr><td>
@@ -160,9 +158,7 @@ _(Optional)_ Enable process signal handling (SIGTERM, SIGINT, SIGABRT) by the qu
 
 </td><td>
 
-_(Optional)_ Logger instance to use for message queue logging at runtime
-
- {<!-- -->ILogger<!-- -->}
+_(Optional)_ Logger used for queue diagnostics. Defaults to `console`<!-- -->.
 
 
 </td></tr>
@@ -181,9 +177,7 @@ string
 
 </td><td>
 
-_(Optional)_ Message queue global key prefix (namespace)
-
- {<!-- -->string<!-- -->}
+_(Optional)_ Global key namespace for everything this queue writes. Defaults to `'imq'`<!-- -->.
 
 
 </td></tr>
@@ -202,11 +196,9 @@ boolean
 
 </td><td>
 
-_(Optional)_ Enable guaranteed message delivery. When enabled, reading a message moves it atomically out of the queue into a worker-owned key instead of popping it outright, so a worker that dies \*before\* it starts on a message leaves that message behind for the watcher to re-queue rather than taking it down with the process.
+_(Optional)_ Enable guaranteed message delivery. When enabled, reading a message moves it atomically out of the queue into a worker-owned key instead of popping it outright, so a worker that dies before it even starts on a message leaves that message behind for the watcher to re-queue rather than taking it down with the process.
 
 The guarantee covers that hand-off, not the processing. The worker key is released as soon as the message is dispatched to the `message` listener, so a worker killed while its handler is still running loses that message exactly as it would with safe delivery off — draining in-flight work before exit is up to the application. Delivery is at-least-once in either mode, so handlers should be idempotent.
-
- false  {<!-- -->boolean<!-- -->}
 
 
 </td></tr>
@@ -227,9 +219,7 @@ number
 
 _(Optional)_ Lease deadline (in milliseconds) stamped onto the worker key when safeDelivery moves a message out of the queue, and the interval on which the watcher sweeps for expired keys. A worker key still present once its deadline has passed is treated as abandoned, and its message is moved back onto the main queue.
 
-This is a recovery deadline for an abandoned hand-off, not a processing deadline. The key is released when the message is dispatched, so a slow handler is neither interrupted nor re-queued for taking too long, and raising this value extends no protection over long-running work — tune it for how quickly an abandoned message should come back. Only effective when safeDelivery is enabled.
-
- 5000  {<!-- -->number<!-- -->}
+This is a recovery deadline for an abandoned hand-off, not a processing deadline. The key is released when the message is dispatched, so a slow handler is neither interrupted nor re-queued for taking too long, and raising this value extends no protection over long-running work — tune it for how quickly an abandoned message should come back.
 
 
 </td></tr>
@@ -248,9 +238,7 @@ boolean
 
 </td><td>
 
-_(Optional)_ Enable message compression for serialization. Increases a worker CPU load but decreases network traffic between workers and the queue host.
-
- {<!-- -->boolean<!-- -->}
+_(Optional)_ Enable message compression for serialization. Increases a worker CPU load but decreases network traffic between workers and the queue host. Defaults to `false`<!-- -->.
 
 
 </td></tr>
@@ -269,9 +257,7 @@ string
 
 </td><td>
 
-_(Optional)_ Message queue vendor
-
- {<!-- -->string<!-- -->}
+_(Optional)_ Queue adapter vendor name. Defaults to `'Redis'`<!-- -->, which is the only supported value.
 
 
 </td></tr>
@@ -290,9 +276,7 @@ boolean
 
 </td><td>
 
-_(Optional)_ Enables/disables verbose logging
-
- false  {<!-- -->boolean<!-- -->}
+_(Optional)_ Enables/disables verbose logging.
 
 
 </td></tr>
@@ -311,9 +295,7 @@ boolean
 
 </td><td>
 
-_(Optional)_ Enables/disables extended verbose logging. The output may contain sensitive information, so use it with caution. Does not work if a verbose option is disabled.
-
- false  {<!-- -->boolean<!-- -->}
+_(Optional)_ Enables/disables extended verbose logging.
 
 
 </td></tr>
@@ -332,9 +314,7 @@ number
 
 </td><td>
 
-_(Optional)_ Delay period (in milliseconds) between watcher availability checks. Used to ensure at least one watcher is available for queue operations.
-
- {<!-- -->number<!-- -->}
+_(Optional)_ Interval in milliseconds of the periodic watcher check. Defaults to 5000.
 
 
 </td></tr>

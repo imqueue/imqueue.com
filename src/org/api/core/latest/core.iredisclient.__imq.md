@@ -8,6 +8,8 @@ title: "IRedisClient.__imq property · @imqueue/core"
 
 ## IRedisClient.\_\_imq property
 
+Internal marker stamped on every Redis connection created by the queue, identifying it as imq-owned. Currently written but not read by the framework. Not part of the supported API.
+
 **Signature:**
 
 ```typescript

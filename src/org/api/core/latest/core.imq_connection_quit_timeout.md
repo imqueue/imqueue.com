@@ -15,3 +15,8 @@ Grace period (ms) for a graceful QUIT to complete before a channel is forcibly d
 ```typescript
 IMQ_CONNECTION_QUIT_TIMEOUT: number
 ```
+
+## Remarks
+
+Defaults to 1000; override with the `IMQ_CONNECTION_QUIT_TIMEOUT` environment variable, which is read once when the module is loaded. Applies to the writer, watcher and subscription channels — the reader is disconnected immediately without attempting `QUIT`<!-- -->.
+

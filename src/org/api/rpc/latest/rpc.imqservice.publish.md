@@ -8,7 +8,7 @@ title: "IMQService.publish() method · @imqueue/rpc"
 
 ## IMQService.publish() method
 
-Sends given data to service subscription channel
+Broadcasts data on this service's pub/sub channel, delivering it to every client currently subscribed to this service.
 
 **Signature:**
 
@@ -46,6 +46,8 @@ JsonObject
 
 </td><td>
 
+JSON-serializable payload to broadcast
+
 
 </td></tr>
 </tbody></table>
@@ -53,4 +55,12 @@ JsonObject
 **Returns:**
 
 Promise&lt;void&gt;
+
+## Exceptions
+
+TypeError when the service has not been started, so the queue's writer is not connected
+
+## Remarks
+
+Fire-and-forget: plain pub/sub with no persistence, ordering guarantee or delivery confirmation, so subscribers that are offline lose the message.
 

@@ -8,8 +8,19 @@ title: "LoggedDecoratorOptions.level property · @imqueue/rpc"
 
 ## LoggedDecoratorOptions.level property
 
+Which  method records the error.
+
 **Signature:**
 
 ```typescript
 level?: LoggedLogLevel;
 ```
+
+## Default Value
+
+'error'
+
+## Remarks
+
+The resolved logger must implement this method, or the call throws a `TypeError` from inside the catch block.
+

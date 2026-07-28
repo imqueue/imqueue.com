@@ -8,7 +8,9 @@ title: "IMQClient class · @imqueue/rpc"
 
 ## IMQClient class
 
-Class IMQClient - base abstract class for service clients.
+Base class for service clients.
+
+Subclass it and declare every remote method as `@remote() async m(...args) \{ return await this.remoteCall<T>(...arguments); \}`<!-- -->, or let [IMQClient.create()](/api/rpc/latest/rpc.imqclient.create/) generate the subclass from a running service's description.
 
 **Signature:**
 
@@ -16,6 +18,14 @@ Class IMQClient - base abstract class for service clients.
 export declare abstract class IMQClient extends EventEmitter 
 ```
 **Extends:** EventEmitter
+
+## Remarks
+
+Abstractness is enforced at runtime as well as by the type system: constructing `IMQClient` directly throws a `TypeError`<!-- -->.
+
+Instances are `EventEmitter`<!-- -->s. Besides ordinary calls, any response that no longer has a pending caller is emitted as an event named after the remote method, carrying the raw [IMQRPCResponse](/api/rpc/latest/rpc.imqrpcresponse/) — the escape hatch for replies to calls made by a process that has since died.
+
+The identity properties pair up as follows: [IMQClient.serviceName](/api/rpc/latest/rpc.imqclient.servicename/) is where calls go, [IMQClient.queueName](/api/rpc/latest/rpc.imqclient.queuename/) is where answers come back, [IMQClient.name](/api/rpc/latest/rpc.imqclient.name/) identifies this client, [IMQClient.hostName](/api/rpc/latest/rpc.imqclient.hostname/) identifies the machine plus instance, and [IMQClient.id](/api/rpc/latest/rpc.imqclient.id/) is the per-host instance slot.
 
 ## Constructors
 
@@ -45,7 +55,7 @@ Description
 
 </td><td>
 
-Class constructor
+Constructs a client.
 
 
 </td></tr>
@@ -91,6 +101,8 @@ string
 
 </td><td>
 
+Machine-scoped identity, `"<osUuid>-<id>:client"`<!-- -->, where `osUuid` is a hash of the OS machine id.
+
 
 </td></tr>
 <tr><td>
@@ -109,6 +121,8 @@ number
 
 
 </td><td>
+
+Per-host instance slot number — not an OS process id.
 
 
 </td></tr>
@@ -129,6 +143,8 @@ string
 
 </td><td>
 
+This client's unique identity, `"<baseName>-<hostName>"`<!-- -->.
+
 
 </td></tr>
 <tr><td>
@@ -147,6 +163,8 @@ string
 
 
 </td><td>
+
+The effective options for this client: [DEFAULT\_IMQ\_CLIENT\_OPTIONS](/api/rpc/latest/rpc.default_imq_client_options/) merged with the values passed to the constructor.
 
 
 </td></tr>
@@ -167,6 +185,8 @@ string
 
 </td><td>
 
+The local side: the queue replies come back on, and the value placed in `request.from`<!-- -->.
+
 
 </td></tr>
 <tr><td>
@@ -185,6 +205,8 @@ string
 
 
 </td><td>
+
+The remote side: the queue every request is addressed to, and the pub/sub channel [IMQClient.subscribe()](/api/rpc/latest/rpc.imqclient.subscribe/) listens on.
 
 
 </td></tr>
@@ -218,7 +240,7 @@ Description
 
 </td><td>
 
-Broadcasts given payload to all other service clients subscribed. So this is like client-to-clients publishing.
+Publishes the given payload on this client's own queue channel ([IMQClient.queueName](/api/rpc/latest/rpc.imqclient.queuename/)<!-- -->).
 
 
 </td></tr>
@@ -234,7 +256,7 @@ Broadcasts given payload to all other service clients subscribed. So this is lik
 
 </td><td>
 
-Creates client for a service with the given name
+Generates a client for the service registered under the given queue name and resolves to the generated namespace object — not to a client instance, and not to an [IMQClient](/api/rpc/latest/rpc.imqclient/)<!-- -->.
 
 
 </td></tr>
@@ -278,7 +300,9 @@ Destroys client
 
 </td><td>
 
-Sends call to remote service method
+Sends a call to the remote service method.
+
+Intended to be invoked as `this.remoteCall<T>(...arguments)` from a method decorated with [remote()](/api/rpc/latest/rpc.remote/)<!-- -->, which appends the method name for you.
 
 
 </td></tr>
@@ -320,7 +344,7 @@ Stops client work
 
 </td><td>
 
-Adds subscription to service event channel
+Subscribes to the service's event channel, named after [IMQClient.serviceName](/api/rpc/latest/rpc.imqclient.servicename/) — the same channel a service's `publish()` writes to, so every client of that service receives every published payload.
 
 
 </td></tr>
@@ -334,9 +358,7 @@ Adds subscription to service event channel
 
 </td><td>
 
-Destroys subscription channel to service
-
- {<!-- -->Promise<void>}
+Stops receiving service events: unsubscribes the channel, discards every handler registered through [IMQClient.subscribe()](/api/rpc/latest/rpc.imqclient.subscribe/)<!-- -->, and closes the dedicated subscription connection.
 
 
 </td></tr>
