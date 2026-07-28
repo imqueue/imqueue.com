@@ -8,9 +8,11 @@ title: "IMQOptions.safeDelivery property · @imqueue/core"
 
 ## IMQOptions.safeDelivery property
 
-Enable guaranteed message delivery. When enabled, uses a more complex algorithm for message handling, ensuring that if a worker fails, the message will be delivered to another worker. Required only for systems that demand guaranteed delivery semantics.
+Enable guaranteed message delivery. When enabled, reading a message moves it atomically out of the queue into a worker-owned key instead of popping it outright, so a worker that dies \*before\* it starts on a message leaves that message behind for the watcher to re-queue rather than taking it down with the process.
 
- {<!-- -->boolean<!-- -->}
+The guarantee covers that hand-off, not the processing. The worker key is released as soon as the message is dispatched to the `message` listener, so a worker killed while its handler is still running loses that message exactly as it would with safe delivery off — draining in-flight work before exit is up to the application. Delivery is at-least-once in either mode, so handlers should be idempotent.
+
+ false  {<!-- -->boolean<!-- -->}
 
 **Signature:**
 
