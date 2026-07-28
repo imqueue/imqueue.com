@@ -8,7 +8,7 @@ title: "LoggedDecoratorOptions.level property · @imqueue/rpc"
 
 ## LoggedDecoratorOptions.level property
 
-Which  method records the error.
+Which `ILogger` method records the error.
 
 **Signature:**
 

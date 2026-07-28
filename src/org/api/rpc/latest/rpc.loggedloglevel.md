@@ -8,10 +8,15 @@ title: "LoggedLogLevel type · @imqueue/rpc"
 
 ## LoggedLogLevel type
 
-Names of the  methods [logged()](/api/rpc/latest/rpc.logged/) can use to record a caught error.
+Names of the `ILogger` methods [logged()](/api/rpc/latest/rpc.logged/) can use to record a caught error.
 
 **Signature:**
 
 ```typescript
 export type LoggedLogLevel = 'info' | 'log' | 'warn' | 'error';
 ```
+
+## Remarks
+
+`ILogger` is declared by `@imqueue/core` and is not re-exported here — import it from that package if you need the type. A plain `console` satisfies it.
+

@@ -8,6 +8,8 @@ title: "ICacheConstructor.(new) · @imqueue/rpc"
 
 ## ICacheConstructor.(new)
 
+Constructs a cache adapter instance, ready to be initialized.
+
 **Signature:**
 
 ```typescript
@@ -53,4 +55,6 @@ _(Optional)_ legacy, and never supplied by the registry
 **Returns:**
 
 [ICache](/api/rpc/latest/rpc.icache/)
+
+an uninitialized adapter — [ICache.init()](/api/rpc/latest/rpc.icache.init/) must be called before use
 
