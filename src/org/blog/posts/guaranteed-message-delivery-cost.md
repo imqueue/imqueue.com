@@ -21,7 +21,7 @@ The first serious question anyone asks about a message-based system is: "if a wo
 
 **Unreliable (fast) delivery.** A consumer takes a message and processes it. If it crashes before finishing, that message is gone. This is the fastest mode — there's no bookkeeping — and it's the right default for work that is frequent, idempotent-on-retry-elsewhere, or simply not costly to miss (think best-effort notifications, cache warmups, telemetry).
 
-**Guaranteed (safe) delivery.** As a consumer takes a message, it's atomically moved into that consumer's own "processing" holding area. If the consumer finishes, the message is cleared. If the consumer dies mid-work, the message is still there and gets **rescheduled** to another instance. Nothing is silently dropped. This is what you want for work that must not vanish — placing an order, charging a card, kicking off a payout.
+**Guaranteed (safe) delivery.** As a consumer takes a message, it's atomically moved into that consumer's own "processing" holding area, so a process that dies *between* taking a message and starting on it leaves the message behind to be **rescheduled** to another instance instead of swallowing it. The protection covers that hand-off rather than the whole handler: the entry is released once the message reaches your code, so a consumer killed part-way through the work loses that attempt like any other. This is still what you want for work that must not vanish — placing an order, charging a card, kicking off a payout — paired with a [drain on shutdown](/blog/graceful-shutdown-zero-drop-deploys/) for the planned case.
 
 ## What guaranteed delivery costs
 
@@ -29,19 +29,19 @@ Safety isn't free, and it's useful to know the shape of the bill. In a recent `@
 
 That's a very reasonable price for "never lose this message," and the key insight is that **you don't pay it globally.** You choose per queue. Latency-critical, loss-tolerant paths stay in the fast mode; critical paths run safe. You're not forced into one guarantee for the whole system.
 
-## The knob that bites if you ignore it
+## The knob, and what it actually governs
 
-Guaranteed mode uses a **processing time-to-live** (`safeDeliveryTtl`, default 5 seconds). If a consumer holds a message longer than the TTL, the system assumes that consumer died and hands the message to someone else. That's the mechanism that makes rescheduling work — but it means:
+Guaranteed mode stamps each hand-off with a **time-to-live** (`safeDeliveryTtl`, default 5 seconds; `safeLockTtl` through `@imqueue/job`). A sweep running on that same interval reclaims holding-area entries whose TTL has passed and puts them back on the queue. That's the mechanism behind rescheduling — and it is easy to read more into it than it does:
 
-> If a task can legitimately take longer than the TTL, you **must** raise `safeDeliveryTtl` above your realistic worst-case processing time.
+> A slow-but-healthy task is **not** re-queued for being slow, and raising `safeDeliveryTtl` does not extend any protection over a long-running handler. The entry is released when the message reaches your code, so the TTL is a recovery deadline for an abandoned hand-off, not a processing deadline.
 
-Otherwise a slow-but-healthy task gets re-queued and processed twice. Set the TTL with your actual p99 processing time in mind, not the average.
+So tune it for recovery latency rather than against your p99: shorter brings an abandoned message back sooner, longer sweeps less often. What survives a restart that lands mid-handler is a [drain on shutdown](/blog/graceful-shutdown-zero-drop-deploys/), not this TTL.
 
 ## A quick decision guide
 
 Ask two questions about each kind of message:
 
 1. **If this is lost, does it matter?** If no → unreliable is fine, and faster. If yes → guaranteed.
-2. **Is the work idempotent?** Guaranteed delivery is *at-least-once*: under rescheduling, a message can be processed more than once (e.g. the original consumer finished just as the TTL expired). So design critical handlers to be **idempotent** — safe to run twice — using an idempotency key or a dedupe check. This matters regardless of framework; at-least-once is the honest guarantee, not exactly-once.
+2. **Is the work idempotent?** Guaranteed delivery is *at-least-once*: a message can be processed more than once (a hand-off whose release didn't land can be swept back onto the queue while the first consumer is still working, and `@imqueue/job` re-sends a job whose handler throws). So design critical handlers to be **idempotent** — safe to run twice — using an idempotency key or a dedupe check. This matters regardless of framework; at-least-once is the honest guarantee, not exactly-once.
 
 Match the mode to the message and you get the best of both: raw speed where loss is acceptable, and durability where it isn't — without paying for durability everywhere. The delivery options are covered in the [API reference](/api/); [Getting Started](/get-started/) gets you a service to try them on.

@@ -34,8 +34,15 @@ That's back-pressure done structurally: the queue is a shock absorber between pr
 
 `@imqueue` gives you a couple of levers that matter here:
 
-- **Delivery mode.** In guaranteed (safe) mode, a message a consumer grabbed but didn't finish — because it crashed or was killed mid-spike — is rescheduled to another instance instead of being lost. You trade some throughput for not dropping work under stress.
-- **A processing time-to-live.** Safe delivery uses a `safeDeliveryTtl`: if a consumer holds a message longer than that, it's returned to the queue for another instance to handle. Set it above your realistic worst-case processing time so legitimate slow work isn't re-queued prematurely.
+- **Delivery mode.** In guaranteed (safe) mode the hand-off from queue to consumer
+  is protected: a message taken by an instance that died before starting on it is
+  rescheduled rather than lost. You trade some throughput for that. Work already
+  inside a handler when the process dies is a separate problem, and the answer to
+  it is [draining on shutdown](/blog/graceful-shutdown-zero-drop-deploys/).
+- **A recovery deadline.** `safeDeliveryTtl` governs how quickly an abandoned
+  hand-off returns to the queue — not how long a handler may run. Slow-but-healthy
+  work is not re-queued for being slow, so tune it for how fast you want recovery,
+  not against your worst-case processing time.
 
 ## The trade-offs to respect
 
