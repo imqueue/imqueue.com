@@ -8,9 +8,11 @@ title: "IMQOptions.safeDeliveryTtl property · @imqueue/core"
 
 ## IMQOptions.safeDeliveryTtl property
 
-Time-to-live (in milliseconds) for messages in worker queues. After this period, unacknowledged messages return to the main queue for reprocessing if the worker died. Only effective when safeDelivery is enabled.
+Lease deadline (in milliseconds) stamped onto the worker key when safeDelivery moves a message out of the queue, and the interval on which the watcher sweeps for expired keys. A worker key still present once its deadline has passed is treated as abandoned, and its message is moved back onto the main queue.
 
- {<!-- -->number<!-- -->}
+This is a recovery deadline for an abandoned hand-off, not a processing deadline. The key is released when the message is dispatched, so a slow handler is neither interrupted nor re-queued for taking too long, and raising this value extends no protection over long-running work — tune it for how quickly an abandoned message should come back. Only effective when safeDelivery is enabled.
+
+ 5000  {<!-- -->number<!-- -->}
 
 **Signature:**
 
