@@ -40,6 +40,10 @@ function firstHeading(text, fallback) {
   const m = text.match(/^#{1,4}\s+(.+?)\s*$/m);
   return m ? m[1].replace(/[\\`]/g, '').trim() : fallback;
 }
+// Undo api-documenter's markdown escaping for text rendered outside markdown.
+function unescapeMd(text) {
+  return text.replace(/\\([\\`*_{}[\]()#+\-.!|<>~])/g, '$1');
+}
 
 // --- semver (release versions only) --------------------------------------
 function parseVer(v) { return v.split('.').map(Number); }
@@ -124,7 +128,12 @@ function embed({ pkg, version, seg, mdDir, latestFiles }) {
     if (cur) {
       const re = /\[([^\]]+)\]\((?:\.\/)?([A-Za-z0-9._-]+)\.md\)/g;
       let m;
-      while ((m = re.exec(line))) cur.items.push({ name: m[1], url: urlFor(m[2]) });
+      // api-documenter escapes markdown-significant characters in link text, so
+      // `DEFAULT_IMQ_OPTIONS` arrives as `DEFAULT\_IMQ\_OPTIONS`. The sidebar
+      // renders these labels as plain text, so unescape them.
+      while ((m = re.exec(line))) {
+        cur.items.push({ name: unescapeMd(m[1]), url: urlFor(m[2]) });
+      }
     }
   }
   if (!apiNav.length) throw new Error(`No symbols parsed for ${pkg}@${version} sidebar`);
