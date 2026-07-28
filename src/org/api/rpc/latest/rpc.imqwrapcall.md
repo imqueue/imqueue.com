@@ -15,3 +15,14 @@ Around hook wrapping the actual service method invocation. It receives the reque
 ```typescript
 export interface IMQWrapCall<_T> 
 ```
+
+## Remarks
+
+Service side only — there is no client equivalent, despite the type parameter.
+
+The hook's resolved value is the response data. Calling `next()` exactly once and returning its value is the required pattern, but it is not enforced: omitting `next()` silently skips the method and returns your value instead, and calling it twice runs the method twice.
+
+Unlike [IMQBeforeCall](/api/rpc/latest/rpc.imqbeforecall/) and [IMQAfterCall](/api/rpc/latest/rpc.imqaftercall/)<!-- -->, errors here are not swallowed — anything this hook throws, or that propagates out of `next()`<!-- -->, becomes the call's error response (`IMQ_RPC_CALL_ERROR`<!-- -->, preserving the thrown error's own `code` when it has one). So a wrapping hook can safely let failures through or rethrow enriched errors.
+
+Invoked bound to the service instance; `this` is untyped, so do not use an arrow function if you need it.
+

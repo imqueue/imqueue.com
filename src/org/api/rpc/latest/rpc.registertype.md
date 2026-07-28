@@ -8,7 +8,7 @@ title: "registerType() function · @imqueue/rpc"
 
 ## registerType() function
 
-Flushes  definitions collected on a class into the RPC type description. Invoked by class-level decorators once the class (and hence its name) is available.
+Flushes `@property` definitions collected on a class into the RPC type description. Invoked by class-level decorators once the class (and hence its name) is available.
 
 **Signature:**
 
@@ -62,7 +62,7 @@ DecoratorMetadata \| undefined
 
 </td><td>
 
-shared decorator metadata
+shared decorator metadata carrying the collected properties
 
 
 </td></tr>
@@ -78,7 +78,7 @@ string
 
 </td><td>
 
-_(Optional)_ optional index signature definition
+_(Optional)_ optional index signature definition, as raw source text
 
 
 </td></tr>
@@ -87,4 +87,12 @@ _(Optional)_ optional index signature definition
 **Returns:**
 
 void
+
+## Remarks
+
+Only the class's own collected properties are flushed — fields inherited from a base class are not copied, and are represented solely by `inherits`<!-- -->. So every class in a hierarchy that declares `@property` fields needs its own [classType()](/api/rpc/latest/rpc.classtype/) or [indexed()](/api/rpc/latest/rpc.indexed/)<!-- -->, or those fields are lost.
+
+`inherits` is re-derived from the runtime prototype chain on every call, and is the empty string for a class with no `extends`<!-- -->.
+
+Each property is installed as an accessor whose `type` is a memoising getter, so the type argument is resolved on first read rather than at decoration time. Existing entries are merged into, never cleared.
 

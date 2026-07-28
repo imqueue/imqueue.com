@@ -8,6 +8,8 @@ title: "ArgDescription.description property · @imqueue/rpc"
 
 ## ArgDescription.description property
 
+Prose describing the argument, taken from the text after the name on the JSDoc `@param` line. Empty string when undocumented.
+
 **Signature:**
 
 ```typescript

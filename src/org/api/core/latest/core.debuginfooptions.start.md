@@ -8,10 +8,15 @@ title: "DebugInfoOptions.start property · @imqueue/core"
 
 ## DebugInfoOptions.start property
 
-Execution start timestamp (from process.hrtime.bigint or milliseconds)
+Nanosecond-resolution start reading, as returned by `process.hrtime.bigint()`<!-- -->.
 
 **Signature:**
 
 ```typescript
 start: bigint | number;
 ```
+
+## Remarks
+
+A `number` is accepted but must be an integral nanosecond count: a non-integer throws a `RangeError`<!-- -->, and a millisecond timestamp such as `Date.now()` produces a meaningless duration.
+

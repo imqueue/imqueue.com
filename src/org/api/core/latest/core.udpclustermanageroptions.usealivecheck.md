@@ -8,12 +8,21 @@ title: "UDPClusterManagerOptions.useAliveCheck property · @imqueue/core"
 
 ## UDPClusterManagerOptions.useAliveCheck property
 
-Message queue alive-server check flag. If set to false, the server will not be checked for liveness on each broadcast message with a timeout. Can be specified by the environment variable if the given option is not bypassed: IMQ\_UDP\_CLUSTER\_MANAGER\_ALIVE\_CHECK
-
- true  {<!-- -->boolean<!-- -->}
+Whether announced servers are expired when they stop broadcasting.
 
 **Signature:**
 
 ```typescript
 useAliveCheck: boolean;
 ```
+
+## Default Value
+
+true
+
+## Remarks
+
+When disabled, a server is removed only on an explicit `down` announcement — so a host that dies silently is never removed and keeps receiving round-robin sends.
+
+The default can be overridden with the `IMQ_UDP_CLUSTER_MANAGER_ALIVE_CHECK` environment variable, which is read as a number when the module loads: use `1` to enable and `0` to disable. Any non-numeric value — including the word `true` — is read as disabled.
+

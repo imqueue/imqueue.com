@@ -8,8 +8,15 @@ title: "ReturnValueDescription.tsType property · @imqueue/rpc"
 
 ## ReturnValueDescription.tsType property
 
+The return type from the method's `@returns` JSDoc, defaulting to `'any'`<!-- -->.
+
 **Signature:**
 
 ```typescript
 tsType: string;
 ```
+
+## Remarks
+
+May span multiple lines. A generated client collapses whitespace and rewrites a bare `Promise` to `Promise<any>`<!-- -->, so this is not necessarily what ends up in the client verbatim.
+

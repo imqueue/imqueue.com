@@ -8,7 +8,7 @@ title: "ILogger.error() method · @imqueue/core"
 
 ## ILogger.error() method
 
-Error level function
+Writes a message at the `error` level.
 
 **Signature:**
 
@@ -45,6 +45,8 @@ unknown\[\]
 
 
 </td><td>
+
+values to log
 
 
 </td></tr>

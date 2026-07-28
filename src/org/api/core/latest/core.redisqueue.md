@@ -8,7 +8,7 @@ title: "RedisQueue class · @imqueue/core"
 
 ## RedisQueue class
 
-Class RedisQueue Implements a simple messaging queue over redis.
+Redis-backed message queue with at-least-once delivery — the default [IMessageQueue](/api/core/latest/core.imessagequeue/) implementation, and what [IMQ.create()](/api/core/latest/core.imq.create/) returns for a single-server configuration.
 
 **Signature:**
 
@@ -18,6 +18,16 @@ export declare class RedisQueue extends EventEmitter<EventMap> implements IMessa
 **Extends:** EventEmitter&lt;[EventMap](/api/core/latest/core.eventmap/)<!-- -->&gt;
 
 **Implements:** [IMessageQueue](/api/core/latest/core.imessagequeue/)
+
+## Remarks
+
+Connection model: the reader is per instance and exists only in [IMQMode.BOTH](/api/core/latest/core.imqmode/) or [IMQMode.WORKER](/api/core/latest/core.imqmode/) mode, while the writer and watcher connections are shared per `host:port` across every queue in the process and reference-counted. Exactly one queue per key prefix is elected as the watcher through a `<prefix>:watch:lock` key, and that owner also releases delayed messages, recovers abandoned safe-delivery hand-offs and — when [IMQOptions.cleanup](/api/core/latest/core.imqoptions.cleanup/) is on — prunes orphaned keys.
+
+Lifecycle: [RedisQueue.start()](/api/core/latest/core.redisqueue.start/) is required before consuming or publishing, while [RedisQueue.send()](/api/core/latest/core.redisqueue.send/) starts the queue lazily. [RedisQueue.stop()](/api/core/latest/core.redisqueue.stop/) only stops consuming; use [RedisQueue.destroy()](/api/core/latest/core.redisqueue.destroy/) to release the watcher lock, the timers and the connections.
+
+Reconnection is handled by the queue itself — ioredis's own retry strategy is disabled in favour of a capped exponential backoff from 1 s to 30 s per channel.
+
+Events (typed by [EventMap](/api/core/latest/core.eventmap/)<!-- -->): `message`<!-- -->, with the payload, the message id and the sending queue's name; and `error`<!-- -->, with the error and the name of the internal routine that caught it (`OnMessage`<!-- -->, `OnProcessDelayed`<!-- -->, `OnSafeDelivery`<!-- -->, `OnWatch`<!-- -->, `OnConfig`<!-- -->, `OnScriptLoad`<!-- -->, `OnReadUnsafe` or `OnReadSafe`<!-- -->). Background errors are emitted only when at least one `error` listener is attached — otherwise they are logged and swallowed, so attach one if you need to observe them.
 
 ## Constructors
 
@@ -47,7 +57,7 @@ Description
 
 </td><td>
 
-Constructs a new instance of the `RedisQueue` class
+Creates a queue handle. No connection is opened here — call [RedisQueue.start()](/api/core/latest/core.redisqueue.start/)<!-- -->, or [RedisQueue.send()](/api/core/latest/core.redisqueue.send/)<!-- -->, which starts the queue implicitly.
 
 
 </td></tr>
@@ -93,7 +103,7 @@ boolean
 
 </td><td>
 
-Returns false only when this queue is known to be unable to accept writes right now — i.e., it has a writer connection currently in a non-ready (reconnecting/closed) state. A queue that has not yet connected is considered available, since a sending lazily connects it. Used for health-aware routing in the clustered queue.
+Returns false only when this queue is known to be unable to accept writes right now — i.e., it has a writer connection currently in a non-ready (reconnecting/closed) state. A queue that has not yet connected is considered available, since sending connects it lazily. Used for health-aware routing in the clustered queue.
 
 
 </td></tr>
@@ -112,6 +122,8 @@ string
 
 </td><td>
 
+The queue name. The underlying redis list key is `<prefix>:<name>`<!-- -->, the same name is the default pub/sub channel used by [RedisQueue.publish()](/api/core/latest/core.redisqueue.publish/)<!-- -->, and it is the `from` value carried by messages this queue sends.
+
 
 </td></tr>
 <tr><td>
@@ -129,9 +141,7 @@ string
 
 </td><td>
 
-This queue instance options
-
- {<!-- -->IMQOptions<!-- -->}
+The effective options for this queue: [DEFAULT\_IMQ\_OPTIONS](/api/core/latest/core.default_imq_options/) merged with the values passed to the constructor.
 
 
 </td></tr>
@@ -152,7 +162,7 @@ string
 
 </td><td>
 
-This queue instance unique key (identifier), for internal use
+The `host:port` address of the redis server this queue talks to.
 
 
 </td></tr>
@@ -186,7 +196,7 @@ Description
 
 </td><td>
 
-Clears queue data in redis
+Deletes this queue's message list and its delayed-message set from redis.
 
 
 </td></tr>
@@ -258,7 +268,7 @@ If toName specified will publish to PubSub with a different name. This can be us
 
 </td><td>
 
-Retrieves the current count of messages in the queue
+Returns the number of messages currently waiting in this queue's main list.
 
 
 </td></tr>
@@ -272,7 +282,7 @@ Retrieves the current count of messages in the queue
 
 </td><td>
 
-Sends a given message to a given queue (by name)
+Sends a given message to a given queue (by name).
 
 
 </td></tr>
@@ -286,7 +296,7 @@ Sends a given message to a given queue (by name)
 
 </td><td>
 
-Initializes and starts current queue routines
+Initializes and starts current queue routines: opens the writer (and, in [IMQMode.BOTH](/api/core/latest/core.imqmode/) or [IMQMode.WORKER](/api/core/latest/core.imqmode/) mode, the reader), joins watcher election and starts the periodic watcher check.
 
 
 </td></tr>
@@ -300,7 +310,7 @@ Initializes and starts current queue routines
 
 </td><td>
 
-Stops current queue routines
+Stops consuming messages by tearing down this instance's reader connection.
 
 
 </td></tr>
@@ -314,7 +324,7 @@ Stops current queue routines
 
 </td><td>
 
-Creates a subscription channel over redis and sets up channel data read handler
+Creates a subscription channel over redis and sets up channel data read handler. The effective Redis channel is `<prefix>:<channel>`<!-- -->.
 
 
 </td></tr>
@@ -328,7 +338,7 @@ Creates a subscription channel over redis and sets up channel data read handler
 
 </td><td>
 
-Closes subscription channel
+Closes the subscription connection and forgets the channel name together with every handler registered through [RedisQueue.subscribe()](/api/core/latest/core.redisqueue.subscribe/)<!-- -->.
 
 
 </td></tr>

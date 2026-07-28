@@ -8,12 +8,17 @@ title: "IMQOptions.useGzip property · @imqueue/core"
 
 ## IMQOptions.useGzip property
 
-Enable message compression for serialization. Increases a worker CPU load but decreases network traffic between workers and the queue host.
-
- {<!-- -->boolean<!-- -->}
+Enable message compression for serialization. Increases a worker CPU load but decreases network traffic between workers and the queue host. Defaults to `false`<!-- -->.
 
 **Signature:**
 
 ```typescript
 useGzip?: boolean;
 ```
+
+## Remarks
+
+Must be set identically on every producer and consumer of a queue: a mismatch makes deserialization fail, which emits an `error` event with the event name `OnMessage` and drops the message — permanently, even under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/)<!-- -->, because the worker key is released immediately afterwards.
+
+Applies to queue messages only. [IMessageQueue.publish()](/api/core/latest/core.imessagequeue.publish/) and [IMessageQueue.subscribe()](/api/core/latest/core.imessagequeue.subscribe/) payloads are always plain JSON.
+

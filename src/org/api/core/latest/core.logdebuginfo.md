@@ -8,7 +8,7 @@ title: "logDebugInfo() function · @imqueue/core"
 
 ## logDebugInfo() function
 
-Logs debug information about a function call
+Emits the profiling output for a single call: the elapsed time computed from `input.start`<!-- -->, and/or the call arguments serialized as indented JSON.
 
 **Signature:**
 
@@ -36,20 +36,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-{ debugTime, debugArgs, className, args, methodName, start, logger, logLevel, }
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 input
 
 
@@ -60,6 +46,8 @@ input
 
 </td><td>
 
+fully-resolved description of the profiled call
+
 
 </td></tr>
 </tbody></table>
@@ -67,4 +55,10 @@ input
 **Returns:**
 
 void
+
+## Remarks
+
+Nothing is written when no logger is supplied, or when the logger does not implement the requested level — the work is still done, silently.
+
+Circular and merely repeated object references are omitted from the argument dump. If the arguments cannot be serialized at all (a `BigInt`<!-- -->, for example), the failure is reported through `logger.error` regardless of the configured level and the arguments are logged as an empty string.
 

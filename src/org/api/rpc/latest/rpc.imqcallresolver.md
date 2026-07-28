@@ -78,7 +78,7 @@ client
 
 </td><td>
 
-the client the call belongs to  {<!-- -->(data: any, res: IMQRPCResponse) =<!-- -->&gt; void<!-- -->} - a hook-aware resolver
+the client the call belongs to
 
 
 </td></tr>
@@ -87,4 +87,6 @@ the client the call belongs to  {<!-- -->(data: any, res: IMQRPCResponse) =<!-- 
 **Returns:**
 
 (data: any, res: [IMQRPCResponse](/api/rpc/latest/rpc.imqrpcresponse/)<!-- -->) =&gt; void
+
+a hook-aware resolver
 

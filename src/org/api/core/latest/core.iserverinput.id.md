@@ -8,9 +8,7 @@ title: "IServerInput.id property · @imqueue/core"
 
 ## IServerInput.id property
 
-Message queue network unique identifier, optional property
-
- {<!-- -->string \| undefined<!-- -->}
+Identifier used to match this server against cluster membership. When omitted, matching falls back to host and port.
 
 **Signature:**
 

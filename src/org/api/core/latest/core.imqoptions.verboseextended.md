@@ -8,9 +8,12 @@ title: "IMQOptions.verboseExtended property · @imqueue/core"
 
 ## IMQOptions.verboseExtended property
 
-Enables/disables extended verbose logging. The output may contain sensitive information, so use it with caution. Does not work if a verbose option is disabled.
+> Warning: This API is now obsolete.
+> 
+> Never implemented — no code path reads this option, so setting it produces no additional output whatsoever. Use [IMQOptions.verbose](/api/core/latest/core.imqoptions.verbose/) instead. Scheduled for removal in the next major.
+> 
 
- false  {<!-- -->boolean<!-- -->}
+Enables/disables extended verbose logging.
 
 **Signature:**
 

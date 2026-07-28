@@ -8,7 +8,9 @@ title: "ILogger interface · @imqueue/core"
 
 ## ILogger interface
 
-Logger interface
+Minimal logging contract the framework writes diagnostics through. The global `console` satisfies it, and it is the default.
+
+Pass an implementation as [IMQOptions.logger](/api/core/latest/core.imqoptions.logger/) to redirect queue output, or a no-op implementation to silence it. The method names match the members of [LogLevel](/api/core/latest/core.loglevel/)<!-- -->, so a level can be used as a property lookup on a logger.
 
 **Signature:**
 
@@ -36,7 +38,7 @@ Description
 
 </td><td>
 
-Error level function
+Writes a message at the `error` level.
 
 
 </td></tr>
@@ -47,7 +49,7 @@ Error level function
 
 </td><td>
 
-Info level function
+Writes a message at the `info` level.
 
 
 </td></tr>
@@ -58,7 +60,7 @@ Info level function
 
 </td><td>
 
-Log level function
+Writes a message at the `log` level.
 
 
 </td></tr>
@@ -69,7 +71,7 @@ Log level function
 
 </td><td>
 
-Warning level function
+Writes a message at the `warn` level.
 
 
 </td></tr>

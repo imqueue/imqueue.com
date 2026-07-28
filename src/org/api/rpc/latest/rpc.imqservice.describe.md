@@ -8,7 +8,7 @@ title: "IMQService.describe() method · @imqueue/rpc"
 
 ## IMQService.describe() method
 
-Returns service description metadata.
+Returns this service's description metadata — the exposed method list plus the registered complex types — synchronously.
 
 **Signature:**
 
@@ -19,5 +19,11 @@ describe(): Description;
 
 [Description](/api/rpc/latest/rpc.description/)
 
-{<!-- -->Promise<Description>}
+a plain object matching the [Description](/api/rpc/latest/rpc.description/) shape, not a class instance
+
+## Remarks
+
+This method is itself exposed, so a remote caller invoking it through a generated client receives a `Promise<Description>` — but called locally it is not a promise and must not be awaited as one.
+
+The result is built once per service name and cached process-wide for the lifetime of the process, so methods attached after the first call are not reflected. The cache key is the service `name` while the method list is resolved from the concrete class name, so constructing two differently-classed services under the same `name` in one process makes them share a single description.
 

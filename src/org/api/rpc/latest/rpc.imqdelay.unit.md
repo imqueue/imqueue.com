@@ -8,6 +8,8 @@ title: "IMQDelay.unit property · @imqueue/rpc"
 
 ## IMQDelay.unit property
 
+Time unit of [IMQDelay.timer](/api/rpc/latest/rpc.imqdelay.timer/) — milliseconds, seconds, minutes, hours or days. Defaults to `'ms'`<!-- -->, meaning `timer` is already a millisecond count.
+
 **Signature:**
 
 ```typescript

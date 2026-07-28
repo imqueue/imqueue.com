@@ -8,7 +8,7 @@ title: "IMessageQueue.subscribe() method · @imqueue/core"
 
 ## IMessageQueue.subscribe() method
 
-Creates or uses a subscription channel with the given name and sets message handler on data receive
+Subscribes to the pub/sub channel with the given name and registers a handler for the data it delivers. The effective channel is `<prefix>:<channel>`<!-- -->.
 
 **Signature:**
 
@@ -46,7 +46,7 @@ string
 
 </td><td>
 
-channel name
+channel name within the queue's prefix namespace
 
 
 </td></tr>
@@ -62,6 +62,8 @@ handler
 
 </td><td>
 
+invoked with the parsed payload of each published message
+
 
 </td></tr>
 </tbody></table>
@@ -69,4 +71,14 @@ handler
 **Returns:**
 
 Promise&lt;void&gt;
+
+## Exceptions
+
+TypeError when no channel name is given, or when a different channel name is supplied while a subscription is already open — an instance supports exactly one channel until [IMessageQueue.unsubscribe()](/api/core/latest/core.imessagequeue.unsubscribe/) resets it
+
+## Remarks
+
+Calling this repeatedly with the same channel name adds another handler rather than replacing the existing one, and all of them are invoked. The subscription uses its own connection, so it does not require [IMessageQueue.start()](/api/core/latest/core.imessagequeue.start/)<!-- -->, and it is re-established automatically after a reconnect.
+
+Payloads are always plain JSON — [IMQOptions.useGzip](/api/core/latest/core.imqoptions.usegzip/) does not apply to pub/sub. Delivery is fire-and-forget: messages published while nobody is subscribed are lost, unlike queued messages.
 

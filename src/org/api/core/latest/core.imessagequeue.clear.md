@@ -8,7 +8,7 @@ title: "IMessageQueue.clear() method · @imqueue/core"
 
 ## IMessageQueue.clear() method
 
-Clears all queue data from the queue host application.
+Deletes this queue's pending messages — both the main list and the delayed set for `<prefix>:<name>`<!-- -->.
 
 **Signature:**
 
@@ -19,5 +19,11 @@ clear(): Promise<IMessageQueue>;
 
 Promise&lt;[IMessageQueue](/api/core/latest/core.imessagequeue/)<!-- -->&gt;
 
-{<!-- -->Promise<IMessageQueue>}
+this queue instance
+
+## Remarks
+
+Other queues in the namespace, the watcher lock, and messages currently leased to a worker under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/) are all untouched — a leased message can be re-queued by the watcher once its lease expires, so this does not guarantee the queue stays empty.
+
+It never rejects: with no writer connection it silently does nothing, and host failures are logged rather than raised, so success cannot be inferred from a resolved promise.
 

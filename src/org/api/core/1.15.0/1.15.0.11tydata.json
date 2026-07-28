@@ -133,27 +133,27 @@
       "group": "Variables",
       "items": [
         {
-          "name": "DEFAULT\\_IMQ\\_OPTIONS",
+          "name": "DEFAULT_IMQ_OPTIONS",
           "url": "/api/core/1.15.0/core.default_imq_options/"
         },
         {
-          "name": "IMQ\\_LOG\\_ARGS",
+          "name": "IMQ_LOG_ARGS",
           "url": "/api/core/1.15.0/core.imq_log_args/"
         },
         {
-          "name": "IMQ\\_LOG\\_LEVEL",
+          "name": "IMQ_LOG_LEVEL",
           "url": "/api/core/1.15.0/core.imq_log_level/"
         },
         {
-          "name": "IMQ\\_LOG\\_TIME\\_FORMAT",
+          "name": "IMQ_LOG_TIME_FORMAT",
           "url": "/api/core/1.15.0/core.imq_log_time_format/"
         },
         {
-          "name": "IMQ\\_LOG\\_TIME",
+          "name": "IMQ_LOG_TIME",
           "url": "/api/core/1.15.0/core.imq_log_time/"
         },
         {
-          "name": "IMQ\\_SHUTDOWN\\_TIMEOUT",
+          "name": "IMQ_SHUTDOWN_TIMEOUT",
           "url": "/api/core/1.15.0/core.imq_shutdown_timeout/"
         }
       ]

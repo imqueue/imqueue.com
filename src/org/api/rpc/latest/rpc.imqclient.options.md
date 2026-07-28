@@ -8,6 +8,8 @@ title: "IMQClient.options property · @imqueue/rpc"
 
 ## IMQClient.options property
 
+The effective options for this client: [DEFAULT\_IMQ\_CLIENT\_OPTIONS](/api/rpc/latest/rpc.default_imq_client_options/) merged with the values passed to the constructor.
+
 **Signature:**
 
 ```typescript

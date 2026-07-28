@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.listenerCount() method · @imqueue/core"
 
 ## ClusteredRedisQueue.listenerCount() method
 
+Returns the listener count reported by a single representative emitter.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ any\[\]
 
 </td><td>
 
+the arguments `EventEmitter.listenerCount` accepts
+
 
 </td></tr>
 </tbody></table>
@@ -51,4 +55,10 @@ any\[\]
 **Returns:**
 
 number
+
+the count from the first server's queue, or from the internal template when the cluster is empty
+
+## Remarks
+
+This deliberately does not aggregate, which makes it inconsistent with [ClusteredRedisQueue.listeners()](/api/core/latest/core.clusteredredisqueue.listeners/)<!-- -->: for a three-server cluster with one registered `message` listener this returns `1` while `listeners('message')` returns four entries.
 

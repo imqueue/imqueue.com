@@ -8,9 +8,7 @@ title: "IMessage.id property · @imqueue/core"
 
 ## IMessage.id property
 
-Message unique identifier
-
- {<!-- -->string<!-- -->}
+Unique identifier assigned to the message when it was sent.
 
 **Signature:**
 

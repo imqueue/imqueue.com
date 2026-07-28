@@ -8,7 +8,7 @@ title: "ClusteredRedisQueue.stop() method · @imqueue/core"
 
 ## ClusteredRedisQueue.stop() method
 
-Stops the queue (should stop handling queue messages). Supposed to be an async function.
+Stops message handling on every server concurrently.
 
 **Signature:**
 
@@ -19,5 +19,9 @@ stop(): Promise<ClusteredRedisQueue>;
 
 Promise&lt;[ClusteredRedisQueue](/api/core/latest/core.clusteredredisqueue/)<!-- -->&gt;
 
-{<!-- -->Promise<ClusteredRedisQueue>}
+this queue instance
+
+## Remarks
+
+Connections are kept and any active subscription is retained, so servers joining afterwards are still subscribed to the remembered channel while remaining stopped. Use [ClusteredRedisQueue.destroy()](/api/core/latest/core.clusteredredisqueue.destroy/) to tear the connections down.
 

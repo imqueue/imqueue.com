@@ -46,7 +46,7 @@ ILogger \| [LoggedDecoratorOptions](/api/rpc/latest/rpc.loggeddecoratoroptions/)
 
 </td><td>
 
-_(Optional)_ a logger to use, or the logged-decorator options  {<!-- -->Function<!-- -->} - a dual-mode method decorator
+_(Optional)_ a logger to use, or the logged-decorator options
 
 
 </td></tr>
@@ -55,4 +55,6 @@ _(Optional)_ a logger to use, or the logged-decorator options  {<!-- -->Function
 **Returns:**
 
 any
+
+a dual-mode method decorator
 

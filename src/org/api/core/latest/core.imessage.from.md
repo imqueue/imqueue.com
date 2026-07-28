@@ -8,9 +8,7 @@ title: "IMessage.from property · @imqueue/core"
 
 ## IMessage.from property
 
-Message source queue name
-
- {<!-- -->string<!-- -->}
+Name of the queue that produced the message.
 
 **Signature:**
 

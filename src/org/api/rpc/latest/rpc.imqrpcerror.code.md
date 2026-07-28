@@ -8,8 +8,17 @@ title: "IMQRPCError.code property · @imqueue/rpc"
 
 ## IMQRPCError.code property
 
+Machine-readable failure code.
+
 **Signature:**
 
 ```typescript
 code: string;
 ```
+
+## Remarks
+
+The framework emits `IMQ_RPC_NO_METHOD`<!-- -->, `IMQ_RPC_NO_ACCESS`<!-- -->, `IMQ_RPC_INVALID_ARGS_COUNT` and `IMQ_RPC_CALL_ERROR` on the service side, and `IMQ_RPC_CALL_TIMEOUT` on the client side. When a service method throws an error carrying its own `code`<!-- -->, that value is used verbatim instead of `IMQ_RPC_CALL_ERROR`<!-- -->, so application-specific codes also surface here.
+
+These codes are not exported as constants — compare against the string literals.
+

@@ -8,12 +8,17 @@ title: "IMQ_LOG_TIME_FORMAT variable · @imqueue/core"
 
 ## IMQ\_LOG\_TIME\_FORMAT variable
 
-Environment variable IMQ\_LOG\_TIME\_FORMAT. Specifies the format for profiled time logging. Values: 'microseconds', 'milliseconds', 'seconds'. Default: 'microseconds'
-
- {<!-- -->AllowedTimeFormat \| string<!-- -->}
+Unit used when rendering profiled execution time, from the `IMQ_LOG_TIME_FORMAT` environment variable. Accepts `microseconds`<!-- -->, `milliseconds` or `seconds`<!-- -->, and defaults to `microseconds`<!-- -->.
 
 **Signature:**
 
 ```typescript
 IMQ_LOG_TIME_FORMAT: AllowedTimeFormat
 ```
+
+## Remarks
+
+The value is not validated, so any unrecognized string falls back to `microseconds` silently. Read once when the module is first imported and applied globally — there is no per-decorator or per-call override.
+
+Output is rendered as `<n> μs` (unrounded), `<n.nnn> ms`<!-- -->, or `<n.nnn> sec`<!-- -->.
+

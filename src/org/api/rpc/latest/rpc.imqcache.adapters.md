@@ -8,6 +8,8 @@ title: "IMQCache.adapters property · @imqueue/rpc"
 
 ## IMQCache.adapters property
 
+The registry of adapter instances, keyed by adapter name.
+
 **Signature:**
 
 ```typescript
@@ -15,3 +17,8 @@ static adapters: {
         [name: string]: ICache;
     };
 ```
+
+## Remarks
+
+Exposed for inspection. Mutating it directly bypasses the option staging that [IMQCache.register()](/api/rpc/latest/rpc.imqcache.register/) and [IMQCache.apply()](/api/rpc/latest/rpc.imqcache.apply/) perform.
+

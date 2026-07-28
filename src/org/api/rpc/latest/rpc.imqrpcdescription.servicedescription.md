@@ -8,8 +8,15 @@ title: "IMQRPCDescription.serviceDescription property · @imqueue/rpc"
 
 ## IMQRPCDescription.serviceDescription property
 
+All classes that declare exposed methods, keyed by class name (not service name).
+
 **Signature:**
 
 ```typescript
 static serviceDescription: ServiceDescription;
 ```
+
+## Remarks
+
+Filled in as decorators run at class-definition time, so it is only complete once every service module has been loaded. Entries are never removed.
+

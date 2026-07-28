@@ -56,5 +56,5 @@ adapter name, class or instance
 
 [ICache](/api/rpc/latest/rpc.icache/)
 
-{<!-- -->ICache<!-- -->} - adapter instance
+adapter instance
 

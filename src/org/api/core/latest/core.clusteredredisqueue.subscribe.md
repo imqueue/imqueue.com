@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.subscribe() method · @imqueue/core"
 
 ## ClusteredRedisQueue.subscribe() method
 
+Subscribes the given handler on every redis host in the cluster, and remembers the subscription so servers that join later are subscribed automatically.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ string
 
 </td><td>
 
+channel name within the queue's prefix namespace
+
 
 </td></tr>
 <tr><td>
@@ -58,6 +62,8 @@ handler
 
 </td><td>
 
+invoked with the parsed payload of each published message
+
 
 </td></tr>
 </tbody></table>
@@ -65,4 +71,14 @@ handler
 **Returns:**
 
 Promise&lt;void&gt;
+
+## Exceptions
+
+TypeError when a different channel name is supplied while a subscription is already open on the underlying queues
+
+## Remarks
+
+Only one channel per instance is supported. Calling this again with the same channel registers the handler a second time; calling it with a different channel rejects — and the remembered subscription is left pointing at the rejected name, which is what newly joining servers would then use.
+
+The handler receives one invocation per host that delivers the message.
 

@@ -8,8 +8,15 @@ title: "IRedisCacheOptions.conn property · @imqueue/rpc"
 
 ## IRedisCacheOptions.conn property
 
+An existing Redis client to reuse — a running service's queue writer, for example — instead of opening a new connection.
+
 **Signature:**
 
 ```typescript
 conn?: IRedisClient;
 ```
+
+## Remarks
+
+Honoured only while no shared connection exists yet.
+

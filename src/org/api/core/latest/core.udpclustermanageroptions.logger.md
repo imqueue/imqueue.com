@@ -10,10 +10,13 @@ title: "UDPClusterManagerOptions.logger property · @imqueue/core"
 
 Logger used for worker supervision messages
 
- console  {<!-- -->ILogger<!-- -->}
-
 **Signature:**
 
 ```typescript
 logger: ILogger;
 ```
+
+## Default Value
+
+console
+

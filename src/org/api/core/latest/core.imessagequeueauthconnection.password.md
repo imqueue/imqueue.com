@@ -8,9 +8,7 @@ title: "IMessageQueueAuthConnection.password property · @imqueue/core"
 
 ## IMessageQueueAuthConnection.password property
 
-Message queue password
-
- {<!-- -->string<!-- -->}
+Password for the queue host.
 
 **Signature:**
 

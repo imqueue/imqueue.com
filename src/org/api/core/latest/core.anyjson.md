@@ -8,7 +8,7 @@ title: "AnyJson type · @imqueue/core"
 
 ## AnyJson type
 
-Represents any JSON-serializable value
+Any JSON value.
 
 **Signature:**
 
@@ -16,4 +16,8 @@ Represents any JSON-serializable value
 export type AnyJson = boolean | number | string | null | undefined | JsonArray | JsonObject;
 ```
 **References:** [JsonArray](/api/core/latest/core.jsonarray/)<!-- -->, [JsonObject](/api/core/latest/core.jsonobject/)
+
+## Remarks
+
+`undefined` is accepted by the type for ergonomics but is not preserved by serialization — `undefined` properties are silently dropped when a message is sent.
 

@@ -8,6 +8,8 @@ title: "IMQService.logger property · @imqueue/rpc"
 
 ## IMQService.logger property
 
+The effective logger — `options.logger`<!-- -->, defaulting to `console`<!-- -->.
+
 **Signature:**
 
 ```typescript

@@ -8,8 +8,15 @@ title: "IMQMetricsServerOptions.queueLengthFormatter property · @imqueue/rpc"
 
 ## IMQMetricsServerOptions.queueLengthFormatter property
 
+Renders the response body from the current queue length and the metric name, which is always the literal `'queue_length'`<!-- -->.
+
 **Signature:**
 
 ```typescript
 queueLengthFormatter?: (length: number, metricName: string) => string;
 ```
+
+## Remarks
+
+Defaults to a Prometheus-style rendering. A falsy return falls back to the bare number. Note that the queue length reports `0` while the queue's writer is disconnected.
+

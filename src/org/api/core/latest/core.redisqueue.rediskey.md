@@ -8,10 +8,15 @@ title: "RedisQueue.redisKey property · @imqueue/core"
 
 ## RedisQueue.redisKey property
 
-This queue instance unique key (identifier), for internal use
+The `host:port` address of the redis server this queue talks to.
 
 **Signature:**
 
 ```typescript
 readonly redisKey: string;
 ```
+
+## Remarks
+
+This is not an instance identifier. It is deliberately shared by every queue in the process that targets the same server, and is the key under which the writer and watcher connections (and the writer reference count) are stored. It includes neither the key prefix nor the credentials, so two queues differing only in those share the same underlying connections — the first one created wins.
+

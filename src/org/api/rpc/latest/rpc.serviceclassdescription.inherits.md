@@ -8,8 +8,15 @@ title: "ServiceClassDescription.inherits property · @imqueue/rpc"
 
 ## ServiceClassDescription.inherits property
 
+Name of the class this one extends, read from the runtime prototype chain. The literal `'Function'` means there is no class parent.
+
 **Signature:**
 
 ```typescript
 inherits: string;
 ```
+
+## Remarks
+
+This differs from [TypesDescription](/api/rpc/latest/rpc.typesdescription/)<!-- -->'s `inherits`<!-- -->, which uses an empty string in that situation — one "has a parent?" check cannot serve both.
+

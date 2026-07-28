@@ -88,5 +88,11 @@ _(Optional)_ time-to-live in milliseconds
 
 Promise&lt;boolean&gt;
 
-{<!-- -->Promise<boolean>}
+a truthy value when the write happened, falsy when it did not
+
+## Remarks
+
+Test the result for truthiness rather than comparing against `true` — the built-in Redis adapter resolves to the string `'OK'` or to `null`<!-- -->, never to a boolean.
+
+The framework additionally passes a fourth argument, an `nx` flag meaning "only create the key if it does not already exist". Adapters that cannot honour it should say so, because the [cache](/api/rpc/latest/rpc.cache/) decorator always passes it.
 

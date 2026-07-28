@@ -8,8 +8,17 @@ title: "Thunk interface · @imqueue/rpc"
 
 ## Thunk interface
 
+A zero-argument function whose return value is resolved lazily.
+
+Used by [property()](/api/rpc/latest/rpc.property/) and [indexed()](/api/rpc/latest/rpc.indexed/) so a type definition can reference a class that is not yet initialized at decoration time — self-references and forward references.
+
 **Signature:**
 
 ```typescript
 export interface Thunk 
 ```
+
+## Remarks
+
+Detection is by the absence of a function name, so the thunk must be an anonymous function or arrow function. A named function is treated as a constructor instead, and resolves to its own name.
+

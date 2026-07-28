@@ -8,8 +8,15 @@ title: "IMQRPCResponse.data property · @imqueue/rpc"
 
 ## IMQRPCResponse.data property
 
+The value the service method returned, as JSON.
+
 **Signature:**
 
 ```typescript
 data: JsonObject | null;
 ```
+
+## Remarks
+
+Despite the `JsonObject` annotation this may be any JSON value — primitive, array or object — and the key is absent from the delivered message when the method returned nothing. It is `null` on the initial response skeleton and stays `null` when the call failed.
+

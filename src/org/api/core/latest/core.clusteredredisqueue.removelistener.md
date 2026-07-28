@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.removeListener() method · @imqueue/core"
 
 ## ClusteredRedisQueue.removeListener() method
 
+Removes a listener from every server's queue and from the internal template. Alias of [ClusteredRedisQueue.off()](/api/core/latest/core.clusteredredisqueue.off/)<!-- -->.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ any\[\]
 
 </td><td>
 
+the arguments `EventEmitter.removeListener` accepts
+
 
 </td></tr>
 </tbody></table>
@@ -51,4 +55,6 @@ any\[\]
 **Returns:**
 
 this
+
+this queue instance
 

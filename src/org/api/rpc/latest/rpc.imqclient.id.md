@@ -8,8 +8,15 @@ title: "IMQClient.id property · @imqueue/rpc"
 
 ## IMQClient.id property
 
+Per-host instance slot number — not an OS process id.
+
 **Signature:**
 
 ```typescript
 readonly id: number;
 ```
+
+## Remarks
+
+Allocated by claiming the lowest free pid file under `$TMPDIR/.imq-rpc`<!-- -->; the file itself contains the real `process.pid`<!-- -->. Ids released by [IMQClient.destroy()](/api/rpc/latest/rpc.imqclient.destroy/) are not re-issued within the same process.
+

@@ -8,7 +8,7 @@ title: "RedisQueue.subscribe() method · @imqueue/core"
 
 ## RedisQueue.subscribe() method
 
-Creates a subscription channel over redis and sets up channel data read handler
+Creates a subscription channel over redis and sets up channel data read handler. The effective Redis channel is `<prefix>:<channel>`<!-- -->.
 
 **Signature:**
 
@@ -46,6 +46,8 @@ string
 
 </td><td>
 
+channel name within this queue's prefix namespace
+
 
 </td></tr>
 <tr><td>
@@ -60,6 +62,8 @@ handler
 
 </td><td>
 
+invoked with the parsed payload of each published message
+
 
 </td></tr>
 </tbody></table>
@@ -68,5 +72,15 @@ handler
 
 Promise&lt;void&gt;
 
-{<!-- -->Promise<void>}
+## Exceptions
+
+TypeError when no channel name is given, or when a different channel name is supplied while a subscription is already open — an instance supports exactly one channel until [RedisQueue.unsubscribe()](/api/core/latest/core.redisqueue.unsubscribe/) resets it
+
+## Remarks
+
+Calling this again with the same channel adds another handler rather than replacing the existing one, and every handler is invoked for each message.
+
+A dedicated subscription connection is created on demand, so [RedisQueue.start()](/api/core/latest/core.redisqueue.start/) is not required, and the subscription is re-established automatically after a reconnect.
+
+Payloads are parsed as plain JSON ([IMQOptions.useGzip](/api/core/latest/core.imqoptions.usegzip/) does not apply to pub/sub). Neither a parse error nor an exception thrown by the handler is contained by the queue, so handlers should not throw.
 

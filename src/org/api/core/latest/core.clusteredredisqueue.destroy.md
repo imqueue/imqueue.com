@@ -8,7 +8,7 @@ title: "ClusteredRedisQueue.destroy() method · @imqueue/core"
 
 ## ClusteredRedisQueue.destroy() method
 
-Safely destroys the current queue, unregistered all set event listeners and connections. Supposed to be an async function.
+Destroys every server's queue — closing their connections and removing their event listeners — then unregisters this cluster from all configured cluster managers.
 
 **Signature:**
 
@@ -19,5 +19,9 @@ destroy(): Promise<void>;
 
 Promise&lt;void&gt;
 
-{<!-- -->Promise<void>}
+## Remarks
+
+Unregistering shuts a manager down entirely once it has no clusters left, which for [UDPClusterManager](/api/core/latest/core.udpclustermanager/) also terminates its shared UDP worker.
+
+The instance must not be reused afterwards: internal routing state is not cleared, so a subsequent [ClusteredRedisQueue.send()](/api/core/latest/core.clusteredredisqueue.send/) would silently re-open a connection.
 

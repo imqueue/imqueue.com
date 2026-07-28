@@ -8,7 +8,7 @@ title: "ClusteredRedisQueue.addServer() method · @imqueue/core"
 
 ## ClusteredRedisQueue.addServer() method
 
-Adds new servers to the cluster
+Adds a single server to the cluster and returns its registration record.
 
 **Signature:**
 
@@ -46,13 +46,21 @@ server
 
 </td><td>
 
+address of the server to add
+
 
 </td></tr>
 </tbody></table>
 
 **Returns:**
 
-ClusterServer
+[ClusterServer](/api/core/latest/core.clusterserver/)
 
-{<!-- -->void<!-- -->}
+the registration record: the resolved `id`<!-- -->, `host` and `port` plus the [RedisQueue](/api/core/latest/core.redisqueue/) instance (`imq`<!-- -->) created for that host, so callers can inspect or address that specific host
+
+## Remarks
+
+Registration is idempotent, and the match rule is broader than an id comparison: a server counts as already present when its `id` matches an existing entry or when its host and port do. Two different ids on the same host and port are therefore treated as one server, and the existing record is returned unchanged without creating a queue.
+
+For a genuinely new server this returns as soon as the record is created — starting the queue and re-applying any active subscription happen asynchronously afterwards.
 

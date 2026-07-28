@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.on() method · @imqueue/core"
 
 ## ClusteredRedisQueue.on() method
 
+Registers a listener on every server's queue and on the internal template used to seed servers that join later.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +46,8 @@ any\[\]
 
 </td><td>
 
+the arguments `EventEmitter.on` accepts
+
 
 </td></tr>
 </tbody></table>
@@ -51,4 +55,6 @@ any\[\]
 **Returns:**
 
 this
+
+this queue instance
 

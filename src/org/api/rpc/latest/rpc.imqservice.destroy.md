@@ -8,9 +8,7 @@ title: "IMQService.destroy() method · @imqueue/rpc"
 
 ## IMQService.destroy() method
 
-Destroys this instance of service
-
- {<!-- -->Promise<void>}
+Removes this instance's signal handlers, then unsubscribes and destroys the underlying queue.
 
 **Signature:**
 
@@ -20,4 +18,8 @@ destroy(): Promise<void>;
 **Returns:**
 
 Promise&lt;void&gt;
+
+## Remarks
+
+It does not close the metrics server — if [IMQMetricsServerOptions.enabled](/api/rpc/latest/rpc.imqmetricsserveroptions.enabled/) was set, close `service.metricsServer` yourself, otherwise the open listener keeps the process alive. In-flight requests are not awaited.
 

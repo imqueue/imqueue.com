@@ -8,8 +8,15 @@ title: "IMQRPCError.args property · @imqueue/rpc"
 
 ## IMQRPCError.args property
 
+The call's arguments serialized as a pretty-printed JSON string, not an array — parse it before use.
+
 **Signature:**
 
 ```typescript
 args: string;
 ```
+
+## Remarks
+
+This embeds every argument value in the error, which is also written to the service log, so treat it as potentially sensitive. Serialization of this field is not guarded: constructing an error throws if `args` is not JSON-serializable, unlike [IMQRPCError.original](/api/rpc/latest/rpc.imqrpcerror.original/)<!-- -->.
+

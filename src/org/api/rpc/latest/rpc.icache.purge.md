@@ -8,7 +8,7 @@ title: "ICache.purge() method · @imqueue/rpc"
 
 ## ICache.purge() method
 
-Purges all keys from the cache matching the given wildcard mask.
+Deletes every key matching the given wildcard mask.
 
 **Signature:**
 
@@ -46,7 +46,7 @@ string
 
 </td><td>
 
-wildcard mask to match keys against
+wildcard mask matched against fully qualified key names
 
 
 </td></tr>
@@ -56,5 +56,9 @@ wildcard mask to match keys against
 
 Promise&lt;boolean&gt;
 
-{<!-- -->Promise<boolean>}
+whether the purge ran
+
+## Remarks
+
+The mask is not automatically scoped to this cache — callers must include the namespace themselves (`<prefix>:<name>:...`<!-- -->). A broad mask such as `'*'` will delete unrelated data, including message-queue keys.
 

@@ -8,15 +8,17 @@ title: "IMessage interface · @imqueue/core"
 
 ## IMessage interface
 
-Defines a message format.
-
- {<!-- -->IMessage<!-- -->}
+Internal envelope of a queued message as it is stored in Redis: a generated id, the caller's payload, and the name of the queue that sent it.
 
 **Signature:**
 
 ```typescript
 export interface IMessage 
 ```
+
+## Remarks
+
+Consumers never receive this object. The `message` event delivers the payload, the id and the source queue name as three separate arguments.
 
 ## Properties
 
@@ -56,9 +58,7 @@ number
 
 </td><td>
 
-_(Optional)_ Message delay in milliseconds (for delayed messages). Optional.
-
- {<!-- -->number<!-- -->}
+_(Optional)_ Intended delay in milliseconds.
 
 
 </td></tr>
@@ -77,9 +77,7 @@ string
 
 </td><td>
 
-Message source queue name
-
- {<!-- -->string<!-- -->}
+Name of the queue that produced the message.
 
 
 </td></tr>
@@ -98,9 +96,7 @@ string
 
 </td><td>
 
-Message unique identifier
-
- {<!-- -->string<!-- -->}
+Unique identifier assigned to the message when it was sent.
 
 
 </td></tr>
@@ -119,9 +115,7 @@ Message unique identifier
 
 </td><td>
 
-Message data. Any JSON-compatible data allowed
-
- {<!-- -->JsonObject<!-- -->}
+The message payload. Must be a JSON object — a bare string, number or array is not a valid message body.
 
 
 </td></tr>

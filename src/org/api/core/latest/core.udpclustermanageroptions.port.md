@@ -8,12 +8,19 @@ title: "UDPClusterManagerOptions.port property · @imqueue/core"
 
 ## UDPClusterManagerOptions.port property
 
-Message queue broadcast port
-
- 63000  {<!-- -->number<!-- -->}
+UDP port the manager listens on for cluster announcements.
 
 **Signature:**
 
 ```typescript
 port: number;
 ```
+
+## Default Value
+
+63000
+
+## Remarks
+
+The socket is opened with address and port reuse, so several processes on one host can listen simultaneously. The port is part of the shared-worker identity: managers using different ports each get their own socket and worker thread. There is no separate send port — this manager only listens.
+

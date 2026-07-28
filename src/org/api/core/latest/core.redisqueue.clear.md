@@ -8,7 +8,7 @@ title: "RedisQueue.clear() method · @imqueue/core"
 
 ## RedisQueue.clear() method
 
-Clears queue data in redis
+Deletes this queue's message list and its delayed-message set from redis.
 
 **Signature:**
 
@@ -19,5 +19,9 @@ clear(): Promise<RedisQueue>;
 
 Promise&lt;[RedisQueue](/api/core/latest/core.redisqueue/)<!-- -->&gt;
 
-{<!-- -->Promise<void>}
+this queue instance
+
+## Remarks
+
+A no-op that resolves successfully when the queue has no writer connection. In-flight messages held in worker keys under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/) are not removed and may be re-queued by the watcher after their lease expires, so this does not guarantee the queue stays empty. Errors are logged rather than thrown, so success cannot be inferred from a resolved promise.
 

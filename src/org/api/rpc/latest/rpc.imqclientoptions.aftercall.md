@@ -8,6 +8,8 @@ title: "IMQClientOptions.afterCall property · @imqueue/rpc"
 
 ## IMQClientOptions.afterCall property
 
+Post-settle hook. See [IMQAfterCall](/api/rpc/latest/rpc.imqaftercall/)<!-- -->.
+
 **Signature:**
 
 ```typescript

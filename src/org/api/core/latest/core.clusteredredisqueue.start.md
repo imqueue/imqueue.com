@@ -8,7 +8,7 @@ title: "ClusteredRedisQueue.start() method · @imqueue/core"
 
 ## ClusteredRedisQueue.start() method
 
-Starts the messaging queue. Supposed to be an async function.
+Starts every server's queue concurrently.
 
 **Signature:**
 
@@ -19,5 +19,11 @@ start(): Promise<ClusteredRedisQueue>;
 
 Promise&lt;[ClusteredRedisQueue](/api/core/latest/core.clusteredredisqueue/)<!-- -->&gt;
 
-{<!-- -->Promise<ClusteredRedisQueue>}
+this queue instance
+
+## Remarks
+
+A failure on any one server rejects this call while the others continue starting, and the cluster stays in the started state — so servers that join afterwards are still started automatically.
+
+Always emits one informational log line, regardless of [IMQOptions.verbose](/api/core/latest/core.imqoptions.verbose/)<!-- -->.
 

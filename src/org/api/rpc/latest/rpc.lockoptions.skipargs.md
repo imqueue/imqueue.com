@@ -8,8 +8,15 @@ title: "LockOptions.skipArgs property · @imqueue/rpc"
 
 ## LockOptions.skipArgs property
 
+Positional indices of arguments to exclude when computing the lock key — useful for request-context or callback arguments that must not affect similarity.
+
 **Signature:**
 
 ```typescript
 skipArgs?: number[];
 ```
+
+## Remarks
+
+Excluded arguments are still passed to the method unchanged; only the key ignores them.
+

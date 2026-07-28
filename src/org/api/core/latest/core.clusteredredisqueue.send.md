@@ -8,7 +8,7 @@ title: "ClusteredRedisQueue.send() method · @imqueue/core"
 
 ## ClusteredRedisQueue.send() method
 
-Sends a message to a given queue name with the given data. Supposed to be an async function.
+Sends a message to one server of the cluster, selected by health-aware round-robin.
 
 **Signature:**
 
@@ -78,7 +78,7 @@ number
 
 </td><td>
 
-_(Optional)_ if specified, a message will be handled in the target queue after a specified period of time in milliseconds.
+_(Optional)_ if specified, a message will be handled in the target queue after a specified period of time in milliseconds
 
 
 </td></tr>
@@ -94,7 +94,7 @@ errorHandler
 
 </td><td>
 
-_(Optional)_ callback called only when internal error occurs during message send execution.
+_(Optional)_ callback called only when an internal error occurs during message send execution
 
 
 </td></tr>
@@ -104,5 +104,15 @@ _(Optional)_ callback called only when internal error occurs during message send
 
 Promise&lt;string&gt;
 
-{<!-- -->Promise<string>} - message identifier
+message identifier
+
+## Exceptions
+
+TypeError propagated from the selected server when it is in [IMQMode.WORKER](/api/core/latest/core.imqmode/)<!-- -->-only mode
+
+## Remarks
+
+This is the one operation that does not fan out — the message goes to a single server, and not to a stable one.
+
+When the cluster currently has no servers the send is held until the first server becomes ready, and rejects if none appears within 30 seconds (override with the `IMQ_SEND_INIT_TIMEOUT` environment variable, in milliseconds).
 

@@ -88,5 +88,3 @@ _(Optional)_ error to reject pending calls with
 
 void
 
-{<!-- -->void<!-- -->}
-

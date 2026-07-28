@@ -8,8 +8,19 @@ title: "IMQClientOptions.path property · @imqueue/rpc"
 
 ## IMQClientOptions.path property
 
+Directory the generated client is written to, resolved relative to the process working directory.
+
 **Signature:**
 
 ```typescript
 path: string;
 ```
+
+## Default Value
+
+'./src/clients'
+
+## Remarks
+
+Created only one level deep, so the parent directories must already exist — the default fails with `ENOENT` on a project that has no `./src` yet.
+

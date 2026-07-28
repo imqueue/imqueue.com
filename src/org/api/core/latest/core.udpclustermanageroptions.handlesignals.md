@@ -10,10 +10,19 @@ title: "UDPClusterManagerOptions.handleSignals property · @imqueue/core"
 
 Enable process signal handling (SIGTERM, SIGINT, SIGABRT) by the manager. When enabled, the manager stops its UDP workers on these signals and then re-raises the signal, so the process terminates through the default signal behavior. Disable if the host application manages its own shutdown sequence.
 
- true  {<!-- -->boolean<!-- -->}
-
 **Signature:**
 
 ```typescript
 handleSignals: boolean;
 ```
+
+## Default Value
+
+true
+
+## Remarks
+
+The handlers are installed once per process, by the first manager created with this enabled, and on a signal they stop every UDP worker in the process — including those of managers created with this option disabled. So disabling it only means this instance does not install the handlers; it does not exempt its worker from a shutdown another instance triggers.
+
+Once installed, the handlers remain for the lifetime of the process, even after every manager has been destroyed.
+

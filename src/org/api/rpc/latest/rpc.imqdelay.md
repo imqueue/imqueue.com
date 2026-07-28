@@ -90,9 +90,7 @@ number
 
 </td><td>
 
-Returns this delay converted to milliseconds.
-
- {<!-- -->number<!-- -->}
+Returns [IMQDelay.timer](/api/rpc/latest/rpc.imqdelay.timer/) converted to milliseconds.
 
 
 </td></tr>
@@ -111,6 +109,8 @@ number
 
 </td><td>
 
+The delay magnitude, expressed in [IMQDelay.unit](/api/rpc/latest/rpc.imqdelay.unit/)<!-- -->. Mutable after construction, and read by [IMQDelay.ms](/api/rpc/latest/rpc.imqdelay.ms/)<!-- -->.
+
 
 </td></tr>
 <tr><td>
@@ -127,6 +127,8 @@ number
 
 
 </td><td>
+
+Time unit of [IMQDelay.timer](/api/rpc/latest/rpc.imqdelay.timer/) — milliseconds, seconds, minutes, hours or days. Defaults to `'ms'`<!-- -->, meaning `timer` is already a millisecond count.
 
 
 </td></tr>

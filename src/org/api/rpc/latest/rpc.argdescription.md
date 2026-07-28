@@ -8,7 +8,7 @@ title: "ArgDescription interface · @imqueue/rpc"
 
 ## ArgDescription interface
 
-Method argument description
+Description of one argument of an exposed method, as parsed from its JSDoc.
 
 **Signature:**
 
@@ -54,6 +54,8 @@ string
 
 </td><td>
 
+Prose describing the argument, taken from the text after the name on the JSDoc `@param` line. Empty string when undocumented.
+
 
 </td></tr>
 <tr><td>
@@ -70,6 +72,8 @@ boolean
 
 
 </td><td>
+
+Whether the argument was documented as optional, i.e. written `[name]` in the JSDoc. A TypeScript `?` or a default value alone does not set this.
 
 
 </td></tr>
@@ -88,6 +92,8 @@ string
 
 </td><td>
 
+Parameter name, from the JSDoc `@param` when documented, otherwise read from the method's own signature.
+
 
 </td></tr>
 <tr><td>
@@ -105,6 +111,8 @@ string
 
 </td><td>
 
+The argument's type as written in the method's JSDoc, defaulting to `'any'` when undocumented. This is what a generated client emits into the method signature. Never empty.
+
 
 </td></tr>
 <tr><td>
@@ -121,6 +129,8 @@ string
 
 
 </td><td>
+
+Legacy duplicate of [ArgDescription.tsType](/api/rpc/latest/rpc.argdescription.tstype/) — always the identical string.
 
 
 </td></tr>

@@ -8,6 +8,8 @@ title: "CacheDecoratorOptions interface · @imqueue/rpc"
 
 ## CacheDecoratorOptions interface
 
+Per-method options for the [cache](/api/rpc/latest/rpc.cache/) decorator.
+
 **Signature:**
 
 ```typescript
@@ -52,7 +54,7 @@ string \| [ICache](/api/rpc/latest/rpc.icache/) \| [ICacheConstructor](/api/rpc/
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Cache adapter as a constructor, an instance, or a built-in adapter name.
 
 
 </td></tr>
@@ -71,7 +73,7 @@ boolean
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Store only when the key does not already exist.
 
 
 </td></tr>
@@ -90,7 +92,7 @@ number
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Time-to-live in milliseconds.
 
 
 </td></tr>

@@ -72,5 +72,3 @@ _(Optional)_ adapter-specific options
 
 typeof [IMQCache](/api/rpc/latest/rpc.imqcache/)
 
-{<!-- -->IMQCache<!-- -->}
-

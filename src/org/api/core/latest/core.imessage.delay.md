@@ -8,9 +8,12 @@ title: "IMessage.delay property · @imqueue/core"
 
 ## IMessage.delay property
 
-Message delay in milliseconds (for delayed messages). Optional.
+> Warning: This API is now obsolete.
+> 
+> Inert, and always absent in practice — the Redis adapter never writes this field and never reads it. Delays are carried in the queue's delayed sorted set, not in the message envelope, so pass the delay to [IMessageQueue.send()](/api/core/latest/core.imessagequeue.send/) instead. Scheduled for removal in the next major.
+> 
 
- {<!-- -->number<!-- -->}
+Intended delay in milliseconds.
 
 **Signature:**
 

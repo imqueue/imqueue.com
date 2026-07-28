@@ -56,5 +56,7 @@ _(Optional)_ adapter-specific options
 
 void
 
-{<!-- -->void<!-- -->}
+## Remarks
+
+May be asynchronous: the registry awaits whatever is returned, so an implementation that needs I/O must return a promise that settles once the adapter is ready. Implementations must set [ICache.ready](/api/rpc/latest/rpc.icache.ready/) on success.
 

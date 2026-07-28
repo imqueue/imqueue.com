@@ -8,12 +8,18 @@ title: "IRedisCacheOptions interface · @imqueue/rpc"
 
 ## IRedisCacheOptions interface
 
+Options accepted by [RedisCache.init()](/api/rpc/latest/rpc.rediscache.init/)<!-- -->.
+
 **Signature:**
 
 ```typescript
 export interface IRedisCacheOptions extends Partial<IMQOptions> 
 ```
 **Extends:** Partial&lt;IMQOptions&gt;
+
+## Remarks
+
+This inherits the queue option shape, but the adapter only honours `host`<!-- -->, `port`<!-- -->, `username`<!-- -->, `password`<!-- -->, `prefix`<!-- -->, `logger` and `conn`<!-- -->. All other inherited queue options are accepted by the type and silently ignored.
 
 ## Properties
 
@@ -53,7 +59,7 @@ IRedisClient
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ An existing Redis client to reuse — a running service's queue writer, for example — instead of opening a new connection.
 
 
 </td></tr>

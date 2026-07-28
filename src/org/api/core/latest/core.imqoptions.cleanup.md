@@ -8,12 +8,15 @@ title: "IMQOptions.cleanup property · @imqueue/core"
 
 ## IMQOptions.cleanup property
 
-Turns on/off cleanup of the message queues
-
- {<!-- -->boolean<!-- -->}
+Turns on/off the watcher's periodic removal of orphaned keys. Defaults to `false`<!-- -->.
 
 **Signature:**
 
 ```typescript
 cleanup: boolean;
 ```
+
+## Remarks
+
+This is a destructive sweep. Only the instance holding the watcher lock performs it, on the [IMQOptions.safeDeliveryTtl](/api/core/latest/core.imqoptions.safedeliveryttl/) interval, and it deletes every key under `<prefix>:<cleanupFilter>` that does not belong to a currently connected imq client — with one sweep of grace for clients seen during the previous sweep. That means it will delete messages queued for a consumer that is not running, so enable it only where queue names map one-to-one onto live processes.
+

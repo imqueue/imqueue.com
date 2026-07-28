@@ -78,7 +78,7 @@ number
 
 </td><td>
 
-_(Optional)_ if specified, the message will be handled in the target queue after the specified delay in milliseconds
+_(Optional)_ if specified, the message becomes available in the target queue only after this many milliseconds. This is a minimum, not a schedule: the message is released by the watcher, either on a Redis expired-key notification or on the next [IMQOptions.watcherCheckDelay](/api/core/latest/core.imqoptions.watchercheckdelay/) poll, so availability may lag by up to that interval. A delay of `0` or `undefined` sends immediately.
 
 
 </td></tr>
@@ -104,5 +104,15 @@ _(Optional)_ callback invoked only when an internal error occurs during message 
 
 Promise&lt;string&gt;
 
-{<!-- -->Promise<string>} - the message identifier
+the identifier assigned to the message
+
+## Exceptions
+
+TypeError when the queue is in [IMQMode.WORKER](/api/core/latest/core.imqmode/)<!-- -->-only mode, or when a writer connection cannot be established
+
+## Remarks
+
+The returned promise resolves as soon as the write has been dispatched — before the queue host confirms it, and long before the message is consumed. The identifier is generated locally, so it is available even if the write later fails. A resolved promise is therefore not evidence that the message was enqueued: supply `errorHandler` to observe write failures, which never reject.
+
+Starts the queue implicitly when it has not been started yet. Delivery is at-least-once, so handlers must be idempotent.
 

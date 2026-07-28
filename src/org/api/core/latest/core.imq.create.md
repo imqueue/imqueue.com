@@ -8,7 +8,9 @@ title: "IMQ.create() method · @imqueue/core"
 
 ## IMQ.create() method
 
-Instantiate proper message queue instance using given user-options
+Instantiates the queue adapter matching the given options and returns it ready to be started.
+
+The adapter is chosen from `options.vendor`<!-- -->, of which only `'Redis'` is supported. When either `options.cluster` or `options.clusterManagers` is present, the clustered adapter is returned instead of the single-server one.
 
 **Signature:**
 
@@ -46,6 +48,8 @@ string
 
 </td><td>
 
+queue name; the underlying Redis key becomes `<prefix>:<name>`
+
 
 </td></tr>
 <tr><td>
@@ -60,7 +64,7 @@ Partial&lt;[IMQOptions](/api/core/latest/core.imqoptions/)<!-- -->&gt;
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ queue options; anything omitted falls back to [DEFAULT\_IMQ\_OPTIONS](/api/core/latest/core.default_imq_options/)
 
 
 </td></tr>
@@ -76,7 +80,7 @@ mode
 
 </td><td>
 
-_(Optional)_  {<!-- -->IMessageQueue<!-- -->}
+_(Optional)_ whether the queue produces, consumes, or both; defaults to [IMQMode.BOTH](/api/core/latest/core.imqmode/)
 
 
 </td></tr>
@@ -85,4 +89,14 @@ _(Optional)_  {<!-- -->IMessageQueue<!-- -->}
 **Returns:**
 
 [IMessageQueue](/api/core/latest/core.imessagequeue/)
+
+an unstarted queue instance — a [ClusteredRedisQueue](/api/core/latest/core.clusteredredisqueue/) when cluster options were supplied, otherwise a [RedisQueue](/api/core/latest/core.redisqueue/)
+
+## Exceptions
+
+TypeError when `options.vendor` names an unknown adapter
+
+## Remarks
+
+`options.vendor` is honoured only here. Constructing a queue class directly ignores it, because [DEFAULT\_IMQ\_OPTIONS](/api/core/latest/core.default_imq_options/) carries no `vendor` key.
 

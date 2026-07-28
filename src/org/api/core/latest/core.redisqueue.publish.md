@@ -48,6 +48,8 @@ data
 
 </td><td>
 
+payload to publish as a channel message
+
 
 </td></tr>
 <tr><td>
@@ -62,7 +64,7 @@ string
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ optional different pub/sub name to publish to; must be a bare name inside the same prefix namespace, not a full Redis channel key
 
 
 </td></tr>
@@ -71,4 +73,14 @@ _(Optional)_
 **Returns:**
 
 Promise&lt;void&gt;
+
+## Exceptions
+
+TypeError when the queue has no writer connection
+
+## Remarks
+
+Unlike [RedisQueue.send()](/api/core/latest/core.redisqueue.send/)<!-- -->, this does not start the queue implicitly, so [RedisQueue.start()](/api/core/latest/core.redisqueue.start/) must have completed first. It is allowed in any [IMQMode](/api/core/latest/core.imqmode/)<!-- -->, including `WORKER`<!-- -->.
+
+The payload is always plain JSON — [IMQOptions.useGzip](/api/core/latest/core.imqoptions.usegzip/) applies to queue messages only. Redis pub/sub drops the message silently when nobody is subscribed.
 

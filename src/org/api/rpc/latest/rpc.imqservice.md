@@ -44,7 +44,7 @@ Description
 
 </td><td>
 
-Class constructor
+Constructs a service.
 
 
 </td></tr>
@@ -90,6 +90,8 @@ Description
 
 </td><td>
 
+The cache adapter used by cached methods.
+
 
 </td></tr>
 <tr><td>
@@ -108,6 +110,8 @@ IMessageQueue
 
 
 </td><td>
+
+The underlying message queue this service consumes requests from.
 
 
 </td></tr>
@@ -128,6 +132,8 @@ ILogger
 
 </td><td>
 
+The effective logger — `options.logger`<!-- -->, defaulting to `console`<!-- -->.
+
 
 </td></tr>
 <tr><td>
@@ -147,7 +153,7 @@ Server&lt;any, any&gt;
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ The metrics HTTP server, present only while [IMQMetricsServerOptions.enabled](/api/rpc/latest/rpc.imqmetricsserveroptions.enabled/) is set.
 
 
 </td></tr>
@@ -166,6 +172,8 @@ string
 
 </td><td>
 
+This service's name, which is also its queue name and the key its description is cached under.
+
 
 </td></tr>
 <tr><td>
@@ -182,6 +190,8 @@ string
 
 
 </td><td>
+
+The effective options for this service: [DEFAULT\_IMQ\_SERVICE\_OPTIONS](/api/rpc/latest/rpc.default_imq_service_options/) merged with the values passed to the constructor.
 
 
 </td></tr>
@@ -215,7 +225,7 @@ Description
 
 </td><td>
 
-Returns service description metadata.
+Returns this service's description metadata — the exposed method list plus the registered complex types — synchronously.
 
 
 </td></tr>
@@ -229,9 +239,7 @@ Returns service description metadata.
 
 </td><td>
 
-Destroys this instance of service
-
- {<!-- -->Promise<void>}
+Removes this instance's signal handlers, then unsubscribes and destroys the underlying queue.
 
 
 </td></tr>
@@ -245,7 +253,7 @@ Destroys this instance of service
 
 </td><td>
 
-Sends given data to service subscription channel
+Broadcasts data on this service's pub/sub channel, delivering it to every client currently subscribed to this service.
 
 
 </td></tr>
@@ -261,8 +269,6 @@ Sends given data to service subscription channel
 
 Initializes this instance of service and starts handling request messages.
 
- {<!-- -->Promise<!-- -->&lt;<!-- -->IMessageQueue \| undefined<!-- -->&gt;<!-- -->}
-
 
 </td></tr>
 <tr><td>
@@ -275,9 +281,7 @@ Initializes this instance of service and starts handling request messages.
 
 </td><td>
 
-Stops service from handling messages
-
- {<!-- -->Promise<void>}
+Stops consuming messages from the queue.
 
 
 </td></tr>

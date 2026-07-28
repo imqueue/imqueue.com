@@ -8,12 +8,17 @@ title: "IMQ_LOG_TIME variable · @imqueue/core"
 
 ## IMQ\_LOG\_TIME variable
 
-Environment variable IMQ\_LOG\_TIME=\[1, 0\]. Enable or disable profiled timing logging.
-
- {<!-- -->boolean<!-- -->}
+Whether execution-time profiling is on by default, from the `IMQ_LOG_TIME` environment variable.
 
 **Signature:**
 
 ```typescript
 IMQ_LOG_TIME: boolean
 ```
+
+## Remarks
+
+The value is coerced numerically: any non-zero number enables it, while `0`<!-- -->, an empty value, or any non-numeric string — including `true` — disables it. Use `IMQ_LOG_TIME=1`<!-- -->.
+
+Read once when the module is first imported, so later changes to `process.env` are ignored. Individual decorators override this via [ProfileDecoratorOptions.enableDebugTime](/api/core/latest/core.profiledecoratoroptions.enabledebugtime/)<!-- -->.
+

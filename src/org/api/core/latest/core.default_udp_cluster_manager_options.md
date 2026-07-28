@@ -8,8 +8,15 @@ title: "DEFAULT_UDP_CLUSTER_MANAGER_OPTIONS variable · @imqueue/core"
 
 ## DEFAULT\_UDP\_CLUSTER\_MANAGER\_OPTIONS variable
 
+Default options applied to every [UDPClusterManager](/api/core/latest/core.udpclustermanager/) unless overridden: broadcast address `255.255.255.255` on port `63000`<!-- -->, a 5000 ms alive-timeout correction, liveness checking enabled, process signal handling enabled, and `console` as the logger.
+
 **Signature:**
 
 ```typescript
 DEFAULT_UDP_CLUSTER_MANAGER_OPTIONS: UDPClusterManagerOptions
 ```
+
+## Remarks
+
+No `limitedAddress` is set by default. The liveness default is read from `IMQ_UDP_CLUSTER_MANAGER_ALIVE_CHECK` once when the module is loaded, so that variable must be set before the module is first imported.
+

@@ -8,6 +8,10 @@ title: "IMQMode enum · @imqueue/core"
 
 ## IMQMode enum
 
+Operating mode of a queue instance, selecting which halves of the queue are active. Passed as the third constructor argument and defaults to [IMQMode.BOTH](/api/core/latest/core.imqmode/)<!-- -->.
+
+All modes still open a writer connection and take part in watcher election; the mode only controls whether a reader is created and whether sending is allowed.
+
 **Signature:**
 
 ```typescript
@@ -44,6 +48,8 @@ BOTH
 
 </td><td>
 
+Consume and produce. This is the default.
+
 
 </td></tr>
 <tr><td>
@@ -57,6 +63,8 @@ PUBLISHER
 
 
 </td><td>
+
+Produce only. No reader connection is opened, so the queue never emits `message` events and never releases delayed messages.
 
 
 </td></tr>
@@ -72,7 +80,13 @@ WORKER
 
 </td><td>
 
+Consume only. No messages can be sent — `send()` throws a `TypeError`<!-- -->.
+
 
 </td></tr>
 </tbody></table>
+
+## Remarks
+
+The members carry implicit numeric values and `BOTH` is `0`<!-- -->, so a falsy check such as `mode || IMQMode.WORKER` silently resolves to `WORKER`<!-- -->. Do not persist these values either — they shift if the members are reordered.
 

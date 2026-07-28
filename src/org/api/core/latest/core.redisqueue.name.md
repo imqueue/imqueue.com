@@ -8,8 +8,15 @@ title: "RedisQueue.name property · @imqueue/core"
 
 ## RedisQueue.name property
 
+The queue name. The underlying redis list key is `<prefix>:<name>`<!-- -->, the same name is the default pub/sub channel used by [RedisQueue.publish()](/api/core/latest/core.redisqueue.publish/)<!-- -->, and it is the `from` value carried by messages this queue sends.
+
 **Signature:**
 
 ```typescript
 name: string;
 ```
+
+## Remarks
+
+Assign it before [RedisQueue.start()](/api/core/latest/core.redisqueue.start/) — a running reader keeps consuming the key it was started with.
+

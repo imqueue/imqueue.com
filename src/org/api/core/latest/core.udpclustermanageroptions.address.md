@@ -8,12 +8,19 @@ title: "UDPClusterManagerOptions.address property · @imqueue/core"
 
 ## UDPClusterManagerOptions.address property
 
-Message queue broadcast address
-
- {<!-- -->number<!-- -->}
+Broadcast address the cluster announces on.
 
 **Signature:**
 
 ```typescript
 address: string;
 ```
+
+## Default Value
+
+"255.255.255.255"
+
+## Remarks
+
+The worker binds the local IPv4 interface whose address matches this value with its `.255` octets removed — so `10.0.1.255` selects an interface in `10.0.1.x` — and falls back to all interfaces when nothing matches, which is what happens for the default value.
+

@@ -56,5 +56,9 @@ key to read the value for
 
 Promise&lt;any&gt;
 
-{<!-- -->Promise<any>} - stored value, or undefined if not found
+the deserialized stored value, or `undefined` when the key is absent or expired
+
+## Remarks
+
+A stored `null` is returned as `null` and is therefore distinguishable from a miss; a stored `undefined` is not. Callers that must tell "cached as empty" from "not cached" should store an explicit sentinel rather than `undefined`<!-- -->.
 

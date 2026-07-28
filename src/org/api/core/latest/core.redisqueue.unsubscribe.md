@@ -8,7 +8,7 @@ title: "RedisQueue.unsubscribe() method · @imqueue/core"
 
 ## RedisQueue.unsubscribe() method
 
-Closes subscription channel
+Closes the subscription connection and forgets the channel name together with every handler registered through [RedisQueue.subscribe()](/api/core/latest/core.redisqueue.subscribe/)<!-- -->.
 
 **Signature:**
 
@@ -19,5 +19,7 @@ unsubscribe(): Promise<void>;
 
 Promise&lt;void&gt;
 
-{<!-- -->Promise<void>}
+## Remarks
+
+A later [RedisQueue.subscribe()](/api/core/latest/core.redisqueue.subscribe/) must register its handlers again, and may use a different channel name. A no-op when the queue was never subscribed, and it never rejects — failures during unsubscribe are logged only. Called automatically by [RedisQueue.destroy()](/api/core/latest/core.redisqueue.destroy/)<!-- -->.
 

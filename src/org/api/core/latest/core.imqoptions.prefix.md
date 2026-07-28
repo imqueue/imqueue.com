@@ -8,12 +8,15 @@ title: "IMQOptions.prefix property · @imqueue/core"
 
 ## IMQOptions.prefix property
 
-Message queue global key prefix (namespace)
-
- {<!-- -->string<!-- -->}
+Global key namespace for everything this queue writes. Defaults to `'imq'`<!-- -->.
 
 **Signature:**
 
 ```typescript
 prefix?: string;
 ```
+
+## Remarks
+
+The prefix scopes more than the queue keys: it also scopes the delayed set, the pub/sub channel names, and the watcher election lock `<prefix>:watch:lock`<!-- -->. All queues sharing a prefix on the same Redis host therefore elect exactly one watcher between them, and [IMessageQueue.publish()](/api/core/latest/core.imessagequeue.publish/) can only reach names inside the same prefix. Use distinct prefixes to isolate unrelated applications on a shared Redis.
+

@@ -8,6 +8,8 @@ title: "IMQService.name property · @imqueue/rpc"
 
 ## IMQService.name property
 
+This service's name, which is also its queue name and the key its description is cached under.
+
 **Signature:**
 
 ```typescript

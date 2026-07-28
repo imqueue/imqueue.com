@@ -8,12 +8,15 @@ title: "IMQOptions.clusterManagers property · @imqueue/core"
 
 ## IMQOptions.clusterManagers property
 
-Array of cluster managers used to handle cluster operations. Any manager implements specific cluster server detection.
-
- {<!-- -->ClusterManager\[\]<!-- -->}
+Cluster managers that discover and maintain cluster servers dynamically. Supplying this — or [IMQOptions.cluster](/api/core/latest/core.imqoptions.cluster/) — makes [IMQ.create()](/api/core/latest/core.imq.create/) return a [ClusteredRedisQueue](/api/core/latest/core.clusteredredisqueue/)<!-- -->.
 
 **Signature:**
 
 ```typescript
 clusterManagers?: ClusterManager[];
 ```
+
+## Remarks
+
+Each manager implements its own server-detection mechanism; [UDPClusterManager](/api/core/latest/core.udpclustermanager/) discovers members from UDP broadcasts. Implement [ClusterManager](/api/core/latest/core.clustermanager/) to add your own.
+

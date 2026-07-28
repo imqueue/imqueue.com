@@ -8,7 +8,7 @@ title: "UDPWorkerOptions type · @imqueue/core"
 
 ## UDPWorkerOptions type
 
-Subset of the manager options handed over to the UDP worker thread. Only structured-cloneable values may appear here (no logger).
+The options actually handed to the UDP worker thread: everything except the logger, which is not structured-cloneable, and the signal-handling flag, which the main thread owns.
 
 **Signature:**
 
@@ -16,4 +16,8 @@ Subset of the manager options handed over to the UDP worker thread. Only structu
 export type UDPWorkerOptions = Omit<UDPClusterManagerOptions, 'logger' | 'handleSignals'>;
 ```
 **References:** [UDPClusterManagerOptions](/api/core/latest/core.udpclustermanageroptions/)
+
+## Remarks
+
+These are precisely the settings the worker's behaviour depends on, which is why the same fields form the shared-worker identity — managers agreeing on all of them can share one worker thread.
 

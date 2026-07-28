@@ -8,11 +8,17 @@ title: "IMQLockMetadataItem interface · @imqueue/rpc"
 
 ## IMQLockMetadataItem interface
 
+Diagnostic description of a locked call.
+
 **Signature:**
 
 ```typescript
 export interface IMQLockMetadataItem 
 ```
+
+## Remarks
+
+Used only to enrich the deadlock-timeout error message. Values that cannot be serialized degrade to a placeholder rather than failing.
 
 ## Properties
 
@@ -52,6 +58,8 @@ any\[\]
 
 </td><td>
 
+Arguments the locked method was called with.
+
 
 </td></tr>
 <tr><td>
@@ -69,6 +77,8 @@ string
 
 </td><td>
 
+Name of the class whose method holds the lock.
+
 
 </td></tr>
 <tr><td>
@@ -85,6 +95,8 @@ string \| symbol
 
 
 </td><td>
+
+Name of the locked method.
 
 
 </td></tr>

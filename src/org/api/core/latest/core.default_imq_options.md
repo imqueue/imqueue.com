@@ -8,8 +8,17 @@ title: "DEFAULT_IMQ_OPTIONS variable · @imqueue/core"
 
 ## DEFAULT\_IMQ\_OPTIONS variable
 
+Default option values applied to every queue instance: `localhost:6379`<!-- -->, prefix `imq`<!-- -->, `console` as the logger, cleanup off with filter `'*'`<!-- -->, safe delivery off with a 5000 ms lease TTL, gzip off, a 5000 ms watcher check interval, and process signal handling on.
+
 **Signature:**
 
 ```typescript
 DEFAULT_IMQ_OPTIONS: IMQOptions
 ```
+
+## Remarks
+
+Constructor options are shallow-merged over this object, so passing an explicit `undefined` overrides a default rather than falling back to it.
+
+The object is exported live and is not frozen — mutating it changes the defaults for every queue constructed afterwards in the process. Prefer per-instance options.
+

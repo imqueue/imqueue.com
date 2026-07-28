@@ -8,6 +8,8 @@ title: "CacheDecorator interface · @imqueue/rpc"
 
 ## CacheDecorator interface
 
+The type of the [cache](/api/rpc/latest/rpc.cache/) export: a decorator factory that also carries process-wide defaults.
+
 **Signature:**
 
 ```typescript
@@ -52,7 +54,7 @@ Description
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ Process-wide defaults, merged under each call's own options.
 
 
 </td></tr>

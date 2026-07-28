@@ -8,12 +8,13 @@ title: "ClusteredRedisQueue.(constructor) · @imqueue/core"
 
 ## ClusteredRedisQueue.(constructor)
 
-Class constructor
+Creates a clustered queue.
 
 **Signature:**
 
 ```typescript
-constructor(name: string, options?: Partial<IMQOptions>, _mode?: IMQMode);
+constructor(
+    name: string, options?: Partial<IMQOptions>, _mode?: IMQMode);
 ```
 
 ## Parameters
@@ -46,6 +47,8 @@ string
 
 </td><td>
 
+queue name, used as the queue name for every per-host queue in the cluster
+
 
 </td></tr>
 <tr><td>
@@ -60,7 +63,7 @@ Partial&lt;[IMQOptions](/api/core/latest/core.imqoptions/)<!-- -->&gt;
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ queue options; must supply [IMQOptions.cluster](/api/core/latest/core.imqoptions.cluster/)<!-- -->, [IMQOptions.clusterManagers](/api/core/latest/core.imqoptions.clustermanagers/)<!-- -->, or both
 
 
 </td></tr>
@@ -76,9 +79,19 @@ _(Optional)_
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ accepted only for [IMessageQueueConstructor](/api/core/latest/core.imessagequeueconstructor/) signature compatibility and ignored: the underlying queues always run in [IMQMode.BOTH](/api/core/latest/core.imqmode/)
 
 
 </td></tr>
 </tbody></table>
+
+## Exceptions
+
+TypeError when neither `cluster` nor a non-empty `clusterManagers` is supplied
+
+## Remarks
+
+Construction is not inert. One [RedisQueue](/api/core/latest/core.redisqueue/) is created per static cluster entry, and every cluster manager is initialized immediately — so dynamically discovered servers can join before [ClusteredRedisQueue.start()](/api/core/latest/core.clusteredredisqueue.start/) is ever called.
+
+Cluster entries contribute only `id`<!-- -->, `host` and `port`<!-- -->. All other connection settings, including `username` and `password`<!-- -->, are inherited from the top-level options, so per-server credentials in a cluster entry are ignored.
 

@@ -8,8 +8,15 @@ title: "IMQService.cache property · @imqueue/rpc"
 
 ## IMQService.cache property
 
+The cache adapter used by cached methods.
+
 **Signature:**
 
 ```typescript
 protected cache: ICache;
 ```
+
+## Remarks
+
+Never assigned by the service itself: it is populated lazily by the [cache](/api/rpc/latest/rpc.cache/) decorator on first use, so it is `undefined` on a service that has no cached methods.
+

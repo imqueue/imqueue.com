@@ -8,10 +8,15 @@ title: "MethodsCollectionDescription interface · @imqueue/rpc"
 
 ## MethodsCollectionDescription interface
 
-Methods collection description
+Map of method name to method description.
 
 **Signature:**
 
 ```typescript
 export interface MethodsCollectionDescription 
 ```
+
+## Remarks
+
+In [ServiceClassDescription.methods](/api/rpc/latest/rpc.serviceclassdescription.methods/) this holds only the methods that class itself declares. In the description a service serves to clients it is the whole inheritance chain flattened, with subclass methods overriding same-named parent methods.
+

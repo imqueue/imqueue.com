@@ -88,5 +88,3 @@ _(Optional)_ metadata for the locked call
 
 Promise&lt;[AcquiredLock](/api/rpc/latest/rpc.acquiredlock/)<!-- -->&lt;T&gt;&gt;
 
-{<!-- -->Promise<!-- -->&lt;<!-- -->AcquiredLock<T>&gt;<!-- -->}
-

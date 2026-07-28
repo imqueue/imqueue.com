@@ -55,6 +55,8 @@ JsonObject \| null
 
 </td><td>
 
+The value the service method returned, as JSON.
+
 
 </td></tr>
 <tr><td>
@@ -71,6 +73,8 @@ JsonObject \| null
 
 
 </td><td>
+
+`null` on success, otherwise the failure descriptor.
 
 
 </td></tr>
@@ -89,6 +93,8 @@ JsonObject \| null
 
 </td><td>
 
+The originating request, echoed back in full — method, arguments and metadata included.
+
 
 </td></tr>
 <tr><td>
@@ -105,6 +111,8 @@ string
 
 
 </td><td>
+
+Correlation identifier: the queue-assigned message id of the request this response answers.
 
 
 </td></tr>

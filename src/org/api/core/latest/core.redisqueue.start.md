@@ -8,7 +8,7 @@ title: "RedisQueue.start() method · @imqueue/core"
 
 ## RedisQueue.start() method
 
-Initializes and starts current queue routines
+Initializes and starts current queue routines: opens the writer (and, in [IMQMode.BOTH](/api/core/latest/core.imqmode/) or [IMQMode.WORKER](/api/core/latest/core.imqmode/) mode, the reader), joins watcher election and starts the periodic watcher check.
 
 **Signature:**
 
@@ -19,5 +19,17 @@ start(): Promise<RedisQueue>;
 
 Promise&lt;[RedisQueue](/api/core/latest/core.redisqueue/)<!-- -->&gt;
 
-{<!-- -->Promise<RedisQueue>}
+this queue instance
+
+## Exceptions
+
+TypeError when the queue was constructed without a name
+
+## Remarks
+
+Idempotent — a second call on a started queue resolves immediately — and the queue can be restarted after [RedisQueue.stop()](/api/core/latest/core.redisqueue.stop/)<!-- -->.
+
+Unless [IMQOptions.handleSignals](/api/core/latest/core.imqoptions.handlesignals/) is false, this installs process-level SIGTERM/SIGINT/SIGABRT handlers that release watcher locks and then exit the process without waiting for in-flight handlers.
+
+If watcher initialization fails the returned promise rejects, but the writer connection, the instance registration and any acquired watcher lock remain in place — call [RedisQueue.destroy()](/api/core/latest/core.redisqueue.destroy/) to clean up after a failed start.
 

@@ -8,10 +8,17 @@ title: "IMQAfterCall interface · @imqueue/rpc"
 
 ## IMQAfterCall interface
 
-Hook invoked after a service method call has been handled.
+Hook invoked after a call has been handled.
 
 **Signature:**
 
 ```typescript
 export interface IMQAfterCall<_T> 
 ```
+
+## Remarks
+
+Purely for observation — logging, metrics, tracing. On a service it runs after the response has already been sent; on a client it runs after the caller's promise has already been resolved or rejected. In both cases it is too late to change the outcome, and the caller does not wait for it.
+
+It is also invoked for failures, where `res` may be absent — for example when the request could not be sent at all. Thrown errors are logged as warnings (see [AFTER\_HOOK\_ERROR](/api/rpc/latest/rpc.after_hook_error/)<!-- -->) and swallowed; the return value is ignored.
+

@@ -8,10 +8,15 @@ title: "TypesDescription interface · @imqueue/rpc"
 
 ## TypesDescription interface
 
-Entire service types metadata structure
+Every exposed complex type, keyed by class name.
 
 **Signature:**
 
 ```typescript
 export interface TypesDescription 
 ```
+
+## Remarks
+
+This map is process-global and is embedded by reference into every service's description without filtering, so each service advertises every registered type in its process — including types it does not use — and each becomes a generated interface in every client. Because the reference is live, types registered after a service first described itself still show up. Same-named classes collide.
+

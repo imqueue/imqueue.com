@@ -8,7 +8,7 @@ title: "UDPClusterManager.(constructor) · @imqueue/core"
 
 ## UDPClusterManager.(constructor)
 
-Constructs a new instance of the `UDPClusterManager` class
+Creates the manager and starts listening for broadcasts immediately, joining an existing worker when another manager already uses the same broadcast settings.
 
 **Signature:**
 
@@ -46,9 +46,15 @@ Partial&lt;[UDPClusterManagerOptions](/api/core/latest/core.udpclustermanageropt
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ partial options merged over [DEFAULT\_UDP\_CLUSTER\_MANAGER\_OPTIONS](/api/core/latest/core.default_udp_cluster_manager_options/)
 
 
 </td></tr>
 </tbody></table>
+
+## Remarks
+
+The merge is a plain shallow spread, so passing an explicit `undefined` overrides a default rather than falling back to it — pass only the properties you mean to change.
+
+Broadcast listening begins before any cluster is registered, so register yours with [ClusterManager.init()](/api/core/latest/core.clustermanager.init/) right away: announcements that arrive in the meantime are discarded. When [UDPClusterManagerOptions.handleSignals](/api/core/latest/core.udpclustermanageroptions.handlesignals/) is enabled, this also installs process-wide signal handlers.
 

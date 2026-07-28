@@ -8,6 +8,8 @@ title: "ReturnValueDescription.type property · @imqueue/rpc"
 
 ## ReturnValueDescription.type property
 
+Legacy duplicate of [ReturnValueDescription.tsType](/api/rpc/latest/rpc.returnvaluedescription.tstype/) — always the identical string.
+
 **Signature:**
 
 ```typescript

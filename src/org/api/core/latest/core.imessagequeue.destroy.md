@@ -8,7 +8,7 @@ title: "IMessageQueue.destroy() method · @imqueue/core"
 
 ## IMessageQueue.destroy() method
 
-Safely destroys the current queue, unregistering all event listeners and closing connections.
+Releases this queue handle: removes all event listeners, stops the maintenance timers, releases the watcher lock if held, disconnects the reader, and drops this instance's reference to the shared writer.
 
 **Signature:**
 
@@ -19,5 +19,9 @@ destroy(): Promise<void>;
 
 Promise&lt;void&gt;
 
-{<!-- -->Promise<void>}
+## Remarks
+
+The writer connection is shared per `host:port` within the process and stays open while other started instances still reference it.
+
+Queue data is deliberately left intact, so destroying one handle never discards messages still pending for other producers or consumers. Note that removing all listeners also discards the caller's `message` and `error` handlers, while [IMessageQueue.start()](/api/core/latest/core.imessagequeue.start/) can revive the instance — so re-register them if you restart it.
 

@@ -8,8 +8,17 @@ title: "IMQRPCError.original property · @imqueue/rpc"
 
 ## IMQRPCError.original property
 
+The error the service method threw, as a JSON string — not an object, despite the `any` type.
+
 **Signature:**
 
 ```typescript
 original?: any;
 ```
+
+## Remarks
+
+Present only for method failures, and `undefined` when the value could not be serialized (circular references, `BigInt`<!-- -->).
+
+Because `Error`<!-- -->'s `message` and `stack` are non-enumerable, an ordinary thrown `Error` serializes to `"\{\}"` here: this field carries only the error's own enumerable properties, and never the stack. Read [IMQRPCError.stack](/api/rpc/latest/rpc.imqrpcerror.stack/) and [IMQRPCError.message](/api/rpc/latest/rpc.imqrpcerror.message/) for those.
+

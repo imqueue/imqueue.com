@@ -56,5 +56,3 @@ _(Optional)_ Redis cache options
 
 Promise&lt;[RedisCache](/api/rpc/latest/rpc.rediscache/)<!-- -->&gt;
 
-{<!-- -->Promise<RedisCache>}
-

@@ -8,6 +8,8 @@ title: "ClusteredRedisQueue.unsubscribe() method · @imqueue/core"
 
 ## ClusteredRedisQueue.unsubscribe() method
 
+Unsubscribes from the channel on every redis host and forgets the remembered subscription, so servers joining later are no longer subscribed automatically.
+
 **Signature:**
 
 ```typescript
@@ -16,4 +18,8 @@ unsubscribe(): Promise<void>;
 **Returns:**
 
 Promise&lt;void&gt;
+
+## Remarks
+
+Resolves without effect on an empty cluster.
 

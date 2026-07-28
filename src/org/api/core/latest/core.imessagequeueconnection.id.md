@@ -8,9 +8,7 @@ title: "IMessageQueueConnection.id property · @imqueue/core"
 
 ## IMessageQueueConnection.id property
 
-Message queue network unique identifier, optional property
-
- {<!-- -->string \| undefined<!-- -->}
+Identifier used to match this endpoint against cluster membership. Meaningful on `cluster` entries only, not at the top level of [IMQOptions](/api/core/latest/core.imqoptions/)<!-- -->.
 
 **Signature:**
 

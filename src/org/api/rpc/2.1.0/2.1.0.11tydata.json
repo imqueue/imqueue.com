@@ -249,11 +249,11 @@
       "group": "Variables",
       "items": [
         {
-          "name": "AFTER\\_HOOK\\_ERROR",
+          "name": "AFTER_HOOK_ERROR",
           "url": "/api/rpc/2.1.0/rpc.after_hook_error/"
         },
         {
-          "name": "BEFORE\\_HOOK\\_ERROR",
+          "name": "BEFORE_HOOK_ERROR",
           "url": "/api/rpc/2.1.0/rpc.before_hook_error/"
         },
         {
@@ -261,31 +261,31 @@
           "url": "/api/rpc/2.1.0/rpc.cache/"
         },
         {
-          "name": "DEFAULT\\_IMQ\\_CLIENT\\_OPTIONS",
+          "name": "DEFAULT_IMQ_CLIENT_OPTIONS",
           "url": "/api/rpc/2.1.0/rpc.default_imq_client_options/"
         },
         {
-          "name": "DEFAULT\\_IMQ\\_METRICS\\_SERVER\\_OPTIONS",
+          "name": "DEFAULT_IMQ_METRICS_SERVER_OPTIONS",
           "url": "/api/rpc/2.1.0/rpc.default_imq_metrics_server_options/"
         },
         {
-          "name": "DEFAULT\\_IMQ\\_SERVICE\\_OPTIONS",
+          "name": "DEFAULT_IMQ_SERVICE_OPTIONS",
           "url": "/api/rpc/2.1.0/rpc.default_imq_service_options/"
         },
         {
-          "name": "DEFAULT\\_REDIS\\_CACHE\\_OPTIONS",
+          "name": "DEFAULT_REDIS_CACHE_OPTIONS",
           "url": "/api/rpc/2.1.0/rpc.default_redis_cache_options/"
         },
         {
-          "name": "IMQ\\_PID\\_DIR",
+          "name": "IMQ_PID_DIR",
           "url": "/api/rpc/2.1.0/rpc.imq_pid_dir/"
         },
         {
-          "name": "IMQ\\_TMP\\_DIR",
+          "name": "IMQ_TMP_DIR",
           "url": "/api/rpc/2.1.0/rpc.imq_tmp_dir/"
         },
         {
-          "name": "REDIS\\_CLIENT\\_INIT\\_ERROR",
+          "name": "REDIS_CLIENT_INIT_ERROR",
           "url": "/api/rpc/2.1.0/rpc.redis_client_init_error/"
         },
         {

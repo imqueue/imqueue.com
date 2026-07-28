@@ -8,6 +8,10 @@ title: "DebugInfoOptions interface · @imqueue/core"
 
 ## DebugInfoOptions interface
 
+Fully-resolved description of a single profiled call, as passed to [logDebugInfo()](/api/core/latest/core.logdebuginfo/)<!-- -->.
+
+Normally constructed by the [profile()](/api/core/latest/core.profile/) decorator; supply it directly only to emit profiling output by hand. Every field except `logger` is required.
+
 **Signature:**
 
 ```typescript
@@ -185,7 +189,7 @@ bigint \| number
 
 </td><td>
 
-Execution start timestamp (from process.hrtime.bigint or milliseconds)
+Nanosecond-resolution start reading, as returned by `process.hrtime.bigint()`<!-- -->.
 
 
 </td></tr>

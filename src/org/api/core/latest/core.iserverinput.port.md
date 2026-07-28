@@ -8,9 +8,7 @@ title: "IServerInput.port property · @imqueue/core"
 
 ## IServerInput.port property
 
-Message queue network port
-
- {<!-- -->number<!-- -->}
+TCP port the server listens on.
 
 **Signature:**
 

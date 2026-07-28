@@ -8,9 +8,7 @@ title: "IMessageQueueConnection.port property · @imqueue/core"
 
 ## IMessageQueueConnection.port property
 
-Message queue network port
-
- {<!-- -->number<!-- -->}
+TCP port of the queue host. Defaults to `6379`<!-- -->.
 
 **Signature:**
 

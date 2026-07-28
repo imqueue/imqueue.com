@@ -8,7 +8,7 @@ title: "IMQLock class · @imqueue/rpc"
 
 ## IMQLock class
 
-Class IMQLock. Implements promise-based locks.
+In-process, promise-based locks used to collapse concurrent identical calls: the first caller executes the work while later callers for the same key wait and are then resolved with the first caller's result.
 
 **Signature:**
 
@@ -16,19 +16,48 @@ Class IMQLock. Implements promise-based locks.
 export declare class IMQLock 
 ```
 
+## Remarks
+
+These are not distributed locks. The lock table is a set of plain static objects held in memory, and nothing here touches Redis, the network or any shared store. Separate processes, cluster workers and service replicas each maintain their own independent locks and will run the guarded code concurrently. [lock()](/api/rpc/latest/rpc.lock/) inherits the same limitation. Use a Redis- or database-backed lock if you need mutual exclusion across processes.
+
+Keys are used verbatim, with no prefixing or namespacing, so they are global to the process and unrelated call sites sharing a string share a lock.
+
 ## Example
 
-\~\~\~typescript import { IMQLock, AcquiredLock } from './index.js';
 
-async function doSomething(): Promise<!-- -->&lt;<!-- -->number \| AcquiredLock<number>&gt; { const lock: AcquiredLock<number> = await IMQLock.acquire<number>('doSomething');
+```typescript
+import { IMQLock, type AcquiredLock } from '@imqueue/rpc';
 
-if (IMQLock.locked('doSomething')) { // skipping error handling this way can cause dead-locks, // so it is always good to wrap locked calls in try/catch! // BTW, IMQLock uses timeouts to avoid dead-locks try { // this code is called only once across multiple async calls, // so all promises will be resolved with the same value const res = Math.random(); IMQLock.release('doSomething', res); return res; }
+async function doSomething(): Promise<number | AcquiredLock<number>> {
+    const lock: AcquiredLock<number> =
+        await IMQLock.acquire<number>('doSomething');
 
-catch (err) { // release acquired locks with error IMQLock.release('doSomething', null, err); throw err; } }
+    // locked() is the only reliable way to tell holder from waiter
+    if (IMQLock.locked('doSomething')) {
+        // always wrap locked work in try/catch and release on both paths,
+        // otherwise waiters hang until the deadlock timeout fires
+        try {
+            // runs only once across all concurrent calls; every waiter
+            // resolves with this same value
+            const res = Math.random();
 
-return lock; }
+            IMQLock.release('doSomething', res);
 
-(async () =<!-- -->&gt; { for (let i = 0; i &lt; 10; ++i) { // run doSomething() asynchronously 10 times doSomething().then((res) =<!-- -->&gt; console.log(res)); } }<!-- -->)(); \~\~\~
+            return res;
+        } catch (err) {
+            // reject every waiter with the same error
+            IMQLock.release('doSomething', null, err);
+            throw err;
+        }
+    }
+
+    return lock;
+}
+
+for (let i = 0; i < 10; ++i) {
+    doSomething().then(res => console.log(res));
+}
+```
 
 ## Properties
 
@@ -72,8 +101,6 @@ number
 
 Deadlock timeout in milliseconds
 
- {<!-- -->number<!-- -->}
-
 
 </td></tr>
 <tr><td>
@@ -94,8 +121,6 @@ ILogger
 </td><td>
 
 Logger used to log errors that appear during locked calls
-
- {<!-- -->ILogger<!-- -->}
 
 
 </td></tr>

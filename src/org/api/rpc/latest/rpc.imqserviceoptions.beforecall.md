@@ -8,6 +8,8 @@ title: "IMQServiceOptions.beforeCall property · @imqueue/rpc"
 
 ## IMQServiceOptions.beforeCall property
 
+Pre-dispatch hook. See [IMQBeforeCall](/api/rpc/latest/rpc.imqbeforecall/)<!-- -->.
+
 **Signature:**
 
 ```typescript
