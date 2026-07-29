@@ -36,7 +36,11 @@ const PAGE_EXT = new Set(['.md', '.html']);
 // Excluded by prefix, relative to ROOT and posix-separated.
 const SKIP = [
   'src/org/blog/posts/', // real `date:` front matter
-  'src/org/api/',        // generated; no editorial date
+  // The GENERATED version trees only — no editorial date, and their sitemap
+  // lastmod comes from the npm release date instead (apiReleased). The /api/
+  // landing page above them is hand-authored, so it does belong here.
+  'src/org/api/core/',
+  'src/org/api/rpc/',
 ];
 
 const posix = (p) => p.split(path.sep).join('/');
