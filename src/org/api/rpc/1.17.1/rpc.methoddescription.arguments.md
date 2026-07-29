@@ -2,6 +2,7 @@
 title: "MethodDescription.arguments property · @imqueue/rpc v1.17.1 (archived)"
 description: "MethodDescription.arguments property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"MethodDescription","url":"/api/rpc/1.17.1/rpc.methoddescription/"},{"name":"arguments","url":"/api/rpc/1.17.1/rpc.methoddescription.arguments/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.methoddescription.arguments/"
 ---

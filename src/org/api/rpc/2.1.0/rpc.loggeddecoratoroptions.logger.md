@@ -2,6 +2,7 @@
 title: "LoggedDecoratorOptions.logger property · @imqueue/rpc v2.1.0 (archived)"
 description: "LoggedDecoratorOptions.logger property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"LoggedDecoratorOptions","url":"/api/rpc/2.1.0/rpc.loggeddecoratoroptions/"},{"name":"logger","url":"/api/rpc/2.1.0/rpc.loggeddecoratoroptions.logger/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.loggeddecoratoroptions.logger/"
 ---

@@ -2,6 +2,7 @@
 title: "RedisQueue.start() method · @imqueue/core v2.0.26 (archived)"
 description: "Initializes and starts current queue routines"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"RedisQueue","url":"/api/core/2.0.26/core.redisqueue/"},{"name":"start","url":"/api/core/2.0.26/core.redisqueue.start/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.start/"
 ---

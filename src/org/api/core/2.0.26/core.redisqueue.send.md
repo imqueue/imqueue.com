@@ -2,6 +2,7 @@
 title: "RedisQueue.send() method · @imqueue/core v2.0.26 (archived)"
 description: "Sends a given message to a given queue (by name)"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"RedisQueue","url":"/api/core/2.0.26/core.redisqueue/"},{"name":"send","url":"/api/core/2.0.26/core.redisqueue.send/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.send/"
 ---

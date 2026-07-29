@@ -2,6 +2,7 @@
 title: "ClusteredRedisQueue.start() method · @imqueue/core v1.15.0 (archived)"
 description: "Starts the messaging queue. Supposed to be an async function."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"ClusteredRedisQueue","url":"/api/core/1.15.0/core.clusteredredisqueue/"},{"name":"start","url":"/api/core/1.15.0/core.clusteredredisqueue.start/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.start/"
 ---

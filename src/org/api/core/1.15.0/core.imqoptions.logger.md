@@ -2,6 +2,7 @@
 title: "IMQOptions.logger property · @imqueue/core v1.15.0 (archived)"
 description: "Logger defined to be used within message queue in runtime"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"IMQOptions","url":"/api/core/1.15.0/core.imqoptions/"},{"name":"logger","url":"/api/core/1.15.0/core.imqoptions.logger/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.logger/"
 ---

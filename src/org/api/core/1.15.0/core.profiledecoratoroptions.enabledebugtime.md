@@ -2,6 +2,7 @@
 title: "ProfileDecoratorOptions.enableDebugTime property · @imqueue/core v1.15.0 (archived)"
 description: "Turns on/off execution time debugging"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"ProfileDecoratorOptions","url":"/api/core/1.15.0/core.profiledecoratoroptions/"},{"name":"enableDebugTime","url":"/api/core/1.15.0/core.profiledecoratoroptions.enabledebugtime/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.profiledecoratoroptions.enabledebugtime/"
 ---

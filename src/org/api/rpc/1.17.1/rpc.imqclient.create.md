@@ -2,6 +2,7 @@
 title: "IMQClient.create() method · @imqueue/rpc v1.17.1 (archived)"
 description: "Creates client for a service with the given name"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQClient","url":"/api/rpc/1.17.1/rpc.imqclient/"},{"name":"create","url":"/api/rpc/1.17.1/rpc.imqclient.create/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.create/"
 ---

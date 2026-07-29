@@ -2,6 +2,7 @@
 title: "CacheDecoratorOptions.adapter property · @imqueue/rpc v1.17.1 (archived)"
 description: "CacheDecoratorOptions.adapter property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"CacheDecoratorOptions","url":"/api/rpc/1.17.1/rpc.cachedecoratoroptions/"},{"name":"adapter","url":"/api/rpc/1.17.1/rpc.cachedecoratoroptions.adapter/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.cachedecoratoroptions.adapter/"
 ---

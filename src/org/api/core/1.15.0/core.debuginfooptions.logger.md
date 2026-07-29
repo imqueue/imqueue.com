@@ -2,6 +2,7 @@
 title: "DebugInfoOptions.logger property · @imqueue/core v1.15.0 (archived)"
 description: "Logger implementation"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"DebugInfoOptions","url":"/api/core/1.15.0/core.debuginfooptions/"},{"name":"logger","url":"/api/core/1.15.0/core.debuginfooptions.logger/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions.logger/"
 ---

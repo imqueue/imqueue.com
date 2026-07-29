@@ -2,6 +2,7 @@
 title: "IMessageQueueAuthConnection.password property · @imqueue/core v2.0.26 (archived)"
 description: "Message queue password"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMessageQueueAuthConnection","url":"/api/core/2.0.26/core.imessagequeueauthconnection/"},{"name":"password","url":"/api/core/2.0.26/core.imessagequeueauthconnection.password/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeueauthconnection.password/"
 ---

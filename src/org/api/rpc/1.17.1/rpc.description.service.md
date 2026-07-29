@@ -2,6 +2,7 @@
 title: "Description.service property · @imqueue/rpc v1.17.1 (archived)"
 description: "Description.service property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"Description","url":"/api/rpc/1.17.1/rpc.description/"},{"name":"service","url":"/api/rpc/1.17.1/rpc.description.service/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.description.service/"
 ---

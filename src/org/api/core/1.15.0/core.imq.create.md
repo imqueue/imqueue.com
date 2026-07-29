@@ -2,6 +2,7 @@
 title: "IMQ.create() method · @imqueue/core v1.15.0 (archived)"
 description: "Instantiate proper message queue instance using given user-options"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"IMQ","url":"/api/core/1.15.0/core.imq/"},{"name":"create","url":"/api/core/1.15.0/core.imq.create/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imq.create/"
 ---

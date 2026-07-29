@@ -2,6 +2,7 @@
 title: "ClusteredRedisQueue.logger property · @imqueue/core v1.15.0 (archived)"
 description: "Logger instance associated with this queue instance"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"ClusteredRedisQueue","url":"/api/core/1.15.0/core.clusteredredisqueue/"},{"name":"logger","url":"/api/core/1.15.0/core.clusteredredisqueue.logger/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.logger/"
 ---

@@ -2,6 +2,7 @@
 title: "IMQOptions.clusterManagers property · @imqueue/core v2.0.26 (archived)"
 description: "Array of cluster managers used to handle cluster operations. Any manager implements specific cluster server detection."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMQOptions","url":"/api/core/2.0.26/core.imqoptions/"},{"name":"clusterManagers","url":"/api/core/2.0.26/core.imqoptions.clustermanagers/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.clustermanagers/"
 ---

@@ -2,6 +2,7 @@
 title: "RedisCache.get() method · @imqueue/rpc v1.17.1 (archived)"
 description: "Returns value stored in cache by a given key"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"RedisCache","url":"/api/rpc/1.17.1/rpc.rediscache/"},{"name":"get","url":"/api/rpc/1.17.1/rpc.rediscache.get/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.rediscache.get/"
 ---

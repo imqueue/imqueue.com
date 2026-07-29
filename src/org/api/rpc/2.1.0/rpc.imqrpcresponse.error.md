@@ -2,6 +2,7 @@
 title: "IMQRPCResponse.error property · @imqueue/rpc v2.1.0 (archived)"
 description: "IMQRPCResponse.error property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQRPCResponse","url":"/api/rpc/2.1.0/rpc.imqrpcresponse/"},{"name":"error","url":"/api/rpc/2.1.0/rpc.imqrpcresponse.error/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqrpcresponse.error/"
 ---

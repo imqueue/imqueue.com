@@ -2,6 +2,7 @@
 title: "IMQLockMetadataItem.className property · @imqueue/rpc v2.1.0 (archived)"
 description: "IMQLockMetadataItem.className property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQLockMetadataItem","url":"/api/rpc/2.1.0/rpc.imqlockmetadataitem/"},{"name":"className","url":"/api/rpc/2.1.0/rpc.imqlockmetadataitem.classname/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqlockmetadataitem.classname/"
 ---

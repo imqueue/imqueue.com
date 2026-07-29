@@ -2,6 +2,7 @@
 title: "IRedisClient.__imq property · @imqueue/core v2.0.26 (archived)"
 description: "IRedisClient.__imq property — @imqueue/core 2.0.26 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IRedisClient","url":"/api/core/2.0.26/core.iredisclient/"},{"name":"__imq","url":"/api/core/2.0.26/core.iredisclient.__imq/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.iredisclient.__imq/"
 ---

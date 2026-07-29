@@ -2,6 +2,7 @@
 title: "ClusteredRedisQueue.stop() method · @imqueue/core v1.15.0 (archived)"
 description: "Stops the queue (should stop handle queue messages). Supposed to be an async function."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"ClusteredRedisQueue","url":"/api/core/1.15.0/core.clusteredredisqueue/"},{"name":"stop","url":"/api/core/1.15.0/core.clusteredredisqueue.stop/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.stop/"
 ---

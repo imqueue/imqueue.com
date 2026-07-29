@@ -2,6 +2,7 @@
 title: "UDPClusterManager.destroy() method · @imqueue/core v2.0.26 (archived)"
 description: "UDPClusterManager.destroy() method — @imqueue/core 2.0.26 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"UDPClusterManager","url":"/api/core/2.0.26/core.udpclustermanager/"},{"name":"destroy","url":"/api/core/2.0.26/core.udpclustermanager.destroy/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.udpclustermanager.destroy/"
 ---

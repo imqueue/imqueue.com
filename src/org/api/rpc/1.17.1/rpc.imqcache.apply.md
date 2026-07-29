@@ -2,6 +2,7 @@
 title: "IMQCache.apply() method · @imqueue/rpc v1.17.1 (archived)"
 description: "Overrides existing adapter options with the given"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQCache","url":"/api/rpc/1.17.1/rpc.imqcache/"},{"name":"apply","url":"/api/rpc/1.17.1/rpc.imqcache.apply/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqcache.apply/"
 ---

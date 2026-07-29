@@ -2,6 +2,7 @@
 title: "RedisQueue.name property · @imqueue/core v1.15.0 (archived)"
 description: "RedisQueue.name property — @imqueue/core 1.15.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"RedisQueue","url":"/api/core/1.15.0/core.redisqueue/"},{"name":"name","url":"/api/core/1.15.0/core.redisqueue.name/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.name/"
 ---

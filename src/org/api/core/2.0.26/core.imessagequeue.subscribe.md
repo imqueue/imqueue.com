@@ -2,6 +2,7 @@
 title: "IMessageQueue.subscribe() method · @imqueue/core v2.0.26 (archived)"
 description: "Creates or uses subscription channel with the given name and sets message handler on data receive"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMessageQueue","url":"/api/core/2.0.26/core.imessagequeue/"},{"name":"subscribe","url":"/api/core/2.0.26/core.imessagequeue.subscribe/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue.subscribe/"
 ---

@@ -2,6 +2,7 @@
 title: "IMQService.stop() method · @imqueue/rpc v2.1.0 (archived)"
 description: "Stops service from handling messages"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQService","url":"/api/rpc/2.1.0/rpc.imqservice/"},{"name":"stop","url":"/api/rpc/2.1.0/rpc.imqservice.stop/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqservice.stop/"
 ---

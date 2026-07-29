@@ -2,6 +2,7 @@
 title: "IMQRPCRequest.metadata property · @imqueue/rpc v1.17.1 (archived)"
 description: "IMQRPCRequest.metadata property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQRPCRequest","url":"/api/rpc/1.17.1/rpc.imqrpcrequest/"},{"name":"metadata","url":"/api/rpc/1.17.1/rpc.imqrpcrequest.metadata/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqrpcrequest.metadata/"
 ---

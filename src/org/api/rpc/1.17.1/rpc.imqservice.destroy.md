@@ -2,6 +2,7 @@
 title: "IMQService.destroy() method · @imqueue/rpc v1.17.1 (archived)"
 description: "Destroys this instance of service"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQService","url":"/api/rpc/1.17.1/rpc.imqservice/"},{"name":"destroy","url":"/api/rpc/1.17.1/rpc.imqservice.destroy/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqservice.destroy/"
 ---

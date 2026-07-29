@@ -2,6 +2,7 @@
 title: "IMQRPCRequest.args property · @imqueue/rpc v1.17.1 (archived)"
 description: "IMQRPCRequest.args property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQRPCRequest","url":"/api/rpc/1.17.1/rpc.imqrpcrequest/"},{"name":"args","url":"/api/rpc/1.17.1/rpc.imqrpcrequest.args/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqrpcrequest.args/"
 ---

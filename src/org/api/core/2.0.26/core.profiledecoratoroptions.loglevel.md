@@ -2,6 +2,7 @@
 title: "ProfileDecoratorOptions.logLevel property · @imqueue/core v2.0.26 (archived)"
 description: "Defines log/level for logger By default is log"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"ProfileDecoratorOptions","url":"/api/core/2.0.26/core.profiledecoratoroptions/"},{"name":"logLevel","url":"/api/core/2.0.26/core.profiledecoratoroptions.loglevel/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.profiledecoratoroptions.loglevel/"
 ---

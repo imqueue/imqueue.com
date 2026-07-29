@@ -2,6 +2,7 @@
 title: "IMQService.logger property · @imqueue/rpc v1.17.1 (archived)"
 description: "IMQService.logger property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQService","url":"/api/rpc/1.17.1/rpc.imqservice/"},{"name":"logger","url":"/api/rpc/1.17.1/rpc.imqservice.logger/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqservice.logger/"
 ---

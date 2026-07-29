@@ -2,6 +2,7 @@
 title: "IMQClient.serviceName property · @imqueue/rpc v1.17.1 (archived)"
 description: "IMQClient.serviceName property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQClient","url":"/api/rpc/1.17.1/rpc.imqclient/"},{"name":"serviceName","url":"/api/rpc/1.17.1/rpc.imqclient.servicename/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.servicename/"
 ---

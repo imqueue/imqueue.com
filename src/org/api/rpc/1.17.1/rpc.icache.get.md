@@ -2,6 +2,7 @@
 title: "ICache.get() method · @imqueue/rpc v1.17.1 (archived)"
 description: "ICache.get() method — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"ICache","url":"/api/rpc/1.17.1/rpc.icache/"},{"name":"get","url":"/api/rpc/1.17.1/rpc.icache.get/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.icache.get/"
 ---

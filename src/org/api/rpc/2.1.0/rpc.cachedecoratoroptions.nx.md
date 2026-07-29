@@ -2,6 +2,7 @@
 title: "CacheDecoratorOptions.nx property · @imqueue/rpc v2.1.0 (archived)"
 description: "CacheDecoratorOptions.nx property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"CacheDecoratorOptions","url":"/api/rpc/2.1.0/rpc.cachedecoratoroptions/"},{"name":"nx","url":"/api/rpc/2.1.0/rpc.cachedecoratoroptions.nx/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.cachedecoratoroptions.nx/"
 ---

@@ -2,6 +2,7 @@
 title: "RedisQueue.redisKey property · @imqueue/core v2.0.26 (archived)"
 description: "This queue instance unique key (identifier), for internal use"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"RedisQueue","url":"/api/core/2.0.26/core.redisqueue/"},{"name":"redisKey","url":"/api/core/2.0.26/core.redisqueue.rediskey/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.rediskey/"
 ---

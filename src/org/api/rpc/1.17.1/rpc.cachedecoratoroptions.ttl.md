@@ -2,6 +2,7 @@
 title: "CacheDecoratorOptions.ttl property · @imqueue/rpc v1.17.1 (archived)"
 description: "CacheDecoratorOptions.ttl property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"CacheDecoratorOptions","url":"/api/rpc/1.17.1/rpc.cachedecoratoroptions/"},{"name":"ttl","url":"/api/rpc/1.17.1/rpc.cachedecoratoroptions.ttl/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.cachedecoratoroptions.ttl/"
 ---

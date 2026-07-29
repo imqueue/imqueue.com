@@ -2,6 +2,7 @@
 title: "IMessageQueueConnection.id property · @imqueue/core v2.0.26 (archived)"
 description: "Message queue network unique identifier, optional property"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMessageQueueConnection","url":"/api/core/2.0.26/core.imessagequeueconnection/"},{"name":"id","url":"/api/core/2.0.26/core.imessagequeueconnection.id/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeueconnection.id/"
 ---

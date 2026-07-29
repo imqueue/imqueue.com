@@ -2,6 +2,7 @@
 title: "ReturnValueDescription.tsType property · @imqueue/rpc v2.1.0 (archived)"
 description: "ReturnValueDescription.tsType property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"ReturnValueDescription","url":"/api/rpc/2.1.0/rpc.returnvaluedescription/"},{"name":"tsType","url":"/api/rpc/2.1.0/rpc.returnvaluedescription.tstype/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.returnvaluedescription.tstype/"
 ---

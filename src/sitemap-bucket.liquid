@@ -1,0 +1,17 @@
+---
+pagination:
+  data: sitemapBuckets
+  size: 1
+  alias: b
+permalink: "/sitemap-{{ b.name }}.xml"
+eleventyExcludeFromCollections: true
+---
+{%- comment -%}
+One child sitemap per bucket. Paginating over sitemapBuckets means .com — where
+that list is empty — emits nothing at all, rather than needing a `permalink: false`
+dance to suppress files it should not have.
+{%- endcomment -%}
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{%- include "sitemap-urls.html", bucket: b.name -%}
+</urlset>

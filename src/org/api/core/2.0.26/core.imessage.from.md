@@ -2,6 +2,7 @@
 title: "IMessage.from property · @imqueue/core v2.0.26 (archived)"
 description: "Message source queue name"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMessage","url":"/api/core/2.0.26/core.imessage/"},{"name":"from","url":"/api/core/2.0.26/core.imessage.from/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imessage.from/"
 ---

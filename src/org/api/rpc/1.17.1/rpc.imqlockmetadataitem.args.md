@@ -2,6 +2,7 @@
 title: "IMQLockMetadataItem.args property · @imqueue/rpc v1.17.1 (archived)"
 description: "IMQLockMetadataItem.args property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQLockMetadataItem","url":"/api/rpc/1.17.1/rpc.imqlockmetadataitem/"},{"name":"args","url":"/api/rpc/1.17.1/rpc.imqlockmetadataitem.args/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqlockmetadataitem.args/"
 ---

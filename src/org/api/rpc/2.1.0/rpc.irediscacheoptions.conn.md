@@ -2,6 +2,7 @@
 title: "IRedisCacheOptions.conn property · @imqueue/rpc v2.1.0 (archived)"
 description: "IRedisCacheOptions.conn property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IRedisCacheOptions","url":"/api/rpc/2.1.0/rpc.irediscacheoptions/"},{"name":"conn","url":"/api/rpc/2.1.0/rpc.irediscacheoptions.conn/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.irediscacheoptions.conn/"
 ---

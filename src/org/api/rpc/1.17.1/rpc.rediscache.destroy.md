@@ -2,6 +2,7 @@
 title: "RedisCache.destroy() method · @imqueue/rpc v1.17.1 (archived)"
 description: "Safely destroys redis connection"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"RedisCache","url":"/api/rpc/1.17.1/rpc.rediscache/"},{"name":"destroy","url":"/api/rpc/1.17.1/rpc.rediscache.destroy/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.rediscache.destroy/"
 ---

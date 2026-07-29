@@ -2,6 +2,7 @@
 title: "ICache.init() method · @imqueue/rpc v1.17.1 (archived)"
 description: "ICache.init() method — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"ICache","url":"/api/rpc/1.17.1/rpc.icache/"},{"name":"init","url":"/api/rpc/1.17.1/rpc.icache.init/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.icache.init/"
 ---

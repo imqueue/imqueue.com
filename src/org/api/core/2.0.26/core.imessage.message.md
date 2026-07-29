@@ -2,6 +2,7 @@
 title: "IMessage.message property · @imqueue/core v2.0.26 (archived)"
 description: "Message data. Any JSON-compatible data allowed"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMessage","url":"/api/core/2.0.26/core.imessage/"},{"name":"message","url":"/api/core/2.0.26/core.imessage.message/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imessage.message/"
 ---

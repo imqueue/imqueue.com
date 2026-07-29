@@ -2,6 +2,7 @@
 title: "IMQOptions.vendor property · @imqueue/core v1.15.0 (archived)"
 description: "Message queue vendor"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"IMQOptions","url":"/api/core/1.15.0/core.imqoptions/"},{"name":"vendor","url":"/api/core/1.15.0/core.imqoptions.vendor/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.vendor/"
 ---

@@ -2,6 +2,7 @@
 title: "EventMap.message property · @imqueue/core v2.0.26 (archived)"
 description: "EventMap.message property — @imqueue/core 2.0.26 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"EventMap","url":"/api/core/2.0.26/core.eventmap/"},{"name":"message","url":"/api/core/2.0.26/core.eventmap.message/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.eventmap.message/"
 ---
