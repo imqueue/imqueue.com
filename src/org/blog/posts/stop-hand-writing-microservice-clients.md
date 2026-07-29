@@ -52,7 +52,7 @@ imq client generate UserService
 ```
 
 ```ts
-const users = new UserServiceClient();
+const users = new UserClient();
 await users.start();
 const user = await users.get('42'); // typed, autocompleted, no hand-written client
 ```

@@ -126,7 +126,7 @@ and call it like a local, fully-typed object — the correlation, reply routing 
 timeouts are handled for you:
 
 ~~~typescript
-const users = new UserServiceClient();
+const users = new UserClient();
 await users.start();
 
 const user = await users.get('42'); // typed: User, no client boilerplate
