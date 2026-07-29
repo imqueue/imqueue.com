@@ -1,5 +1,6 @@
 ---
 title: "DebugInfoOptions.debugTime property · @imqueue/core v2.0.26 (archived)"
+description: "Turns on/off time debugging"
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions.debugtime/"
 ---

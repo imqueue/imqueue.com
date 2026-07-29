@@ -1,5 +1,6 @@
 ---
 title: "propertiesOf() function · @imqueue/core v2.0.26 (archived)"
+description: "Returns entire list of the given object properties including entire prototype chain"
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

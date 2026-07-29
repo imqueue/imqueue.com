@@ -1,5 +1,6 @@
 ---
 title: "DebugInfoOptions.start property · @imqueue/core v2.0.26 (archived)"
+description: "Execution start timestamp"
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions.start/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "verifyLogLevel() function · @imqueue/core v1.15.0 (archived)"
+description: "Checks if log level is set to proper value or returns default one"
 noindex: true
 latestUrl: "/api/core/latest/core.verifyloglevel/"
 ---

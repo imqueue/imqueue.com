@@ -1,5 +1,6 @@
 ---
 title: "RedisCache.get() method · @imqueue/rpc v1.17.1 (archived)"
+description: "Returns value stored in cache by a given key"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.rediscache.get/"
 ---

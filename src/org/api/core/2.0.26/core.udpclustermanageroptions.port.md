@@ -1,5 +1,6 @@
 ---
 title: "UDPClusterManagerOptions.port property · @imqueue/core v2.0.26 (archived)"
+description: "Message queue broadcast port"
 noindex: true
 latestUrl: "/api/core/latest/core.udpclustermanageroptions.port/"
 ---

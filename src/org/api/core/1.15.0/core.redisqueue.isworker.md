@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue.isWorker() method · @imqueue/core v1.15.0 (archived)"
+description: "Returns true if worker mode is enabled on this queue, false otherwise."
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.isworker/"
 ---

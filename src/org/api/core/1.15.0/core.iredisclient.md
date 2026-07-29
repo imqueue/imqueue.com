@@ -1,5 +1,6 @@
 ---
 title: "IRedisClient interface · @imqueue/core v1.15.0 (archived)"
+description: "Extends default RedisClient type to allow dynamic properties access on it"
 noindex: true
 latestUrl: "/api/core/latest/core.iredisclient/"
 ---

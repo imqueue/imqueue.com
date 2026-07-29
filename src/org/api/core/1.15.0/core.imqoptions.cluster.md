@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.cluster property · @imqueue/core v1.15.0 (archived)"
+description: "Queue cluster instances, if MQ should be clustered"
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.cluster/"
 ---

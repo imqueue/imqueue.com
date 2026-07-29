@@ -1,5 +1,6 @@
 ---
 title: "LogLevel enum · @imqueue/core v1.15.0 (archived)"
+description: "LogLevel enum — @imqueue/core 1.15.0 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.loglevel/"
 ---

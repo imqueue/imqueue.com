@@ -19,6 +19,8 @@ eleventyExcludeFromCollections: true
   {%- if item.data.noindex -%}{%- assign isPage = false -%}{%- endif -%}
   {%- comment -%} Author pages are paginated (only page 1 lands in collections.all); emitted explicitly below. {%- endcomment -%}
   {%- if item.url contains "/blog/authors/" -%}{%- assign isPage = false -%}{%- endif -%}
+  {%- comment -%} Topic hubs are paginated too — same trap, same fix below. {%- endcomment -%}
+  {%- if item.url contains "/blog/topics/" -%}{%- assign isPage = false -%}{%- endif -%}
   {%- if isPage -%}
     {%- comment -%} Priority: home first, human docs next, generated API reference last. {%- endcomment -%}
     {%- assign prio = "0.7" -%}
@@ -45,6 +47,13 @@ eleventyExcludeFromCollections: true
     <loc>{{ siteUrl }}/blog/authors/{{ author.slug }}/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+{%- endfor -%}
+{%- for topic in collections.blogTopics %}
+  <url>
+    <loc>{{ siteUrl }}/blog/topics/{{ topic.slug }}/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
 {%- endfor -%}
 {%- endif %}

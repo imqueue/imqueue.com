@@ -1,5 +1,6 @@
 ---
 title: "ProfileDecoratorOptions.logLevel property · @imqueue/core v2.0.26 (archived)"
+description: "Defines log/level for logger By default is log"
 noindex: true
 latestUrl: "/api/core/latest/core.profiledecoratoroptions.loglevel/"
 ---

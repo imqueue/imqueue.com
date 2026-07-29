@@ -1,5 +1,6 @@
 ---
 title: "IMQClient.describe() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Returns service description metadata."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.describe/"
 ---

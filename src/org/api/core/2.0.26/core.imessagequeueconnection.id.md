@@ -1,5 +1,6 @@
 ---
 title: "IMessageQueueConnection.id property · @imqueue/core v2.0.26 (archived)"
+description: "Message queue network unique identifier, optional property"
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeueconnection.id/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "RedisCache.set() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Stores in cache given value under given key. If TTL is specified, cached value will expire in a given number of milliseconds."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.rediscache.set/"
 ---

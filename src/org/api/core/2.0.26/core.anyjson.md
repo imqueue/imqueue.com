@@ -1,5 +1,6 @@
 ---
 title: "AnyJson type · @imqueue/core v2.0.26 (archived)"
+description: "Represents any JSON-serializable value"
 noindex: true
 latestUrl: "/api/core/latest/core.anyjson/"
 ---

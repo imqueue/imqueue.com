@@ -1,5 +1,6 @@
 ---
 title: "IMQMetadata.(constructor) · @imqueue/rpc v2.1.0 (archived)"
+description: "Constructs a new instance of the IMQMetadata class"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqmetadata._constructor_/"
 ---

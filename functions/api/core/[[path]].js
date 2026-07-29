@@ -1,0 +1,6 @@
+// Cloudflare Pages Function — /api/core/*
+// Resolves retired @imqueue/core version URLs onto the kept version trees.
+// See lib/api-redirects.js for the policy and why this is not in _redirects.
+import { handleApiRequest } from "../../../lib/api-handler.js";
+
+export const onRequest = handleApiRequest;

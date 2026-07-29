@@ -1,5 +1,6 @@
 ---
 title: "logged() function · @imqueue/rpc v1.17.1 (archived)"
+description: "Logger decorator factory for class methods. Will try, catch and log errors during method calls."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.logged/"
 ---

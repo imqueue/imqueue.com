@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.host property · @imqueue/core v1.15.0 (archived)"
+description: "Message queue network host"
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

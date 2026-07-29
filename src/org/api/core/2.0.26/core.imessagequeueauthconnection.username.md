@@ -1,5 +1,6 @@
 ---
 title: "IMessageQueueAuthConnection.username property · @imqueue/core v2.0.26 (archived)"
+description: "Message queue username"
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeueauthconnection.username/"
 ---

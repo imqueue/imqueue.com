@@ -1,5 +1,6 @@
 ---
 title: "IMQClientOptions.path property · @imqueue/rpc v2.1.0 (archived)"
+description: "IMQClientOptions.path property — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclientoptions.path/"
 ---

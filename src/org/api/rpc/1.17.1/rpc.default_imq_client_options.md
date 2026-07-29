@@ -1,5 +1,6 @@
 ---
 title: "DEFAULT_IMQ_CLIENT_OPTIONS variable · @imqueue/rpc v1.17.1 (archived)"
+description: "Default client options"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.default_imq_client_options/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "IMessageQueue.start() method · @imqueue/core v1.15.0 (archived)"
+description: "Starts the messaging queue. Supposed to be an async function."
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue.start/"
 ---

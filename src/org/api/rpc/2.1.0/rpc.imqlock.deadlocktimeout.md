@@ -1,5 +1,6 @@
 ---
 title: "IMQLock.deadlockTimeout property · @imqueue/rpc v2.1.0 (archived)"
+description: "Deadlock timeout in milliseconds"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqlock.deadlocktimeout/"
 ---

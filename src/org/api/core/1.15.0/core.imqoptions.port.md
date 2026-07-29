@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.port property · @imqueue/core v1.15.0 (archived)"
+description: "Message queue network port"
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

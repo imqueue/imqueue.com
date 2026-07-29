@@ -1,6 +1,7 @@
 {
   "layout": "apiref.html",
   "section": "api",
+  "bareTitle": true,
   "apiPkg": "core",
   "apiVersion": "2.0.26",
   "apiVersionPath": "2.0.26",

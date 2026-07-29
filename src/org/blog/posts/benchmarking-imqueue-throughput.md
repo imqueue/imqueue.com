@@ -2,9 +2,9 @@
 layout: post.html
 permalink: /blog/benchmarking-imqueue-throughput/
 templateEngineOverride: md
-title: "Benchmarking @imqueue: throughput, delivery modes, and how to measure your own"
+title: "Benchmarking @imqueue: throughput and delivery modes"
 summary: "Real measured throughput for @imqueue's message queue — ~200k msg/sec unreliable, ~120k guaranteed on a 24-core box — what the delivery modes cost, and a reproducible harness to measure the figures that matter: yours."
-description: "Measured throughput figures for @imqueue/core's message queue (round-trip ~200k msg/sec unreliable, ~120k guaranteed), the cost of guaranteed vs unreliable delivery and gzip, and a reproducible way to benchmark it on your own hardware."
+description: "Measured @imqueue throughput — ~200k msg/sec unreliable, ~120k guaranteed — the cost of guaranteed delivery and gzip, and how to benchmark your own."
 keywords: "imqueue benchmark, message queue throughput, nodejs message queue performance, guaranteed delivery cost, imqueue performance, rpc benchmark"
 date: 2026-06-07
 author: mykhailo-stadnyk

@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.cleanup property · @imqueue/core v1.15.0 (archived)"
+description: "Turns on/off cleanup of the message queues"
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.cleanup/"
 ---

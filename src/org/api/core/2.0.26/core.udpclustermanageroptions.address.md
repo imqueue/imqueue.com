@@ -1,5 +1,6 @@
 ---
 title: "UDPClusterManagerOptions.address property · @imqueue/core v2.0.26 (archived)"
+description: "Message queue broadcast address"
 noindex: true
 latestUrl: "/api/core/latest/core.udpclustermanageroptions.address/"
 ---

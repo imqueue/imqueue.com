@@ -1,5 +1,6 @@
 ---
 title: "@imqueue/core 2.0.26 · API reference (archived)"
+description: "@imqueue/core 2.0.26 — @imqueue/core 2.0.26 API reference."
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

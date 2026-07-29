@@ -1,17 +1,33 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="google-site-verification" content="lZDiiXownAih-OVzjgDS_lEpZruoAw3JCMoz3xkCVIE">
+{%- comment -%}
+No google-site-verification meta here on purpose. Both hosts are verified by DNS
+TXT record, with a token each (imqueue.org 06qGtif…, imqueue.com lZDiiXow…). The
+tag that used to sit here carried the .com token and was emitted on every page of
+BOTH builds, so it was dead weight on .com and wrong on .org.
+{%- endcomment -%}
 
 {%- comment -%} Compute the page title + effective description/image once, reuse for OG/Twitter. {%- endcomment -%}
-{%- if title -%}{%- assign metaTitle = title | append: " · " | append: siteName -%}{%- else -%}{%- assign metaTitle = siteName | append: " — " | append: site.slogan -%}{%- endif -%}
+{%- comment -%}
+`bareTitle` pages skip the " · @imqueue" suffix. Blog posts set it (see
+posts.11tydata.js): the suffix costs 11 of a ~60-character SERP budget, the brand
+is already in most post headlines, and it was truncating the keyword tails of 23
+of the 26 posts.
+{%- endcomment -%}
+{%- if title and bareTitle -%}{%- assign metaTitle = title -%}{%- elsif title -%}{%- assign metaTitle = title | append: " · " | append: siteName -%}{%- else -%}{%- assign metaTitle = siteName | append: " — " | append: site.slogan -%}{%- endif -%}
 {%- assign metaDesc = description | default: site.slogan -%}
 {%- assign metaImage = ogImage | default: siteImage -%}
 {%- assign metaUrl = siteUrl | append: page.url -%}
 
 <title>{{ metaTitle }}</title>
 <meta name="description" content="{{ metaDesc }}">
-<meta name="keywords" content="{{ keywords | default: siteKeywords }}">
+{%- comment -%}
+No <meta name="keywords">: Google has ignored it since 2009 and Bing treats a
+stuffed one as a spam signal, so it was ~300 wasted bytes on every page. Page
+front matter still sets `keywords`, which post.html uses for BlogPosting.keywords
+in JSON-LD — that one search engines do read.
+{%- endcomment -%}
 <meta name="author" content="{{ siteName }}">
 <meta name="robots" content="{% if draft or noindex %}noindex, follow{% else %}index, follow, max-image-preview:large, max-snippet:-1{% endif %}">
 <meta name="theme-color" content="{{ themeColor }}">
@@ -37,8 +53,8 @@
 <meta property="og:image:alt" content="{{ ogImageAlt | default: metaTitle }}">
 <meta property="og:locale" content="{{ siteLocale }}">
 {%- if ogType == "article" and page.date %}
-<meta property="article:published_time" content="{{ page.date | date: '%Y-%m-%d' }}">
-<meta property="article:modified_time" content="{{ page.date | date: '%Y-%m-%d' }}">
+<meta property="article:published_time" content="{{ page.date | isoDate }}">
+<meta property="article:modified_time" content="{{ dateModified | default: page.date | isoDate }}">
 {%- endif %}
 
 <!-- Twitter -->
@@ -75,7 +91,13 @@
       "description": {{ site.slogan | json }},
       "inLanguage": "en",
       "publisher": { "@id": "{{ siteUrl }}/#org" }
-    }{% if section == "home" %},
+    }{% comment %}
+    The SoftwareApplication/SoftwareSourceCode pair describes the open-source
+    project: price 0 and a GPL-3.0 license. Correct on imqueue.org, actively
+    wrong on imqueue.com, whose home page sells commercial licences and whose CTA
+    is "Talk to sales" — so it is gated to the .org edition. The commercial home
+    page keeps Organization + WebSite only.
+    {% endcomment %}{% if section == "home" and edition == "org" %},
     {
       "@type": "SoftwareApplication",
       "@id": "{{ siteUrl }}/#software",
@@ -111,8 +133,8 @@
       "isPartOf": { "@id": "{{ siteUrl }}/#website" },
       "about": { "@id": "{{ siteUrl }}/#software" },
       {%- if page.date %}
-      "datePublished": "{{ page.date | date: '%Y-%m-%d' }}",
-      "dateModified": "{{ page.date | date: '%Y-%m-%d' }}",
+      "datePublished": "{{ page.date | isoDate }}",
+      "dateModified": "{{ dateModified | default: page.date | isoDate }}",
       {%- endif %}
       "author": { "@id": "{{ siteUrl }}/#org" },
       "publisher": { "@id": "{{ siteUrl }}/#org" }
@@ -150,6 +172,7 @@ Home > Section > [Package >] Leaf; other titled pages get Home > Leaf.
 {%- when "mcp" -%}{%- assign bcLabel = "MCP server" -%}{%- assign bcRoot = "/mcp/" -%}
 {%- when "tutorial" -%}{%- assign bcLabel = "Tutorial" -%}{%- assign bcRoot = "/tutorial/" -%}
 {%- when "docs" -%}{%- assign bcLabel = "Documentation" -%}{%- assign bcRoot = "/docs/" -%}
+{%- when "agents" -%}{%- assign bcLabel = "Agent recipes" -%}{%- assign bcRoot = "/agents/" -%}
 {%- endcase -%}
 {%- assign bcLeaf = title | split: " · " | first -%}
 {%- unless page.url == "/" or bcSeg == "blog" -%}
@@ -176,6 +199,24 @@ Home > Section > [Package >] Leaf; other titled pages get Home > Leaf.
 <!-- No-FOUC theme init: apply stored theme before first paint -->
 <script>(function(){try{var t=localStorage.getItem('imqueue-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
 
+{%- comment -%}
+Preload the two faces that paint above the fold, before the stylesheets, so they
+are not discovered only after fonts.css parses — that discovery delay was putting
+first text paint ~300 ms later than it needed to be. `crossorigin` is required
+even same-origin: font fetches are always CORS-mode, and without it the preload
+is thrown away and the file fetched twice.
+
+Kept to two per edition on purpose. Every extra preload competes with the CSS for
+bandwidth, and the rest carry font-display:swap so they can arrive late. On .org
+that leaves Space Grotesk (the wordmark, see base.css .brand__name) to swap in.
+{%- endcomment -%}
+{%- if edition == "com" %}
+<link rel="preload" href="/fonts/space-grotesk-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+{%- else %}
+<link rel="preload" href="/fonts/jetbrains-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+{%- endif %}
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/reset.css">
 <link rel="stylesheet" href="/css/theme-{{ skin }}.css">
@@ -185,12 +226,12 @@ Home > Section > [Package >] Leaf; other titled pages get Home > Leaf.
 {% if pageCss %}<link rel="stylesheet" href="{{ pageCss }}">{% endif %}
 
 <!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-EQTNPY721G"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ analytics.ga4 }}"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-EQTNPY721G');
+  gtag('config', '{{ analytics.ga4 }}', { edition: '{{ edition }}' });
 </script>
 <!-- MS Clarity -->
 <script type="text/javascript">
@@ -198,5 +239,5 @@ Home > Section > [Package >] Leaf; other titled pages get Home > Leaf.
       c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
       t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
       y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-  })(window, document, "clarity", "script", "josp89y34k");
+  })(window, document, "clarity", "script", "{{ analytics.clarity }}");
 </script>

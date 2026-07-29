@@ -1,5 +1,6 @@
 ---
 title: "REDIS_CLIENT_INIT_ERROR variable · @imqueue/rpc v2.1.0 (archived)"
+description: "REDIS_CLIENT_INIT_ERROR variable — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.redis_client_init_error/"
 ---

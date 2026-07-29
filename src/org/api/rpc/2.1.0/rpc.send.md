@@ -1,5 +1,6 @@
 ---
 title: "send() function · @imqueue/rpc v2.1.0 (archived)"
+description: "Sends IMQ response with support of after call optional hook"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.send/"
 ---

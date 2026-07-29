@@ -1,6 +1,6 @@
 ---
 chapter: 2
-title: "Installation"
+title: "Install the imq CLI"
 docLabel: "CLI MANUAL — 02 / 12"
 lead: "Install @imqueue/cli, check requirements, upgrade from 3.x, and enable shell completions."
 description: "Install @imqueue/cli globally, verify the imq command, upgrade from 3.x, enable bash & zsh completions, and see which files the CLI creates."

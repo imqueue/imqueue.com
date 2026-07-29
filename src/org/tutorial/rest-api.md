@@ -1,6 +1,6 @@
 ---
 chapter: 7
-title: "Bonus: REST API"
+title: "Bonus: REST & OpenAPI gateway with Swagger UI"
 docLabel: TUTORIAL — BONUS 1
 lead: "Swap the GraphQL gateway for a REST/OpenAPI one — same fleet, same typed clients, a different front door."
 description: "Bonus chapter: rebuild the @imqueue tutorial API gateway as a REST/OpenAPI service with Swagger UI — same back-end fleet, same RPC clients, different transport."
@@ -18,7 +18,7 @@ build a front-end that speaks to it, too.
 The finished service is on GitHub:
 [api-rest](https://github.com/imqueue-sandbox/api-rest).
 
-### One fleet, any front door
+## One fleet, any front door
 
 Recall the architecture: the services communicate over a Redis message queue
 using @imqueue RPC, and the API service is just another consumer of that
@@ -28,7 +28,7 @@ REST, gRPC, WebSockets — the fleet neither knows nor cares.
 
 So the plan is simple: keep the orchestration, replace the transport.
 
-### What stays the same
+## What stays the same
 
 Everything that touches @imqueue, literally. The four services — user, auth,
 car and time-table — run unmodified. The gateway uses the same statically
@@ -55,7 +55,7 @@ private static async bootstrapContext(): Promise<void> {
 This is the point of the whole exercise: the @imqueue integration is a handful
 of client instantiations, so it survives an API-style change untouched.
 
-### What changes
+## What changes
 
 The transport layer. Instead of graphql-yoga serving a schema, the
 gateway is a plain Express 5 application: `helmet`, `cors`, `compression` and
@@ -91,7 +91,7 @@ The resulting surface looks like this:
 | POST | `/reservations` | Make a reservation |
 | DELETE | `/reservations/{id}` | Cancel a reservation |
 
-### From resolvers to an orchestrator
+## From resolvers to an orchestrator
 
 In the GraphQL gateway the orchestration logic lived inside resolvers and
 mutations. Here it is collected into a single
@@ -141,7 +141,7 @@ gateway pins a fixed field set per DTO (`USER_FIELDS`, `CAR_FIELDS`,
 `RESERVATION_FIELDS`) — and still passes it down through the @imqueue clients,
 so the services keep returning only what the gateway actually needs.
 
-### Authentication
+## Authentication
 
 The GraphQL gateway resolved the authenticated user from the `X-Auth-User`
 header; the REST gateway keeps the exact same contract, moved into an Express
@@ -164,7 +164,7 @@ The authorization rules — active user, owner-or-admin, admin-only flags —
 are ported one-to-one from the GraphQL validators into small assertion
 helpers the orchestrator calls explicitly.
 
-### Errors
+## Errors
 
 Failures are emitted in a GraphQL-compatible envelope:
 
@@ -182,7 +182,7 @@ identical across both gateways is a deliberate choice: the same error-mapping
 routine works against either one, so a client switching gateways has nothing to
 relearn — which pays off in the next chapter.
 
-### Running it
+## Running it
 
 With the fleet running as described in [chapter 6](/tutorial/deployment),
 add the REST gateway alongside:

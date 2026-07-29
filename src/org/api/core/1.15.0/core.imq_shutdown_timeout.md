@@ -1,5 +1,6 @@
 ---
 title: "IMQ_SHUTDOWN_TIMEOUT variable · @imqueue/core v1.15.0 (archived)"
+description: "IMQ_SHUTDOWN_TIMEOUT variable — @imqueue/core 1.15.0 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.imq_shutdown_timeout/"
 ---

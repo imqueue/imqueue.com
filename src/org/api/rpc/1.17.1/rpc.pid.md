@@ -1,5 +1,6 @@
 ---
 title: "pid() function · @imqueue/rpc v1.17.1 (archived)"
+description: "Returns increment-based process identifier for a given name"
 noindex: true
 latestUrl: "/api/rpc/latest/"
 ---

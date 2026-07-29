@@ -1,5 +1,6 @@
 ---
 title: "currentMetadata() function · @imqueue/rpc v2.1.0 (archived)"
+description: "Returns the metadata of the in-flight IMQ request for the current async execution, if any. Returns undefined outside of a runWithRequest() scope."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.currentmetadata/"
 ---

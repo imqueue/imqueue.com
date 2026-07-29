@@ -1,5 +1,6 @@
 ---
 title: "indexed() function · @imqueue/rpc v1.17.1 (archived)"
+description: "Implements '@indexed' decorator factory This is used to specify complex service types which are need to expose types containing indexed definition, for example:"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.indexed/"
 ---

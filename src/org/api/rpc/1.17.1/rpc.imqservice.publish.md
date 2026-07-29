@@ -1,5 +1,6 @@
 ---
 title: "IMQService.publish() method · @imqueue/rpc v1.17.1 (archived)"
+description: "Sends given data to service subscription channel"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqservice.publish/"
 ---

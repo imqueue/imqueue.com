@@ -1,5 +1,6 @@
 ---
 title: "ClusteredRedisQueue.removeServer() method · @imqueue/core v2.0.26 (archived)"
+description: "Removes server from the cluster"
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.removeserver/"
 ---

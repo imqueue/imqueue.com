@@ -1,5 +1,6 @@
 ---
 title: "IMessageQueueConstructor type · @imqueue/core v2.0.26 (archived)"
+description: "IMessageQueueConstructor type — @imqueue/core 2.0.26 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeueconstructor/"
 ---

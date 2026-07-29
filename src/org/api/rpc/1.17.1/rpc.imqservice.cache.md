@@ -1,5 +1,6 @@
 ---
 title: "IMQService.cache property · @imqueue/rpc v1.17.1 (archived)"
+description: "IMQService.cache property — @imqueue/rpc 1.17.1 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqservice.cache/"
 ---

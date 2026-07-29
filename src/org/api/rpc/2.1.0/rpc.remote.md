@@ -1,5 +1,6 @@
 ---
 title: "remote() function · @imqueue/rpc v2.1.0 (archived)"
+description: "Implements '@remote' decorator factory"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.remote/"
 ---

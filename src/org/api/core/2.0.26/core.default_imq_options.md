@@ -1,5 +1,6 @@
 ---
 title: "DEFAULT_IMQ_OPTIONS variable · @imqueue/core v2.0.26 (archived)"
+description: "DEFAULT_IMQ_OPTIONS variable — @imqueue/core 2.0.26 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.default_imq_options/"
 ---

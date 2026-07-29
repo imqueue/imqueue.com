@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue.clear() method · @imqueue/core v1.15.0 (archived)"
+description: "Clears queue data in redis;"
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.clear/"
 ---

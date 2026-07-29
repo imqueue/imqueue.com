@@ -1,5 +1,6 @@
 ---
 title: "IMQDelay.timer property · @imqueue/rpc v1.17.1 (archived)"
+description: "IMQDelay.timer property — @imqueue/rpc 1.17.1 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqdelay.timer/"
 ---

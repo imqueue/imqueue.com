@@ -9,6 +9,7 @@ layout: base.html
     </aside>
     <div class="doc-main">
       {% if docLabel or title %}
+      {% include "breadcrumbs.html" %}
       <header style="margin-bottom:30px;">
         {% if docLabel %}<div class="section-label" style="margin-bottom:14px;">// {{ docLabel }}</div>{% endif %}
         {% if title %}<h1 style="font-family:var(--font-display);font-size:40px;line-height:1.1;letter-spacing:-.03em;margin:0 0 12px;">{{ title }}</h1>{% endif %}

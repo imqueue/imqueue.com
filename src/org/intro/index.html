@@ -1,13 +1,13 @@
 ---
 layout: base.html
 section: intro
-title: Introduction
-description: "@imqueue is an inter-communication messaging queue framework for service-oriented Node & TypeScript back-ends. Build microservices fast and focus on functionality — @imqueue handles the low-level messaging, discovery and load-balancing."
+title: "Introduction to message-queue RPC for Node.js"
+description: "@imqueue is an inter-communication messaging queue framework for Node.js & TypeScript microservices — it handles messaging, discovery and load balancing."
 keywords: "@imqueue introduction, what is imqueue, inter-communication messaging queue, message queue framework Node.js, TypeScript microservices messaging, RPC over message queue, SOA back-end, Redis RPC"
 ---
 <style>
   .intro-two { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start; }
-  .principle h3 { color:var(--accent); font-size:18px; margin-bottom:8px; }
+  .principle h2, .principle h3 { color:var(--accent); font-size:18px; margin-bottom:8px; }
   .intro-hero { display:grid; grid-template-columns:1.05fr .95fr; gap:48px; align-items:center; }
   .intro-schema { margin:0; }
   .schema-card { border:1px solid var(--line); border-radius:14px; background:var(--surface); padding:22px; }
@@ -122,10 +122,10 @@ keywords: "@imqueue introduction, what is imqueue, inter-communication messaging
 <section class="container section">
   <div class="section-label">// KEY PRINCIPLES</div>
   <div class="grid grid-2">
-    <div class="card principle"><h3>Reliable</h3><p>Safe-delivery messaging plus "leader"/"follower" deployment of the back-end engine fully guarantee data delivery between services.</p></div>
-    <div class="card principle"><h3>Scalable</h3><p>Cluster the backend engine, fork across a machine's cores, and scale horizontally across servers — there is no technical limit to the throughput a system built on IMQ can handle.</p></div>
-    <div class="card principle"><h3>Simple (KISS)</h3><p>Low entry for JS/TypeScript developers — minutes to your first service. No "hidden knowledge", a clean JSON-based protocol, and familiar patterns (Messaging Queue and RPC).</p></div>
-    <div class="card principle"><h3>Self-describing</h3><p>Every service describes itself, so clients are generated dynamically on-the-fly or pre-generated to files. You focus only on the service.</p></div>
+    <div class="card principle"><h2>Reliable</h2><p>Safe-delivery messaging plus "leader"/"follower" deployment of the back-end engine fully guarantee data delivery between services.</p></div>
+    <div class="card principle"><h2>Scalable</h2><p>Cluster the backend engine, fork across a machine's cores, and scale horizontally across servers — there is no technical limit to the throughput a system built on IMQ can handle.</p></div>
+    <div class="card principle"><h2>Simple (KISS)</h2><p>Low entry for JS/TypeScript developers — minutes to your first service. No "hidden knowledge", a clean JSON-based protocol, and familiar patterns (Messaging Queue and RPC).</p></div>
+    <div class="card principle"><h2>Self-describing</h2><p>Every service describes itself, so clients are generated dynamically on-the-fly or pre-generated to files. You focus only on the service.</p></div>
   </div>
 </section>
 

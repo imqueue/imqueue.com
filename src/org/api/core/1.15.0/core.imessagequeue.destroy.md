@@ -1,5 +1,6 @@
 ---
 title: "IMessageQueue.destroy() method · @imqueue/core v1.15.0 (archived)"
+description: "Safely destroys current queue, unregistered all set event listeners and connections. Supposed to be an async function."
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue.destroy/"
 ---

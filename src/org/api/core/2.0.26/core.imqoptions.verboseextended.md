@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.verboseExtended property · @imqueue/core v2.0.26 (archived)"
+description: "Enables/disables extended verbose logging. The output may contain sensitive information, so use it with caution. Does not work if a verbose option is disabled."
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.verboseextended/"
 ---

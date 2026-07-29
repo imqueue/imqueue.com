@@ -1,5 +1,6 @@
 ---
 title: "forgetPid() function · @imqueue/rpc v2.1.0 (archived)"
+description: "Removes pid file for a given name and id"
 noindex: true
 latestUrl: "/api/rpc/latest/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "MethodsCollectionDescription interface · @imqueue/rpc v2.1.0 (archived)"
+description: "Methods collection description"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.methodscollectiondescription/"
 ---

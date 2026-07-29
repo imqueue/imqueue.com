@@ -1,5 +1,6 @@
 ---
 title: "IMessage.from property · @imqueue/core v1.15.0 (archived)"
+description: "Message source queue name"
 noindex: true
 latestUrl: "/api/core/latest/core.imessage.from/"
 ---

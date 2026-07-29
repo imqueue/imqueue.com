@@ -1,5 +1,6 @@
 ---
 title: "IMessage.id property · @imqueue/core v1.15.0 (archived)"
+description: "Message unique identifier"
 noindex: true
 latestUrl: "/api/core/latest/core.imessage.id/"
 ---

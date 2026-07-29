@@ -1,5 +1,6 @@
 ---
 title: "UDPClusterManagerOptions.useAliveCheck property · @imqueue/core v2.0.26 (archived)"
+description: "Message queue alive-server check flag. If set to false, the server will not be checked for liveness on each broadcast message with a timeout."
 noindex: true
 latestUrl: "/api/core/latest/core.udpclustermanageroptions.usealivecheck/"
 ---

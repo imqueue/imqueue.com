@@ -1,5 +1,6 @@
 ---
 title: "IMQRPCRequest interface · @imqueue/rpc v1.17.1 (archived)"
+description: "Request message data structure expected to be handled by a service"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqrpcrequest/"
 ---

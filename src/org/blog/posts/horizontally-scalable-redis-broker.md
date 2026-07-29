@@ -2,9 +2,9 @@
 layout: post.html
 permalink: /blog/horizontally-scalable-redis-broker/
 templateEngineOverride: md
-title: "A horizontally auto-scaling Redis broker: recipes for networks with and without broadcast"
+title: "Auto-scaling Redis broker: with and without broadcast"
 summary: "One Redis behind your message bus is a ceiling and a single point of failure. The promoter and unicaster modules turn a fleet of plain Redis instances into a horizontally auto-scaling broker — here are the recipes for networks that deliver broadcast and for clouds like GCP that don't."
-description: "How to run a horizontally auto-scaling Redis message broker with @imqueue: client-side clustering with ClusteredRedisQueue, UDP-based broker discovery, redis-broker-promoter for broadcast-capable networks, and redis-broker-unicaster for GCP/Kubernetes where broadcast is blocked."
+description: "Run a horizontally auto-scaling Redis broker with @imqueue: client-side clustering, UDP broker discovery, and a unicast path for GCP/Kubernetes."
 keywords: "horizontally scalable redis broker, redis broker auto-scaling, horizontal auto-scaling redis, scale redis message queue, redis broker cluster, redis broker discovery, redis-broker-promoter, redis-broker-unicaster, imqueue cluster, udp broadcast discovery, GCP redis broker, kubernetes redis broker"
 date: 2026-07-24
 author: serhiy-morenko

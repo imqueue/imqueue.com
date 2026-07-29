@@ -1,5 +1,6 @@
 ---
 title: "JsonObject interface · @imqueue/core v2.0.26 (archived)"
+description: "Represents JSON serializable object"
 noindex: true
 latestUrl: "/api/core/latest/core.jsonobject/"
 ---

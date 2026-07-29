@@ -1,6 +1,7 @@
 {
   "layout": "apiref.html",
   "section": "api",
+  "bareTitle": true,
   "apiPkg": "rpc",
   "apiVersion": "1.17.1",
   "apiVersionPath": "1.17.1",

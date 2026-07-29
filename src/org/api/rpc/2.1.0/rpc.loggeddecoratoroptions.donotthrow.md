@@ -1,5 +1,6 @@
 ---
 title: "LoggedDecoratorOptions.doNotThrow property · @imqueue/rpc v2.1.0 (archived)"
+description: "LoggedDecoratorOptions.doNotThrow property — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.loggeddecoratoroptions.donotthrow/"
 ---

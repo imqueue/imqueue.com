@@ -2,7 +2,7 @@
 layout: post.html
 permalink: /blog/testing-microservices-without-the-whole-stack/
 templateEngineOverride: md
-title: "Testing services that call each other — without booting the whole stack"
+title: "Testing services that call each other"
 summary: "Integration tests that require every service and its infrastructure running are slow, flaky, and painful. Here's a layered approach that tests most of your logic without spinning up the world."
 description: "A practical, layered strategy for testing Node.js microservices that call each other — unit-testing service classes directly and using typed generated clients as seams — with @imqueue."
 keywords: "test microservices nodejs, mock service calls typescript, integration test microservices, testing service to service, imqueue"

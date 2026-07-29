@@ -1,5 +1,6 @@
 ---
 title: "IMQService.destroy() method · @imqueue/rpc v1.17.1 (archived)"
+description: "Destroys this instance of service"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqservice.destroy/"
 ---

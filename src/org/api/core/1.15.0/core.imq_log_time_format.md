@@ -1,5 +1,6 @@
 ---
 title: "IMQ_LOG_TIME_FORMAT variable · @imqueue/core v1.15.0 (archived)"
+description: "Environment variable IMQ_LOG_TIME_FORMAT=[ 'microseconds', 'milliseconds', 'seconds' ]. Specifies profiled time logging format, by default is 'microseconds'"
 noindex: true
 latestUrl: "/api/core/latest/core.imq_log_time_format/"
 ---

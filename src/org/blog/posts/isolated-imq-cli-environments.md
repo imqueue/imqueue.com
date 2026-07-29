@@ -2,9 +2,9 @@
 layout: post.html
 permalink: /blog/isolated-imq-cli-environments/
 templateEngineOverride: md
-title: "Managing multiple @imqueue projects locally: one isolated CLI home per fleet"
+title: "One isolated imq CLI home per @imqueue project"
 summary: "Every imq invocation shares one ~/.imq — one config, one pid registry, one set of logs. Here's how to give each project its own isolated CLI environment with IMQ_CLI_HOME, plus recipes for direnv, shell wrappers, per-client tokens and disposable sandboxes."
-description: "How to run multiple @imqueue projects on one machine without collisions: isolated imq CLI environments per fleet using IMQ_CLI_HOME — direnv and shell-wrapper recipes, per-client config and tokens, disposable sandboxes, and the gotchas."
+description: "Run several @imqueue projects on one machine without collisions: isolated imq CLI homes via IMQ_CLI_HOME, direnv recipes, and disposable sandboxes."
 keywords: "IMQ_CLI_HOME, imq cli, multiple imqueue projects, isolated cli environment, imqueue fleet, imq ctl, node.js microservices local development, per-project cli config, imq sandbox"
 date: 2026-07-23
 author: andrii

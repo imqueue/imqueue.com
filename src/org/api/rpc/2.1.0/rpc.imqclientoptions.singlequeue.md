@@ -1,5 +1,6 @@
 ---
 title: "IMQClientOptions.singleQueue property · @imqueue/rpc v2.1.0 (archived)"
+description: "IMQClientOptions.singleQueue property — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclientoptions.singlequeue/"
 ---

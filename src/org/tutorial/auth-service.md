@@ -1,6 +1,6 @@
 ---
 chapter: 3
-title: Auth Service
+title: "Auth service: calling another microservice"
 docLabel: TUTORIAL — CHAPTER 3
 lead: "Add an Auth service that talks to the User service to log users in and verify them — your first inter-service communication."
 description: "Add an @imqueue Auth service that calls the User service to log in and verify users — your first inter-service communication with typed RPC clients."
@@ -76,7 +76,7 @@ check the supplied credentials, and `verify()` returns the verified user object.
 > direct call here specifically so you can get hands-on with the feature and see
 > how it works.
 
-### The service client
+## The service client
 
 To call a remote service in the RPC pattern, you need a client. Because every
 @imqueue service is self-describing, there are three ways to build one:

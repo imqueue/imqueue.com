@@ -1,5 +1,6 @@
 ---
 title: "unpack() function · @imqueue/core v1.15.0 (archived)"
+description: "Decompress binary string and returns plain data"
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

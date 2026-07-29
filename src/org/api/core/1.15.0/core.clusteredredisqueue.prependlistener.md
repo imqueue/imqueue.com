@@ -1,5 +1,6 @@
 ---
 title: "ClusteredRedisQueue.prependListener() method · @imqueue/core v1.15.0 (archived)"
+description: "ClusteredRedisQueue.prependListener() method — @imqueue/core 1.15.0 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.prependlistener/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "IJson type · @imqueue/core v1.15.0 (archived)"
+description: "> Warning: This API is now obsolete. > >"
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

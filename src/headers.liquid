@@ -20,3 +20,29 @@ eleventyExcludeFromCollections: true
 
 /llms-full.txt
   X-Robots-Tag: noindex
+
+# ---- caching -------------------------------------------------------------
+# Fonts are the one asset class safe to cache forever unasked: the filenames come
+# from @fontsource and encode family, subset and weight, so a given name never
+# changes content. Cloudflare's default (max-age=14400) had the browser
+# revalidating ~146 KB of immutable woff2 every four hours.
+#
+# Deliberately NOT doing the same for /css/* and /js/*: those filenames are not
+# fingerprinted, so a long max-age would serve stale CSS after a deploy. Adding
+# content hashes to the build is the prerequisite for caching them hard.
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# ---- security ------------------------------------------------------------
+# Not ranking factors, but cheap and worth having. Left out on purpose:
+#   * Strict-Transport-Security — a year-long max-age is effectively
+#     irreversible, and it is a deployment decision rather than an SEO one.
+#     Enable it once you are certain every subdomain (mcp.imqueue.org included)
+#     is HTTPS-only:  Strict-Transport-Security: max-age=31536000
+#   * Content-Security-Policy — this site runs inline scripts (the no-FOUC theme
+#     init) plus GA4 and Clarity, so a policy needs to be authored and tested
+#     against real pages rather than pasted in.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN

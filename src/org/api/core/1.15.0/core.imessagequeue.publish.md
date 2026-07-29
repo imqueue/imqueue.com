@@ -1,5 +1,6 @@
 ---
 title: "IMessageQueue.publish() method · @imqueue/core v1.15.0 (archived)"
+description: "Publishes data to current queue channel"
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue.publish/"
 ---

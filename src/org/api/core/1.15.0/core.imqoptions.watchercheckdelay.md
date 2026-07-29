@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.watcherCheckDelay property · @imqueue/core v1.15.0 (archived)"
+description: "Watcher check delay period. This is used by a queue watcher agent to make sure at least one watcher is available for queue operations."
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.watchercheckdelay/"
 ---

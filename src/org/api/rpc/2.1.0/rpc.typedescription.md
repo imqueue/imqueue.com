@@ -1,5 +1,6 @@
 ---
 title: "TypeDescription interface · @imqueue/rpc v2.1.0 (archived)"
+description: "Service types description"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.typedescription/"
 ---

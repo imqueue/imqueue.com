@@ -1,5 +1,6 @@
 ---
 title: "promisify() function · @imqueue/core v2.0.26 (archived)"
+description: "Makes given object methods promise-like"
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

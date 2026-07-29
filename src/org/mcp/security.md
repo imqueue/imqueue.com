@@ -1,9 +1,9 @@
 ---
 chapter: 5
-title: "Safety & troubleshooting"
+title: "MCP safety model & troubleshooting"
 docLabel: "MCP SERVER — 05 / 05"
 lead: "The trust model behind the server — what it can and can't touch — and fixes for the setup problems you're most likely to hit."
-description: "The @imqueue MCP server's safety model (local stdio plus a sandboxed hosted endpoint, host-locked, dry-run by default, no telemetry) plus troubleshooting: npx not found, imq missing, config init timeouts, capped logs and per-client config gotchas."
+description: "The @imqueue MCP server's safety model — local stdio, sandboxed hosted endpoint, dry-run by default, no telemetry — plus common troubleshooting fixes."
 keywords: "@imqueue mcp security, mcp server safe by default, npx not found mcp, imqueue mcp troubleshooting, mcp server nvm path, dry-run create_service"
 ogType: article
 ---

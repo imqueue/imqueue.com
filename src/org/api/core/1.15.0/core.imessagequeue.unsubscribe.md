@@ -1,5 +1,6 @@
 ---
 title: "IMessageQueue.unsubscribe() method · @imqueue/core v1.15.0 (archived)"
+description: "Closes subscription channel"
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue.unsubscribe/"
 ---
