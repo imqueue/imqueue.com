@@ -92,16 +92,46 @@ for (const rel of files) {
 
 const json = `${JSON.stringify(dates, null, 2)}\n`;
 
+// --check deliberately does NOT demand byte equality. `modified` comes from
+// `git log -1`, so it goes stale the moment a page is committed — gating on it
+// would mean every commit that touches a page blocks the *next* commit through
+// the pre-commit hook, with no way to break the cycle in one step.
+//
+// What actually matters is enforced:
+//   * coverage — a page missing from the file emits no date at all, silently
+//   * `published` — the value we promise is stable and true; it comes from the
+//     first-add commit and must not drift
+// `modified` drift is reported and left alone; a dateModified that lags by a few
+// commits is honest, and regenerating is a chore, not a correctness gate.
 if (process.argv.includes('--check')) {
-  const current = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8') : '';
+  const committed = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : {};
+  const missing = Object.keys(dates).filter((k) => !committed[k]);
+  const drifted = Object.keys(dates).filter(
+    (k) => committed[k] && committed[k].published !== dates[k].published,
+  );
+  const orphaned = Object.keys(committed).filter((k) => !dates[k]);
+  const staleMod = Object.keys(dates).filter(
+    (k) => committed[k] && committed[k].modified !== dates[k].modified,
+  );
 
-  if (current !== json) {
+  for (const k of missing) console.error(`  FAIL  ${k} has no entry — it would render with no date`);
+  for (const k of drifted) {
     console.error(
-      'src/_data/pageDates.json is stale — run `npm run gen-page-dates` and commit it.',
+      `  FAIL  ${k} publication date changed: ` +
+      `${committed[k].published} -> ${dates[k].published}`,
     );
+  }
+
+  if (missing.length || drifted.length) {
+    console.error('\nRun `npm run gen-page-dates` and commit src/_data/pageDates.json.');
     process.exit(1);
   }
-  console.log(`pageDates.json is up to date (${Object.keys(dates).length} pages)`);
+
+  console.log(
+    `pageDates.json covers all ${Object.keys(dates).length} pages, publication dates stable` +
+    (staleMod.length ? `; ${staleMod.length} dateModified value(s) behind HEAD` : '') +
+    (orphaned.length ? `; ${orphaned.length} entr(ies) for pages that no longer exist` : ''),
+  );
   process.exit(0);
 }
 
