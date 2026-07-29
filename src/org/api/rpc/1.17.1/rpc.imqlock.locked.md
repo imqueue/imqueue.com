@@ -2,6 +2,7 @@
 title: "IMQLock.locked() method · @imqueue/rpc v1.17.1 (archived)"
 description: "Returns true if given key is locked, false otherwise"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQLock","url":"/api/rpc/1.17.1/rpc.imqlock/"},{"name":"locked","url":"/api/rpc/1.17.1/rpc.imqlock.locked/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqlock.locked/"
 ---

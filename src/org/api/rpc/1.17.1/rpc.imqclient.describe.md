@@ -2,6 +2,7 @@
 title: "IMQClient.describe() method · @imqueue/rpc v1.17.1 (archived)"
 description: "Returns service description metadata."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQClient","url":"/api/rpc/1.17.1/rpc.imqclient/"},{"name":"describe","url":"/api/rpc/1.17.1/rpc.imqclient.describe/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.describe/"
 ---

@@ -2,6 +2,7 @@
 title: "IMQCache.get() method · @imqueue/rpc v1.17.1 (archived)"
 description: "Returns registered cache adapter by its given name or class"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQCache","url":"/api/rpc/1.17.1/rpc.imqcache/"},{"name":"get","url":"/api/rpc/1.17.1/rpc.imqcache.get/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqcache.get/"
 ---

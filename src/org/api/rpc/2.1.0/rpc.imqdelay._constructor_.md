@@ -2,6 +2,7 @@
 title: "IMQDelay.(constructor) · @imqueue/rpc v2.1.0 (archived)"
 description: "Constructs a new instance of the IMQDelay class"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQDelay","url":"/api/rpc/2.1.0/rpc.imqdelay/"},{"name":"(constructor)","url":"/api/rpc/2.1.0/rpc.imqdelay._constructor_/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqdelay._constructor_/"
 ---

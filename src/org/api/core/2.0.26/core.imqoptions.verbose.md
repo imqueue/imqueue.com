@@ -2,6 +2,7 @@
 title: "IMQOptions.verbose property · @imqueue/core v2.0.26 (archived)"
 description: "Enables/disables verbose logging"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMQOptions","url":"/api/core/2.0.26/core.imqoptions/"},{"name":"verbose","url":"/api/core/2.0.26/core.imqoptions.verbose/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.verbose/"
 ---

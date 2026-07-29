@@ -2,6 +2,7 @@
 title: "IMQRPCResponse.data property · @imqueue/rpc v1.17.1 (archived)"
 description: "IMQRPCResponse.data property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQRPCResponse","url":"/api/rpc/1.17.1/rpc.imqrpcresponse/"},{"name":"data","url":"/api/rpc/1.17.1/rpc.imqrpcresponse.data/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqrpcresponse.data/"
 ---

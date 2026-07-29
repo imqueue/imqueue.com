@@ -2,6 +2,7 @@
 title: "IMQOptions.safeDelivery property · @imqueue/core v1.15.0 (archived)"
 description: "Enables/disables safe message delivery."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"IMQOptions","url":"/api/core/1.15.0/core.imqoptions/"},{"name":"safeDelivery","url":"/api/core/1.15.0/core.imqoptions.safedelivery/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.safedelivery/"
 ---

@@ -2,6 +2,7 @@
 title: "IMQRPCRequest.method property · @imqueue/rpc v2.1.0 (archived)"
 description: "IMQRPCRequest.method property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQRPCRequest","url":"/api/rpc/2.1.0/rpc.imqrpcrequest/"},{"name":"method","url":"/api/rpc/2.1.0/rpc.imqrpcrequest.method/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqrpcrequest.method/"
 ---

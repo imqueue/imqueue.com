@@ -2,6 +2,7 @@
 title: "ClusteredRedisQueue.rawListeners() method · @imqueue/core v1.15.0 (archived)"
 description: "ClusteredRedisQueue.rawListeners() method — @imqueue/core 1.15.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"ClusteredRedisQueue","url":"/api/core/1.15.0/core.clusteredredisqueue/"},{"name":"rawListeners","url":"/api/core/1.15.0/core.clusteredredisqueue.rawlisteners/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.rawlisteners/"
 ---

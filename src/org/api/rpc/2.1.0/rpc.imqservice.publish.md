@@ -2,6 +2,7 @@
 title: "IMQService.publish() method · @imqueue/rpc v2.1.0 (archived)"
 description: "Sends given data to service subscription channel"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQService","url":"/api/rpc/2.1.0/rpc.imqservice/"},{"name":"publish","url":"/api/rpc/2.1.0/rpc.imqservice.publish/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqservice.publish/"
 ---

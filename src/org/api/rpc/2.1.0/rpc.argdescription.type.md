@@ -2,6 +2,7 @@
 title: "ArgDescription.type property · @imqueue/rpc v2.1.0 (archived)"
 description: "ArgDescription.type property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"ArgDescription","url":"/api/rpc/2.1.0/rpc.argdescription/"},{"name":"type","url":"/api/rpc/2.1.0/rpc.argdescription.type/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.argdescription.type/"
 ---

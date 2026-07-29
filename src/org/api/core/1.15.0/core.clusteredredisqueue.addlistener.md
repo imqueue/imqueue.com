@@ -2,6 +2,7 @@
 title: "ClusteredRedisQueue.addListener() method · @imqueue/core v1.15.0 (archived)"
 description: "ClusteredRedisQueue.addListener() method — @imqueue/core 1.15.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"ClusteredRedisQueue","url":"/api/core/1.15.0/core.clusteredredisqueue/"},{"name":"addListener","url":"/api/core/1.15.0/core.clusteredredisqueue.addlistener/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.addlistener/"
 ---

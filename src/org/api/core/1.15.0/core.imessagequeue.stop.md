@@ -2,6 +2,7 @@
 title: "IMessageQueue.stop() method · @imqueue/core v1.15.0 (archived)"
 description: "Stops the queue (should stop handle queue messages). Supposed to be an async function."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"IMessageQueue","url":"/api/core/1.15.0/core.imessagequeue/"},{"name":"stop","url":"/api/core/1.15.0/core.imessagequeue.stop/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue.stop/"
 ---

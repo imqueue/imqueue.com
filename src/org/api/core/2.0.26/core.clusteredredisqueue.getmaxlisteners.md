@@ -2,6 +2,7 @@
 title: "ClusteredRedisQueue.getMaxListeners() method · @imqueue/core v2.0.26 (archived)"
 description: "ClusteredRedisQueue.getMaxListeners() method — @imqueue/core 2.0.26 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"ClusteredRedisQueue","url":"/api/core/2.0.26/core.clusteredredisqueue/"},{"name":"getMaxListeners","url":"/api/core/2.0.26/core.clusteredredisqueue.getmaxlisteners/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.getmaxlisteners/"
 ---

@@ -2,6 +2,7 @@
 title: "ICache.del() method · @imqueue/rpc v2.1.0 (archived)"
 description: "ICache.del() method — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"ICache","url":"/api/rpc/2.1.0/rpc.icache/"},{"name":"del","url":"/api/rpc/2.1.0/rpc.icache.del/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.icache.del/"
 ---

@@ -2,6 +2,7 @@
 title: "CacheDecorator.globalOptions property · @imqueue/rpc v1.17.1 (archived)"
 description: "CacheDecorator.globalOptions property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"CacheDecorator","url":"/api/rpc/1.17.1/rpc.cachedecorator/"},{"name":"globalOptions","url":"/api/rpc/1.17.1/rpc.cachedecorator.globaloptions/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.cachedecorator.globaloptions/"
 ---

@@ -2,6 +2,7 @@
 title: "ReturnValueDescription.description property · @imqueue/rpc v1.17.1 (archived)"
 description: "ReturnValueDescription.description property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"ReturnValueDescription","url":"/api/rpc/1.17.1/rpc.returnvaluedescription/"},{"name":"description","url":"/api/rpc/1.17.1/rpc.returnvaluedescription.description/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.returnvaluedescription.description/"
 ---

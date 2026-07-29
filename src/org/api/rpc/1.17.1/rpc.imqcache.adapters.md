@@ -2,6 +2,7 @@
 title: "IMQCache.adapters property · @imqueue/rpc v1.17.1 (archived)"
 description: "IMQCache.adapters property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQCache","url":"/api/rpc/1.17.1/rpc.imqcache/"},{"name":"adapters","url":"/api/rpc/1.17.1/rpc.imqcache.adapters/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqcache.adapters/"
 ---

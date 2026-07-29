@@ -2,6 +2,7 @@
 title: "ServiceClassDescription.inherits property · @imqueue/rpc v1.17.1 (archived)"
 description: "ServiceClassDescription.inherits property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"ServiceClassDescription","url":"/api/rpc/1.17.1/rpc.serviceclassdescription/"},{"name":"inherits","url":"/api/rpc/1.17.1/rpc.serviceclassdescription.inherits/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.serviceclassdescription.inherits/"
 ---

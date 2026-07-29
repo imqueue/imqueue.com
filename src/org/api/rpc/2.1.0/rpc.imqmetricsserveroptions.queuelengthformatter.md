@@ -2,6 +2,7 @@
 title: "IMQMetricsServerOptions.queueLengthFormatter property · @imqueue/rpc v2.1.0 (archived)"
 description: "IMQMetricsServerOptions.queueLengthFormatter property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQMetricsServerOptions","url":"/api/rpc/2.1.0/rpc.imqmetricsserveroptions/"},{"name":"queueLengthFormatter","url":"/api/rpc/2.1.0/rpc.imqmetricsserveroptions.queuelengthformatter/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqmetricsserveroptions.queuelengthformatter/"
 ---

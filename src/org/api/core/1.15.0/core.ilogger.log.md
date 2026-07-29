@@ -2,6 +2,7 @@
 title: "ILogger.log() method · @imqueue/core v1.15.0 (archived)"
 description: "Log level function"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"ILogger","url":"/api/core/1.15.0/core.ilogger/"},{"name":"log","url":"/api/core/1.15.0/core.ilogger.log/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.ilogger.log/"
 ---

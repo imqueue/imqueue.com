@@ -2,6 +2,7 @@
 title: "ClusteredRedisQueue.destroy() method · @imqueue/core v1.15.0 (archived)"
 description: "Safely destroys current queue, unregistered all set event listeners and connections. Supposed to be an async function."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"ClusteredRedisQueue","url":"/api/core/1.15.0/core.clusteredredisqueue/"},{"name":"destroy","url":"/api/core/1.15.0/core.clusteredredisqueue.destroy/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.destroy/"
 ---

@@ -2,6 +2,7 @@
 title: "IMQDelay.ms property · @imqueue/rpc v2.1.0 (archived)"
 description: "IMQDelay.ms property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQDelay","url":"/api/rpc/2.1.0/rpc.imqdelay/"},{"name":"ms","url":"/api/rpc/2.1.0/rpc.imqdelay.ms/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqdelay.ms/"
 ---

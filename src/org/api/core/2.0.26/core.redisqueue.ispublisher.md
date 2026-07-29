@@ -2,6 +2,7 @@
 title: "RedisQueue.isPublisher() method · @imqueue/core v2.0.26 (archived)"
 description: "Returns true if publisher mode is enabled on this queue, false otherwise."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"RedisQueue","url":"/api/core/2.0.26/core.redisqueue/"},{"name":"isPublisher","url":"/api/core/2.0.26/core.redisqueue.ispublisher/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.ispublisher/"
 ---

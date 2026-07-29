@@ -2,6 +2,7 @@
 title: "RedisCache.options property · @imqueue/rpc v1.17.1 (archived)"
 description: "RedisCache.options property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"RedisCache","url":"/api/rpc/1.17.1/rpc.rediscache/"},{"name":"options","url":"/api/rpc/1.17.1/rpc.rediscache.options/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.rediscache.options/"
 ---

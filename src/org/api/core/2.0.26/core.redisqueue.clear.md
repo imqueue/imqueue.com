@@ -2,6 +2,7 @@
 title: "RedisQueue.clear() method · @imqueue/core v2.0.26 (archived)"
 description: "Clears queue data in redis"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"RedisQueue","url":"/api/core/2.0.26/core.redisqueue/"},{"name":"clear","url":"/api/core/2.0.26/core.redisqueue.clear/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.clear/"
 ---

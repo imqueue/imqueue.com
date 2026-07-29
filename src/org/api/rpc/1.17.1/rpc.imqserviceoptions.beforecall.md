@@ -2,6 +2,7 @@
 title: "IMQServiceOptions.beforeCall property · @imqueue/rpc v1.17.1 (archived)"
 description: "IMQServiceOptions.beforeCall property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQServiceOptions","url":"/api/rpc/1.17.1/rpc.imqserviceoptions/"},{"name":"beforeCall","url":"/api/rpc/1.17.1/rpc.imqserviceoptions.beforecall/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqserviceoptions.beforecall/"
 ---

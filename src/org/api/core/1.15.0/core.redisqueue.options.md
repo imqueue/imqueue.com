@@ -2,6 +2,7 @@
 title: "RedisQueue.options property · @imqueue/core v1.15.0 (archived)"
 description: "This queue instance options"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"RedisQueue","url":"/api/core/1.15.0/core.redisqueue/"},{"name":"options","url":"/api/core/1.15.0/core.redisqueue.options/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.options/"
 ---

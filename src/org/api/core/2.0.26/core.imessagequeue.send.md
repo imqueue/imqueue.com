@@ -2,6 +2,7 @@
 title: "IMessageQueue.send() method · @imqueue/core v2.0.26 (archived)"
 description: "Sends a message to given queue name with the given data. Supposed to be an async function."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMessageQueue","url":"/api/core/2.0.26/core.imessagequeue/"},{"name":"send","url":"/api/core/2.0.26/core.imessagequeue.send/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue.send/"
 ---

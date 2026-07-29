@@ -2,6 +2,7 @@
 title: "ICache.set() method · @imqueue/rpc v2.1.0 (archived)"
 description: "ICache.set() method — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"ICache","url":"/api/rpc/2.1.0/rpc.icache/"},{"name":"set","url":"/api/rpc/2.1.0/rpc.icache.set/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.icache.set/"
 ---

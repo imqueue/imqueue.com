@@ -2,6 +2,7 @@
 title: "IMQLock.logger property · @imqueue/rpc v2.1.0 (archived)"
 description: "Logger used to log errors which appears during locked calls"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQLock","url":"/api/rpc/2.1.0/rpc.imqlock/"},{"name":"logger","url":"/api/rpc/2.1.0/rpc.imqlock.logger/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqlock.logger/"
 ---

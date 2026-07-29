@@ -2,6 +2,7 @@
 title: "IMQOptions.host property · @imqueue/core v1.15.0 (archived)"
 description: "Message queue network host"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"IMQOptions","url":"/api/core/1.15.0/core.imqoptions/"},{"name":"host","url":"/api/core/1.15.0/core.imqoptions.host/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

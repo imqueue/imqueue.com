@@ -2,6 +2,7 @@
 title: "ClusteredRedisQueue.addServer() method · @imqueue/core v2.0.26 (archived)"
 description: "Adds new servers to the cluster"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"ClusteredRedisQueue","url":"/api/core/2.0.26/core.clusteredredisqueue/"},{"name":"addServer","url":"/api/core/2.0.26/core.clusteredredisqueue.addserver/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.addserver/"
 ---
