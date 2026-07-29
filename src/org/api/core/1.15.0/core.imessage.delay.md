@@ -1,5 +1,6 @@
 ---
 title: "IMessage.delay property · @imqueue/core v1.15.0 (archived)"
+description: "Message delay in milliseconds (for delayed messages). Optional."
 noindex: true
 latestUrl: "/api/core/latest/core.imessage.delay/"
 ---

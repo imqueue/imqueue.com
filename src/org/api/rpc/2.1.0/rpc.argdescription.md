@@ -1,5 +1,6 @@
 ---
 title: "ArgDescription interface · @imqueue/rpc v2.1.0 (archived)"
+description: "Method argument description"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.argdescription/"
 ---

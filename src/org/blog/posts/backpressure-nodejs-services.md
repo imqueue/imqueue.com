@@ -2,7 +2,7 @@
 layout: post.html
 permalink: /blog/backpressure-nodejs-services/
 templateEngineOverride: md
-title: "Back-pressure for Node.js services (and why HTTP makes it hard)"
+title: "Back-pressure for Node.js services"
 summary: "When a downstream service slows down, HTTP tends to turn that into a cascading failure. A queue absorbs the spike instead. Here's the difference, and the trade-offs to watch."
 description: "How back-pressure works for Node.js microservices, why synchronous HTTP calls cause cascading failures under load, and how a message queue buffers spikes — with @imqueue."
 keywords: "nodejs backpressure microservices, cascading failure, handle traffic spikes microservices, overload resilience, imqueue"

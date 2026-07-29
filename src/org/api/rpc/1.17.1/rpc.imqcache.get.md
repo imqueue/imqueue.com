@@ -1,5 +1,6 @@
 ---
 title: "IMQCache.get() method · @imqueue/rpc v1.17.1 (archived)"
+description: "Returns registered cache adapter by its given name or class"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqcache.get/"
 ---

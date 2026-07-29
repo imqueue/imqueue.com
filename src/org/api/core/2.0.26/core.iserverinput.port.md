@@ -1,5 +1,6 @@
 ---
 title: "IServerInput.port property · @imqueue/core v2.0.26 (archived)"
+description: "Message queue network port"
 noindex: true
 latestUrl: "/api/core/latest/core.iserverinput.port/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "ClusteredRedisQueue.addServer() method · @imqueue/core v2.0.26 (archived)"
+description: "Adds new servers to the cluster"
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.addserver/"
 ---

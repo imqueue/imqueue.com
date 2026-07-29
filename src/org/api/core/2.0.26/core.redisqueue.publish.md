@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue.publish() method · @imqueue/core v2.0.26 (archived)"
+description: "Publishes a message to this queue subscription channel for currently subscribed clients."
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.publish/"
 ---

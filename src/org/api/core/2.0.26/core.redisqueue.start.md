@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue.start() method · @imqueue/core v2.0.26 (archived)"
+description: "Initializes and starts current queue routines"
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.start/"
 ---

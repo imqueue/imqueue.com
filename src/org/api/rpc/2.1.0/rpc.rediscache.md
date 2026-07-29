@@ -1,5 +1,6 @@
 ---
 title: "RedisCache class · @imqueue/rpc v2.1.0 (archived)"
+description: "Class RedisCache. Implements cache engine over redis."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.rediscache/"
 ---

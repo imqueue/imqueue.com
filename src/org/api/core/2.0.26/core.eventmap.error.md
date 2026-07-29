@@ -1,5 +1,6 @@
 ---
 title: "EventMap.error property · @imqueue/core v2.0.26 (archived)"
+description: "EventMap.error property — @imqueue/core 2.0.26 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.eventmap.error/"
 ---

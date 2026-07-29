@@ -1,5 +1,6 @@
 ---
 title: "@imqueue/rpc 2.1.0 · API reference (archived)"
+description: "@imqueue/rpc 2.1.0 — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/"
 ---

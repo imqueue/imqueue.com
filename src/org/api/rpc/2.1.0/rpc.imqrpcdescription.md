@@ -1,5 +1,6 @@
 ---
 title: "IMQRPCDescription class · @imqueue/rpc v2.1.0 (archived)"
+description: "IMQRPCDescription class — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqrpcdescription/"
 ---

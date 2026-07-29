@@ -1,5 +1,6 @@
 ---
 title: "ILogger.error() method · @imqueue/core v2.0.26 (archived)"
+description: "Error level function"
 noindex: true
 latestUrl: "/api/core/latest/core.ilogger.error/"
 ---

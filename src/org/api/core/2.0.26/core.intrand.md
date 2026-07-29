@@ -1,5 +1,6 @@
 ---
 title: "intrand() function · @imqueue/core v2.0.26 (archived)"
+description: "Returns random integer between given min and max"
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

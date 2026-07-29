@@ -1,0 +1,4 @@
+{
+  "//": "Scopes lib/ to ES modules without making the whole repo ESM — the scripts/ tooling is CommonJS. Cloudflare Pages Functions import these directly.",
+  "type": "module"
+}

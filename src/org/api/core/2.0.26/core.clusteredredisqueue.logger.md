@@ -1,5 +1,6 @@
 ---
 title: "ClusteredRedisQueue.logger property · @imqueue/core v2.0.26 (archived)"
+description: "Logger instance associated with this queue instance"
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.logger/"
 ---

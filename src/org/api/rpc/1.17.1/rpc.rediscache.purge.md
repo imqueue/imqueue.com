@@ -1,5 +1,6 @@
 ---
 title: "RedisCache.purge() method · @imqueue/rpc v1.17.1 (archived)"
+description: "Purges all keys from cache by a given wildcard mask"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.rediscache.purge/"
 ---

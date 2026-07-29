@@ -1,5 +1,6 @@
 ---
 title: "MethodDescription.returns property · @imqueue/rpc v2.1.0 (archived)"
+description: "MethodDescription.returns property — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.methoddescription.returns/"
 ---

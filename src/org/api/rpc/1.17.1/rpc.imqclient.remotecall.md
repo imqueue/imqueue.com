@@ -1,5 +1,6 @@
 ---
 title: "IMQClient.remoteCall() method · @imqueue/rpc v1.17.1 (archived)"
+description: "Sends call to remote service method"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.remotecall/"
 ---

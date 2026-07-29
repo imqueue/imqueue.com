@@ -1,9 +1,9 @@
 ---
 layout: docs.html
-title: Contributing
+title: "Contributing & contribution terms"
 docLabel: CONTRIBUTING
 lead: "Thanks for your interest in improving @imqueue! Contributions of all kinds are welcome — bug fixes, features, tests and documentation. Because @imqueue is dual-licensed, please read the contribution terms before you start."
-description: "How to contribute to @imqueue and the @imqueue Contribution Terms (v1.0): contributions stay GPL-3.0, you keep your copyright, and you grant the owner the right to also license them commercially, royalty-free."
+description: "How to contribute to @imqueue, plus the Contribution Terms v1.0: contributions stay GPL-3.0, you keep your copyright, and commercial relicensing is granted."
 keywords: "contribute to imqueue, imqueue contribution terms, imqueue CLA, dual license contribution, GPL-3.0 commercial license, imqueue pull request, imqueue contributing guide"
 relatedTopics: [architecture, dx]
 ---
@@ -70,7 +70,7 @@ can be addressed responsibly.
 
 ---
 
-# @imqueue Contribution Terms (v1.0)
+## @imqueue Contribution Terms (v1.0)
 
 These terms apply to every contribution to any repository of the **@imqueue**
 project — the packages published under the `@imqueue` npm scope and any repository

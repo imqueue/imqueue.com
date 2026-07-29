@@ -1,5 +1,6 @@
 ---
 title: "IMessageQueue interface · @imqueue/core v1.15.0 (archived)"
+description: "Generic messaging queue implementation interface"
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue/"
 ---

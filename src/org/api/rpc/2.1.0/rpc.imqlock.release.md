@@ -1,5 +1,6 @@
 ---
 title: "IMQLock.release() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Releases previously acquired lock for a given key"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqlock.release/"
 ---

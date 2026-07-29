@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.safeDelivery property · @imqueue/core v2.0.26 (archived)"
+description: "Enables/disables safe message delivery."
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.safedelivery/"
 ---

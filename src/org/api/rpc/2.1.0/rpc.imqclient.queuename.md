@@ -1,5 +1,6 @@
 ---
 title: "IMQClient.queueName property · @imqueue/rpc v2.1.0 (archived)"
+description: "IMQClient.queueName property — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.queuename/"
 ---

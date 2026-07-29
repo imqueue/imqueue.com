@@ -1,5 +1,6 @@
 ---
 title: "IMQService.stop() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Stops service from handling messages"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqservice.stop/"
 ---

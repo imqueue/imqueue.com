@@ -1,5 +1,6 @@
 ---
 title: "ICacheConstructor interface · @imqueue/rpc v2.1.0 (archived)"
+description: "ICacheConstructor interface — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.icacheconstructor/"
 ---

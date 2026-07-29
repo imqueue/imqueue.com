@@ -1,5 +1,6 @@
 ---
 title: "logDebugInfo() function · @imqueue/core v2.0.26 (archived)"
+description: "Prints debug information"
 noindex: true
 latestUrl: "/api/core/latest/core.logdebuginfo/"
 ---

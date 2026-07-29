@@ -1,5 +1,6 @@
 ---
 title: "IMQClient.stop() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Stops client work"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.stop/"
 ---

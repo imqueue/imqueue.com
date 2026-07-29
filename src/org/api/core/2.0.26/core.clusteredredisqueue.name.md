@@ -1,5 +1,6 @@
 ---
 title: "ClusteredRedisQueue.name property · @imqueue/core v2.0.26 (archived)"
+description: "ClusteredRedisQueue.name property — @imqueue/core 2.0.26 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.name/"
 ---

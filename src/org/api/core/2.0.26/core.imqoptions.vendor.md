@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.vendor property · @imqueue/core v2.0.26 (archived)"
+description: "Message queue vendor"
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.vendor/"
 ---

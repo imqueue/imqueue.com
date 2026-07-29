@@ -1,5 +1,6 @@
 ---
 title: "IMQCache class · @imqueue/rpc v2.1.0 (archived)"
+description: "Generic cache registry"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqcache/"
 ---

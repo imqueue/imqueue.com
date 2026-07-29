@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue.isPublisher() method · @imqueue/core v2.0.26 (archived)"
+description: "Returns true if publisher mode is enabled on this queue, false otherwise."
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.ispublisher/"
 ---

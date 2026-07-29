@@ -1,5 +1,6 @@
 ---
 title: "AFTER_HOOK_ERROR variable · @imqueue/rpc v1.17.1 (archived)"
+description: "AFTER_HOOK_ERROR variable — @imqueue/rpc 1.17.1 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.after_hook_error/"
 ---

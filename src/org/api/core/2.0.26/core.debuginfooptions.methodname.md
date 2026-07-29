@@ -1,5 +1,6 @@
 ---
 title: "DebugInfoOptions.methodName property · @imqueue/core v2.0.26 (archived)"
+description: "Method name"
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions.methodname/"
 ---

@@ -1,0 +1,58 @@
+{%- comment -%}
+Visible breadcrumb trail.
+
+BreadcrumbList JSON-LD has been emitted on the docs/tutorial/cli/mcp/api/blog
+pages since launch, but nothing rendered a visible trail. Two reasons that
+matters: Google prefers structured data that matches what the page actually
+shows, and a rendered trail is a real internal link to the section index — links
+these pages otherwise only ever got from the global nav.
+
+Params (all optional — derived from page.url when omitted, mirroring the
+derivation in head.html):
+  crumbLabel — section name, e.g. "Documentation"
+  crumbRoot  — section URL, e.g. "/docs/"
+  crumbLeaf  — name of the current page (defaults to `title`, suffix stripped)
+{%- endcomment -%}
+{%- assign cbParts = page.url | split: "/" -%}
+{%- assign cbSeg = cbParts[1] -%}
+{%- assign cbLabel = crumbLabel -%}
+{%- assign cbRoot = crumbRoot -%}
+{%- if cbLabel == nil or cbLabel == "" -%}
+  {%- case cbSeg -%}
+  {%- when "api" -%}{%- assign cbLabel = "API reference" -%}{%- assign cbRoot = "/api/" -%}
+  {%- when "cli" -%}{%- assign cbLabel = "CLI manual" -%}{%- assign cbRoot = "/cli/" -%}
+  {%- when "mcp" -%}{%- assign cbLabel = "MCP server" -%}{%- assign cbRoot = "/mcp/" -%}
+  {%- when "tutorial" -%}{%- assign cbLabel = "Tutorial" -%}{%- assign cbRoot = "/tutorial/" -%}
+  {%- when "docs" -%}{%- assign cbLabel = "Documentation" -%}{%- assign cbRoot = "/docs/" -%}
+  {%- when "blog" -%}{%- assign cbLabel = "Blog" -%}{%- assign cbRoot = "/blog/" -%}
+  {%- when "agents" -%}{%- assign cbLabel = "Agent recipes" -%}{%- assign cbRoot = "/agents/" -%}
+  {%- endcase -%}
+{%- endif -%}
+{%- assign cbLeaf = crumbLeaf | default: title | split: " · " | first -%}
+{%- unless page.url == "/" -%}
+<nav class="crumbs" aria-label="Breadcrumb">
+  <a href="/">Home</a>
+  {%- if cbLabel and cbLabel != "" -%}
+  <span aria-hidden="true">/</span>
+  {%- if page.url == cbRoot -%}
+  <span aria-current="page">{{ cbLabel }}</span>
+  {%- else -%}
+  <a href="{{ cbRoot }}">{{ cbLabel }}</a>
+  {%- if cbSeg == "api" and apiPkg -%}
+  {%- capture cbPkgRoot -%}/api/{{ apiPkg }}/{{ apiVersionPath | default: 'latest' }}/{%- endcapture -%}
+  <span aria-hidden="true">/</span>
+  {%- if page.url == cbPkgRoot -%}
+  <span aria-current="page">@imqueue/{{ apiPkg }}</span>
+  {%- else -%}
+  <a href="{{ cbPkgRoot }}">@imqueue/{{ apiPkg }}</a>
+  <span aria-hidden="true">/</span><span aria-current="page">{{ cbLeaf }}</span>
+  {%- endif -%}
+  {%- else -%}
+  <span aria-hidden="true">/</span><span aria-current="page">{{ cbLeaf }}</span>
+  {%- endif -%}
+  {%- endif -%}
+  {%- elsif cbLeaf and cbLeaf != "" -%}
+  <span aria-hidden="true">/</span><span aria-current="page">{{ cbLeaf }}</span>
+  {%- endif -%}
+</nav>
+{%- endunless -%}

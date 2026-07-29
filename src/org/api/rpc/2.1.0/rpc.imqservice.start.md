@@ -1,5 +1,6 @@
 ---
 title: "IMQService.start() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Initializes this instance of service and starts handling request messages."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqservice.start/"
 ---

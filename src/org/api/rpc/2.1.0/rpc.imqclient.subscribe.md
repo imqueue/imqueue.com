@@ -1,5 +1,6 @@
 ---
 title: "IMQClient.subscribe() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Adds subscription to service event channel"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.subscribe/"
 ---

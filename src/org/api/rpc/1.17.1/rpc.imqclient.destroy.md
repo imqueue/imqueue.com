@@ -1,5 +1,6 @@
 ---
 title: "IMQClient.destroy() method · @imqueue/rpc v1.17.1 (archived)"
+description: "Destroys client"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.destroy/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "IMQCache.register() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Registers given cache adapter"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqcache.register/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "IMQRPCError.message property · @imqueue/rpc v1.17.1 (archived)"
+description: "IMQRPCError.message property — @imqueue/rpc 1.17.1 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqrpcerror.message/"
 ---

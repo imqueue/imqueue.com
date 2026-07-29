@@ -1,0 +1,98 @@
+{
+  "_comment": [
+    "Labels and SEO copy for the blog topic taxonomy. Posts already declared",
+    "`topics:` in their front matter; this is what turns those slugs into hub",
+    "pages with real titles and distinct descriptions.",
+    "",
+    "A hub is only generated for a topic with at least MIN_TOPIC_POSTS posts",
+    "(see eleventy.config.js). Slugs below that threshold still get a label so",
+    "the chips on a post read properly, they just do not become a page — a hub",
+    "listing one post is index bloat, not a hub.",
+    "",
+    "Descriptions must stay distinct from each other. Near-identical taxonomy",
+    "descriptions are the classic way a tag archive turns into duplicate content."
+  ],
+  "queue": {
+    "label": "Message queues",
+    "title": "Message queue articles",
+    "description": "Articles on running Node.js services over a message queue: work queues, competing consumers, guaranteed delivery, back-pressure, and Redis as the broker."
+  },
+  "architecture": {
+    "label": "Architecture",
+    "title": "Microservice architecture articles",
+    "description": "Architecture articles on service-oriented Node.js back-ends: splitting a monolith, service boundaries, discovery, load balancing and inter-service calls."
+  },
+  "comparison": {
+    "label": "Comparisons",
+    "title": "Framework and queue comparisons",
+    "description": "Even-handed comparisons of @imqueue with BullMQ, Moleculer, NestJS microservices, tRPC and gRPC — what each one is for, and when to pick the other one."
+  },
+  "rpc": {
+    "label": "RPC",
+    "title": "RPC between Node.js services",
+    "description": "Articles on RPC between Node.js microservices: request/reply over a message queue, typed clients, RPC over Redis, and why internal APIs need not be REST."
+  },
+  "dx": {
+    "label": "Developer experience",
+    "title": "Developer experience articles",
+    "description": "Articles on developer experience in Node.js microservices: cutting boilerplate, generated typed clients, running a local fleet, and isolated CLI environments."
+  },
+  "patterns": {
+    "label": "Patterns",
+    "title": "Messaging patterns for Node.js",
+    "description": "Messaging patterns for Node.js services: request/reply, competing consumers, work queues, delayed and recurring work, and Redis pub/sub versus streams."
+  },
+  "types": {
+    "label": "Type safety",
+    "title": "Type safety across services",
+    "description": "Articles on end-to-end type safety between TypeScript microservices: generated clients, sharing types without a shared package, and versioning safely."
+  },
+  "resilience": {
+    "label": "Resilience",
+    "title": "Resilience and safe deploys",
+    "description": "Articles on keeping Node.js services healthy under load and during deploys: back-pressure, graceful shutdown, zero-drop deploys and delivery guarantees."
+  },
+  "jobs": {
+    "label": "Jobs & scheduling",
+    "title": "Background jobs and scheduled work",
+    "description": "Articles on background jobs and scheduled work in Node.js: delayed calls, retry backoff, recurring sweeps, and how @imqueue/job compares with BullMQ."
+  },
+  "clients": {
+    "label": "Typed clients",
+    "title": "Generated typed service clients",
+    "description": "Articles on generated typed service clients: why hand-written microservice SDKs rot, how self-describing services replace them, and using clients as test seams."
+  },
+  "transport": {
+    "label": "Transports",
+    "title": "Transports under your services",
+    "description": "Articles on the transport beneath your services: Redis as a message bus, RPC over Redis, message queues versus gRPC, and what each choice actually costs."
+  },
+  "tooling": {
+    "label": "Tooling",
+    "title": "imq CLI and fleet tooling",
+    "description": "Articles on the imq CLI and the tooling around an @imqueue fleet: scaffolding services, isolated CLI environments, and fleet-wide dependency maintenance."
+  },
+  "discovery": {
+    "label": "Service discovery",
+    "title": "Service discovery for Node.js",
+    "description": "Articles on service discovery for Node.js back-ends: when you actually need it, when the queue name is the address, and auto-scaling broker discovery."
+  },
+  "delivery": {
+    "label": "Message delivery",
+    "title": "Message delivery guarantees",
+    "description": "Articles on message delivery guarantees: guaranteed versus unreliable delivery, what each costs in throughput, and delayed or scheduled delivery."
+  },
+  "frameworks": {
+    "label": "Frameworks",
+    "title": "Node.js microservice frameworks",
+    "description": "Articles comparing Node.js microservice frameworks — @imqueue, Moleculer and NestJS microservices — and where a focused RPC transport fits instead."
+  },
+  "backpressure": { "label": "Back-pressure" },
+  "performance": { "label": "Performance" },
+  "benchmark": { "label": "Benchmarks" },
+  "load-balancing": { "label": "Load balancing" },
+  "migration": { "label": "Migration" },
+  "testing": { "label": "Testing" },
+  "versioning": { "label": "Versioning" },
+  "case-study": { "label": "Case studies" }
+}

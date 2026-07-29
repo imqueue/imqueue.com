@@ -1,5 +1,6 @@
 ---
 title: "IMQError() function · @imqueue/rpc v1.17.1 (archived)"
+description: "Builds JSON representation of IMQ Error"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqerror/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "IMQClient.(constructor) · @imqueue/rpc v1.17.1 (archived)"
+description: "Class constructor"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient._constructor_/"
 ---

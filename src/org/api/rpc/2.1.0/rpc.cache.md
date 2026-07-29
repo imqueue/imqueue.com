@@ -1,5 +1,6 @@
 ---
 title: "cache variable · @imqueue/rpc v2.1.0 (archived)"
+description: "cache variable — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.cache/"
 ---

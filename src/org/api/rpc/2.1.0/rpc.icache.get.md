@@ -1,5 +1,6 @@
 ---
 title: "ICache.get() method · @imqueue/rpc v2.1.0 (archived)"
+description: "ICache.get() method — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.icache.get/"
 ---

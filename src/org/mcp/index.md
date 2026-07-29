@@ -1,9 +1,9 @@
 ---
 chapter: 1
-title: "MCP Server"
+title: "MCP server for AI coding agents"
 docLabel: "MCP SERVER — 01 / 05"
 lead: "Connect your AI coding agent to @imqueue: live documentation search, idiomatic service & client scaffolding, and control of your local fleet — as tools the agent calls directly."
-description: "The @imqueue MCP server (@imqueue/mcp) gives AI coding agents — Claude, Cursor, VS Code, JetBrains and more — tools to search the @imqueue docs, scaffold typed services and clients, and drive the imq CLI. Run it locally (npx, stdio) or use the hosted HTTP endpoint at mcp.imqueue.org — no API keys."
+description: "The @imqueue MCP server gives Claude, Cursor, VS Code and JetBrains agents tools to search the docs, scaffold typed services and drive the imq CLI."
 keywords: "@imqueue mcp, imqueue mcp server, model context protocol imqueue, npx @imqueue/mcp, org.imqueue/mcp, ai coding agent microservices, mcp server nodejs typescript"
 ogType: article
 mcpApp: true

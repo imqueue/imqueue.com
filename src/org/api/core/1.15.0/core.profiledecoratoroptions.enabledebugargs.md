@@ -1,5 +1,6 @@
 ---
 title: "ProfileDecoratorOptions.enableDebugArgs property · @imqueue/core v1.15.0 (archived)"
+description: "Turns on/off arguments debugging"
 noindex: true
 latestUrl: "/api/core/latest/core.profiledecoratoroptions.enabledebugargs/"
 ---

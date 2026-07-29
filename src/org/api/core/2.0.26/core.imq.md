@@ -1,5 +1,6 @@
 ---
 title: "IMQ class · @imqueue/core v2.0.26 (archived)"
+description: "Message Queue Factory"
 noindex: true
 latestUrl: "/api/core/latest/core.imq/"
 ---

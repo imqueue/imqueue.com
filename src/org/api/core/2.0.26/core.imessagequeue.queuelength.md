@@ -1,5 +1,6 @@
 ---
 title: "IMessageQueue.queueLength() method · @imqueue/core v2.0.26 (archived)"
+description: "Retrieves the current count of messages in the queue. Supposed to be an async function."
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue.queuelength/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "IMessage.message property · @imqueue/core v2.0.26 (archived)"
+description: "Message data. Any JSON-compatible data allowed"
 noindex: true
 latestUrl: "/api/core/latest/core.imessage.message/"
 ---

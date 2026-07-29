@@ -1,5 +1,6 @@
 ---
 title: "DEFAULT_IMQ_METRICS_SERVER_OPTIONS variable · @imqueue/rpc v2.1.0 (archived)"
+description: "Default metric server options"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.default_imq_metrics_server_options/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "IMQLock class · @imqueue/rpc v1.17.1 (archived)"
+description: "Class IMQLock. Implements promise-based locks."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqlock/"
 ---

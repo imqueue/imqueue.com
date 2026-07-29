@@ -1,5 +1,6 @@
 ---
 title: "DebugInfoOptions interface · @imqueue/core v2.0.26 (archived)"
+description: "DebugInfoOptions interface — @imqueue/core 2.0.26 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions/"
 ---

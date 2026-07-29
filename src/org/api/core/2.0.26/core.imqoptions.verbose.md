@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.verbose property · @imqueue/core v2.0.26 (archived)"
+description: "Enables/disables verbose logging"
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.verbose/"
 ---

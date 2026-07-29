@@ -1,5 +1,6 @@
 ---
 title: "IMQClient class · @imqueue/rpc v2.1.0 (archived)"
+description: "Class IMQClient - base abstract class for service clients."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient/"
 ---

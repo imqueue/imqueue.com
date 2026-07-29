@@ -1,6 +1,6 @@
 ---
 chapter: 9
-title: "Custom Templates"
+title: "Custom service templates"
 docLabel: "CLI MANUAL — 09 / 12"
 lead: "Use the built-in default, a published template, or your own — pointed at by name, git URL or local path — with %TOKEN substitution and fragment overlays."
 description: "Author @imqueue/cli templates: selecting a template, the v2 imq-template.json manifest, %TOKEN substitution, addon token points, fragment overlays, and writing your own template."

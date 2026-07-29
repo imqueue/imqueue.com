@@ -1,5 +1,6 @@
 ---
 title: "mkdir() function · @imqueue/rpc v1.17.1 (archived)"
+description: "Async mkdir"
 noindex: true
 latestUrl: "/api/rpc/latest/"
 ---

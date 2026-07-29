@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue.(constructor) · @imqueue/core v2.0.26 (archived)"
+description: "Constructs a new instance of the RedisQueue class"
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue._constructor_/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "runWithRequest() function · @imqueue/rpc v2.1.0 (archived)"
+description: "Runs the given function with request bound to the current async execution context, so any code reached from it (and its asynchronous continuations) can access…"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.runwithrequest/"
 ---

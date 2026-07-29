@@ -1,5 +1,6 @@
 ---
 title: "pack() function · @imqueue/core v1.15.0 (archived)"
+description: "Compress given data and returns binary string"
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

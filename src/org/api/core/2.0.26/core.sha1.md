@@ -1,5 +1,6 @@
 ---
 title: "sha1() function · @imqueue/core v2.0.26 (archived)"
+description: "Returns SHA1 hash sum of the given string"
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

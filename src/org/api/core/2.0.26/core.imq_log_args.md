@@ -1,5 +1,6 @@
 ---
 title: "IMQ_LOG_ARGS variable · @imqueue/core v2.0.26 (archived)"
+description: "Environment variable IMQ_LOG_ARGS=[1, 0] - enables/disables profiled call arguments to be logged"
 noindex: true
 latestUrl: "/api/core/latest/core.imq_log_args/"
 ---

@@ -2,7 +2,7 @@
 layout: post.html
 permalink: /blog/rpc-over-message-queue-nodejs/
 templateEngineOverride: md
-title: "RPC between Node.js microservices over a message queue — no HTTP, no gRPC"
+title: "RPC between Node.js microservices over a message queue"
 summary: "Why route internal service-to-service calls through a message queue instead of HTTP or gRPC — and how @imqueue makes those calls fully typed with zero client boilerplate."
 description: "A practical look at doing RPC between Node.js & TypeScript microservices over a message queue instead of HTTP or gRPC, with a working @imqueue example."
 keywords: "message queue RPC, Node.js microservices RPC, TypeScript microservices, imqueue, service-to-service communication, no HTTP RPC, queue-based RPC"

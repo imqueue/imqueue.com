@@ -1,7 +1,12 @@
 ---
 layout: base.html
 section: home
-description: "RPC over an inter-communication messaging queue for service-oriented Node & TypeScript back-ends. Self-describing services generate their own clients — no boilerplate, no service discovery, no load balancer."
+# Explicit title + bareTitle: without one, head.html fell back to
+# "@imqueue — <slogan>", which rendered at 80 characters and was truncated in
+# results. bareTitle stops the "· @imqueue" suffix doubling the brand.
+title: "@imqueue — TypeScript RPC over a message queue"
+bareTitle: true
+description: "RPC over a message queue for service-oriented Node.js & TypeScript back-ends. Self-describing services generate their own typed clients — no boilerplate."
 keywords: "@imqueue, Node.js message queue, TypeScript RPC framework, Node.js microservices framework, RPC over Redis, message queue RPC, service-oriented architecture, self-describing services, inter-service communication, scalable Node.js back-end, typed RPC, distributed systems Node.js"
 ---
 <style>
@@ -25,7 +30,7 @@ keywords: "@imqueue, Node.js message queue, TypeScript RPC framework, Node.js mi
   .how { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
   .how > div { background:var(--surface); padding:30px 26px; }
   .how .n { font-family:var(--font-mono); color:var(--accent); font-size:13px; margin-bottom:12px; }
-  .how h4 { font-size:16px; margin-bottom:8px; } .how p { font-size:14px; color:var(--muted); line-height:1.6; }
+  .how h3, .how h4 { font-size:16px; margin-bottom:8px; } .how p { font-size:14px; color:var(--muted); line-height:1.6; }
 
   .card .tag { font-family:var(--font-mono); color:var(--accent); font-size:13px; margin-bottom:14px; }
   .pkg { display:block; }
@@ -85,9 +90,9 @@ keywords: "@imqueue, Node.js message queue, TypeScript RPC framework, Node.js mi
 <!-- FEATURES -->
 <section class="container section">
   <div class="grid grid-3">
-    <div class="card"><div class="tag">reliable()</div><h3>Guaranteed delivery</h3><p>Safe delivery and leader/follower deployment fully guarantee data between services — a message a dying worker drops is rescheduled.</p></div>
-    <div class="card"><div class="tag">scale()</div><h3>Zero-config balancing</h3><p>Instances compete for messages and self-balance across nodes. No service discovery, no external load balancer to wire up.</p></div>
-    <div class="card"><div class="tag">idle()</div><h3>No polling, ever</h3><p>No timers, no constant polling — zero delivery delay and zero CPU on workers while idle. It rests when there's nothing to do.</p></div>
+    <div class="card"><div class="tag">reliable()</div><h2>Guaranteed delivery</h2><p>Safe delivery and leader/follower deployment fully guarantee data between services — a message a dying worker drops is rescheduled.</p></div>
+    <div class="card"><div class="tag">scale()</div><h2>Zero-config balancing</h2><p>Instances compete for messages and self-balance across nodes. No service discovery, no external load balancer to wire up.</p></div>
+    <div class="card"><div class="tag">idle()</div><h2>No polling, ever</h2><p>No timers, no constant polling — zero delivery delay and zero CPU on workers while idle. It rests when there's nothing to do.</p></div>
   </div>
 </section>
 
@@ -95,9 +100,9 @@ keywords: "@imqueue, Node.js message queue, TypeScript RPC framework, Node.js mi
 <section class="container section">
   <div class="section-label">// HOW IT WORKS</div>
   <div class="how">
-    <div><div class="n">01</div><h4>Implement a service</h4><p>Write a class with exposed methods and doc-blocks. That's your whole service.</p></div>
-    <div><div class="n">02</div><h4>Generate the client</h4><p>Services are self-describing — clients are generated on-the-fly or written to files.</p></div>
-    <div><div class="n">03</div><h4>Call it remotely</h4><p>Await a client method like any local call. The queue routes and returns the result.</p></div>
+    <div><div class="n">01</div><h3>Implement a service</h3><p>Write a class with exposed methods and doc-blocks. That's your whole service.</p></div>
+    <div><div class="n">02</div><h3>Generate the client</h3><p>Services are self-describing — clients are generated on-the-fly or written to files.</p></div>
+    <div><div class="n">03</div><h3>Call it remotely</h3><p>Await a client method like any local call. The queue routes and returns the result.</p></div>
   </div>
 </section>
 

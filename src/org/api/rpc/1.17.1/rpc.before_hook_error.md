@@ -1,5 +1,6 @@
 ---
 title: "BEFORE_HOOK_ERROR variable · @imqueue/rpc v1.17.1 (archived)"
+description: "BEFORE_HOOK_ERROR variable — @imqueue/rpc 1.17.1 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.before_hook_error/"
 ---

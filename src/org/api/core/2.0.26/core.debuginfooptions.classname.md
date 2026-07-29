@@ -1,5 +1,6 @@
 ---
 title: "DebugInfoOptions.className property · @imqueue/core v2.0.26 (archived)"
+description: "Class name"
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions.classname/"
 ---

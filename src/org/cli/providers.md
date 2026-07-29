@@ -1,6 +1,6 @@
 ---
 chapter: 6
-title: "Providers"
+title: "Providers: VCS, CI & container registries"
 docLabel: "CLI MANUAL — 06 / 12"
 lead: "The typed provider registry behind the four axes — each VCS host, CI provider and container registry, the credentials it needs, and how CI and registry compose."
 description: "@imqueue/cli providers: GitHub/GitLab/Bitbucket VCS hosts, GitHub Actions/CircleCI/Travis CI, Docker Hub/Google/AWS ECR/Azure ACR registries, M+N composition, and enterprise/self-hosted overrides."

@@ -1,5 +1,6 @@
 ---
 title: "IMQRPCError interface · @imqueue/rpc v2.1.0 (archived)"
+description: "Response error data structure, which service returns if error occurred during service method execution."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqrpcerror/"
 ---

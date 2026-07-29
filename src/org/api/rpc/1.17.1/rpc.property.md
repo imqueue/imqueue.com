@@ -1,5 +1,6 @@
 ---
 title: "property() function · @imqueue/rpc v1.17.1 (archived)"
+description: "Implements '@property' decorator factory This is used to specify complex service types to be exposed"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.property/"
 ---

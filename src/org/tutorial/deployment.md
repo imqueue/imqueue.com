@@ -1,6 +1,6 @@
 ---
 chapter: 6
-title: Deployment
+title: "Deploy microservices with Docker & autoscaling"
 docLabel: TUTORIAL — CHAPTER 6
 lead: "Ship your services: per-service Docker images, environment-based configuration, and horizontal scaling for any load."
 description: "Ship your @imqueue services to production: Docker images per service, environment configuration, and horizontal auto-scaling for any load."
@@ -61,7 +61,7 @@ same time, and we otherwise only read from it. There are minor side-effects, but
 they're insignificant for this system. It's neither good nor bad — you just need
 to understand what you're doing and what the consequences are.
 
-### Scaling options
+## Scaling options
 
 Services are designed to run in multi-process environments. Since JavaScript on
 Node.js is single-threaded by nature, one process uses the power of only one
@@ -88,7 +88,7 @@ If your deployment is based on small single-core containers, you probably don't
 need to touch the multi-process options at all. Either way, the right settings
 come from testing and experimentation.
 
-### Building containers
+## Building containers
 
 The @imqueue/cli default template gives each service a `Dockerfile` and a set of
 Docker npm scripts, so you can build and run an image for any service locally:
@@ -123,7 +123,7 @@ the box, you should set a unique value on the first image build — usually in
 `/etc/machine-id` or `/var/lib/dbus/machine-id`. Consult the documentation for
 your container's base OS to find the correct location.
 
-### Environment variables
+## Environment variables
 
 Environment variables are a powerful way to separate configuration across
 environments without maintaining multiple config codebases. On cloud platforms
@@ -140,7 +140,7 @@ real-world services, and documenting the expected environment variables in your
 README files — so that anyone deploying to a new environment can tune their setup
 easily.
 
-### Running it locally
+## Running it locally
 
 We've covered the many options available when deploying @imqueue services. As you
 can see, it's a flexible solution, able to satisfy any load and suitable for
@@ -212,7 +212,7 @@ regenerating the typed query artifacts in the `__generated__` directories — an
 then starts the Vite dev server. You can now use the application at
 [http://localhost:3000/](http://localhost:3000/).
 
-### Bonus: the same fleet, a different API
+## Bonus: the same fleet, a different API
 
 The tutorial proper ends here. But if you'd like proof that nothing about the
 fleet ties you to GraphQL, carry on to the bonus chapters: we rebuild the API

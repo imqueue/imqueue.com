@@ -1,5 +1,6 @@
 ---
 title: "IMQRPCResponse.to property · @imqueue/rpc v2.1.0 (archived)"
+description: "IMQRPCResponse.to property — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqrpcresponse.to/"
 ---

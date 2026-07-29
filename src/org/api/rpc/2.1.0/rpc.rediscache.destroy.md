@@ -1,5 +1,6 @@
 ---
 title: "RedisCache.destroy() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Safely destroys redis connection"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.rediscache.destroy/"
 ---

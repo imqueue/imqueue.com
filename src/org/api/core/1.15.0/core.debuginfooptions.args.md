@@ -1,5 +1,6 @@
 ---
 title: "DebugInfoOptions.args property · @imqueue/core v1.15.0 (archived)"
+description: "Call arguments"
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions.args/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "ClusteredRedisQueue.send() method · @imqueue/core v2.0.26 (archived)"
+description: "Sends a message to given queue name with the given data. Supposed to be an async function."
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.send/"
 ---

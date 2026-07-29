@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue.redisKey property · @imqueue/core v2.0.26 (archived)"
+description: "This queue instance unique key (identifier), for internal use"
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.rediskey/"
 ---

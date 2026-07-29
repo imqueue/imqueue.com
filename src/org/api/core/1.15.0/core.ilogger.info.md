@@ -1,5 +1,6 @@
 ---
 title: "ILogger.info() method · @imqueue/core v1.15.0 (archived)"
+description: "Info level function"
 noindex: true
 latestUrl: "/api/core/latest/core.ilogger.info/"
 ---

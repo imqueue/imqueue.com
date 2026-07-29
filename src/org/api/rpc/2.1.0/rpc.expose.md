@@ -1,5 +1,6 @@
 ---
 title: "expose() function · @imqueue/rpc v2.1.0 (archived)"
+description: "Expose decorator factory"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.expose/"
 ---
