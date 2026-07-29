@@ -1,5 +1,6 @@
 ---
 title: "ILogger.log() method · @imqueue/core v1.15.0 (archived)"
+description: "Log level function"
 noindex: true
 latestUrl: "/api/core/latest/core.ilogger.log/"
 ---

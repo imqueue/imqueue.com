@@ -1,5 +1,6 @@
 ---
 title: "ICacheAdapter type · @imqueue/rpc v2.1.0 (archived)"
+description: "ICacheAdapter type — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.icacheadapter/"
 ---

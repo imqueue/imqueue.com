@@ -1,5 +1,6 @@
 ---
 title: "lock() function · @imqueue/rpc v2.1.0 (archived)"
+description: "@lock() decorator implementation Will make all simultaneous similar method calls locked to be resolved with the first obtained values."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.lock/"
 ---

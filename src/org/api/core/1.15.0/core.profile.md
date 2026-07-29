@@ -1,5 +1,6 @@
 ---
 title: "profile() function · @imqueue/core v1.15.0 (archived)"
+description: "Implements '@profile' decorator."
 noindex: true
 latestUrl: "/api/core/latest/core.profile/"
 ---

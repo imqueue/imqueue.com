@@ -1,5 +1,6 @@
 ---
 title: "UDPClusterManager.(constructor) · @imqueue/core v2.0.26 (archived)"
+description: "Constructs a new instance of the UDPClusterManager class"
 noindex: true
 latestUrl: "/api/core/latest/core.udpclustermanager._constructor_/"
 ---

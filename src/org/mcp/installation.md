@@ -1,9 +1,9 @@
 ---
 chapter: 2
-title: "Add to your AI tool"
+title: "Add the MCP server to Claude, Cursor & VS Code"
 docLabel: "MCP SERVER — 02 / 05"
 lead: "Exact setup for Claude, Cursor, VS Code, Visual Studio, JetBrains and every other MCP client — with the config file path and paste-ready snippet for each."
-description: "How to add the @imqueue MCP server to Claude Code, Claude Desktop, Cursor, VS Code, Visual Studio 2022, JetBrains IDEs, Windsurf, Zed and more — the config file location and exact JSON/TOML for each client."
+description: "Add the @imqueue MCP server to Claude Code, Claude Desktop, Cursor, VS Code, JetBrains, Windsurf or Zed — config file location and exact JSON for each."
 keywords: "add @imqueue mcp to claude, imqueue mcp cursor, imqueue mcp vs code, imqueue mcp jetbrains, imqueue mcp claude desktop, mcp.json mcpServers, npx @imqueue/mcp setup"
 ogType: article
 ---

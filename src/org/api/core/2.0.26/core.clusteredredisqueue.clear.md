@@ -1,5 +1,6 @@
 ---
 title: "ClusteredRedisQueue.clear() method · @imqueue/core v2.0.26 (archived)"
+description: "Clears queue data in queue host application. Supposed to be an async function."
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.clear/"
 ---

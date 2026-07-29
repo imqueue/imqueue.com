@@ -1,5 +1,6 @@
 ---
 title: "IMQLock.locked() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Returns true if given key is locked, false otherwise"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqlock.locked/"
 ---

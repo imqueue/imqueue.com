@@ -1,5 +1,6 @@
 ---
 title: "IServerInput interface · @imqueue/core v2.0.26 (archived)"
+description: "IServerInput interface — @imqueue/core 2.0.26 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.iserverinput/"
 ---

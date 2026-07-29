@@ -1,5 +1,6 @@
 ---
 title: "ClusteredRedisQueue.listenerCount() method · @imqueue/core v1.15.0 (archived)"
+description: "ClusteredRedisQueue.listenerCount() method — @imqueue/core 1.15.0 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.listenercount/"
 ---

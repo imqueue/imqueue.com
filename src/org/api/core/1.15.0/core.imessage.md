@@ -1,5 +1,6 @@
 ---
 title: "IMessage interface · @imqueue/core v1.15.0 (archived)"
+description: "Defines message format."
 noindex: true
 latestUrl: "/api/core/latest/core.imessage/"
 ---

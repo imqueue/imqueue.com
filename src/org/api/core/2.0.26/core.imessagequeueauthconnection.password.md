@@ -1,5 +1,6 @@
 ---
 title: "IMessageQueueAuthConnection.password property · @imqueue/core v2.0.26 (archived)"
+description: "Message queue password"
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeueauthconnection.password/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "writeFile() function · @imqueue/rpc v1.17.1 (archived)"
+description: "Async writeFile"
 noindex: true
 latestUrl: "/api/rpc/latest/"
 ---

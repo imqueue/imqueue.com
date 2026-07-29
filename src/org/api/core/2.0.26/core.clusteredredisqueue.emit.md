@@ -1,5 +1,6 @@
 ---
 title: "ClusteredRedisQueue.emit() method · @imqueue/core v2.0.26 (archived)"
+description: "ClusteredRedisQueue.emit() method — @imqueue/core 2.0.26 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.emit/"
 ---

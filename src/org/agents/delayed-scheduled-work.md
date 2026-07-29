@@ -4,7 +4,7 @@ section: docs
 title: "Agent recipe: delayed & scheduled work"
 docLabel: AGENT RECIPE
 lead: "Machine-oriented instructions for AI agents implementing \"run this later\" in an @imqueue codebase: picking between a delayed call, @imqueue/job and an external scheduler, the exact trailing-argument contract, verification commands and failure modes."
-description: "AI-agent recipe for delayed and scheduled work with @imqueue: the IMQDelay call contract and its two failure forms, send()/push() delay options, self-re-arming recurrence, Redis verification commands and failure modes."
+description: "AI-agent recipe for delayed and scheduled work with @imqueue: the IMQDelay contract, send/push delay options, self-re-arming recurrence and failure modes."
 keywords: "imqueue delayed job agent recipe, IMQDelay, imqueue scheduled task ai agent, imq job delay, delayed rpc call nodejs, imqueue cron alternative"
 relatedTopics: [jobs, delivery, queue]
 noindex: true

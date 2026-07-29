@@ -1,5 +1,6 @@
 ---
 title: "ClusteredRedisQueue.start() method · @imqueue/core v2.0.26 (archived)"
+description: "Starts the messaging queue. Supposed to be an async function."
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.start/"
 ---

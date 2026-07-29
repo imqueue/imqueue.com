@@ -1,5 +1,6 @@
 ---
 title: "ClusteredRedisQueue class · @imqueue/core v2.0.26 (archived)"
+description: "Class ClusteredRedisQueue Implements the possibility to scale queues horizontally between several redis instances."
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue/"
 ---

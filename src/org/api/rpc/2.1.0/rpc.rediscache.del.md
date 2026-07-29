@@ -1,5 +1,6 @@
 ---
 title: "RedisCache.del() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Removes stored in cache value under given key"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.rediscache.del/"
 ---

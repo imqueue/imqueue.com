@@ -1,5 +1,6 @@
 ---
 title: "DEFAULT_UDP_CLUSTER_MANAGER_OPTIONS variable · @imqueue/core v2.0.26 (archived)"
+description: "DEFAULT_UDP_CLUSTER_MANAGER_OPTIONS variable — @imqueue/core 2.0.26 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.default_udp_cluster_manager_options/"
 ---

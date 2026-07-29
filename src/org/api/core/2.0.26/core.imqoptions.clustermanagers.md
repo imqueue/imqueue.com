@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.clusterManagers property · @imqueue/core v2.0.26 (archived)"
+description: "Array of cluster managers used to handle cluster operations. Any manager implements specific cluster server detection."
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.clustermanagers/"
 ---

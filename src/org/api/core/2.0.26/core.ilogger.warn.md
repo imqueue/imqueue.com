@@ -1,5 +1,6 @@
 ---
 title: "ILogger.warn() method · @imqueue/core v2.0.26 (archived)"
+description: "Warning level function"
 noindex: true
 latestUrl: "/api/core/latest/core.ilogger.warn/"
 ---

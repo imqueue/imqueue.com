@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.logger property · @imqueue/core v2.0.26 (archived)"
+description: "Logger defined to be used within message queue in runtime"
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.logger/"
 ---

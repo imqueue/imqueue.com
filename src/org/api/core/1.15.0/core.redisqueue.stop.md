@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue.stop() method · @imqueue/core v1.15.0 (archived)"
+description: "Stops current queue routines"
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.stop/"
 ---

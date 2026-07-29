@@ -1,9 +1,9 @@
 ---
 chapter: 3
-title: "Tools reference"
+title: "MCP tools reference"
 docLabel: "MCP SERVER — 03 / 05"
 lead: "Every tool the @imqueue MCP server exposes — what it does, what it takes, what comes back, and an example prompt that triggers it."
-description: "Reference for all @imqueue MCP server tools: search_docs, get_doc, list_packages, scaffold_service, scaffold_client, cli_status, cli_install, cli_help, create_service, generate_client, fleet, config and logs."
+description: "Reference for every @imqueue MCP server tool: search_docs, get_doc, scaffold_service, scaffold_client, create_service, generate_client, fleet and logs."
 keywords: "@imqueue mcp tools, search_docs get_doc, scaffold_service scaffold_client, create_service generate_client, imq fleet config logs mcp, mcp tool reference imqueue"
 ogType: article
 ---

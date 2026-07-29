@@ -1,6 +1,6 @@
 ---
 chapter: 4
-title: Domain Services
+title: "Domain services: PostgreSQL & in-memory data"
 docLabel: TUTORIAL — CHAPTER 4
 lead: "Add the remaining domain services — Car and Time-Table — an in-memory car catalog and a PostgreSQL-backed reservation time-table."
 description: "Add the remaining @imqueue domain services: Car, an in-memory catalog built from the EPA dataset, and Time-Table, PostgreSQL-backed reservations via Sequelize."
@@ -20,7 +20,7 @@ the finished code, both are on GitHub —
 
 Here are the requirements.
 
-### Car service requirements
+## Car service requirements
 
 - Source its car data from the EPA fuel-economy bulk dataset
   ([`vehicles.csv.zip`](https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip)) —
@@ -84,7 +84,7 @@ a Redis `SET … NX` lock, so only one worker per host downloads and refreshes t
 dataset — see `CarsDB` in the
 [source](https://github.com/imqueue-sandbox/car).
 
-### Time-Table service requirements
+## Time-Table service requirements
 
 This is the central service. Use a relational database as its data store — for
 example, PostgreSQL (or another of your choice) with the Sequelize ORM on top.

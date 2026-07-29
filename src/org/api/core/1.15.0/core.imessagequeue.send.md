@@ -1,5 +1,6 @@
 ---
 title: "IMessageQueue.send() method · @imqueue/core v1.15.0 (archived)"
+description: "Sends a message to given queue name with the given data. Supposed to be an async function."
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue.send/"
 ---

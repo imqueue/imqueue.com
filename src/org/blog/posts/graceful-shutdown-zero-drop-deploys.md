@@ -2,9 +2,9 @@
 layout: post.html
 permalink: /blog/graceful-shutdown-zero-drop-deploys/
 templateEngineOverride: md
-title: "Graceful shutdown and zero-drop deploys for queue-based services"
+title: "Graceful shutdown and zero-drop deploys"
 summary: "Every deploy sends a kill signal to a process that is probably in the middle of something. Nothing 500s, no dashboard turns red, and the work is gone anyway. Here's what actually happens to an in-flight message on SIGTERM, and the drain that keeps it."
-description: "How to shut down Node.js queue consumers without losing in-flight work: what SIGTERM really does to a message being processed, how to drain before exit with @imqueue, why callTimeout matters on the caller, and how to size an orchestrator grace period."
+description: "Shut down Node.js queue consumers without losing in-flight work: what SIGTERM does to a message mid-process, how to drain, and how to size a grace period."
 keywords: "graceful shutdown nodejs, zero downtime deploy microservices, sigterm nodejs worker, drain in-flight requests, rolling deploy message queue, imqueue"
 date: 2026-07-28
 author: andrii

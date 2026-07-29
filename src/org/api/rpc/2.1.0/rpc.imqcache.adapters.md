@@ -1,5 +1,6 @@
 ---
 title: "IMQCache.adapters property · @imqueue/rpc v2.1.0 (archived)"
+description: "IMQCache.adapters property — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqcache.adapters/"
 ---

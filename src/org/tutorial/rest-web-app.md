@@ -1,6 +1,6 @@
 ---
 chapter: 8
-title: "Bonus: REST Web App"
+title: "Bonus: React front-end on a REST gateway"
 docLabel: TUTORIAL — BONUS 2
 lead: "A second front-end, native to REST — no Relay, no shims, no compromises. Same fleet, same features, a client that is idiomatic for the protocol it speaks."
 description: "Bonus chapter: a REST front-end for the @imqueue tutorial fleet — its own store model built from fetch and React hooks, standing next to the GraphQL/Relay app."
@@ -30,7 +30,7 @@ against the REST DTOs the gateway actually returns. Both apps are React 19 +
 TypeScript with function components throughout; they share a look and a feature
 set, not a data layer and not a type model.
 
-### The client
+## The client
 
 At the bottom sits a small `fetch` wrapper
 ([`src/store/client.ts`](https://github.com/imqueue-sandbox/web-app-rest/blob/main/src/store/client.ts)):
@@ -55,7 +55,7 @@ REST gateway deliberately kept that error shape? This is where it pays off:
 both front-ends map gateway error codes onto form fields with the same small
 routine, because the payload they receive is the same.
 
-### Queries are hooks
+## Queries are hooks
 
 There is no `QueryRenderer` and no data-loading HOC — just hooks, one per thing
 the app reads
@@ -122,7 +122,7 @@ is discarded rather than allowed to overwrite newer data, and a hook with
 nothing to fetch — no brand picked yet, no date selected — issues no request at
 all instead of asking the gateway for nothing.
 
-### Mutations are hooks too
+## Mutations are hooks too
 
 Each operation is a module exporting a hook that returns the commit function
 and an in-flight flag — the flag being what disables the submit button while
@@ -160,7 +160,7 @@ export function useReserve(): [
 }
 ~~~
 
-### Reactivity without a normalized store
+## Reactivity without a normalized store
 
 One thing Relay gives you for free is store reactivity: when a mutation returns
 updated records, everything reading them re-renders. A `fetch`-based app has no
@@ -187,7 +187,7 @@ of lines and no build step. Which is the better deal depends entirely on the
 app — and that judgement is yours to make per client, which is the whole point
 of keeping it out of the services.
 
-### Running it
+## Running it
 
 With the fleet and the REST gateway from the
 [previous chapter](/tutorial/rest-api) running:
@@ -216,7 +216,7 @@ Try it: register a customer in one, then log into the other. Add a car on
 REST and cancel it over GraphQL. There is one fleet behind both, and it never
 learns which protocol asked.
 
-### The takeaway
+## The takeaway
 
 Nothing in an @imqueue fleet ties you to any particular API technology. The
 services expose typed, transport-agnostic RPC over the queue; whatever sits in

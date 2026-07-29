@@ -1,5 +1,6 @@
 ---
 title: "RedisCache.init() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Initializes cache instance"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.rediscache.init/"
 ---

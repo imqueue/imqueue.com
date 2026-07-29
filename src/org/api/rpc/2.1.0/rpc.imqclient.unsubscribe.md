@@ -1,5 +1,6 @@
 ---
 title: "IMQClient.unsubscribe() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Destroys subscription channel to service"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.unsubscribe/"
 ---

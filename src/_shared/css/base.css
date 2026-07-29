@@ -129,7 +129,9 @@ code { color: var(--accent); }
 
 /* ---- cards ---- */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 28px 24px; }
-.card h3 { font-size: 20.5px; margin-bottom: 8px; }
+/* Card titles sit directly under the page H1, so they are <h2>; h3 kept for any
+   card markup still using it. */
+.card h2, .card h3 { font-size: 20.5px; margin-bottom: 8px; font-weight: 700; }
 .card p { font-size: 16px; color: var(--muted); line-height: 1.6; }
 
 .grid { display: grid; gap: 16px; }
@@ -228,7 +230,10 @@ html.lightbox-open { overflow: hidden; }
 .post-card:hover { border-color: var(--accent); }
 .post-card-meta { font-family: var(--font-mono); font-size: 13.5px; color: var(--muted); margin: 0; }
 .post-card-meta a { color: var(--accent); text-decoration: none; }
-.post-card h3 { font-size: 25px; margin: 0; line-height: 1.25; letter-spacing: -.01em; }
+/* Card titles are <h2>: they are the page's top-level content under the H1, and
+   as <h3> they made /blog/ and the author pages skip H1->H3. h3 kept in the
+   selector for any card markup still using it. */
+.post-card h2, .post-card h3 { font-size: 25px; margin: 0; line-height: 1.25; letter-spacing: -.01em; font-weight: 700; }
 .post-card-art { border-radius: 8px; background: color-mix(in srgb, var(--accent) 6%, var(--surface)); padding: 24px 0; display: flex; justify-content: center; }
 .post-card-art .post-illu { width: 100%; max-width: 480px; height: auto; display: block; }
 .post-hero { border-radius: 12px; background: color-mix(in srgb, var(--accent) 6%, var(--surface)); margin-bottom: 24px; padding: 28px 0; display: flex; justify-content: center; }
@@ -238,7 +243,10 @@ html.lightbox-open { overflow: hidden; }
 
 .blog-aside { display: flex; flex-direction: column; gap: 20px; position: sticky; top: 88px; }
 .aside-box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
-.aside-box h4 { font-family: var(--font-mono); font-size: 13.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+/* Sidebar box headings are <h2>: they are page-level sections, and as <h4> they
+   made every post's outline skip H2->H4. h4 kept in the selector so any
+   not-yet-migrated markup keeps the same look. */
+.aside-box h2, .aside-box h4 { font-family: var(--font-mono); font-size: 13.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
 .aside-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .aside-links a { color: var(--ink); text-decoration: none; font-size: 16px; line-height: 1.4; }
 .aside-links a:hover { color: var(--accent); }
@@ -280,3 +288,28 @@ html.lightbox-open { overflow: hidden; }
 .aside-authors a { display: flex; align-items: center; gap: 11px; }
 .aside-authors .avatar-img { width: 36px; height: 36px; flex: 0 0 auto; }
 .aside-authors .who { min-width: 0; }
+
+/* ---- breadcrumbs -------------------------------------------------------- */
+/* Rendered trail matching the BreadcrumbList JSON-LD (see breadcrumbs.html). */
+.crumbs { font-family: var(--font-mono); font-size: 13px; margin: 0 0 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 7px; line-height: 1.4; }
+.crumbs a { color: var(--accent); text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+.crumbs span { color: var(--muted); }
+.crumbs span[aria-current] { color: var(--muted); }
+
+/* ---- blog topic taxonomy ----------------------------------------------- */
+.topic-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.topic-chip { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 12.5px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); text-decoration: none; white-space: nowrap; }
+a.topic-chip:hover { border-color: var(--accent); color: var(--accent); }
+.topic-chip > span { color: var(--muted); font-size: 11.5px; }
+.topic-chip--flat { color: var(--muted); }
+
+/* ---- blog archive ------------------------------------------------------ */
+.blog-archive { margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--line); }
+.blog-archive h2 { font-family: var(--font-mono); font-size: 13.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin: 0 0 18px; font-weight: 600; }
+.blog-archive h3 { font-family: var(--font-mono); font-size: 15px; color: var(--muted); margin: 22px 0 8px; font-weight: 500; }
+.archive-list { list-style: none; margin: 0; padding: 0; }
+.archive-list li { display: flex; align-items: baseline; gap: 10px; padding: 5px 0; border-bottom: 1px dashed color-mix(in srgb, var(--line) 60%, transparent); }
+.archive-list a { color: var(--ink); text-decoration: none; font-size: 15.5px; }
+.archive-list a:hover { color: var(--accent); }
+.archive-list .meta { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-left: auto; white-space: nowrap; }

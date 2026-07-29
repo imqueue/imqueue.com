@@ -1,5 +1,6 @@
 ---
 title: "IMQLock.logger property · @imqueue/rpc v2.1.0 (archived)"
+description: "Logger used to log errors which appears during locked calls"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqlock.logger/"
 ---

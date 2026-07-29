@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.safeDeliveryTtl property · @imqueue/core v1.15.0 (archived)"
+description: "Time-to-live of worker queues (after this time messages are back to main queue for handling if worker died). Only works if safeDelivery option enabled."
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.safedeliveryttl/"
 ---

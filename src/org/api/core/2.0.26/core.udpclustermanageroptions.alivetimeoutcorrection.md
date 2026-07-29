@@ -1,5 +1,6 @@
 ---
 title: "UDPClusterManagerOptions.aliveTimeoutCorrection property · @imqueue/core v2.0.26 (archived)"
+description: "Message queue alive timeout correction. Used to correct waiting time to check if the server is alive"
 noindex: true
 latestUrl: "/api/core/latest/core.udpclustermanageroptions.alivetimeoutcorrection/"
 ---

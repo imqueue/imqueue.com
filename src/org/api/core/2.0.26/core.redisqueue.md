@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue class · @imqueue/core v2.0.26 (archived)"
+description: "Class RedisQueue Implements simple messaging queue over redis."
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue/"
 ---

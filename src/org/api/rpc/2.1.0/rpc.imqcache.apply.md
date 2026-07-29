@@ -1,5 +1,6 @@
 ---
 title: "IMQCache.apply() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Overrides existing adapter options with the given"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqcache.apply/"
 ---

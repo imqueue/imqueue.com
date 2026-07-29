@@ -1,6 +1,6 @@
 ---
 chapter: 2
-title: User Service — your first service
+title: "Build your first TypeScript RPC service"
 docLabel: TUTORIAL — CHAPTER 2
 lead: "Create your first @imqueue service — the User service — and expose typed methods that other services can call."
 description: "Build your first @imqueue service in Node & TypeScript — the User service — and expose typed methods other services can call over the message queue."
@@ -16,7 +16,7 @@ mkdir ~/my-tutorial-app
 cd ~/my-tutorial-app
 ~~~
 
-### Creating the service
+## Creating the service
 
 Scaffold the User service with a single command:
 
@@ -27,7 +27,7 @@ imq service create user ./user
 If all goes well, you'll have a `./user` directory containing every file the
 service needs, with all dependencies already installed.
 
-### Configuring the service
+## Configuring the service
 
 You can check that it works by running `npm run dev`. This requires Redis
 running on `localhost` and the default port. If your Redis runs on a different
@@ -82,7 +82,7 @@ IMQ_REDIS="some-redis-special.host:63790"
 If your Redis runs at `localhost:6379` (the standard default), you can skip this
 step for now.
 
-### Local environment
+## Local environment
 
 During development it's convenient to run a service directly in your local
 environment. Keep in mind, though, that in production the same service will
@@ -96,7 +96,7 @@ configuration, create a `.env` file in its root directory and list the variables
 you want to read from the environment. These files are never committed, so they
 stay out of production runs.
 
-### Verifying the service
+## Verifying the service
 
 Let's confirm the service is operational:
 
@@ -181,7 +181,7 @@ simply run the service and start coding.
 > ignored by git, so you can use `debug.ts` freely — or adjust your ignore files
 > if you prefer different behaviour.
 
-### Adding dependencies
+## Adding dependencies
 
 Adding dependencies works exactly as it does in any Node.js project — just use
 `npm install`. We chose MongoDB as the data store for this service, so we'll use
@@ -191,9 +191,9 @@ the `mongoose` package to work with it:
 npm i --save mongoose
 ~~~
 
-### Implementing the service
+## Implementing the service
 
-#### Prepare the data store
+### Prepare the data store
 
 First, define a Mongoose schema for the service. @imqueue imposes no constraints
 here — do it the usual way.
@@ -265,7 +265,7 @@ service's public methods.
 
 Open `./user/src/User.ts`, which contains our service class.
 
-#### Prepare the database connection
+### Prepare the database connection
 
 Import the Mongoose schema at the top of the file:
 
@@ -321,7 +321,7 @@ public async start(): Promise<IMessageQueue | undefined> {
 }
 ~~~
 
-#### A note on logging
+### A note on logging
 
 Notice we used `this.logger` above. By default it's the standard `console`, but
 you can swap in your own logger through `config.ts`, and every debug, log and
@@ -335,7 +335,7 @@ manageable and monitorable from one place.
 
 With that, we're ready to implement the service's remote interface.
 
-#### Exposing the interface
+### Exposing the interface
 
 Let's start by defining the external interface — the set of methods the service
 will expose:
@@ -473,7 +473,7 @@ With the interface above in place, the service won't compile yet — we've
 referenced types TypeScript doesn't know: `UserObject`, `UserCarObject` and
 `UserFilters`. Let's define them.
 
-#### Defining exposable complex types
+### Defining exposable complex types
 
 You can describe complex data structures inline in doc-blocks using TypeScript
 notation, but that quickly leads to duplication. A cleaner approach is to define

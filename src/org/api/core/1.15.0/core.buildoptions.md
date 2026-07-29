@@ -1,5 +1,6 @@
 ---
 title: "buildOptions() function · @imqueue/core v1.15.0 (archived)"
+description: "Safely builds full options definition using default options and partial given options"
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

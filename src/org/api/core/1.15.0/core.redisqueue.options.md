@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue.options property · @imqueue/core v1.15.0 (archived)"
+description: "This queue instance options"
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.options/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "IMQ_PID_DIR variable · @imqueue/rpc v2.1.0 (archived)"
+description: "IMQ_PID_DIR variable — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "IMulti interface · @imqueue/core v1.15.0 (archived)"
+description: "Extends default Multi type to allow dynamic properties access on it"
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue.subscribe() method · @imqueue/core v1.15.0 (archived)"
+description: "Creates subscription channel over redis and sets up channel data read handler"
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.subscribe/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue.name property · @imqueue/core v1.15.0 (archived)"
+description: "RedisQueue.name property — @imqueue/core 1.15.0 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.name/"
 ---

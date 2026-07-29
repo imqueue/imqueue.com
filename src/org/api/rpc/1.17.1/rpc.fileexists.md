@@ -1,5 +1,6 @@
 ---
 title: "fileExists() function · @imqueue/rpc v1.17.1 (archived)"
+description: "Checks if file exists at given path"
 noindex: true
 latestUrl: "/api/rpc/latest/"
 ---

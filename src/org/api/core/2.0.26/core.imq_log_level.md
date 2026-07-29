@@ -1,5 +1,6 @@
 ---
 title: "IMQ_LOG_LEVEL variable · @imqueue/core v2.0.26 (archived)"
+description: "IMQ_LOG_LEVEL variable — @imqueue/core 2.0.26 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.imq_log_level/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "DebugInfoOptions.logLevel property · @imqueue/core v1.15.0 (archived)"
+description: "Log level to use for the call"
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions.loglevel/"
 ---

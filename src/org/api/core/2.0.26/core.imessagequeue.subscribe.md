@@ -1,5 +1,6 @@
 ---
 title: "IMessageQueue.subscribe() method · @imqueue/core v2.0.26 (archived)"
+description: "Creates or uses subscription channel with the given name and sets message handler on data receive"
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue.subscribe/"
 ---

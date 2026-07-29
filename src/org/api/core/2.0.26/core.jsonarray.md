@@ -1,5 +1,6 @@
 ---
 title: "JsonArray interface · @imqueue/core v2.0.26 (archived)"
+description: "Represents JSON-serializable array"
 noindex: true
 latestUrl: "/api/core/latest/core.jsonarray/"
 ---

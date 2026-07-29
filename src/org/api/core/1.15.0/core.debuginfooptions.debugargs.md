@@ -1,5 +1,6 @@
 ---
 title: "DebugInfoOptions.debugArgs property · @imqueue/core v1.15.0 (archived)"
+description: "Turns on/off args debugging"
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions.debugargs/"
 ---

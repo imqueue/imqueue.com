@@ -6,7 +6,11 @@ section: blog
 {%- assign artPartial = "blog-art/" | append: illustration | append: ".svg" -%}
 {%- assign rel = collections.posts | related: page.url, topics, 5 -%}
 <div class="container" style="padding-top:40px;padding-bottom:72px;">
-  <a href="/blog/" class="nav-link" style="font-family:var(--font-mono);font-size:13px;color:var(--accent);">← all posts</a>
+  {%- comment -%}
+  Replaces a bare "← all posts" link: same affordance, but it renders the trail
+  the BreadcrumbList JSON-LD below already describes, and links Home as well.
+  {%- endcomment -%}
+  {% include "breadcrumbs.html", crumbLabel: "Blog", crumbRoot: "/blog/" %}
 
   <div class="post-layout" style="margin-top:18px;">
     <!-- ARTICLE -->
@@ -27,6 +31,25 @@ section: blog
           {%- endif -%}
         </div>
         {% if summary %}<p class="muted" style="font-size:18px;line-height:1.6;margin:18px 0 0;">{{ summary }}</p>{% endif %}
+        {%- comment -%}
+        Topic chips. Only chips for topics that actually have a hub page are
+        linked (see the blogTopics collection) — the rest render as plain labels
+        rather than pointing at a page that was never generated.
+        {%- endcomment -%}
+        {%- capture chipItems -%}
+          {%- for t in topics -%}
+            {%- assign hub = nil -%}
+            {%- for candidate in collections.blogTopics -%}
+              {%- if candidate.slug == t -%}{%- assign hub = candidate -%}{%- endif -%}
+            {%- endfor -%}
+            {%- if hub -%}<a class="topic-chip" href="/blog/topics/{{ hub.slug }}/">{{ hub.label }}</a>
+            {%- elsif blogTopics[t] -%}<span class="topic-chip topic-chip--flat">{{ blogTopics[t].label }}</span>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endcapture -%}
+        {%- if chipItems != "" %}
+        <div class="topic-chips" style="margin-top:18px;">{{ chipItems }}</div>
+        {%- endif -%}
       </header>
       <div class="prose">
         {{ content }}
@@ -44,9 +67,9 @@ section: blog
     <aside class="post-aside">
       {%- if a -%}
       <div class="aside-box">
-        <h4>Written by</h4>
+        <h2>Written by</h2>
         <a href="/blog/authors/{{ a.slug }}/" class="author-chip" style="text-decoration:none;color:var(--ink);">
-          <img class="avatar-img" src="{{ a.avatar }}" alt="{{ a.name }}" width="26" height="26">
+          <img class="avatar-img" src="{{ a.avatar }}" alt="{{ a.name }}" width="26" height="26" loading="lazy" decoding="async">
           <span><strong>{{ a.name }}</strong><span class="meta" style="display:block;font-family:var(--font-mono);font-size:11px;color:var(--muted);">{{ a.occupation }}</span></span>
         </a>
       </div>
@@ -54,7 +77,7 @@ section: blog
 
       {%- if rel and rel.size > 0 -%}
       <div class="aside-box">
-        <h4>Related posts</h4>
+        <h2>Related posts</h2>
         <ul class="aside-links">
           {%- for r in rel -%}
           <li><a href="{{ r.url }}">{{ r.data.title }}<span class="meta">{{ r.date | date: "%b %-d, %Y" }}</span></a></li>
@@ -77,13 +100,13 @@ section: blog
       {%- endcapture -%}
       {%- if guideCount > 0 -%}
       <div class="aside-box">
-        <h4>Guides &amp; reference</h4>
+        <h2>Guides &amp; reference</h2>
         <ul class="aside-links">{{ guideItems }}</ul>
       </div>
       {%- endif -%}
 
       <div class="aside-box">
-        <h4>Browse</h4>
+        <h2>Browse</h2>
         <ul class="aside-links">
           <li><a href="/blog/">All posts</a></li>
           <li><a href="/get-started/">Getting Started</a></li>
@@ -100,14 +123,24 @@ section: blog
   "@type": "BlogPosting",
   "@id": "{{ siteUrl }}{{ page.url }}#post",
   "headline": {{ title | json }},
-  {% if summary %}"description": {{ summary | json }},{% endif %}
+  {%- comment -%}
+  Uses `description` (the meta description) rather than `summary` (the visible
+  lede) so the two agree — they were carrying different strings for the same page.
+  Falls back to the lede for any post without a description.
+  {%- endcomment %}
+  {% if description or summary %}"description": {{ description | default: summary | json }},{% endif %}
   "url": "{{ siteUrl }}{{ page.url }}",
   "inLanguage": "en",
   "articleSection": "Blog",
   {% if ogImage %}"image": {{ ogImage | json }},{% endif %}
   {% if keywords %}"keywords": {{ keywords | json }},{% endif %}
-  {% if date %}"datePublished": "{{ date | date: '%Y-%m-%d' }}",
-  "dateModified": "{{ date | date: '%Y-%m-%d' }}",{% endif %}
+  {%- comment -%}
+  `dateModified` reads a per-post `dateModified` front-matter field when present,
+  so a refreshed post can advertise the refresh instead of reporting its original
+  publication date forever.
+  {%- endcomment %}
+  {% if date %}"datePublished": "{{ date | isoDate }}",
+  "dateModified": "{{ dateModified | default: date | isoDate }}",{% endif %}
   "author": { "@type": "Person", "name": {{ a.name | default: "@imqueue" | json }}{% if a %}, "url": "{{ siteUrl }}/blog/authors/{{ a.slug }}/"{% if a.github %}, "sameAs": ["{{ a.github }}"]{% endif %}{% endif %} },
   "publisher": { "@id": "{{ siteUrl }}/#org" },
   "mainEntityOfPage": { "@type": "WebPage", "@id": "{{ siteUrl }}{{ page.url }}" }

@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue.destroy() method · @imqueue/core v2.0.26 (archived)"
+description: "Gracefully destroys this queue"
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.destroy/"
 ---

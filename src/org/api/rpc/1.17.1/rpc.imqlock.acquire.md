@@ -1,5 +1,6 @@
 ---
 title: "IMQLock.acquire() method · @imqueue/rpc v1.17.1 (archived)"
+description: "Acquires a lock for a given key"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqlock.acquire/"
 ---

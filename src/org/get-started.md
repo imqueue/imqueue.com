@@ -1,7 +1,7 @@
 ---
 layout: docs.html
 section: docs
-title: Getting Started
+title: "Get started: Node.js microservices in minutes"
 docLabel: GET STARTED
 lead: "The shortest path from an empty terminal to a running @imqueue service and a generated client. For a deeper, worked example see the Tutorial; the full technical reference lives in the API docs."
 description: "Install @imqueue and ship your first Node & TypeScript service in minutes — the shortest quickstart for building message-queue RPC microservices."

@@ -1,5 +1,6 @@
 ---
 title: "signature() function · @imqueue/rpc v2.1.0 (archived)"
+description: "Constructs and returns hash string for a given set of className, methodName and arguments."
 noindex: true
 latestUrl: "/api/rpc/latest/"
 ---

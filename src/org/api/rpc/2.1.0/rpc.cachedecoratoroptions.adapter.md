@@ -1,5 +1,6 @@
 ---
 title: "CacheDecoratorOptions.adapter property · @imqueue/rpc v2.1.0 (archived)"
+description: "CacheDecoratorOptions.adapter property — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.cachedecoratoroptions.adapter/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "RedisQueue.send() method · @imqueue/core v2.0.26 (archived)"
+description: "Sends a given message to a given queue (by name)"
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.send/"
 ---

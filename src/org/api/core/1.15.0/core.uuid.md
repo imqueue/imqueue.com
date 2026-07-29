@@ -1,5 +1,6 @@
 ---
 title: "uuid() function · @imqueue/core v1.15.0 (archived)"
+description: "Generates and returns Unified Unique Identifier"
 noindex: true
 latestUrl: "/api/core/latest/"
 ---

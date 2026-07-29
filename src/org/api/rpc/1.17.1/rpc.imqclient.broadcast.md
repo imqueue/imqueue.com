@@ -1,5 +1,6 @@
 ---
 title: "IMQClient.broadcast() method · @imqueue/rpc v1.17.1 (archived)"
+description: "Broadcasts given payload to all other service clients subscribed. So this is like client-to-clients publishing."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.broadcast/"
 ---

@@ -1,6 +1,6 @@
 ---
 chapter: 1
-title: Introduction
+title: "Tutorial: build Node.js microservices"
 docLabel: TUTORIAL — CHAPTER 1
 lead: "A step-by-step guide to building back-end services for a car-washing web application with @imqueue — for those who prefer to learn by example."
 description: "Tutorial: build back-end services for a car-washing web application using @imqueue, from first service to GraphQL API and deployment."

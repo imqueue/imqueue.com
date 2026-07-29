@@ -1,5 +1,6 @@
 ---
 title: "IMQClient.create() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Creates client for a service with the given name"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.create/"
 ---

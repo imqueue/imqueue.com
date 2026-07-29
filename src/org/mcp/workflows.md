@@ -1,6 +1,6 @@
 ---
 chapter: 4
-title: "Agent workflows"
+title: "MCP agent workflows"
 docLabel: "MCP SERVER — 04 / 05"
 lead: "End-to-end recipes: what to ask your agent for, and how the @imqueue MCP tools chain together behind each request."
 description: "Practical @imqueue MCP server workflows — build a service from a prompt, generate a typed client, run and inspect a local fleet, and what happens when the CLI isn't installed."

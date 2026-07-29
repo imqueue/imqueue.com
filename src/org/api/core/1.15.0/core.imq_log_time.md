@@ -1,5 +1,6 @@
 ---
 title: "IMQ_LOG_TIME variable · @imqueue/core v1.15.0 (archived)"
+description: "Environment variable IMQ_LOG_TIME=[1, 0] - enables/disables profiled timings logging"
 noindex: true
 latestUrl: "/api/core/latest/core.imq_log_time/"
 ---

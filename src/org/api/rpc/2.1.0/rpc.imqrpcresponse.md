@@ -1,5 +1,6 @@
 ---
 title: "IMQRPCResponse interface · @imqueue/rpc v2.1.0 (archived)"
+description: "Response message data structure, which service replies to handled requests."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqrpcresponse/"
 ---

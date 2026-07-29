@@ -1,5 +1,6 @@
 ---
 title: "IMQService class · @imqueue/rpc v1.17.1 (archived)"
+description: "Class IMQService Basic abstract service (server-side) implementation"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqservice/"
 ---

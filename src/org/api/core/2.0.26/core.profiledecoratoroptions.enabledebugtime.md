@@ -1,5 +1,6 @@
 ---
 title: "ProfileDecoratorOptions.enableDebugTime property · @imqueue/core v2.0.26 (archived)"
+description: "Turns on/off execution time debugging"
 noindex: true
 latestUrl: "/api/core/latest/core.profiledecoratoroptions.enabledebugtime/"
 ---

@@ -1,6 +1,6 @@
 ---
 chapter: 5
-title: API Integration
+title: "GraphQL API gateway for microservices"
 docLabel: TUTORIAL — CHAPTER 5
 lead: "Put a GraphQL API in front of your services — @imqueue works beautifully with GraphQL."
 description: "Put a GraphQL API in front of your @imqueue services — orchestrate typed microservice calls behind a single GraphQL endpoint for your front-end."
@@ -22,7 +22,7 @@ first, or skip this part and refer to the
 [finished source code](https://github.com/imqueue-sandbox/api) of the API
 service we built for you on GitHub.
 
-### Initializing the service
+## Initializing the service
 
 Although the API service differs in structure from a typical @imqueue service,
 we can still use @imqueue/cli to scaffold it:
@@ -110,7 +110,7 @@ a core part of @imqueue/rpc — they provide the RPC mechanism for calling remot
 services. There we used a dynamically built client; here we'll build client code
 statically.
 
-### Building the clients
+## Building the clients
 
 Generating static client code is a good way to work with @imqueue services,
 because it offers several concrete advantages:
@@ -143,7 +143,7 @@ with a single command, for example:
 npm run rebuild-clients
 ~~~
 
-### Querying the services
+## Querying the services
 
 Finally, when building the GraphQL schema, we're ready to query our services.
 For example, to fetch the list of car brands:

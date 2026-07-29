@@ -1,5 +1,6 @@
 ---
 title: "ILogger interface · @imqueue/core v1.15.0 (archived)"
+description: "Logger interface"
 noindex: true
 latestUrl: "/api/core/latest/core.ilogger/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "IMQ.create() method · @imqueue/core v2.0.26 (archived)"
+description: "Instantiate proper message queue instance using given user-options"
 noindex: true
 latestUrl: "/api/core/latest/core.imq.create/"
 ---

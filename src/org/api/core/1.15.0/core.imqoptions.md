@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions interface · @imqueue/core v1.15.0 (archived)"
+description: "Message queue options"
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions/"
 ---

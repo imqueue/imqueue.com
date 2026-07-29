@@ -1,5 +1,6 @@
 ---
 title: "osUuid() function · @imqueue/rpc v2.1.0 (archived)"
+description: "Returns machine UUID"
 noindex: true
 latestUrl: "/api/rpc/latest/"
 ---

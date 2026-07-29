@@ -1,5 +1,6 @@
 ---
 title: "DebugInfoOptions.logger property · @imqueue/core v2.0.26 (archived)"
+description: "Logger implementation"
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions.logger/"
 ---

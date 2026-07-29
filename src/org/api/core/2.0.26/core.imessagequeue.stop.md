@@ -1,5 +1,6 @@
 ---
 title: "IMessageQueue.stop() method · @imqueue/core v2.0.26 (archived)"
+description: "Stops the queue (should stop handle queue messages). Supposed to be an async function."
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue.stop/"
 ---

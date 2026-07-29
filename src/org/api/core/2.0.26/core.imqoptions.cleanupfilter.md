@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.cleanupFilter property · @imqueue/core v2.0.26 (archived)"
+description: "Defines cleanup pattern for the name of the queue which should be removed during cleanup processing"
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.cleanupfilter/"
 ---

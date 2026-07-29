@@ -1,5 +1,6 @@
 ---
 title: "IMQCache.init() method · @imqueue/rpc v2.1.0 (archived)"
+description: "Initializes all registered cache adapters"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqcache.init/"
 ---

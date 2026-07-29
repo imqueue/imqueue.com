@@ -1,5 +1,6 @@
 ---
 title: "AllowedTimeFormat type · @imqueue/core v1.15.0 (archived)"
+description: "AllowedTimeFormat type — @imqueue/core 1.15.0 API reference."
 noindex: true
 latestUrl: "/api/core/latest/core.allowedtimeformat/"
 ---

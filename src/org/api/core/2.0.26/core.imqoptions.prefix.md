@@ -1,5 +1,6 @@
 ---
 title: "IMQOptions.prefix property · @imqueue/core v2.0.26 (archived)"
+description: "Message queue global key prefix (namespace)"
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.prefix/"
 ---

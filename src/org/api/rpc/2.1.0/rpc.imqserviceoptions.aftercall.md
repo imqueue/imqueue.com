@@ -1,5 +1,6 @@
 ---
 title: "IMQServiceOptions.afterCall property · @imqueue/rpc v2.1.0 (archived)"
+description: "IMQServiceOptions.afterCall property — @imqueue/rpc 2.1.0 API reference."
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqserviceoptions.aftercall/"
 ---

@@ -4,7 +4,7 @@ permalink: /blog/scheduled-work-without-a-job-system/
 templateEngineOverride: md
 title: "Delayed and scheduled work without adding a job system"
 summary: "\"Send that email in 24 hours\" usually turns into a second deployment, a second data model, and a job record shadowing a service method you already wrote. Often the message queue you already run can just do it. Here's how deferral works as a parameter, and what it costs."
-description: "How to run delayed and scheduled work in Node.js microservices without installing a separate job queue: defer an ordinary typed RPC call with @imqueue, shape retry backoff, build a recurring sweep, and the accuracy and cancellation limits to plan for."
+description: "Run delayed and scheduled work in Node.js without a separate job queue: defer a typed RPC call, shape retry backoff, and build a recurring sweep."
 keywords: "delayed jobs nodejs, scheduled tasks nodejs microservices, cron alternative nodejs, delayed message queue, retry with backoff nodejs, imqueue"
 date: 2026-07-25
 author: mykhailo-stadnyk

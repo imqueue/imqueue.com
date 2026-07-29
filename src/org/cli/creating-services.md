@@ -1,6 +1,6 @@
 ---
 chapter: 4
-title: "Creating Services"
+title: "Create a service with the imq CLI"
 docLabel: "CLI MANUAL — 04 / 12"
 lead: "imq service create — scaffold a service from a template and, optionally, create the repo, provision CI secrets, commit, push and tag it."
 description: "Create @imqueue services with imq service create: the four provider axes, every option, --dry-run previews, the full create pipeline, failure & rollback, and non-interactive/CI usage."

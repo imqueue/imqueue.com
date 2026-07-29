@@ -1,5 +1,6 @@
 ---
 title: "ReturnValueDescription interface · @imqueue/rpc v2.1.0 (archived)"
+description: "Return value description"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.returnvaluedescription/"
 ---

@@ -1,5 +1,6 @@
 ---
 title: "imqCallResolver() function · @imqueue/rpc v1.17.1 (archived)"
+description: "Builds and returns call resolver, which supports after call optional hook"
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqcallresolver/"
 ---
