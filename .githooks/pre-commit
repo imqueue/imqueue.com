@@ -4,8 +4,19 @@
 #
 #   1. Cloudflare redirect checks — the dynamic-rule budget (Pages silently drops
 #      _redirects rules past the 100th) and the /api/ version mapping.
-#   2. Rebuild both editions and crawl for broken links. Blocks the commit if any
+#   2. Page dates — every page still has a recorded publication date, and none of
+#      them drifted.
+#   3. Rebuild both editions and crawl for broken links. Blocks the commit if any
 #      internal link (page, asset, cross-site .org<->.com, or #anchor) fails.
+#   4. Sitemap — no duplicate, unbuilt, noindex or missing URLs across the index
+#      and its children.
+#
+# These must stay in the same order as `npm test`, which is what CI runs
+# (.github/workflows/checks.yml). Steps 2 and 4 were missing here for a while, so
+# they only ran if someone typed `npm test` by hand; CI is the real backstop now,
+# since this hook never runs for a commit made through the GitHub UI or by the
+# sync-cli-guide bot. Run as separate steps rather than one `npm test` so a slow
+# hook reports progress and the fast checks fail first.
 #
 # Wired via `git config core.hooksPath .githooks` (done automatically by the
 # `prepare` npm script on `npm install`).
@@ -27,10 +38,27 @@ if ! npm run --silent check:redirects; then
   exit 1
 fi
 
+echo "→ pre-commit: checking page dates…"
+if ! npm run --silent check:dates; then
+  echo "" >&2
+  echo "✗ Page dates are stale — commit aborted." >&2
+  echo "  Run: npm run gen-page-dates && git add src/_data/pageDates.json" >&2
+  echo "  Bypass in an emergency with: git commit --no-verify" >&2
+  exit 1
+fi
+
 echo "→ pre-commit: building sites and checking for broken links…"
 if ! npm run --silent check:links; then
   echo "" >&2
   echo "✗ Broken links found — commit aborted." >&2
   echo "  Fix the links above, or bypass with: git commit --no-verify" >&2
+  exit 1
+fi
+
+echo "→ pre-commit: checking the sitemap…"
+if ! npm run --silent check:sitemap; then
+  echo "" >&2
+  echo "✗ Sitemap checks failed — commit aborted." >&2
+  echo "  Bypass in an emergency with: git commit --no-verify" >&2
   exit 1
 fi

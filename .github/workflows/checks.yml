@@ -1,0 +1,57 @@
+name: Checks
+
+# Runs `npm test` — redirects, page dates, broken links, sitemap — on every push
+# and pull request.
+#
+# Until now these ran only in .githooks/pre-commit, which is bypassable with
+# --no-verify and, more to the point, never runs at all for a commit made through
+# the GitHub UI or by the sync-cli-guide bot. Three separate regressions shipped to
+# production that this would have caught:
+#
+#   * ~90 dead /api/ redirect rules — Cloudflare Pages silently drops _redirects
+#     rules past the 100th, so the current major's URLs hard-404ed
+#   * six /api/<pkg>/<seg>/<pkg>/ URLs left 404ing when the duplicate package page
+#     was removed, while still indexable and listed in the sitemap
+#   * a stale pageDates.json, which decides whether docs pages carry a real
+#     publication date or none at all
+#
+# Nothing here talks to the network or the deployed site, so it is safe to run on
+# pull requests from forks.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+# A superseded run tells you nothing; only the tip of a branch matters.
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # REQUIRED: scripts/gen-page-dates.js --check reads git history
+          # (`git log --follow --diff-filter=A`) to verify every page's recorded
+          # publication date. The default shallow fetch has one commit, so every
+          # file would appear to have been added by it and the check would fail on
+          # every run.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          # Matches the other two workflows. Note .nvmrc says 20 — worth
+          # reconciling, but not silently from here.
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # check:links builds both editions itself, and check:sitemap then reads that
+      # output, so the ordering inside `npm test` already covers the build.
+      - name: npm test (redirects, dates, links, sitemap)
+        run: npm test
