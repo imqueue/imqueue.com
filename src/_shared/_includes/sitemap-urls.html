@@ -55,9 +55,21 @@ Params:
     same build date — 85% of every lastmod in the file. Google discounts lastmod
     per-site once it proves unreliable, and that discount would have landed on the
     26 blog entries where the dates are real and useful.
+
+    Hand-authored pages take theirs from src/_data/pageDates.json (git history),
+    for the same reason: item.date is the file mtime, and Cloudflare Pages builds
+    from a fresh clone, so live all 33 page URLs shared the checkout timestamp and
+    moved forward on every deploy. It only looked correct locally, where a working
+    tree has real mtimes.
+
+    Blog posts are not in pageDates — they carry real `date:` front matter, so
+    item.date is trustworthy for them and they fall through to it.
     {%- endcomment -%}
+    {%- assign pdKey = item.inputPath | remove_first: "./" -%}
+    {%- assign pdEntry = pageDates[pdKey] -%}
     {%- assign lastmod = "" -%}
     {%- if item.data.apiReleased -%}{%- assign lastmod = item.data.apiReleased | date: "%Y-%m-%d" -%}
+    {%- elsif pdEntry -%}{%- assign lastmod = pdEntry.modified | date: "%Y-%m-%d" -%}
     {%- elsif item.date -%}{%- assign lastmod = item.date | date: "%Y-%m-%d" -%}
     {%- endif %}
   <url>
