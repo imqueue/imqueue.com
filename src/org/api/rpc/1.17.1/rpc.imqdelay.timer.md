@@ -2,6 +2,7 @@
 title: "IMQDelay.timer property · @imqueue/rpc v1.17.1 (archived)"
 description: "IMQDelay.timer property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQDelay","url":"/api/rpc/1.17.1/rpc.imqdelay/"},{"name":"timer","url":"/api/rpc/1.17.1/rpc.imqdelay.timer/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqdelay.timer/"
 ---

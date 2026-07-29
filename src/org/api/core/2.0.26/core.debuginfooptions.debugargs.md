@@ -2,6 +2,7 @@
 title: "DebugInfoOptions.debugArgs property · @imqueue/core v2.0.26 (archived)"
 description: "Turns on/off args debugging"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"DebugInfoOptions","url":"/api/core/2.0.26/core.debuginfooptions/"},{"name":"debugArgs","url":"/api/core/2.0.26/core.debuginfooptions.debugargs/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions.debugargs/"
 ---

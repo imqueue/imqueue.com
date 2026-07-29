@@ -2,6 +2,7 @@
 title: "RedisQueue.(constructor) · @imqueue/core v1.15.0 (archived)"
 description: "Constructs a new instance of the RedisQueue class"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"RedisQueue","url":"/api/core/1.15.0/core.redisqueue/"},{"name":"(constructor)","url":"/api/core/1.15.0/core.redisqueue._constructor_/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue._constructor_/"
 ---

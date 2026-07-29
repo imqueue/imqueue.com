@@ -2,6 +2,7 @@
 title: "IServerInput.host property · @imqueue/core v2.0.26 (archived)"
 description: "Message queue network host"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IServerInput","url":"/api/core/2.0.26/core.iserverinput/"},{"name":"host","url":"/api/core/2.0.26/core.iserverinput.host/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.iserverinput.host/"
 ---

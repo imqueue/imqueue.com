@@ -2,6 +2,7 @@
 title: "IMessageQueueConnection.port property · @imqueue/core v2.0.26 (archived)"
 description: "Message queue network port"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMessageQueueConnection","url":"/api/core/2.0.26/core.imessagequeueconnection/"},{"name":"port","url":"/api/core/2.0.26/core.imessagequeueconnection.port/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeueconnection.port/"
 ---

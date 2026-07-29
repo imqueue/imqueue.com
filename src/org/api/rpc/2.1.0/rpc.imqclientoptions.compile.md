@@ -2,6 +2,7 @@
 title: "IMQClientOptions.compile property · @imqueue/rpc v2.1.0 (archived)"
 description: "IMQClientOptions.compile property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQClientOptions","url":"/api/rpc/2.1.0/rpc.imqclientoptions/"},{"name":"compile","url":"/api/rpc/2.1.0/rpc.imqclientoptions.compile/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclientoptions.compile/"
 ---

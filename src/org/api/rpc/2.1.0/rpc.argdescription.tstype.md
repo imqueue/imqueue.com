@@ -2,6 +2,7 @@
 title: "ArgDescription.tsType property · @imqueue/rpc v2.1.0 (archived)"
 description: "ArgDescription.tsType property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"ArgDescription","url":"/api/rpc/2.1.0/rpc.argdescription/"},{"name":"tsType","url":"/api/rpc/2.1.0/rpc.argdescription.tstype/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.argdescription.tstype/"
 ---

@@ -2,6 +2,7 @@
 title: "LockOptions.disabled property · @imqueue/rpc v2.1.0 (archived)"
 description: "LockOptions.disabled property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"LockOptions","url":"/api/rpc/2.1.0/rpc.lockoptions/"},{"name":"disabled","url":"/api/rpc/2.1.0/rpc.lockoptions.disabled/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.lockoptions.disabled/"
 ---

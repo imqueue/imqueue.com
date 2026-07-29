@@ -2,6 +2,7 @@
 title: "IMessage.delay property · @imqueue/core v2.0.26 (archived)"
 description: "Message delay in milliseconds (for delayed messages). Optional."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMessage","url":"/api/core/2.0.26/core.imessage/"},{"name":"delay","url":"/api/core/2.0.26/core.imessage.delay/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imessage.delay/"
 ---

@@ -2,6 +2,7 @@
 title: "DebugInfoOptions.args property · @imqueue/core v1.15.0 (archived)"
 description: "Call arguments"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"DebugInfoOptions","url":"/api/core/1.15.0/core.debuginfooptions/"},{"name":"args","url":"/api/core/1.15.0/core.debuginfooptions.args/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions.args/"
 ---

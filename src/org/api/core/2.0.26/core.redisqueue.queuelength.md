@@ -2,6 +2,7 @@
 title: "RedisQueue.queueLength() method · @imqueue/core v2.0.26 (archived)"
 description: "Retrieves the current count of messages in the queue"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"RedisQueue","url":"/api/core/2.0.26/core.redisqueue/"},{"name":"queueLength","url":"/api/core/2.0.26/core.redisqueue.queuelength/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.queuelength/"
 ---

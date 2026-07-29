@@ -2,6 +2,7 @@
 title: "IMQClient.broadcast() method · @imqueue/rpc v2.1.0 (archived)"
 description: "Broadcasts given payload to all other service clients subscribed. So this is like client-to-clients publishing."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQClient","url":"/api/rpc/2.1.0/rpc.imqclient/"},{"name":"broadcast","url":"/api/rpc/2.1.0/rpc.imqclient.broadcast/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.broadcast/"
 ---

@@ -2,6 +2,7 @@
 title: "ILogger.error() method · @imqueue/core v1.15.0 (archived)"
 description: "Error level function"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"ILogger","url":"/api/core/1.15.0/core.ilogger/"},{"name":"error","url":"/api/core/1.15.0/core.ilogger.error/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.ilogger.error/"
 ---

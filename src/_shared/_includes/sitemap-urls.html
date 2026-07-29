@@ -1,0 +1,96 @@
+{%- comment -%}
+Emits the <url> entries for one sitemap bucket. Shared by sitemap.liquid (the flat
+.com sitemap, bucket "all") and sitemap-bucket.liquid (one child per bucket on
+.org), so the classification and priority rules live in exactly one place.
+
+Params:
+  bucket — "pages" | "blog" | "api" | "all"
+{%- endcomment -%}
+{%- for item in collections.all -%}
+  {%- comment -%} Only index real HTML pages: skip markdown mirrors, txt feeds, etc. {%- endcomment -%}
+  {%- assign isPage = false -%}
+  {%- if item.url == "/" -%}{%- assign isPage = true -%}{%- endif -%}
+  {%- assign lastChar = item.url | slice: -1, 1 -%}
+  {%- if lastChar == "/" -%}{%- assign isPage = true -%}{%- endif -%}
+  {%- if item.url contains ".html" -%}{%- assign isPage = true -%}{%- endif -%}
+  {%- if item.url contains ".md" -%}{%- assign isPage = false -%}{%- endif -%}
+  {%- if item.url contains ".txt" -%}{%- assign isPage = false -%}{%- endif -%}
+  {%- if item.url contains ".xml" -%}{%- assign isPage = false -%}{%- endif -%}
+  {%- if item.data.draft -%}{%- assign isPage = false -%}{%- endif -%}
+  {%- comment -%} noindex pages (e.g. archived API versions) must never be advertised in the sitemap. {%- endcomment -%}
+  {%- if item.data.noindex -%}{%- assign isPage = false -%}{%- endif -%}
+  {%- comment -%}
+  Per-symbol API member pages opt out via `sitemap: false` from
+  build-api-docs.js. 243 of the 350 API URLs were single-member stubs of ~130
+  words — 57% of the whole sitemap — which spent crawl budget on pages that
+  cannot rank and skewed the quality ratio of the submitted set. They stay
+  indexable and reachable (sidebar + breadcrumb), just unsubmitted.
+  {%- endcomment -%}
+  {%- if item.data.sitemap == false -%}{%- assign isPage = false -%}{%- endif -%}
+  {%- comment -%} Author pages and topic hubs are paginated (only page 1 lands in collections.all); emitted explicitly below. {%- endcomment -%}
+  {%- if item.url contains "/blog/authors/" -%}{%- assign isPage = false -%}{%- endif -%}
+  {%- if item.url contains "/blog/topics/" -%}{%- assign isPage = false -%}{%- endif -%}
+
+  {%- comment -%} Bucket assignment: exhaustive, so every page lands in exactly one child. {%- endcomment -%}
+  {%- assign itemBucket = "pages" -%}
+  {%- if item.url contains "/api/" -%}{%- assign itemBucket = "api" -%}
+  {%- elsif item.url contains "/blog/" -%}{%- assign itemBucket = "blog" -%}
+  {%- endif -%}
+  {%- unless bucket == "all" or bucket == itemBucket -%}{%- assign isPage = false -%}{%- endunless -%}
+
+  {%- if isPage -%}
+    {%- comment -%} Priority: home first, human docs next, generated API reference last. {%- endcomment -%}
+    {%- assign prio = "0.7" -%}
+    {%- assign freq = "monthly" -%}
+    {%- if item.url == "/" -%}{%- assign prio = "1.0" -%}{%- assign freq = "weekly" -%}
+    {%- elsif item.url contains "/api/" -%}{%- assign prio = "0.3" -%}{%- assign freq = "yearly" -%}
+    {%- elsif item.url contains "/blog/" -%}{%- assign prio = "0.8" -%}{%- assign freq = "weekly" -%}
+    {%- elsif item.url contains "/docs" or item.url contains "/tutorial" or item.url contains "/cli" or item.url contains "/get-started" or item.url contains "/intro" -%}{%- assign prio = "0.8" -%}
+    {%- elsif item.url contains "/pricing" or item.url contains "/license" or item.url contains "/support" -%}{%- assign prio = "0.9" -%}
+    {%- endif -%}
+    {%- comment -%}
+    lastmod for API pages is the npm release date of the version tree
+    (apiReleased, from build-api-docs.js), not item.date. item.date is the
+    generated file's mtime, so every rebuild stamped all 350 API URLs with the
+    same build date — 85% of every lastmod in the file. Google discounts lastmod
+    per-site once it proves unreliable, and that discount would have landed on the
+    26 blog entries where the dates are real and useful.
+    {%- endcomment -%}
+    {%- assign lastmod = "" -%}
+    {%- if item.data.apiReleased -%}{%- assign lastmod = item.data.apiReleased | date: "%Y-%m-%d" -%}
+    {%- elsif item.date -%}{%- assign lastmod = item.date | date: "%Y-%m-%d" -%}
+    {%- endif %}
+  <url>
+    <loc>{{ siteUrl }}{{ item.url }}</loc>
+    {%- if lastmod != "" %}
+    <lastmod>{{ lastmod }}</lastmod>
+    {%- endif %}
+    <changefreq>{{ freq }}</changefreq>
+    <priority>{{ prio }}</priority>
+  </url>
+  {%- endif -%}
+{%- endfor -%}
+{%- comment -%}
+Nested rather than `a and b or c and d`: Liquid evaluates and/or right-to-left with
+no precedence, so the flat form does not mean what it reads like.
+{%- endcomment -%}
+{%- assign emitPaginated = false -%}
+{%- if edition == "org" -%}
+{%- if bucket == "blog" or bucket == "all" -%}{%- assign emitPaginated = true -%}{%- endif -%}
+{%- endif -%}
+{%- if emitPaginated -%}
+{%- for author in authors %}
+  <url>
+    <loc>{{ siteUrl }}/blog/authors/{{ author.slug }}/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+{%- endfor -%}
+{%- for topic in collections.blogTopics %}
+  <url>
+    <loc>{{ siteUrl }}/blog/topics/{{ topic.slug }}/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+{%- endfor -%}
+{%- endif -%}

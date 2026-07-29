@@ -11,6 +11,12 @@
  *   node scripts/indexnow-ping.js com /license/ /support/   # submit only specific paths
  *   node scripts/indexnow-ping.js org --exclude=/api/ # skip URLs whose path contains /api/
  *   node scripts/indexnow-ping.js com --dry-run       # print what would be sent, submit nothing
+ *   node scripts/indexnow-ping.js org --print-urls    # resolved URL set, one per line
+ *   node scripts/indexnow-ping.js org --print-urls --live  # same, from the deployed site
+ *
+ * .org publishes a sitemap INDEX, so both readers expand it one level to page
+ * URLs; --print-urls exists so CI can diff the built set against the live one
+ * using this same expansion instead of reimplementing it in shell.
  *
  * --exclude=<substr> may be repeated; any URL containing one of the substrings
  * is dropped (how many were dropped is logged, never silently). The bundled
@@ -39,16 +45,58 @@ function readKey() {
     return m[1];
 }
 
-function urlsFromSitemap(edition) {
-    const file = path.join(__dirname, '..', `_site-${edition}`, 'sitemap.xml');
+const locsIn = xml => [...xml.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map(m => m[1]);
+const isIndex = xml => xml.includes('<sitemapindex');
+
+// .org's /sitemap.xml is a sitemap INDEX, so its <loc> entries are child sitemaps,
+// not pages. Expand one level so callers always get page URLs — submitting the
+// index's own children to IndexNow would have pinged three XML files and no pages.
+function readLocal(edition, name) {
+    const file = path.join(__dirname, '..', `_site-${edition}`, name);
     if (!fs.existsSync(file)) {
         throw new Error(
             `${file} not found — build the ${edition} edition first ` +
                 `(EDITION=${edition} npm run build).`,
         );
     }
-    const xml = fs.readFileSync(file, 'utf8');
-    return [...xml.matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map(m => m[1]);
+    return fs.readFileSync(file, 'utf8');
+}
+
+function urlsFromSitemap(edition) {
+    const xml = readLocal(edition, 'sitemap.xml');
+
+    if (!isIndex(xml)) {
+        return locsIn(xml);
+    }
+    // Children sit beside sitemap.xml, so the basename is enough.
+    return locsIn(xml).flatMap(
+        child => locsIn(readLocal(edition, path.basename(new URL(child).pathname))),
+    );
+}
+
+async function fetchText(url) {
+    const res = await fetch(url);
+
+    if (!res.ok) {
+        throw new Error(`GET ${url} → HTTP ${res.status}`);
+    }
+    return res.text();
+}
+
+// Same expansion against the deployed site, so the CI liveness gate can compare
+// real page URLs rather than a list of child sitemap names that barely ever change.
+async function urlsFromLiveSitemap(host) {
+    const xml = await fetchText(`https://${host}/sitemap.xml`);
+
+    if (!isIndex(xml)) {
+        return locsIn(xml);
+    }
+    const out = [];
+
+    for (const child of locsIn(xml)) {
+        out.push(...locsIn(await fetchText(child)));
+    }
+    return out;
 }
 
 async function main() {
@@ -60,14 +108,28 @@ async function main() {
     }
 
     const host = HOSTS[edition];
-    const key = readKey();
     const dryRun = rest.includes('--dry-run');
+    const printUrls = rest.includes('--print-urls');
+    const live = rest.includes('--live');
     const excludes = rest
         .filter(a => a.startsWith('--exclude='))
         .map(a => a.slice('--exclude='.length))
         .filter(Boolean);
     const paths = rest.filter(a => !a.startsWith('--'));
 
+    // --print-urls just resolves the URL set and prints it, one per line: the CI
+    // liveness gate diffs the built set against the live one, and needs both sides
+    // produced by the same expansion logic.
+    if (printUrls) {
+        const urls = live
+            ? await urlsFromLiveSitemap(host)
+            : urlsFromSitemap(edition);
+
+        console.log(urls.sort().join('\n'));
+        return;
+    }
+
+    const key = readKey();
     let urlList = paths.length
         ? paths.map(p => `https://${host}${p.startsWith('/') ? p : '/' + p}`)
         : urlsFromSitemap(edition);

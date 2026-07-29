@@ -2,6 +2,7 @@
 title: "RedisQueue.publish() method · @imqueue/core v1.15.0 (archived)"
 description: "Publishes a message to this queue subscription channel for currently subscribed clients."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"RedisQueue","url":"/api/core/1.15.0/core.redisqueue/"},{"name":"publish","url":"/api/core/1.15.0/core.redisqueue.publish/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.publish/"
 ---

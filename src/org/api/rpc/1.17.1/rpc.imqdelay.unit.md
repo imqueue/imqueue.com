@@ -2,6 +2,7 @@
 title: "IMQDelay.unit property · @imqueue/rpc v1.17.1 (archived)"
 description: "IMQDelay.unit property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQDelay","url":"/api/rpc/1.17.1/rpc.imqdelay/"},{"name":"unit","url":"/api/rpc/1.17.1/rpc.imqdelay.unit/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqdelay.unit/"
 ---

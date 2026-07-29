@@ -2,6 +2,7 @@
 title: "ClusteredRedisQueue.removeServer() method · @imqueue/core v2.0.26 (archived)"
 description: "Removes server from the cluster"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"ClusteredRedisQueue","url":"/api/core/2.0.26/core.clusteredredisqueue/"},{"name":"removeServer","url":"/api/core/2.0.26/core.clusteredredisqueue.removeserver/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.removeserver/"
 ---

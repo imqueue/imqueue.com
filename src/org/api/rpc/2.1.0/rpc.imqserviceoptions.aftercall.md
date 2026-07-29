@@ -2,6 +2,7 @@
 title: "IMQServiceOptions.afterCall property · @imqueue/rpc v2.1.0 (archived)"
 description: "IMQServiceOptions.afterCall property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQServiceOptions","url":"/api/rpc/2.1.0/rpc.imqserviceoptions/"},{"name":"afterCall","url":"/api/rpc/2.1.0/rpc.imqserviceoptions.aftercall/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqserviceoptions.aftercall/"
 ---

@@ -2,6 +2,7 @@
 title: "IMQOptions.prefix property · @imqueue/core v2.0.26 (archived)"
 description: "Message queue global key prefix (namespace)"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMQOptions","url":"/api/core/2.0.26/core.imqoptions/"},{"name":"prefix","url":"/api/core/2.0.26/core.imqoptions.prefix/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.prefix/"
 ---

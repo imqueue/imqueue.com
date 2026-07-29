@@ -2,6 +2,7 @@
 title: "IMQMetadata.(constructor) · @imqueue/rpc v1.17.1 (archived)"
 description: "Constructs a new instance of the IMQMetadata class"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQMetadata","url":"/api/rpc/1.17.1/rpc.imqmetadata/"},{"name":"(constructor)","url":"/api/rpc/1.17.1/rpc.imqmetadata._constructor_/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqmetadata._constructor_/"
 ---

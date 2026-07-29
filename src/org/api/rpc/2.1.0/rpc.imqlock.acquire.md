@@ -2,6 +2,7 @@
 title: "IMQLock.acquire() method · @imqueue/rpc v2.1.0 (archived)"
 description: "Acquires a lock for a given key"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQLock","url":"/api/rpc/2.1.0/rpc.imqlock/"},{"name":"acquire","url":"/api/rpc/2.1.0/rpc.imqlock.acquire/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqlock.acquire/"
 ---

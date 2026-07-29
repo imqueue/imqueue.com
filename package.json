@@ -26,9 +26,10 @@
     }
   },
   "scripts": {
-    "test": "npm run check:redirects && npm run check:dates && npm run check:links",
+    "test": "npm run check:redirects && npm run check:dates && npm run check:links && npm run check:sitemap",
     "check:redirects": "node scripts/check-redirects.js",
     "check:dates": "node scripts/gen-page-dates.js --check",
+    "check:sitemap": "node scripts/check-sitemap.js",
     "check:links": "npm run build:all && node scripts/check-links.js",
     "check:links:external": "npm run build:all && node scripts/check-links.js --external",
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",

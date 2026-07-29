@@ -2,6 +2,7 @@
 title: "IMQRPCError.stack property · @imqueue/rpc v1.17.1 (archived)"
 description: "IMQRPCError.stack property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQRPCError","url":"/api/rpc/1.17.1/rpc.imqrpcerror/"},{"name":"stack","url":"/api/rpc/1.17.1/rpc.imqrpcerror.stack/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqrpcerror.stack/"
 ---

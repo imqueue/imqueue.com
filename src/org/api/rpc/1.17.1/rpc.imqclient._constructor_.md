@@ -2,6 +2,7 @@
 title: "IMQClient.(constructor) · @imqueue/rpc v1.17.1 (archived)"
 description: "Class constructor"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQClient","url":"/api/rpc/1.17.1/rpc.imqclient/"},{"name":"(constructor)","url":"/api/rpc/1.17.1/rpc.imqclient._constructor_/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient._constructor_/"
 ---

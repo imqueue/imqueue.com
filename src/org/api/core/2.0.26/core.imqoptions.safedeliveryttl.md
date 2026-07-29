@@ -2,6 +2,7 @@
 title: "IMQOptions.safeDeliveryTtl property · @imqueue/core v2.0.26 (archived)"
 description: "Time-to-live of worker queues (after this time messages are back to main queue for handling if worker died). Only works if safeDelivery option enabled."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMQOptions","url":"/api/core/2.0.26/core.imqoptions/"},{"name":"safeDeliveryTtl","url":"/api/core/2.0.26/core.imqoptions.safedeliveryttl/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.safedeliveryttl/"
 ---

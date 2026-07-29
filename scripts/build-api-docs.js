@@ -105,6 +105,11 @@ function planFor(pkg) {
     .sort(cmpVer);
   const latest = versions[versions.length - 1];
   const currentMajor = majorOf(latest);
+  // Release timestamps, so the sitemap can date an API page by when its version
+  // actually shipped. Previously lastmod came from the generated file's mtime, so
+  // every rebuild restamped all 350 API URLs with the build date — 85% of every
+  // lastmod in the sitemap, which is how a site teaches Google to ignore lastmod.
+  const released = JSON.parse(shq(`npm view @imqueue/${pkg} time --json`));
 
   // highest release of each past major, newest major first
   const byMajor = {};
@@ -112,7 +117,7 @@ function planFor(pkg) {
   const archives = Object.keys(byMajor).map(Number).filter(m => m < currentMajor)
     .sort((a, b) => b - a).map(m => byMajor[m]);
 
-  return { versions, latest, currentMajor, archives, highestOfMajor: byMajor };
+  return { versions, latest, currentMajor, archives, highestOfMajor: byMajor, released };
 }
 
 // --- re-export stripping (see call site) ---------------------------------
@@ -141,7 +146,7 @@ function stripReexports(dir, modulePattern, { skipNodeModules = false } = {}) {
 // /latest/ (falling back to the package root when the symbol no longer exists),
 // which drives the "you're viewing archived docs" banner. Returns the set of
 // page basenames it wrote (used to resolve archives' latestUrl links).
-function embed({ pkg, version, seg, mdDir, latestFiles }) {
+function embed({ pkg, version, seg, mdDir, latestFiles, released }) {
   const isArchived = seg !== 'latest';
   const isRoot = (b) => b === 'index' || b === pkg;
   const latestUrlFor = (b) =>
@@ -186,13 +191,25 @@ function embed({ pkg, version, seg, mdDir, latestFiles }) {
   // `description` matters: without it head.html falls back to the site slogan,
   // which made 351 of the 352 indexed API pages share one meta description.
   // apiDescription() lifts the per-symbol summary api-documenter already emits.
-  const frontMatter = (title, latestUrl, description, crumbs) => {
+  const frontMatter = (title, latestUrl, description, crumbs, unsubmitted) => {
     let fm = `title: ${JSON.stringify(title)}\n`;
     if (description) fm += `description: ${JSON.stringify(description)}\n`;
     if (crumbs) fm += `apiCrumbs: ${JSON.stringify(crumbs)}\n`;
+    if (unsubmitted) fm += 'sitemap: false\n';
     if (isArchived) fm += `noindex: true\nlatestUrl: ${JSON.stringify(latestUrl)}\n`;
     return `---\n${fm}---\n\n`;
   };
+  // Per-symbol MEMBER pages stay indexable but leave the sitemap. 243 of the 350
+  // submitted API URLs were these — a single method or property, ~130 words, and
+  // 15 of them documenting inherited EventEmitter methods that Node's own docs
+  // will always outrank. At 57% of the sitemap they spent crawl budget on pages
+  // that cannot rank and drowned the 73 editorial URLs in the set Google grades.
+  // They remain reachable from the sidebar and the breadcrumb, so Google can still
+  // find and index them — it just is not asked to.
+  //
+  // Two dots means a member: core.ilogger.info (member) vs core.ilogger (the
+  // interface) vs core.imq_log_args (a top-level const).
+  const isMemberPage = (b) => b.split('.').length > 2;
   // Rewrite links first so the lifted trail carries site URLs, not `*.md` paths.
   const prepare = (raw) => {
     const { body, crumbs } = extractTrail(rewriteLinks(raw));
@@ -218,7 +235,7 @@ function embed({ pkg, version, seg, mdDir, latestFiles }) {
     const desc = apiDescription(raw, { pkg, version, symbol });
     const { md, crumbs } = prepare(raw);
     fs.writeFileSync(path.join(outDir, file),
-      frontMatter(title, latestUrlFor(b), desc, crumbs) + md);
+      frontMatter(title, latestUrlFor(b), desc, crumbs, isMemberPage(b)) + md);
     count++;
   }
   const indexTitle = `@imqueue/${pkg} ${version} · API reference${isArchived ? ' (archived)' : ''}`;
@@ -230,8 +247,11 @@ function embed({ pkg, version, seg, mdDir, latestFiles }) {
   // head.html append its "· @imqueue" suffix produced
   // "Foo.bar() method · @imqueue/core · @imqueue" — 11 wasted characters of SERP
   // budget on every page, and the brand twice.
+  // apiReleased: npm's publish time for this version, inherited by every page in
+  // the tree through the data cascade. src/sitemap.liquid uses it for <lastmod>
+  // instead of the file mtime, which restamped all 350 API URLs on every rebuild.
   fs.writeFileSync(path.join(outDir, `${seg}.11tydata.json`),
-    JSON.stringify({ layout: 'apiref.html', section: 'api', bareTitle: true, apiPkg: pkg, apiVersion: version, apiVersionPath: seg, apiNav }, null, 2));
+    JSON.stringify({ layout: 'apiref.html', section: 'api', bareTitle: true, apiPkg: pkg, apiVersion: version, apiVersionPath: seg, apiReleased: released || null, apiNav }, null, 2));
 
   console.log(`  embedded ${count} pages -> src/org/api/${pkg}/${seg}/ (${apiNav.reduce((n, g) => n + g.items.length, 0)} symbols)`);
   return basenames;
@@ -239,7 +259,7 @@ function embed({ pkg, version, seg, mdDir, latestFiles }) {
 
 // Fetch a published version from npm and emit it at the given URL segment.
 // Returns the set of page basenames written (see embed()).
-function generate({ pkg, version, seg, latestFiles }) {
+function generate({ pkg, version, seg, latestFiles, released }) {
   console.log(`\n=== @imqueue/${pkg}@${version}  ->  /api/${pkg}/${seg}/ ===`);
   const work = path.join(TMP, `${pkg}-${version}`);
   rmrf(work);
@@ -288,7 +308,7 @@ function generate({ pkg, version, seg, latestFiles }) {
   const mdDir = path.join(work, 'md');
   sh(`"${DOCUMENTER}" markdown --input-folder "${modelDir}" --output-folder "${mdDir}"`);
 
-  return embed({ pkg, version, seg, mdDir, latestFiles });
+  return embed({ pkg, version, seg, mdDir, latestFiles, released });
 }
 
 // Remove version dirs under src/org/api/<pkg>/ that the current plan doesn't keep.
@@ -365,8 +385,12 @@ function main() {
     for (const pkg of pkgs) {
       const plan = planFor(pkg);
       console.log(`\n##### @imqueue/${pkg}: latest ${plan.latest} (major ${plan.currentMajor}), archives [${plan.archives.join(', ') || 'none'}]`);
-      const latestFiles = generate({ pkg, version: plan.latest, seg: 'latest' });
-      for (const v of plan.archives) generate({ pkg, version: v, seg: v, latestFiles });
+      const latestFiles = generate({
+        pkg, version: plan.latest, seg: 'latest', released: plan.released[plan.latest],
+      });
+      for (const v of plan.archives) {
+        generate({ pkg, version: v, seg: v, latestFiles, released: plan.released[v] });
+      }
       cleanStale(pkg, ['latest', ...plan.archives]);
       apiVersions[pkg] = { latest: plan.latest, archives: plan.archives };
     }

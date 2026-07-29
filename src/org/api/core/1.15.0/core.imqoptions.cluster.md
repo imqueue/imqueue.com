@@ -2,6 +2,7 @@
 title: "IMQOptions.cluster property · @imqueue/core v1.15.0 (archived)"
 description: "Queue cluster instances, if MQ should be clustered"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"IMQOptions","url":"/api/core/1.15.0/core.imqoptions/"},{"name":"cluster","url":"/api/core/1.15.0/core.imqoptions.cluster/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.cluster/"
 ---

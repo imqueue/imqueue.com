@@ -2,59 +2,26 @@
 permalink: /sitemap.xml
 eleventyExcludeFromCollections: true
 ---
+{%- comment -%}
+On .org this is a sitemap INDEX pointing at one child per bucket (see
+src/_data/sitemapBuckets.js for why). robots.txt still advertises this one URL, and
+submitting it to GSC/Bing pulls the children in automatically — but coverage is
+then reported per child, which is the whole point.
+
+On .com sitemapBuckets is empty and this stays a flat sitemap: four URLs do not
+need an index, and empty children are a GSC error.
+{%- endcomment -%}
 <?xml version="1.0" encoding="UTF-8"?>
+{%- if sitemapBuckets.size > 0 -%}
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{%- for b in sitemapBuckets %}
+  <sitemap>
+    <loc>{{ siteUrl }}/sitemap-{{ b.name }}.xml</loc>
+  </sitemap>
+{%- endfor %}
+</sitemapindex>
+{%- else -%}
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-{%- for item in collections.all -%}
-  {%- comment -%} Only index real HTML pages: skip markdown mirrors, txt feeds, etc. {%- endcomment -%}
-  {%- assign isPage = false -%}
-  {%- if item.url == "/" -%}{%- assign isPage = true -%}{%- endif -%}
-  {%- assign last3 = item.url | slice: -1, 1 -%}
-  {%- if last3 == "/" -%}{%- assign isPage = true -%}{%- endif -%}
-  {%- if item.url contains ".html" -%}{%- assign isPage = true -%}{%- endif -%}
-  {%- if item.url contains ".md" -%}{%- assign isPage = false -%}{%- endif -%}
-  {%- if item.url contains ".txt" -%}{%- assign isPage = false -%}{%- endif -%}
-  {%- if item.url contains ".xml" -%}{%- assign isPage = false -%}{%- endif -%}
-  {%- if item.data.draft -%}{%- assign isPage = false -%}{%- endif -%}
-  {%- comment -%} noindex pages (e.g. archived API versions) must never be advertised in the sitemap. {%- endcomment -%}
-  {%- if item.data.noindex -%}{%- assign isPage = false -%}{%- endif -%}
-  {%- comment -%} Author pages are paginated (only page 1 lands in collections.all); emitted explicitly below. {%- endcomment -%}
-  {%- if item.url contains "/blog/authors/" -%}{%- assign isPage = false -%}{%- endif -%}
-  {%- comment -%} Topic hubs are paginated too — same trap, same fix below. {%- endcomment -%}
-  {%- if item.url contains "/blog/topics/" -%}{%- assign isPage = false -%}{%- endif -%}
-  {%- if isPage -%}
-    {%- comment -%} Priority: home first, human docs next, generated API reference last. {%- endcomment -%}
-    {%- assign prio = "0.7" -%}
-    {%- assign freq = "monthly" -%}
-    {%- if item.url == "/" -%}{%- assign prio = "1.0" -%}{%- assign freq = "weekly" -%}
-    {%- elsif item.url contains "/api/" -%}{%- assign prio = "0.3" -%}{%- assign freq = "yearly" -%}
-    {%- elsif item.url contains "/blog/" -%}{%- assign prio = "0.8" -%}{%- assign freq = "weekly" -%}
-    {%- elsif item.url contains "/docs" or item.url contains "/tutorial" or item.url contains "/cli" or item.url contains "/get-started" or item.url contains "/intro" -%}{%- assign prio = "0.8" -%}
-    {%- elsif item.url contains "/pricing" or item.url contains "/license" or item.url contains "/support" -%}{%- assign prio = "0.9" -%}
-    {%- endif %}
-  <url>
-    <loc>{{ siteUrl }}{{ item.url }}</loc>
-    {%- if item.date %}
-    <lastmod>{{ item.date | date: "%Y-%m-%d" }}</lastmod>
-    {%- endif %}
-    <changefreq>{{ freq }}</changefreq>
-    <priority>{{ prio }}</priority>
-  </url>
-  {%- endif -%}
-{%- endfor -%}
-{%- if edition == "org" -%}
-{%- for author in authors %}
-  <url>
-    <loc>{{ siteUrl }}/blog/authors/{{ author.slug }}/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-{%- endfor -%}
-{%- for topic in collections.blogTopics %}
-  <url>
-    <loc>{{ siteUrl }}/blog/topics/{{ topic.slug }}/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-{%- endfor -%}
-{%- endif %}
+{%- include "sitemap-urls.html", bucket: "all" -%}
 </urlset>
+{%- endif -%}

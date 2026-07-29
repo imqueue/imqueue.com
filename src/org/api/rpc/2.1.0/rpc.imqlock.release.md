@@ -2,6 +2,7 @@
 title: "IMQLock.release() method · @imqueue/rpc v2.1.0 (archived)"
 description: "Releases previously acquired lock for a given key"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQLock","url":"/api/rpc/2.1.0/rpc.imqlock/"},{"name":"release","url":"/api/rpc/2.1.0/rpc.imqlock.release/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqlock.release/"
 ---

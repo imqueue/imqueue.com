@@ -2,6 +2,7 @@
 title: "IMQServiceOptions.multiProcess property · @imqueue/rpc v1.17.1 (archived)"
 description: "IMQServiceOptions.multiProcess property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQServiceOptions","url":"/api/rpc/1.17.1/rpc.imqserviceoptions/"},{"name":"multiProcess","url":"/api/rpc/1.17.1/rpc.imqserviceoptions.multiprocess/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqserviceoptions.multiprocess/"
 ---

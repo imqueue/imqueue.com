@@ -2,6 +2,7 @@
 title: "ClusteredRedisQueue.(constructor) · @imqueue/core v1.15.0 (archived)"
 description: "Class constructor"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"ClusteredRedisQueue","url":"/api/core/1.15.0/core.clusteredredisqueue/"},{"name":"(constructor)","url":"/api/core/1.15.0/core.clusteredredisqueue._constructor_/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue._constructor_/"
 ---

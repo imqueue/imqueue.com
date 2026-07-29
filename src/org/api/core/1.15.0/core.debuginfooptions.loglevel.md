@@ -2,6 +2,7 @@
 title: "DebugInfoOptions.logLevel property · @imqueue/core v1.15.0 (archived)"
 description: "Log level to use for the call"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"DebugInfoOptions","url":"/api/core/1.15.0/core.debuginfooptions/"},{"name":"logLevel","url":"/api/core/1.15.0/core.debuginfooptions.loglevel/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions.loglevel/"
 ---

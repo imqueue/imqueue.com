@@ -2,6 +2,7 @@
 title: "IMessageQueue.start() method · @imqueue/core v2.0.26 (archived)"
 description: "Starts the messaging queue. Supposed to be an async function."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMessageQueue","url":"/api/core/2.0.26/core.imessagequeue/"},{"name":"start","url":"/api/core/2.0.26/core.imessagequeue.start/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue.start/"
 ---

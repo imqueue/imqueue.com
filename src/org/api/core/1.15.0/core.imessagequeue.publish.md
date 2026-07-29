@@ -2,6 +2,7 @@
 title: "IMessageQueue.publish() method · @imqueue/core v1.15.0 (archived)"
 description: "Publishes data to current queue channel"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"IMessageQueue","url":"/api/core/1.15.0/core.imessagequeue/"},{"name":"publish","url":"/api/core/1.15.0/core.imessagequeue.publish/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imessagequeue.publish/"
 ---

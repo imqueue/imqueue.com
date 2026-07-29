@@ -2,6 +2,7 @@
 title: "RedisQueue.subscribe() method · @imqueue/core v2.0.26 (archived)"
 description: "Creates a subscription channel over redis and sets up channel data read handler"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"RedisQueue","url":"/api/core/2.0.26/core.redisqueue/"},{"name":"subscribe","url":"/api/core/2.0.26/core.redisqueue.subscribe/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.redisqueue.subscribe/"
 ---

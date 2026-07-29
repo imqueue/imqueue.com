@@ -2,6 +2,7 @@
 title: "MethodDescription.returns property · @imqueue/rpc v1.17.1 (archived)"
 description: "MethodDescription.returns property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"MethodDescription","url":"/api/rpc/1.17.1/rpc.methoddescription/"},{"name":"returns","url":"/api/rpc/1.17.1/rpc.methoddescription.returns/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.methoddescription.returns/"
 ---

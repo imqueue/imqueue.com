@@ -2,6 +2,7 @@
 title: "IMQClient.remoteCall() method · @imqueue/rpc v2.1.0 (archived)"
 description: "Sends call to remote service method"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQClient","url":"/api/rpc/2.1.0/rpc.imqclient/"},{"name":"remoteCall","url":"/api/rpc/2.1.0/rpc.imqclient.remotecall/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.remotecall/"
 ---

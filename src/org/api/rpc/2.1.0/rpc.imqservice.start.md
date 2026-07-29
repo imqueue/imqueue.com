@@ -2,6 +2,7 @@
 title: "IMQService.start() method · @imqueue/rpc v2.1.0 (archived)"
 description: "Initializes this instance of service and starts handling request messages."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQService","url":"/api/rpc/2.1.0/rpc.imqservice/"},{"name":"start","url":"/api/rpc/2.1.0/rpc.imqservice.start/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqservice.start/"
 ---

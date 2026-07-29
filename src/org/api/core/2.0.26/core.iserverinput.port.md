@@ -2,6 +2,7 @@
 title: "IServerInput.port property · @imqueue/core v2.0.26 (archived)"
 description: "Message queue network port"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IServerInput","url":"/api/core/2.0.26/core.iserverinput/"},{"name":"port","url":"/api/core/2.0.26/core.iserverinput.port/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.iserverinput.port/"
 ---

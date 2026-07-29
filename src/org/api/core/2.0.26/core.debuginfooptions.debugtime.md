@@ -2,6 +2,7 @@
 title: "DebugInfoOptions.debugTime property · @imqueue/core v2.0.26 (archived)"
 description: "Turns on/off time debugging"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"DebugInfoOptions","url":"/api/core/2.0.26/core.debuginfooptions/"},{"name":"debugTime","url":"/api/core/2.0.26/core.debuginfooptions.debugtime/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.debuginfooptions.debugtime/"
 ---

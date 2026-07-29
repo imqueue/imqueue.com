@@ -2,6 +2,7 @@
 title: "IMQClient.options property · @imqueue/rpc v2.1.0 (archived)"
 description: "IMQClient.options property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQClient","url":"/api/rpc/2.1.0/rpc.imqclient/"},{"name":"options","url":"/api/rpc/2.1.0/rpc.imqclient.options/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.options/"
 ---

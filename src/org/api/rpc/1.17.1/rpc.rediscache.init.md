@@ -2,6 +2,7 @@
 title: "RedisCache.init() method · @imqueue/rpc v1.17.1 (archived)"
 description: "Initializes cache instance"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"RedisCache","url":"/api/rpc/1.17.1/rpc.rediscache/"},{"name":"init","url":"/api/rpc/1.17.1/rpc.rediscache.init/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.rediscache.init/"
 ---

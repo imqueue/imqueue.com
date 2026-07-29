@@ -2,6 +2,7 @@
 title: "IMQServiceOptions.childrenPerCore property · @imqueue/rpc v1.17.1 (archived)"
 description: "IMQServiceOptions.childrenPerCore property — @imqueue/rpc 1.17.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQServiceOptions","url":"/api/rpc/1.17.1/rpc.imqserviceoptions/"},{"name":"childrenPerCore","url":"/api/rpc/1.17.1/rpc.imqserviceoptions.childrenpercore/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqserviceoptions.childrenpercore/"
 ---

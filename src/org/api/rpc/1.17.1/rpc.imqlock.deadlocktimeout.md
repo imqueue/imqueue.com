@@ -2,6 +2,7 @@
 title: "IMQLock.deadlockTimeout property · @imqueue/rpc v1.17.1 (archived)"
 description: "Deadlock timeout in milliseconds"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQLock","url":"/api/rpc/1.17.1/rpc.imqlock/"},{"name":"deadlockTimeout","url":"/api/rpc/1.17.1/rpc.imqlock.deadlocktimeout/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqlock.deadlocktimeout/"
 ---

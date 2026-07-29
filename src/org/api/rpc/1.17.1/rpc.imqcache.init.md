@@ -2,6 +2,7 @@
 title: "IMQCache.init() method · @imqueue/rpc v1.17.1 (archived)"
 description: "Initializes all registered cache adapters"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQCache","url":"/api/rpc/1.17.1/rpc.imqcache/"},{"name":"init","url":"/api/rpc/1.17.1/rpc.imqcache.init/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqcache.init/"
 ---

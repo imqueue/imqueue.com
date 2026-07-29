@@ -2,6 +2,7 @@
 title: "ClusteredRedisQueue.once() method · @imqueue/core v2.0.26 (archived)"
 description: "ClusteredRedisQueue.once() method — @imqueue/core 2.0.26 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"ClusteredRedisQueue","url":"/api/core/2.0.26/core.clusteredredisqueue/"},{"name":"once","url":"/api/core/2.0.26/core.clusteredredisqueue.once/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.clusteredredisqueue.once/"
 ---

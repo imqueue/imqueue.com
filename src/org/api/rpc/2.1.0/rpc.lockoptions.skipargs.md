@@ -2,6 +2,7 @@
 title: "LockOptions.skipArgs property · @imqueue/rpc v2.1.0 (archived)"
 description: "LockOptions.skipArgs property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"LockOptions","url":"/api/rpc/2.1.0/rpc.lockoptions/"},{"name":"skipArgs","url":"/api/rpc/2.1.0/rpc.lockoptions.skipargs/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.lockoptions.skipargs/"
 ---

@@ -2,6 +2,7 @@
 title: "IMQOptions.useGzip property · @imqueue/core v1.15.0 (archived)"
 description: "A way to serialize message using compression. Will increase load to worker process but can decrease network traffic between worker and queue host application"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/1.15.0/"},{"name":"IMQOptions","url":"/api/core/1.15.0/core.imqoptions/"},{"name":"useGzip","url":"/api/core/1.15.0/core.imqoptions.usegzip/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.usegzip/"
 ---

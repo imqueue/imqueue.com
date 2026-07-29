@@ -2,6 +2,7 @@
 title: "ICacheConstructor.(new) · @imqueue/rpc v2.1.0 (archived)"
 description: "ICacheConstructor.(new) — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"ICacheConstructor","url":"/api/rpc/2.1.0/rpc.icacheconstructor/"},{"name":"(new)","url":"/api/rpc/2.1.0/rpc.icacheconstructor._new_/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.icacheconstructor._new_/"
 ---

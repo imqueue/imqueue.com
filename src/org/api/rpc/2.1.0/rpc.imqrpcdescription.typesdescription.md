@@ -2,6 +2,7 @@
 title: "IMQRPCDescription.typesDescription property · @imqueue/rpc v2.1.0 (archived)"
 description: "IMQRPCDescription.typesDescription property — @imqueue/rpc 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/2.1.0/"},{"name":"IMQRPCDescription","url":"/api/rpc/2.1.0/rpc.imqrpcdescription/"},{"name":"typesDescription","url":"/api/rpc/2.1.0/rpc.imqrpcdescription.typesdescription/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqrpcdescription.typesdescription/"
 ---

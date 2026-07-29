@@ -2,6 +2,7 @@
 title: "IMQClient.start() method · @imqueue/rpc v1.17.1 (archived)"
 description: "Initializes client work"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/1.17.1/"},{"name":"IMQClient","url":"/api/rpc/1.17.1/rpc.imqclient/"},{"name":"start","url":"/api/rpc/1.17.1/rpc.imqclient.start/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/rpc/latest/rpc.imqclient.start/"
 ---

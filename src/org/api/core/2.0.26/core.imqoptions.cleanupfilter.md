@@ -2,6 +2,7 @@
 title: "IMQOptions.cleanupFilter property · @imqueue/core v2.0.26 (archived)"
 description: "Defines cleanup pattern for the name of the queue which should be removed during cleanup processing"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IMQOptions","url":"/api/core/2.0.26/core.imqoptions/"},{"name":"cleanupFilter","url":"/api/core/2.0.26/core.imqoptions.cleanupfilter/"}]
+sitemap: false
 noindex: true
 latestUrl: "/api/core/latest/core.imqoptions.cleanupfilter/"
 ---
