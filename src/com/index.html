@@ -34,8 +34,15 @@ keywords: "@imqueue commercial license, imqueue license, GPL-3.0 commercial lice
   <div class="fx-grid-3">
     <div class="fx-card">
       <div class="fx-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
-      <h3>Guaranteed delivery</h3>
-      <p>Safe delivery and leader/follower deployment fully guarantee data. A message a worker drops is rescheduled.</p>
+      {%- comment -%}
+      Same correction as the .org home page and /intro/: "fully guarantee data"
+      contradicts core.imqoptions.safeDelivery, which scopes the guarantee to the
+      hand-off and states at-least-once in either mode. Worth being strict about
+      here in particular — this is the page a buyer reads before a commercial
+      conversation, so an overstated durability claim is the expensive kind.
+      {%- endcomment -%}
+      <h3>Guaranteed hand-off</h3>
+      <p>Safe delivery re-queues a message a dying worker never started, instead of losing it with the process. At-least-once by design, so handlers stay idempotent.</p>
     </div>
     <div class="fx-card">
       <div class="fx-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div>
