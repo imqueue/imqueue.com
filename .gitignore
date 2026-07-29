@@ -39,3 +39,7 @@ Gemfile.lock
 
 # Private legal documents — kept off git (backed up privately). Never commit.
 legal/
+
+# Promotion working material — drafts, playbook and syndication exports.
+# Local only: never commit this, the repo is public.
+promotion/
