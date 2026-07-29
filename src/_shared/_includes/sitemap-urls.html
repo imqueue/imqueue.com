@@ -62,13 +62,18 @@ Params:
     moved forward on every deploy. It only looked correct locally, where a working
     tree has real mtimes.
 
-    Blog posts are not in pageDates — they carry real `date:` front matter, so
-    item.date is trustworthy for them and they fall through to it.
+    Blog posts are not in pageDates — they carry real front matter. An explicitly
+    revised post sets `dateModified`, and that has to win over `date`: lastmod
+    exists to say "this changed", so a substantially rewritten post reporting its
+    original publication date is the one case where lastmod is actively useless.
+    Posts without a revision fall through to `date`, which is their real
+    publication date.
     {%- endcomment -%}
     {%- assign pdKey = item.inputPath | remove_first: "./" -%}
     {%- assign pdEntry = pageDates[pdKey] -%}
     {%- assign lastmod = "" -%}
     {%- if item.data.apiReleased -%}{%- assign lastmod = item.data.apiReleased | date: "%Y-%m-%d" -%}
+    {%- elsif item.data.dateModified -%}{%- assign lastmod = item.data.dateModified | date: "%Y-%m-%d" -%}
     {%- elsif pdEntry -%}{%- assign lastmod = pdEntry.modified | date: "%Y-%m-%d" -%}
     {%- elsif item.date -%}{%- assign lastmod = item.date | date: "%Y-%m-%d" -%}
     {%- endif %}
