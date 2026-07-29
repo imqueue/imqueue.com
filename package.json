@@ -26,8 +26,9 @@
     }
   },
   "scripts": {
-    "test": "npm run check:redirects && npm run check:links",
+    "test": "npm run check:redirects && npm run check:dates && npm run check:links",
     "check:redirects": "node scripts/check-redirects.js",
+    "check:dates": "node scripts/gen-page-dates.js --check",
     "check:links": "npm run build:all && node scripts/check-links.js",
     "check:links:external": "npm run build:all && node scripts/check-links.js --external",
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
@@ -40,6 +41,7 @@
     "gen-favicons": "node scripts/gen-favicons.mjs",
     "gen-og": "node scripts/gen-og-images.js",
     "gen-og-blog": "node scripts/gen-og-blog.js",
+    "gen-page-dates": "node scripts/gen-page-dates.js",
     "build-docs": "node scripts/build-api-docs.js",
     "gen-api-crosslinks": "node scripts/gen-api-crosslinks.js",
     "backfill-api-descriptions": "node scripts/backfill-api-descriptions.js",

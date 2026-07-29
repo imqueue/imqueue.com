@@ -16,6 +16,27 @@ layout: base.html
   </aside>
 
   <article class="prose api-prose">
+    {%- comment -%}
+    Visible breadcrumb, from the `apiCrumbs` front matter build-api-docs.js lifts
+    out of api-documenter's own trail. Not the shared breadcrumbs.html include:
+    that derives the trail from page.url, which cannot know a member page's parent
+    symbol (core.ilogger.info -> core.ilogger), so using it would have dropped a
+    real internal link to the class page. head.html emits BreadcrumbList from the
+    same array, so markup and page agree.
+    {%- endcomment -%}
+    {%- if apiCrumbs -%}
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      {%- for crumb in apiCrumbs -%}
+      <span aria-hidden="true">/</span>
+      {%- if forloop.last -%}
+      <span aria-current="page">{{ crumb.name }}</span>
+      {%- else -%}
+      <a href="{{ crumb.url }}">{{ crumb.name }}</a>
+      {%- endif -%}
+      {%- endfor -%}
+    </nav>
+    {%- endif -%}
     {%- if apiVersionPath and apiVersionPath != 'latest' -%}
     {%- capture latestFallback -%}/api/{{ apiPkg }}/latest/{%- endcapture -%}
     {%- assign latestHref = latestUrl | default: latestFallback -%}

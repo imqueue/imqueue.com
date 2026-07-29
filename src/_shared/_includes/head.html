@@ -20,6 +20,39 @@ of the 26 posts.
 {%- assign metaImage = ogImage | default: siteImage -%}
 {%- assign metaUrl = siteUrl | append: page.url -%}
 
+{%- comment -%}
+Which schema.org article type this page gets, if any. Computed here rather than
+next to the JSON-LD because og:type has to agree with it: /intro/, /get-started/,
+/using-ai-assistants/ and the three /agents/ pages emitted TechArticle while
+declaring og:type=website, so they carried no article:* timestamps at all.
+
+/docs/ and /api/ used to be omitted from this whitelist entirely, which left the
+351 indexable reference pages with no page-level entity — only Organization,
+WebSite and BreadcrumbList. They get APIReference (a TechArticle subtype) rather
+than TechArticle, and stay og:type=website: a generated symbol page has no
+editorial date, so article:published_time would have nothing true to say.
+{%- endcomment -%}
+{%- assign articleType = "" -%}
+{%- if page.url contains "/tutorial/" or page.url contains "/cli/" or page.url contains "/mcp/" or page.url contains "/get-started/" or page.url contains "/intro/" or page.url contains "/using-ai-assistants/" or page.url contains "/agents/" or page.url contains "/docs/" -%}
+{%- assign articleType = "TechArticle" -%}
+{%- elsif page.url contains "/api/" -%}
+{%- assign articleType = "APIReference" -%}
+{%- endif -%}
+{%- assign isArticle = false -%}
+{%- if articleType != "" -%}{%- assign isArticle = true -%}{%- endif -%}
+
+{%- comment -%}
+Real dates, from src/_data/pageDates.json (git history, committed). `page.date`
+falls back to the file mtime, and Cloudflare Pages builds from a fresh clone — so
+every docs page used to advertise the deploy timestamp as its publication date,
+identical to the millisecond and moving forward on every deploy. Front matter wins;
+absent both, nothing is emitted, because no date beats a wrong one.
+{%- endcomment -%}
+{%- assign pdKey = page.inputPath | remove_first: "./" -%}
+{%- assign pd = pageDates[pdKey] -%}
+{%- assign pubDate = datePublished | default: pd.published -%}
+{%- assign modDate = dateModified | default: pd.modified | default: pubDate -%}
+
 <title>{{ metaTitle }}</title>
 <meta name="description" content="{{ metaDesc }}">
 {%- comment -%}
@@ -41,8 +74,20 @@ in JSON-LD — that one search engines do read.
 <link rel="icon" href="/favicon.ico?v=4" sizes="any">
 <link rel="apple-touch-icon" href="/favicon.svg?v=4">
 
+{%- comment -%}
+Blog posts (and the doc sections that already opted in) set `ogType: article`
+explicitly; TechArticle pages now get it from articleType, which is what closes the
+6-page gap where the JSON-LD said TechArticle and og:type said website. Posts are
+the only article pages outside pageDates.json — they carry real `date:` front
+matter, so page.date is trustworthy for them and only for them.
+{%- endcomment -%}
+{%- assign ogKind = "website" -%}
+{%- if ogType == "article" or articleType == "TechArticle" -%}{%- assign ogKind = "article" -%}{%- endif -%}
+{%- if pubDate == nil or pubDate == "" -%}
+{%- if ogType == "article" -%}{%- assign pubDate = page.date -%}{%- assign modDate = dateModified | default: page.date -%}{%- endif -%}
+{%- endif -%}
 <!-- Open Graph -->
-<meta property="og:type" content="{{ ogType | default: 'website' }}">
+<meta property="og:type" content="{{ ogKind }}">
 <meta property="og:site_name" content="{{ siteName }}">
 <meta property="og:title" content="{{ metaTitle }}">
 <meta property="og:description" content="{{ metaDesc }}">
@@ -52,9 +97,9 @@ in JSON-LD — that one search engines do read.
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="{{ ogImageAlt | default: metaTitle }}">
 <meta property="og:locale" content="{{ siteLocale }}">
-{%- if ogType == "article" and page.date %}
-<meta property="article:published_time" content="{{ page.date | isoDate }}">
-<meta property="article:modified_time" content="{{ dateModified | default: page.date | isoDate }}">
+{%- if ogKind == "article" and pubDate %}
+<meta property="article:published_time" content="{{ pubDate | isoDate }}">
+<meta property="article:modified_time" content="{{ modDate | default: pubDate | isoDate }}">
 {%- endif %}
 
 <!-- Twitter -->
@@ -66,8 +111,18 @@ in JSON-LD — that one search engines do read.
 <meta name="twitter:image:alt" content="{{ ogImageAlt | default: metaTitle }}">
 
 <!-- Structured data -->
-{%- assign isArticle = false -%}
-{%- if page.url contains "/tutorial/" or page.url contains "/cli/" or page.url contains "/mcp/" or page.url contains "/get-started/" or page.url contains "/intro/" or page.url contains "/using-ai-assistants/" or page.url contains "/agents/" -%}{%- assign isArticle = true -%}{%- endif -%}
+{%- comment -%}
+`about` on the article nodes points at {{ siteUrl }}/#software, but the
+SoftwareApplication bearing that @id was only ever emitted on the home page — so
+31 pages referenced a node they did not define, and each page's JSON-LD is parsed
+standalone. The node is now emitted alongside any article node too: same @id, so
+it is the same entity, in a compact form (no offers/softwareVersion — those belong
+on the page that is actually about the product).
+{%- endcomment -%}
+{%- assign homeSoftware = false -%}
+{%- if section == "home" and edition == "org" -%}{%- assign homeSoftware = true -%}{%- endif -%}
+{%- assign articleSoftware = false -%}
+{%- if isArticle and edition == "org" -%}{%- assign articleSoftware = true -%}{%- endif -%}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -97,7 +152,7 @@ in JSON-LD — that one search engines do read.
     wrong on imqueue.com, whose home page sells commercial licences and whose CTA
     is "Talk to sales" — so it is gated to the .org edition. The commercial home
     page keeps Organization + WebSite only.
-    {% endcomment %}{% if section == "home" and edition == "org" %},
+    {% endcomment %}{% if homeSoftware %},
     {
       "@type": "SoftwareApplication",
       "@id": "{{ siteUrl }}/#software",
@@ -121,9 +176,20 @@ in JSON-LD — that one search engines do read.
       "runtimePlatform": "Node.js",
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
       "author": { "@id": "{{ siteUrl }}/#org" }
+    }{% endif %}{% if articleSoftware %},
+    {
+      "@type": "SoftwareApplication",
+      "@id": "{{ siteUrl }}/#software",
+      "name": "@imqueue",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Node.js",
+      "url": "{{ siteUrl }}/",
+      "description": {{ site.slogan | json }},
+      "programmingLanguage": ["TypeScript", "JavaScript"],
+      "publisher": { "@id": "{{ siteUrl }}/#org" }
     }{% endif %}{% if isArticle %},
     {
-      "@type": "TechArticle",
+      "@type": "{{ articleType }}",
       "@id": "{{ metaUrl }}#article",
       "headline": {{ metaTitle | json }},
       "name": {{ metaTitle | json }},
@@ -131,10 +197,12 @@ in JSON-LD — that one search engines do read.
       "url": "{{ metaUrl }}",
       "inLanguage": "en",
       "isPartOf": { "@id": "{{ siteUrl }}/#website" },
+      {%- if articleSoftware %}
       "about": { "@id": "{{ siteUrl }}/#software" },
-      {%- if page.date %}
-      "datePublished": "{{ page.date | isoDate }}",
-      "dateModified": "{{ dateModified | default: page.date | isoDate }}",
+      {%- endif %}
+      {%- if pubDate %}
+      "datePublished": "{{ pubDate | isoDate }}",
+      "dateModified": "{{ modDate | default: pubDate | isoDate }}",
       {%- endif %}
       "author": { "@id": "{{ siteUrl }}/#org" },
       "publisher": { "@id": "{{ siteUrl }}/#org" }
@@ -175,8 +243,37 @@ Home > Section > [Package >] Leaf; other titled pages get Home > Leaf.
 {%- when "agents" -%}{%- assign bcLabel = "Agent recipes" -%}{%- assign bcRoot = "/agents/" -%}
 {%- endcase -%}
 {%- assign bcLeaf = title | split: " · " | first -%}
-{%- unless page.url == "/" or bcSeg == "blog" -%}
-{%- if bcLabel != "" or title -%}
+{%- comment -%}
+Blog pages used to be excluded wholesale, on the assumption post.html and
+topics.html covered them. They cover posts and topic hubs only, so the blog index,
+its pagination and the three author pages emitted no BreadcrumbList at all. Those
+three shapes are handled here; posts and hubs still opt out via bcOwn so they do
+not end up with two lists.
+{%- endcomment -%}
+{%- assign bcOwn = false -%}
+{%- if bcSeg == "blog" -%}
+{%- assign bcLabel = "Blog" -%}{%- assign bcRoot = "/blog/" -%}
+{%- unless page.url == "/blog/" or bcParts[2] == "authors" or bcParts[2] == "page" -%}
+{%- assign bcOwn = true -%}
+{%- endunless -%}
+{%- endif -%}
+{%- unless page.url == "/" or bcOwn -%}
+{%- if bcSeg == "api" and apiCrumbs -%}
+{%- comment -%}
+Generated reference pages carry the trail api-documenter emitted, lifted into
+`apiCrumbs` by build-api-docs.js and rendered by apiref.html. Emitting it from the
+same array is what makes the markup match the visible breadcrumb — and it keeps
+the parent-symbol level (core.ilogger.info -> core.ilogger) that a URL-derived
+trail cannot know. The last crumb self-links, so its url is already metaUrl.
+{%- endcomment -%}
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{ siteUrl }}/"}
+{%- for crumb in apiCrumbs -%}
+,{"@type":"ListItem","position":{{ forloop.index | plus: 1 }},"name":{{ crumb.name | json }},"item":"{{ siteUrl }}{{ crumb.url }}"}
+{%- endfor -%}
+]}
+</script>
+{%- elsif bcLabel != "" or title -%}
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{ siteUrl }}/"}
 {%- if bcLabel != "" -%}

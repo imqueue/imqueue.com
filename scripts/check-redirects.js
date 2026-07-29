@@ -140,7 +140,59 @@ async function checkLegacyApiRules() {
     pass('versions published after the last docs build resolve to /latest/');
   }
 
+  await checkDupePackagePages();
   await checkCoreReexports();
+}
+
+// --- 2b. the retired duplicate package page 301s onto the package root -------
+// api-documenter emits the package page as both `<pkg>.md` and `index.md`, so
+// /api/<pkg>/<seg>/<pkg>/ used to exist alongside /api/<pkg>/<seg>/ with
+// byte-identical content, both self-canonical and both in the sitemap. Dropping
+// the duplicate was right, but it left six live, indexable, sitemap-listed URLs
+// hard-404ing. They must 301, in one hop, and the source file must stay gone.
+async function checkDupePackagePages() {
+  const { resolveApiRedirect } = await import('../lib/api-redirects.js');
+  const { API_VERSIONS } = await import('../lib/api-versions.js');
+  let checked = 0;
+
+  for (const [pkg, plan] of Object.entries(API_VERSIONS)) {
+    for (const seg of ['latest', ...plan.archives]) {
+      const want = `/api/${pkg}/${seg}/`;
+
+      for (const url of [`${want}${pkg}/`, `${want}${pkg}`]) {
+        const got = resolveApiRedirect(url);
+
+        if (got !== want) {
+          fail(`${url} -> ${got === null ? 'served (404s)' : got} (want ${want})`);
+        }
+        // One hop: the target itself must be served, not redirected again.
+        if (resolveApiRedirect(want) !== null) {
+          fail(`${url} would chain: ${want} also redirects`);
+        }
+        checked++;
+      }
+
+      // If api-documenter's duplicate ever comes back, the redirect above would
+      // shadow a real page instead of salvaging a dead one.
+      const dupe = path.join(ROOT, 'src', 'org', 'api', pkg, seg, `${pkg}.md`);
+      if (fs.existsSync(dupe)) {
+        fail(`${path.relative(ROOT, dupe)} is back; it is now unreachable by design`);
+      }
+    }
+  }
+
+  // A retired version must reach the root in one hop, not via /latest/<pkg>/.
+  for (const [pkg, plan] of Object.entries(API_VERSIONS)) {
+    const retired = `${plan.latest.split('.')[0]}.0.0`;
+    const got = resolveApiRedirect(`/api/${pkg}/${retired}/${pkg}/`);
+
+    if (got !== `/api/${pkg}/latest/`) {
+      fail(`/api/${pkg}/${retired}/${pkg}/ -> ${got} (want /api/${pkg}/latest/)`);
+    }
+    checked++;
+  }
+
+  pass(`${checked} duplicate package-page URLs 301 onto the package root in one hop`);
 }
 
 // --- 3. stripped core re-exports land on a page that exists -----------------
