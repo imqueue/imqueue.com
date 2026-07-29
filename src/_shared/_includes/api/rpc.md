@@ -38,20 +38,32 @@ Store, and so on.
 - **logger** — a reference to a logger implementation, used by the whole library.
   Default: `console`. The implementation must satisfy the
   [ILogger](/api/core/latest/core.ilogger/) interface.
-- **safeDelivery** — enables or disables safe (guaranteed) message delivery.
-  Default: `false` (off). When on, every consumer either processes a message or
-  the message is rescheduled for re-handling by another instance of the same
-  consumer type, so a message is never lost.
-- **safeDeliveryTtl** — time to live, in milliseconds, for a message being
-  processed by a consumer instance — that is, how long the message stays in a
-  worker queue. When the time elapses, the message is moved from the worker queue
-  back to the message queue. Default: `5000` (5 seconds). If a task can run longer
-  than five seconds and safe delivery is on, increase this value accordingly.
+- **safeDelivery** — enables or disables safe message delivery. Default: `false`
+  (off). When on, reading a message moves it atomically out of the queue into a
+  worker-owned key instead of popping it outright, so a worker that dies *before it
+  starts* on a message leaves that message behind to be re-queued rather than
+  taking it down with the process. **The guarantee covers that hand-off, not the
+  processing:** the worker key is released as soon as the message reaches the
+  handler, so a worker killed mid-handler loses it exactly as it would with safe
+  delivery off. Delivery is
+  [at-least-once in either mode](/api/core/latest/core.imqoptions.safedelivery/),
+  so handlers should be idempotent, and draining in-flight work before exit is up
+  to the application.
+- **safeDeliveryTtl** — time to live, in milliseconds, for a message leased by a
+  consumer instance — how long it stays in a worker key before the watcher sweeps
+  it back onto the main queue. Default: `5000` (5 seconds). This is a **recovery
+  deadline for an abandoned hand-off, not a processing deadline**: a slow handler is
+  neither interrupted nor re-queued for taking too long, so raising this value
+  extends no protection over long-running work. Note it also sets the maintenance
+  sweep interval that drives `cleanup`, whether or not safe delivery is on.
 - **useGzip** — enables or disables gzip compression. Default: `false` (off).
-  @imqueue exchanges messages as plain JSON. If your messages are large and your
-  message throughput is low, compression can be a sensible way to reduce traffic
-  between consumer instances and Redis nodes. Note that turning it on roughly
-  halves message throughput, so avoid it where throughput is critical.
+  @imqueue exchanges messages as plain JSON. If your messages are large,
+  compression can be a sensible way to reduce traffic between consumer instances
+  and Redis nodes. It trades worker CPU for bandwidth: on the
+  [published benchmark](/blog/benchmarking-imqueue-throughput/) it cost about 15%
+  of throughput and cut a ~1 KB payload by roughly 70%. Both producer and consumer
+  of a queue must use the **same** setting — a mismatch makes deserialization fail
+  and the message is dropped permanently, even under safe delivery.
 
 #### Client-only options
 
@@ -465,9 +477,9 @@ the client it builds.
 ### Locking
 
 Locking is a powerful tool in `@imqueue/rpc` for optimising remote calls.
-Imagine your system receives hundreds or thousands of calls to the same method,
-with the same execution context, in a very short window — and each returns the
-same result. This happens, for example, when popular content is requested by many
+Imagine one of your service processes receives hundreds or thousands of calls to
+the same method, with the same execution context, in a very short window — and each
+returns the same result. This happens, for example, when popular content is requested by many
 users but stays effectively static over that short period. Without help, your
 back-end runs the same work hundreds or thousands of times a second for no real
 reason. Locks fix this.
@@ -475,6 +487,15 @@ reason. Locks fix this.
 When `@lock()` wraps a method, the first matching call acquires an asynchronous
 lock. Until that call resolves, all other calls with the same signature wait; when
 it resolves, they're all resolved with the same result.
+
+> **These are not distributed locks.** The lock lives in the memory of one Node.js
+> process, so the coalescing described here happens *per process*. Separate
+> processes, `multiProcess` cluster workers and service replicas each maintain their
+> own independent locks and will run the guarded code concurrently — four replicas
+> under the same burst do the work four times, not once. That is usually still a
+> large win, but if you need genuine mutual exclusion across replicas, use a Redis-
+> or database-backed lock. See
+> [IMQLock](/api/rpc/latest/rpc.imqlock/) for the precise scope.
 
 For example, if a specific blog post is fetched 100 times over 100 milliseconds,
 and the database fetch itself takes about 100 milliseconds, the actual logic runs
