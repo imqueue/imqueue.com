@@ -81,7 +81,12 @@ keywords: "@imqueue, Node.js message queue, TypeScript RPC framework, Node.js mi
 <!-- STATS (full width) -->
 <section class="container" style="padding-bottom:20px;">
   <div class="hero-stats">
-    <div><div class="num">Up to 200K/s</div><div class="lbl">unsafe round-trips / core</div></div>
+    {%- comment -%}
+    "/ core" was wrong by roughly the worker count: the benchmark reports these as
+    round-trip messages/second SUMMED ACROSS 22 worker processes on one rig, not
+    per core. Linked to the post so the number carries its conditions.
+    {%- endcomment -%}
+    <div><div class="num">~200K/s</div><div class="lbl">aggregate round-trips — <a href="/blog/benchmarking-imqueue-throughput/">22 workers, one rig</a></div></div>
     <div><div class="num">Auto</div><div class="lbl">typed clients generated</div></div>
     <div><div class="num">Optimal</div><div class="lbl">traffic flows with compression</div></div>
   </div>
@@ -90,7 +95,15 @@ keywords: "@imqueue, Node.js message queue, TypeScript RPC framework, Node.js mi
 <!-- FEATURES -->
 <section class="container section">
   <div class="grid grid-3">
-    <div class="card"><div class="tag">reliable()</div><h2>Guaranteed delivery</h2><p>Safe delivery and leader/follower deployment fully guarantee data between services — a message a dying worker drops is rescheduled.</p></div>
+    {%- comment -%}
+    Was "fully guarantee data between services", which contradicts the API
+    reference: safe delivery covers the HAND-OFF only — the worker key is released
+    as soon as the message reaches the handler, so a worker killed mid-handler
+    loses it either way. Delivery is at-least-once in both modes. Claiming
+    exactly-once here would have been the one factual error most likely to burn an
+    adopter in production.
+    {%- endcomment -%}
+    <div class="card"><div class="tag">reliable()</div><h2>Guaranteed hand-off</h2><p>Safe delivery re-queues a message a dying worker never started, instead of losing it with the process. <a href="/api/core/latest/core.imqoptions.safedelivery/">At-least-once by design</a> — so handlers stay idempotent.</p></div>
     <div class="card"><div class="tag">scale()</div><h2>Zero-config balancing</h2><p>Instances compete for messages and self-balance across nodes. No service discovery, no external load balancer to wire up.</p></div>
     <div class="card"><div class="tag">idle()</div><h2>No polling, ever</h2><p>No timers, no constant polling — zero delivery delay and zero CPU on workers while idle. It rests when there's nothing to do.</p></div>
   </div>

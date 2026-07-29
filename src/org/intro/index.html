@@ -123,8 +123,15 @@ keywords: "@imqueue introduction, what is imqueue, inter-communication messaging
 <section class="container section">
   <div class="section-label">// KEY PRINCIPLES</div>
   <div class="grid grid-2">
-    <div class="card principle"><h2>Reliable</h2><p>Safe-delivery messaging plus "leader"/"follower" deployment of the back-end engine fully guarantee data delivery between services.</p></div>
-    <div class="card principle"><h2>Scalable</h2><p>Cluster the backend engine, fork across a machine's cores, and scale horizontally across servers — there is no technical limit to the throughput a system built on IMQ can handle.</p></div>
+    {%- comment -%}
+    Same two corrections as the home page. "fully guarantee data delivery"
+    contradicted core.imqoptions.safeDelivery, which scopes the guarantee to the
+    hand-off and states at-least-once in either mode. "No technical limit to the
+    throughput" was unfalsifiable and backed by no measurement in the repo — the
+    honest version points at the mechanisms and the one rig we actually measured.
+    {%- endcomment -%}
+    <div class="card principle"><h2>Reliable</h2><p>Safe-delivery messaging re-queues a message a dying worker never started, rather than losing it with the process. The guarantee covers that hand-off: delivery is <a href="/api/core/latest/core.imqoptions.safedelivery/">at-least-once</a>, so handlers should be idempotent.</p></div>
+    <div class="card principle"><h2>Scalable</h2><p>Cluster the backend engine, fork across a machine's cores, and scale horizontally across servers — throughput grows with the workers you add, and <a href="/blog/benchmarking-imqueue-throughput/">what that looks like on one rig is measured here</a>.</p></div>
     <div class="card principle"><h2>Simple (KISS)</h2><p>Low entry for JS/TypeScript developers — minutes to your first service. No "hidden knowledge", a clean JSON-based protocol, and familiar patterns (Messaging Queue and RPC).</p></div>
     <div class="card principle"><h2>Self-describing</h2><p>Every service describes itself, so clients are generated dynamically on-the-fly or pre-generated to files. You focus only on the service.</p></div>
   </div>
