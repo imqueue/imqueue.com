@@ -62,7 +62,7 @@ export class UserService extends IMQService {
 From that, the framework builds a description of the service — its methods, their parameter and return types, and any complex types — and **generates a typed client** from the running service:
 
 ```ts
-const users = new UserServiceClient();
+const users = new UserClient();
 await users.start();
 const saved = await users.save({ id: '1', name: 'Ada' }); // fully typed
 ```

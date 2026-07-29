@@ -64,7 +64,7 @@ imq client generate UserService
 ```
 
 ```ts
-const client = new UserServiceClient();
+const client = new UserClient();
 await client.start();
 const user = await client.get('42'); // typed, autocompleted, no HTTP in sight
 ```

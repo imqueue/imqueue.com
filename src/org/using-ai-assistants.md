@@ -110,7 +110,7 @@ imq client generate UserService
 ~~~
 
 ~~~typescript
-const client = new UserServiceClient();
+const client = new UserClient();
 await client.start();
 const user = await client.get('42'); // fully typed, no hand-written client
 ~~~
