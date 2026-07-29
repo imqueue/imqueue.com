@@ -12,7 +12,12 @@ eleventyComputed:
 ---
 {%- assign myPosts = collections.posts | byAuthor: author.slug -%}
 <div class="container" style="padding-top:48px;padding-bottom:64px;max-width:900px;">
-  <a href="/blog/" class="nav-link" style="font-family:var(--font-mono);font-size:13px;color:var(--accent);">← all posts</a>
+  {%- comment -%}
+  Replaces a bare "← all posts" link: same destination, but as a breadcrumb it
+  matches the BreadcrumbList head.html emits for author pages (which used to emit
+  none at all — post.html and topics.html only cover posts and topic hubs).
+  {%- endcomment -%}
+  {%- include "breadcrumbs.html", crumbLeaf: author.name -%}
 
   <header class="author-hero">
     <div class="author-hero-avatar"><img class="avatar-img" src="{{ author.avatar }}" alt="{{ author.name }}" width="120" height="120"></div>

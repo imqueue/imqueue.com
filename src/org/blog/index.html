@@ -14,6 +14,7 @@ eleventyComputed:
   description: "{% if pagination.pageNumber > 0 %}Page {{ pagination.pageNumber | plus: 1 }} of the @imqueue blog — articles on message-queue RPC, Redis brokers and Node.js & TypeScript microservices.{% else %}Articles on message-queue RPC for Node.js & TypeScript microservices: Redis brokers, guaranteed delivery, typed clients, scaling and framework comparisons.{% endif %}"
 ---
 <section class="container" style="padding-top:48px;padding-bottom:64px;">
+  {%- include "breadcrumbs.html" -%}
   <div class="section-label" style="margin-bottom:14px;">// BLOG</div>
   <h1 style="font-family:var(--font-display);font-weight:700;font-size:42px;letter-spacing:-.03em;margin:0 0 10px;">Blog</h1>
   <p class="muted" style="font-size:17px;max-width:600px;margin:0 0 36px;">News, releases and articles about @imqueue.{% if pagination.pages.size > 1 %} <span style="font-family:var(--font-mono);font-size:14px;">Page {{ pagination.pageNumber | plus: 1 }} of {{ pagination.pages.size }}.</span>{% endif %}</p>

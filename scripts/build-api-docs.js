@@ -47,6 +47,47 @@ function unescapeMd(text) {
   return text.replace(/\\([\\`*_{}[\]()#+\-.!|<>~])/g, '$1');
 }
 
+// api-documenter opens every page at `##`, so the generated reference shipped
+// with no <h1> at all — 349 indexable pages whose strongest heading was an h2.
+// Promote the first one; the sub-headings ("Methods", "Parameters") stay h2, which
+// gives the page a real outline. Anchor ids are derived from heading text, not
+// level, so existing #fragment links keep working.
+function promoteFirstHeading(text) {
+  return text.replace(/^## /m, '# ');
+}
+
+// Lift api-documenter's breadcrumb paragraph out of the body and return it as
+// data. Two reasons not to just render it as-is: its first crumb is labelled
+// "Home" but points at /api/, so no reference page ever linked the site root; and
+// as a plain paragraph it carries no breadcrumb semantics, which left every API
+// page emitting BreadcrumbList JSON-LD that matched nothing on the page.
+//
+// It is also the only place a member page's parent symbol is known
+// (core.ilogger.info -> core.ilogger), so the trail cannot be reconstructed in the
+// layout. apiref.html renders it and head.html emits the matching JSON-LD, both
+// from this one array.
+function extractTrail(text) {
+  const m = /^\[Home\]\([^)]*\)[^\n]*$/m.exec(text);
+
+  if (!m) {
+    return { body: text, crumbs: null };
+  }
+
+  const items = [...m[0].matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)]
+    .map(([, name, url]) => ({ name: unescapeMd(name), url }));
+  // items[0] is the mislabelled "Home"; the real root is prepended by the layout.
+  const crumbs = [{ name: 'API reference', url: '/api/' }, ...items.slice(1)];
+  // Consume the blank line the trail sat on as well, or the removal leaves three
+  // consecutive newlines in the committed artifact (and in the .md mirror agents
+  // read). One blank line still separates the generator comment from the heading.
+  // Strip the newlines the trail line owned. The text before it already ends with
+  // the blank line that separated it from the generator comment, so that blank
+  // line becomes the separator for the heading and nothing is left doubled.
+  const after = text.slice(m.index + m[0].length).replace(/^(?:\r?\n)+/, '');
+
+  return { body: text.slice(0, m.index) + after, crumbs };
+}
+
 // --- semver (release versions only) --------------------------------------
 function parseVer(v) { return v.split('.').map(Number); }
 function cmpVer(a, b) {
@@ -145,11 +186,17 @@ function embed({ pkg, version, seg, mdDir, latestFiles }) {
   // `description` matters: without it head.html falls back to the site slogan,
   // which made 351 of the 352 indexed API pages share one meta description.
   // apiDescription() lifts the per-symbol summary api-documenter already emits.
-  const frontMatter = (title, latestUrl, description) => {
+  const frontMatter = (title, latestUrl, description, crumbs) => {
     let fm = `title: ${JSON.stringify(title)}\n`;
     if (description) fm += `description: ${JSON.stringify(description)}\n`;
+    if (crumbs) fm += `apiCrumbs: ${JSON.stringify(crumbs)}\n`;
     if (isArchived) fm += `noindex: true\nlatestUrl: ${JSON.stringify(latestUrl)}\n`;
     return `---\n${fm}---\n\n`;
+  };
+  // Rewrite links first so the lifted trail carries site URLs, not `*.md` paths.
+  const prepare = (raw) => {
+    const { body, crumbs } = extractTrail(rewriteLinks(raw));
+    return { md: promoteFirstHeading(body), crumbs };
   };
   const archivedSuffix = isArchived ? ` v${version} (archived)` : '';
 
@@ -169,14 +216,16 @@ function embed({ pkg, version, seg, mdDir, latestFiles }) {
     const symbol = firstHeading(raw, b);
     const title = `${symbol} · @imqueue/${pkg}${archivedSuffix}`;
     const desc = apiDescription(raw, { pkg, version, symbol });
+    const { md, crumbs } = prepare(raw);
     fs.writeFileSync(path.join(outDir, file),
-      frontMatter(title, latestUrlFor(b), desc) + rewriteLinks(raw));
+      frontMatter(title, latestUrlFor(b), desc, crumbs) + md);
     count++;
   }
   const indexTitle = `@imqueue/${pkg} ${version} · API reference${isArchived ? ' (archived)' : ''}`;
   const indexDesc = apiDescription(pkgPageMd, { pkg, version, symbol: `${pkg} package` });
+  const indexPage = prepare(pkgPageMd);
   fs.writeFileSync(path.join(outDir, 'index.md'),
-    frontMatter(indexTitle, `/api/${pkg}/latest/`, indexDesc) + rewriteLinks(pkgPageMd));
+    frontMatter(indexTitle, `/api/${pkg}/latest/`, indexDesc, indexPage.crumbs) + indexPage.md);
   // bareTitle: these titles already end with "· @imqueue/<pkg>", so letting
   // head.html append its "· @imqueue" suffix produced
   // "Foo.bar() method · @imqueue/core · @imqueue" — 11 wasted characters of SERP
