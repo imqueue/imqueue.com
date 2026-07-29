@@ -133,6 +133,13 @@ code { color: var(--accent); }
    card markup still using it. */
 .card h2, .card h3 { font-size: 20.5px; margin-bottom: 8px; font-weight: 700; }
 .card p { font-size: 16px; color: var(--muted); line-height: 1.6; }
+/* Clickable cards get the same accent-border hover as .post-card (blog) and
+   .api-ref-card (/api/) — same transition, same token, so all three match.
+   Scoped to `a.card`: the plain <div class="card"> feature blocks on / and the
+   principle blocks on /intro/ are not links, and hover feedback on something
+   that cannot be clicked is misleading. */
+a.card { transition: border-color .15s ease; }
+a.card:hover { border-color: var(--accent); text-decoration: none; }
 
 .grid { display: grid; gap: 16px; }
 .grid-3 { grid-template-columns: repeat(3, 1fr); }

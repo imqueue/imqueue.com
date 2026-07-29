@@ -1,10 +1,10 @@
 ---
 layout: docs.html
 section: docs
-title: "Agent recipes for AI coding assistants"
+title: "Agent recipes for @imqueue codebases"
 docLabel: AGENT RECIPES
 lead: "Machine-oriented, verifiable procedures an AI coding assistant can follow to make a change in an @imqueue codebase — each with the facts it relies on, the commands to prove it worked, and the ways it goes wrong."
-description: "Machine-oriented @imqueue recipes for AI coding assistants: exact procedures, the facts each relies on, verification commands and known failure modes."
+description: "Machine-oriented procedures for changing an @imqueue codebase: the contracts each step relies on, commands that prove it worked, and known failure modes."
 keywords: "imqueue agent recipes, ai coding agent nodejs, imqueue ai assistant, machine readable docs, llms.txt, mcp get_doc"
 relatedTopics: [tooling, dx, jobs]
 ---

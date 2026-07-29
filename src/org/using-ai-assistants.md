@@ -163,15 +163,9 @@ serve the documentation in machine-friendly form:
 
 ## Agent recipes
 
-Task-focused, machine-oriented instructions your agent can apply directly:
-
-- **[Isolated imq CLI environments](/agents/isolated-imq-environments/)** —
-  managing multiple @imqueue projects on one machine with `IMQ_CLI_HOME`:
-  exact commands, verification steps and failure modes.
-- **[Delayed & scheduled work](/agents/delayed-scheduled-work/)** — running work
-  later without adding a job system: choosing the mechanism, the exact
-  `IMQDelay` call contract, recurrence by self-re-arming chain, and the Redis
-  commands to verify it.
+For specific tasks, [**/agents/**](/agents/) collects procedures written for a
+machine rather than a reader — each one states the API contracts it depends on,
+the commands that prove the change took effect, and the failure modes to expect.
 
 ## Next steps
 
