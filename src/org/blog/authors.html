@@ -7,8 +7,10 @@ pagination:
   alias: author
 permalink: "/blog/authors/{{ author.slug }}/"
 eleventyComputed:
-  title: "{{ author.name }}"
-  description: "{{ author.name }} — {{ author.occupation }} at @imqueue. Posts and articles."
+  title: "{{ author.name }} — Node.js microservices posts"
+  # The old description appended " at @imqueue" to an occupation that already ends
+  # in "@imqueue", so every author page read "... of @imqueue at @imqueue".
+  description: "{{ author.name }} — {{ author.occupation }}. Articles on message-queue RPC, typed clients and Node.js microservice architecture."
 ---
 {%- assign myPosts = collections.posts | byAuthor: author.slug -%}
 <div class="container" style="padding-top:48px;padding-bottom:64px;max-width:900px;">

@@ -8,7 +8,11 @@ pagination:
   alias: pagePosts
 permalink: "/blog/{% if pagination.pageNumber > 0 %}page/{{ pagination.pageNumber | plus: 1 }}/{% endif %}"
 eleventyComputed:
-  title: "{% if pagination.pageNumber > 0 %}Blog — Page {{ pagination.pageNumber | plus: 1 }} of {{ pagination.pages.size }}{% else %}Blog{% endif %}"
+  # "Blog" alone spent the most-linked hub on the site (26 in-body inbound links)
+  # on a 15-character title that matched no query. Deliberately pitched at the
+  # article-collection intent — guides, comparisons — rather than repeating the
+  # homepage's product framing, so the two do not compete for the same terms.
+  title: "{% if pagination.pageNumber > 0 %}Node.js microservice guides — page {{ pagination.pageNumber | plus: 1 }} of {{ pagination.pages.size }}{% else %}Node.js microservice guides and comparisons{% endif %}"
   # Plain "&", not "&amp;": Liquid does not decode entities here, so the escaped
   # form ended up in <meta name="description"> verbatim as "&amp;amp;".
   description: "{% if pagination.pageNumber > 0 %}Page {{ pagination.pageNumber | plus: 1 }} of the @imqueue blog — articles on message-queue RPC, Redis brokers and Node.js & TypeScript microservices.{% else %}Articles on message-queue RPC for Node.js & TypeScript microservices: Redis brokers, guaranteed delivery, typed clients, scaling and framework comparisons.{% endif %}"
