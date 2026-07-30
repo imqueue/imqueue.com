@@ -194,8 +194,24 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
   .burger { display: inline-flex; }
   .grid-3, .grid-4 { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
-  h1 { font-size: 38.5px !important; }
-  h2 { font-size: 29.5px !important; }
+  /* Shrink headings whose size a template sets INLINE — post.html, docs.html,
+     cli.html, mcp.html, tutorial.html, /intro/, the blog and topic hubs, the com
+     heroes, 404 — at 34-46px they are far too big on a phone. `!important` is
+     the only thing that beats a style attribute, which is why it is here.
+
+     Everything in :not() owns its own size and must keep it. Three of them own an
+     explicit MOBILE size that this rule was silently overriding — .prose h1/h2
+     (prose.css:195-196), .hero h1 (org/index.html) and .fx-h2/.fx-thanks h2
+     (flux.css:142,118) — so those media queries had no effect at all. The
+     component ones were the visible damage: .aside-box h2 and .blog-archive h2
+     are 13.5px uppercase mono labels and were rendering at 29.5px, so every blog
+     post showed "Written by" and the sidebar headings at section-heading size,
+     and .card/.post-card titles were as large as the sections containing them.
+
+     .fx-h1 is deliberately NOT excluded: the com heroes carry an inline 44-46px
+     that beats flux.css's own 38px mobile rule, so this is what shrinks them. */
+  h1:not(.prose h1, .hero h1) { font-size: 38.5px !important; }
+  h2:not(.prose h2, .card h2, .post-card h2, .aside-box h2, .blog-archive h2, .fx-h2, .fx-thanks h2) { font-size: 29.5px !important; }
 }
 @media (max-width: 480px) {
   .footer-grid { grid-template-columns: 1fr; }
