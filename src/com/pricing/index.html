@@ -2,7 +2,7 @@
 layout: base.html
 section: pricing
 title: Pricing & commercial license
-description: "Get a commercial license for @imqueue to ship it inside a closed-source product — lifting the GPL-3.0 source-release obligation, with SLA-backed support. Same packages, same APIs. Tell us your use case."
+description: "Get a commercial license for @imqueue to ship it inside a closed-source product — lifting the GPL-3.0 source-release obligation, with SLA-backed support."
 keywords: "@imqueue pricing, imqueue commercial license price, buy imqueue license, GPL-3.0 exception, closed-source license, commercial support plan, SLA support, dual licensing Node.js"
 ---
 <section class="fx-hero fx-hero--narrow">
@@ -161,5 +161,44 @@ keywords: "@imqueue pricing, imqueue commercial license price, buy imqueue licen
       }
     }
   ]
+}
+</script>
+{%- comment -%}
+The commercial offering as an entity, so this page is more than an FAQ to a
+crawler or an answer engine: it names what is being sold, who sells it, and that
+it is available.
+
+Deliberately NO `price` / `priceCurrency`. Licensing is quoted per use case (the
+hero says so, and the form asks for one), so any figure here would be invented.
+An Offer without a price is valid schema.org — it just is not eligible for
+price-bearing rich results, which is the honest outcome when there is no list
+price to show. Add `price` here the day a published rate card exists.
+{%- endcomment -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": "{{ siteUrl }}{{ page.url }}#commercial-license",
+  "name": "@imqueue commercial license and support",
+  "serviceType": "Commercial software license",
+  "description": "A commercial license for the @imqueue packages: the right to ship them inside a closed-source product without the GPL-3.0 source-release obligation, with SLA-backed support and indemnification.",
+  "url": "{{ siteUrl }}{{ page.url }}",
+  "provider": { "@id": "{{ siteUrl }}/#org" },
+  "areaServed": "Worldwide",
+  "audience": {
+    "@type": "BusinessAudience",
+    "audienceType": "Software teams shipping closed-source products"
+  },
+  "termsOfService": "{{ siteUrl }}/license/",
+  "offers": {
+    "@type": "Offer",
+    "@id": "{{ siteUrl }}{{ page.url }}#offer",
+    "name": "Commercial license",
+    "description": "Quoted per use case — submit the form on this page for a quote.",
+    "availability": "https://schema.org/InStock",
+    "url": "{{ siteUrl }}{{ page.url }}",
+    "seller": { "@id": "{{ siteUrl }}/#org" },
+    "itemOffered": { "@id": "{{ siteUrl }}{{ page.url }}#commercial-license" }
+  }
 }
 </script>
