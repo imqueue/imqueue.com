@@ -314,13 +314,24 @@ that leaves Space Grotesk (the wordmark, see base.css .brand__name) to swap in.
 {%- endif %}
 <link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 
-<link rel="stylesheet" href="/css/fonts.css">
-<link rel="stylesheet" href="/css/reset.css">
-<link rel="stylesheet" href="/css/theme-{{ skin }}.css">
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/prose.css">
-{% if skin == "flux" %}<link rel="stylesheet" href="/css/flux.css">{% endif %}
-{% if pageCss %}<link rel="stylesheet" href="{{ pageCss }}">{% endif %}
+{%- comment -%}
+Every stylesheet goes through the `asset` filter, which swaps in the
+content-hashed filename the build emitted (/css/base.css -> /css/base.<hash>.css).
+That is what makes the immutable Cache-Control in headers.liquid safe: a changed
+file is a new URL, so no edge or browser can serve it stale. Referencing an
+unhashed path here would 404 — the filter throws at build time rather than let
+that ship. See scripts/lib/asset-manifest.js.
+
+`pageCss` is an unused hook; it is passed through the filter too so that the first
+page to set it fails loudly at build time instead of silently 404ing.
+{%- endcomment -%}
+<link rel="stylesheet" href="{{ '/css/fonts.css' | asset }}">
+<link rel="stylesheet" href="{{ '/css/reset.css' | asset }}">
+<link rel="stylesheet" href="{{ '/css/theme-' | append: skin | append: '.css' | asset }}">
+<link rel="stylesheet" href="{{ '/css/base.css' | asset }}">
+<link rel="stylesheet" href="{{ '/css/prose.css' | asset }}">
+{% if skin == "flux" %}<link rel="stylesheet" href="{{ '/css/flux.css' | asset }}">{% endif %}
+{% if pageCss %}<link rel="stylesheet" href="{{ pageCss | asset }}">{% endif %}
 
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id={{ analytics.ga4 }}"></script>
