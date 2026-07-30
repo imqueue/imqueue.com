@@ -133,9 +133,18 @@ on the page that is actually about the product).
       "name": "@imqueue",
       "url": "{{ siteUrl }}/",
       "logo": "{{ siteUrl }}/images/logo.svg",
+      {%- comment -%}
+        sameAs is for entity reconciliation: each entry must be an authoritative
+        org-level profile, so an answer engine can tie these identities together.
+        Only add a URL after confirming it exists AND has content — hub.docker.com/u/imqueue
+        returns 200 but the v2 API reports zero repositories, so it is deliberately absent.
+        Per-package URLs do not belong here; this node is the Organization, not the packages.
+        The high-value entry still missing is a Wikidata item (none exists yet).
+      {%- endcomment -%}
       "sameAs": [
         "https://github.com/imqueue",
-        "https://www.npmjs.com/org/imqueue"
+        "https://www.npmjs.com/org/imqueue",
+        "https://context7.com/imqueue"
       ]
     },
     {
