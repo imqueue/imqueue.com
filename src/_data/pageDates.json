@@ -1,19 +1,19 @@
 {
   "src/com/index.html": {
     "published": "2026-07-20T00:02:46+02:00",
-    "modified": "2026-07-29T19:06:41+02:00"
+    "modified": "2026-07-30T18:51:38+02:00"
   },
   "src/com/license/index.html": {
     "published": "2026-07-22T11:49:22+02:00",
-    "modified": "2026-07-22T22:37:21+02:00"
+    "modified": "2026-07-30T18:51:38+02:00"
   },
   "src/com/pricing/index.html": {
     "published": "2026-07-20T00:02:46+02:00",
-    "modified": "2026-07-22T22:37:21+02:00"
+    "modified": "2026-07-30T18:51:38+02:00"
   },
   "src/com/support/index.html": {
     "published": "2026-07-22T11:49:22+02:00",
-    "modified": "2026-07-22T22:37:21+02:00"
+    "modified": "2026-07-30T18:51:38+02:00"
   },
   "src/org/agents/delayed-scheduled-work.md": {
     "published": "2026-07-25T16:15:02+02:00",
@@ -25,19 +25,19 @@
   },
   "src/org/agents/isolated-imq-environments.md": {
     "published": "2026-07-23T10:18:53+02:00",
-    "modified": "2026-07-23T10:18:53+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/api/index.md": {
     "published": "2026-07-19T22:58:50+02:00",
-    "modified": "2026-07-22T14:20:03+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/blog/authors.html": {
     "published": "2026-07-22T04:09:43+02:00",
-    "modified": "2026-07-29T16:34:49+02:00"
+    "modified": "2026-07-30T18:51:26+02:00"
   },
   "src/org/blog/index.html": {
     "published": "2026-07-19T22:58:50+02:00",
-    "modified": "2026-07-29T16:34:49+02:00"
+    "modified": "2026-07-30T18:51:26+02:00"
   },
   "src/org/blog/topics.html": {
     "published": "2026-07-29T12:58:23+02:00",
@@ -45,27 +45,27 @@
   },
   "src/org/cli/clients-and-versioning.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-07-29T12:58:23+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/cli/configuration.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-07-29T12:58:23+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/cli/creating-services.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-07-29T12:58:23+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/cli/custom-templates.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-07-29T12:58:23+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/cli/extensibility.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-07-29T12:58:23+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/cli/index.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-07-29T12:58:23+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/cli/installation.md": {
     "published": "2026-07-21T23:38:34+02:00",
@@ -73,23 +73,23 @@
   },
   "src/org/cli/managing-local-services.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-07-29T12:58:23+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/cli/package-catalog.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-07-29T12:58:23+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/cli/providers.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-07-29T12:58:23+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/cli/real-world-scenarios.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-07-29T12:58:23+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/cli/troubleshooting.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-07-29T12:58:23+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/contributing.md": {
     "published": "2026-07-23T07:57:24+02:00",
@@ -105,7 +105,7 @@
   },
   "src/org/index.html": {
     "published": "2026-07-19T21:23:40+02:00",
-    "modified": "2026-07-29T18:40:47+02:00"
+    "modified": "2026-07-30T18:51:32+02:00"
   },
   "src/org/intro/index.html": {
     "published": "2026-07-19T22:58:50+02:00",
@@ -133,7 +133,7 @@
   },
   "src/org/mcp/workflows.md": {
     "published": "2026-07-22T20:03:58+02:00",
-    "modified": "2026-07-29T12:58:23+02:00"
+    "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/tutorial/api-service.md": {
     "published": "2018-11-08T09:17:42+02:00",
