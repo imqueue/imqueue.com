@@ -4,7 +4,7 @@ permalink: /blog/type-safe-service-communication-typescript/
 templateEngineOverride: md
 title: "Type-safe service-to-service communication in TypeScript"
 summary: "End-to-end types across service boundaries are easy inside one process and hard the moment you cross a network. Here's how to keep them without hand-writing clients or maintaining a schema language."
-description: "How to get compile-time-safe communication between TypeScript microservices without hand-written clients or a separate IDL, using self-describing @imqueue services."
+description: "How to get compile-time-safe communication between TypeScript microservices without hand-written clients or a separate IDL, using self-describing services."
 keywords: "type-safe microservices, TypeScript RPC, typed service communication, generated clients, imqueue, end-to-end types, self-describing services"
 date: 2026-07-19
 author: serhiy-morenko

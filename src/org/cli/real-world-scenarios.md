@@ -3,7 +3,7 @@ chapter: 11
 title: "Real-world imq CLI recipes"
 docLabel: "CLI MANUAL — 11 / 12"
 lead: "End-to-end walkthroughs that combine the commands — new services on different stacks, a local fleet, dependency maintenance and coordinated releases."
-description: "@imqueue/cli end-to-end recipes: new service on GitHub/Actions/Docker Hub, GitLab/CircleCI/Google, GitHub Enterprise, running a local fleet, fleet-wide dependency maintenance and coordinated releases."
+description: "@imqueue/cli end-to-end recipes: a new service on GitHub/Actions/Docker Hub, GitHub Enterprise, running a local fleet, and coordinated fleet-wide releases."
 keywords: "imqueue cli examples, service create recipes, local fleet workflow, dependency maintenance, coordinated release, github enterprise example, org standardisation"
 ogType: article
 ---

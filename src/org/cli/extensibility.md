@@ -3,7 +3,7 @@ chapter: 10
 title: "Extending the imq CLI"
 docLabel: "CLI MANUAL — 10 / 12"
 lead: "The seams for adapting the tool to your environment — environment overrides, data-driven templates and catalog, and how contributors add new providers."
-description: "Extend @imqueue/cli: the four-axis provider model, environment seams for enterprise/self-hosted hosts, data-driven templates and catalog, and a contributor guide to adding providers."
+description: "Extend @imqueue/cli: the four-axis provider model, environment seams for enterprise hosts, data-driven templates and catalog, and how to add a provider."
 keywords: "imqueue cli extensibility, provider model, add a provider, environment seams, data-driven templates, catalog.json, contributor guide"
 ogType: article
 ---

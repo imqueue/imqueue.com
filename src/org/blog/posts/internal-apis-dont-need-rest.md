@@ -4,7 +4,7 @@ permalink: /blog/internal-apis-dont-need-rest/
 templateEngineOverride: md
 title: "Internal APIs don't need to be REST"
 summary: "REST is a fine choice for public, resource-oriented APIs. For internal service-to-service calls it's often ceremony over a plain function call. Here's when to drop it and what to reach for instead."
-description: "Why REST is often the wrong fit for internal Node.js service-to-service APIs, and when function-call (RPC) semantics are simpler — a concept-level look, with @imqueue as one answer."
+description: "Why REST is often the wrong fit for internal Node.js service-to-service APIs, and when function-call (RPC) semantics are simpler — with @imqueue as one answer."
 keywords: "internal api rpc, rest for internal services, service to service calls nodejs, rpc vs rest concept, imqueue"
 date: 2026-06-27
 author: andrii
