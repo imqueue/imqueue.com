@@ -4,7 +4,7 @@ permalink: /blog/stop-hand-writing-microservice-clients/
 templateEngineOverride: md
 title: "Stop hand-writing and maintaining your microservice clients"
 summary: "Every service you call needs a client, and hand-maintained clients drift out of sync with the services they talk to. Here's why that happens, how to make the client fall out of the service, and what the generated approach costs."
-description: "Why hand-written microservice clients and SDKs rot, how self-describing services with generated typed clients keep callers in sync, and the real costs of the generated approach."
+description: "Why hand-written microservice clients and SDKs rot, how self-describing services with generated typed clients keep callers in sync, and what it costs."
 keywords: "generate typed api client typescript, stop writing api clients, sdk maintenance microservices, microservice client generation, imqueue"
 date: 2026-07-17
 dateModified: 2026-07-29

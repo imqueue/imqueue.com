@@ -4,7 +4,7 @@ permalink: /blog/imqueue-vs-bullmq/
 templateEngineOverride: md
 title: "@imqueue/job vs BullMQ: Redis job queues compared"
 summary: "Both are Redis-backed job queues for Node.js. @imqueue/job is small, safe-by-default and scheduling-capable; BullMQ is the feature-rich one. Here's an honest split — plus the thing @imqueue does that BullMQ doesn't."
-description: "An even-handed comparison of @imqueue/job and BullMQ as Redis-backed job queues for Node.js — guaranteed processing, delayed/scheduled jobs, retries, priorities, flows — and when to pick each."
+description: "@imqueue/job vs BullMQ as Redis-backed job queues for Node.js — guaranteed processing, delayed jobs, retries, priorities, flows, and when to pick each."
 keywords: "imqueue vs bullmq, bullmq alternative, redis job queue, background jobs nodejs, scheduled jobs nodejs, simple job queue, delayed jobs redis"
 date: 2026-06-12
 author: andrii

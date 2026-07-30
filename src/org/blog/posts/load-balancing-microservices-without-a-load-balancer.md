@@ -4,7 +4,7 @@ permalink: /blog/load-balancing-microservices-without-a-load-balancer/
 templateEngineOverride: md
 title: "Load balancing microservices without a load balancer"
 summary: "For internal service-to-service traffic, the load balancer you run and operate is often solving a problem a message queue solves for free. Here's the competing-consumers pattern, why pull beats push, and what you give up."
-description: "How to load balance internal Node.js microservices without a load balancer, using competing consumers over a message queue: why pulling beats pushing, scaling across processes and Redis nodes, and what a balancer still does better."
+description: "Load balance internal Node.js microservices without a load balancer, using competing consumers over a message queue — and what a balancer still does better."
 keywords: "microservice load balancing nodejs, load balance internal services, load balancing without load balancer, competing consumers, imqueue"
 date: 2026-07-14
 dateModified: 2026-07-29

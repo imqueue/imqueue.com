@@ -3,7 +3,7 @@ chapter: 1
 title: "imq CLI: scaffold & manage Node.js services"
 docLabel: "CLI MANUAL — 01 / 12"
 lead: "Everything about the imq command — from installation to writing your own templates and adapting the tool to real-world projects."
-description: "The @imqueue/cli (imq) user manual — a Rapid Application Development tool that scaffolds services, wires VCS/CI/registry providers, generates typed RPC clients and runs a local fleet."
+description: "The @imqueue/cli (imq) manual — a tool that scaffolds services, wires VCS/CI/registry providers, generates typed RPC clients and runs a local fleet."
 keywords: "@imqueue/cli, imq command, imqueue CLI, Node.js microservice scaffolding, RPC client generator, service generator CLI, RAD tool, TypeScript microservices tooling"
 ogType: article
 ---

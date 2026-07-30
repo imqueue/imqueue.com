@@ -3,7 +3,7 @@ chapter: 3
 title: "Configure the imq CLI"
 docLabel: "CLI MANUAL — 03 / 12"
 lead: "How the CLI resolves options across config layers, the structured v4 schema, secrets, git transport, and every environment variable."
-description: "@imqueue/cli configuration: the flag → .imqrc.json → global config → prompt → default precedence, the v4 schema, secrets handling, HTTPS vs SSH push, and env var reference."
+description: "@imqueue/cli configuration: the flag → .imqrc.json → global config → prompt precedence, the v4 schema, secrets handling, and the env var reference."
 keywords: "imq config, imqueue cli configuration, imqrc.json, imq config init, vcs.protocol, IMQ_CLI_HOME, imqueue env variables"
 ogType: article
 ---

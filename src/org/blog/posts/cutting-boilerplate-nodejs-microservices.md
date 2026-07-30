@@ -4,7 +4,7 @@ permalink: /blog/cutting-boilerplate-nodejs-microservices/
 templateEngineOverride: md
 title: "Cutting the boilerplate out of Node.js microservices"
 summary: "Most of a new service's first commit is ceremony — transport wiring, serialization, a client, CI, a Dockerfile. Here's where the boilerplate hides and how to stop writing it by hand."
-description: "Where boilerplate accumulates in Node.js microservices and how scaffolding plus self-describing services with generated clients removes most of it, using @imqueue."
+description: "Where boilerplate accumulates in Node.js microservices, and how scaffolding plus self-describing services with generated clients removes most of it."
 keywords: "reduce microservice boilerplate nodejs, microservice scaffolding typescript, rapid application development microservices, imqueue cli"
 date: 2026-07-04
 author: serhiy-morenko

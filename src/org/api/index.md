@@ -4,7 +4,7 @@ section: api
 title: API Reference
 docLabel: API REFERENCE
 lead: "Application programming interface documentation for the @imqueue packages — core, rpc and cli. Packaging follows nesting, so importing @imqueue/rpc re-exports everything from @imqueue/core."
-description: "API reference for @imqueue — core, rpc and cli packages: RPC API, decorators, doc-blocks, the Messaging API and adapters, plus generated per-version reference docs."
+description: "API reference for @imqueue — core, rpc and cli: the RPC API, decorators, doc-blocks, the Messaging API and adapters, plus generated per-version docs."
 keywords: "@imqueue API reference, imqueue core, imqueue rpc, imqueue cli, RPC decorators, TypeScript RPC API, message queue API, IMQService, IMQClient, @expose decorator"
 relatedTopics: [rpc, queue, types, delivery]
 ---
