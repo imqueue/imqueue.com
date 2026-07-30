@@ -5,12 +5,18 @@ const syntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 // One repo, two editions. Pick with EDITION=com|org (default: org).
 //   EDITION=org  -> imqueue.org, "Terminal" skin, output _site-org
 //   EDITION=com  -> imqueue.com, "Flux" skin,     output _site-com
+const { buildAssetManifest } = require("./scripts/lib/asset-manifest.js");
+
 const EDITION = (process.env.EDITION || "org").toLowerCase();
 const isCom = EDITION === "com";
 const SKIN = isCom ? "flux" : "terminal";
 const SITE_URL = isCom ? "https://imqueue.com" : "https://imqueue.org";
 const OTHER_URL = isCom ? "https://imqueue.org" : "https://imqueue.com";
 const OUTPUT = isCom ? "_site-com" : "_site-org";
+
+// Computed once at config time (sync fs reads) so the hashed names are available
+// both to addPassthroughCopy and to the `asset` filter.
+const ASSETS = buildAssetManifest(__dirname, EDITION);
 
 module.exports = function (eleventyConfig) {
   const markdownIt = require("markdown-it");
@@ -258,10 +264,34 @@ module.exports = function (eleventyConfig) {
 
   // Static assets: shared first, then the active edition's theme css (same /css dir).
   eleventyConfig.addPassthroughCopy({ "src/_shared/fonts": "fonts" });
-  eleventyConfig.addPassthroughCopy({ "src/_shared/css": "css" });
-  eleventyConfig.addPassthroughCopy({ "src/_shared/js": "js" });
-  eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/css`]: "css" });
-  eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/js`]: "js" });
+
+  // CSS + JS are emitted under content-hashed filenames and referenced through the
+  // `asset` filter, which is what lets /css/* and /js/* be cached immutably (see
+  // scripts/lib/asset-manifest.js for the deploy bug this fixes, and
+  // src/headers.liquid for the matching Cache-Control). Only hashed names are
+  // written — no unhashed copy — so a wildcard immutable header cannot ever apply
+  // to a mutable URL.
+  for (const [from, to] of ASSETS.copies) {
+    eleventyConfig.addPassthroughCopy({ [from]: to });
+  }
+  eleventyConfig.addGlobalData("assetManifest", ASSETS.manifest);
+
+  // Resolve a logical asset URL ("/css/base.css") to its hashed one. Throws on an
+  // unknown path rather than passing it through: a silent miss would emit a 404ing
+  // stylesheet that renders as an unstyled page, and the link checker only sees
+  // what the templates actually wrote.
+  eleventyConfig.addFilter("asset", function (url) {
+    const hashed = ASSETS.manifest[url];
+
+    if (!hashed) {
+      throw new Error(
+        `asset filter: no hashed build of "${url}". ` +
+          `Known: ${Object.keys(ASSETS.manifest).join(", ")}`,
+      );
+    }
+    return hashed;
+  });
+
   eleventyConfig.addPassthroughCopy({ "images": "images" });
   eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/favicon.svg`]: "favicon.svg" });
   eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/favicon.ico`]: "favicon.ico" });

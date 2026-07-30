@@ -26,11 +26,22 @@ eleventyExcludeFromCollections: true
 # from @fontsource and encode family, subset and weight, so a given name never
 # changes content. Cloudflare's default (max-age=14400) had the browser
 # revalidating ~146 KB of immutable woff2 every four hours.
-#
-# Deliberately NOT doing the same for /css/* and /js/*: those filenames are not
-# fingerprinted, so a long max-age would serve stale CSS after a deploy. Adding
-# content hashes to the build is the prerequisite for caching them hard.
 /fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# /css/* and /js/* are now content-hashed at build time (base.css ->
+# base.<hash>.css, see scripts/lib/asset-manifest.js), which is the prerequisite
+# this comment used to ask for. A changed file is a new URL, so `immutable` cannot
+# pin stale bytes — the previous max-age=14400 on unfingerprinted names could, and
+# did: on 2026-07-30 a deployed CSS fix kept being served from the old edge copy
+# for hours while the canonical URL looked fine.
+#
+# Safe as a wildcard specifically because the build emits NO unhashed copy. If you
+# ever reintroduce a plain /css/<name>.css, this header would cache it for a year.
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/js/*
   Cache-Control: public, max-age=31536000, immutable
 
 # ---- security ------------------------------------------------------------
