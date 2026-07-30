@@ -14,9 +14,39 @@ need an index, and empty children are a GSC error.
 <?xml version="1.0" encoding="UTF-8"?>
 {%- if sitemapBuckets.size > 0 -%}
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{%- comment -%}
+Each child carries a <lastmod> = the newest lastmod among its own URLs, so a
+crawler can skip a bucket that has not changed. Without it the index says only
+"here are three files", and re-fetching all three is the only safe move.
+
+Why it is derived by rendering the child rather than recomputed: the lastmod rules
+are genuinely intricate (apiReleased -> dateModified -> pageDates -> item.date, plus
+the isPage/noindex/`sitemap: false` filtering) and sitemap-urls.html is deliberately
+their only home. Reimplementing them here — or in a JS filter — would create a second
+copy free to drift, and a drifted lastmod is worse than none: Google discounts
+lastmod site-wide once it catches the file lying, and that discount would land on the
+blog entries where the dates are real.
+
+So we render the bucket, scrape the <lastmod> values back out, and take the max.
+Dates are YYYY-MM-DD, so `sort | last` is a correct maximum (lexicographic ordering
+matches chronological for ISO-8601). Rendering each child twice is free in a static
+build. Buckets whose URLs carry no lastmod at all (author/topic pages emit none)
+simply get no <lastmod>, which is valid.
+{%- endcomment -%}
 {%- for b in sitemapBuckets %}
+  {%- capture bucketXml -%}{%- include "sitemap-urls.html", bucket: b.name -%}{%- endcapture -%}
+  {%- assign found = "" -%}
+  {%- assign chunks = bucketXml | split: "<lastmod>" -%}
+  {%- for c in chunks offset: 1 -%}
+    {%- assign d = c | split: "</lastmod>" | first | strip -%}
+    {%- assign found = found | append: d | append: "," -%}
+  {%- endfor -%}
+  {%- assign dateList = found | split: "," | sort -%}
   <sitemap>
     <loc>{{ siteUrl }}/sitemap-{{ b.name }}.xml</loc>
+    {%- if dateList.size > 0 %}
+    <lastmod>{{ dateList | last }}</lastmod>
+    {%- endif %}
   </sitemap>
 {%- endfor %}
 </sitemapindex>
