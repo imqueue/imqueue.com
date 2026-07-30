@@ -123,13 +123,34 @@ async function checkLegacyApiRules() {
   }
   pass(`${kept} kept-tree URLs are served, not redirected`);
 
-  // Paths the resolver must keep its hands off.
-  for (const url of ['/api/', '/api/contact', '/api/core', '/api/unknown/1.0.0/']) {
+  // Paths the resolver must keep its hands off. /api/contact is the commercial
+  // Resend endpoint and shares the package-root URL shape, so it is the one that
+  // matters here: it must never be mistaken for a documented package.
+  for (const url of ['/api/', '/api/contact', '/api/contact/', '/api/unknown/1.0.0/', '/api/unknown/']) {
     if (resolveApiRedirect(url) !== null) {
       fail(`${url} must be left alone, got ${resolveApiRedirect(url)}`);
     }
   }
   pass('non-versioned and unknown-package paths are left alone');
+
+  // The package root of a documented package must reach the current major.
+  // /api/core/ and /api/rpc/ hard-404ed until this: nothing links to them, but
+  // they are the obvious trim target of a deep API URL and the path an agent
+  // guesses from the package name alone.
+  for (const pkg of Object.keys(API_VERSIONS)) {
+    for (const url of [`/api/${pkg}`, `/api/${pkg}/`]) {
+      const got = resolveApiRedirect(url);
+
+      if (got !== `/api/${pkg}/latest/`) {
+        fail(`${url} -> ${got === null ? 'served (404s)' : got} (want /api/${pkg}/latest/)`);
+      }
+      // One hop only.
+      if (resolveApiRedirect(`/api/${pkg}/latest/`) !== null) {
+        fail(`${url} would chain: /api/${pkg}/latest/ also redirects`);
+      }
+    }
+  }
+  pass(`${Object.keys(API_VERSIONS).length * 2} package-root URLs 301 to /latest/ in one hop`);
 
   // A version newer than the last docs build must still land somewhere useful —
   // the enumeration used to 404 these until the docs were rebuilt.
