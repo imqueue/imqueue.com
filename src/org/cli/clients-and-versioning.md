@@ -3,7 +3,7 @@ chapter: 7
 title: "Generate typed clients & bump versions"
 docLabel: "CLI MANUAL — 07 / 12"
 lead: "Generate strongly-typed RPC clients from running services, and bump versions across many services to trigger CI."
-description: "@imqueue/cli client generation and versioning: imq client generate for typed RPC clients from a running service, and imq service update-version to release across many services."
+description: "@imqueue/cli client generation and versioning: imq client generate for typed RPC clients, and imq service update-version to release across many services."
 keywords: "imq client generate, typed rpc client, imq service update-version, version bump microservices, imqueue client generation, update-version vs up"
 ogType: article
 ---

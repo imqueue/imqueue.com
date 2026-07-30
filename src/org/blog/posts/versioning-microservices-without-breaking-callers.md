@@ -4,7 +4,7 @@ permalink: /blog/versioning-microservices-without-breaking-callers/
 templateEngineOverride: md
 title: "Versioning microservices without breaking every caller"
 summary: "A change to one service's method quietly breaks the services that call it — and you find out in production. Here's how to make breaking changes loud at build time, which changes are actually safe, and how to handle the window where both versions are live."
-description: "How to version Node.js microservices without silently breaking callers: turning contract changes into compile errors with regenerated clients, which changes are additive, and surviving the mixed-version deploy window."
+description: "Version Node.js microservices without breaking callers: turn contract changes into compile errors with regenerated clients, and survive mixed-version deploys."
 keywords: "microservice versioning nodejs, breaking change microservices, coordinate service releases, api versioning, imqueue"
 date: 2026-07-02
 dateModified: 2026-07-29

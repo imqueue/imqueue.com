@@ -3,7 +3,7 @@ chapter: 5
 title: "Addon package catalog"
 docLabel: "CLI MANUAL — 05 / 12"
 lead: "Add secondary @imqueue libraries to a new service with --packages, wired in automatically from a data-driven catalog."
-description: "The @imqueue/cli addon package catalog: adding libraries with --packages, exclusive vs feature groups, what each addon injects, interactive selection, and extending the catalog."
+description: "The @imqueue/cli addon package catalog: adding libraries with --packages, exclusive vs feature groups, what each addon injects, and extending the catalog."
 keywords: "imq packages, imqueue addon catalog, --packages, service addons, opentelemetry pg-cache sequelize, imq service packages"
 ogType: article
 ---

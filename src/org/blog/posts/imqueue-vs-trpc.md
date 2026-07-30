@@ -4,7 +4,7 @@ permalink: /blog/imqueue-vs-trpc/
 templateEngineOverride: md
 title: "tRPC vs @imqueue: client–server types vs service–service RPC"
 summary: "tRPC gives you end-to-end types between a frontend and its backend. @imqueue gives you typed RPC between backend services over a queue. They solve adjacent — not competing — problems."
-description: "How tRPC and @imqueue differ: tRPC infers types across a shared TypeScript project for client-server calls over HTTP; @imqueue generates clients from a running service for queue-based RPC between backends."
+description: "tRPC infers types across a shared TypeScript project for HTTP calls; @imqueue generates clients from a running service for queue-based RPC between backends."
 keywords: "trpc vs imqueue, trpc alternative backend, typed rpc typescript, service to service rpc, imqueue, monorepo types"
 date: 2026-06-14
 dateModified: 2026-07-29

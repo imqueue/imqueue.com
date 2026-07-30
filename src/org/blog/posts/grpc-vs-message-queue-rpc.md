@@ -4,7 +4,7 @@ permalink: /blog/grpc-vs-message-queue-rpc/
 templateEngineOverride: md
 title: "gRPC vs message-queue RPC for internal Node.js services"
 summary: "gRPC is the default answer for typed RPC — and a great one, especially across languages. For an all-Node.js back-end, routing RPC through a queue trades some of gRPC's strengths for a lot less infrastructure."
-description: "gRPC vs message-queue RPC for internal Node.js services: schema vs generated client, addressing and load balancing, failure and timeout semantics, streaming, wire format, and what you actually have to operate."
+description: "gRPC vs message-queue RPC for internal Node.js services: schema vs generated client, addressing, load balancing, failure semantics, and what you operate."
 keywords: "grpc vs message queue, grpc alternative nodejs, rpc over redis, grpc nodejs microservices, imqueue, protobuf alternative"
 date: 2026-06-09
 dateModified: 2026-07-29

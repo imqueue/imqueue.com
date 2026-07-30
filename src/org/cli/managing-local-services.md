@@ -3,7 +3,7 @@ chapter: 8
 title: "Run a local fleet: start, stop, logs"
 docLabel: "CLI MANUAL — 08 / 12"
 lead: "Run a whole fleet of services side by side with imq ctl, imq log and imq up — start, stop, tail logs and bulk-update dependencies."
-description: "Manage a local @imqueue fleet: imq ctl start/stop/restart/status, combined colour-prefixed logs with imq log, and bulk dependency updates with imq up, including source-level service discovery."
+description: "Manage a local @imqueue fleet: imq ctl start/stop/restart/status, combined colour-prefixed logs with imq log, and bulk dependency updates with imq up."
 keywords: "imq ctl, imq log, imq up, local services, service discovery, start stop restart microservices, combined logs, bulk dependency update"
 ogType: article
 ---

@@ -4,7 +4,7 @@ section: docs
 title: "Agent recipe: isolated imq CLI environments"
 docLabel: AGENT RECIPE
 lead: "Machine-oriented instructions for AI agents managing multiple @imqueue projects on one machine: how to create isolated imq CLI environments per fleet with IMQ_CLI_HOME, verify them, and avoid the known failure modes."
-description: "AI-agent recipe for isolating imq CLI environments per project using IMQ_CLI_HOME: exact commands, verification steps, and failure modes for managing multiple @imqueue fleets on one machine."
+description: "AI-agent recipe for isolating imq CLI environments per project with IMQ_CLI_HOME: exact commands, verification steps, and failure modes."
 keywords: "IMQ_CLI_HOME, imq cli agent recipe, imqueue ai agent, isolated cli environment, multiple imqueue fleets, imq ctl isolation"
 relatedTopics: [tooling, dx, patterns]
 noindex: true

@@ -4,7 +4,7 @@ permalink: /blog/imqueue-vs-moleculer/
 templateEngineOverride: md
 title: "@imqueue vs Moleculer: two takes on Node.js microservices"
 summary: "Moleculer is a full-featured microservices framework with many transporters; @imqueue is a focused, TypeScript-first RPC layer over a message queue. Here's an honest comparison to help you pick."
-description: "An even-handed comparison of @imqueue and Moleculer for Node.js microservices: transports, typing model, resilience features, licensing, and what each asks you to operate."
+description: "@imqueue vs Moleculer for Node.js microservices: transports, typing model, resilience features, and what each one asks you to operate."
 keywords: "imqueue vs moleculer, moleculer alternative, Node.js microservices framework, TypeScript microservices, message queue RPC, moleculer comparison"
 date: 2026-06-19
 dateModified: 2026-07-29
