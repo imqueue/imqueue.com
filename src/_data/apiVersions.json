@@ -36,5 +36,13 @@
   "dd-trace": {
     "latest": "3.1.0",
     "archives": []
+  },
+  "graphql-dependency": {
+    "latest": "3.1.0",
+    "archives": []
+  },
+  "type-graphql-dependency": {
+    "latest": "3.0.3",
+    "archives": []
   }
 }
