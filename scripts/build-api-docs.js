@@ -1,11 +1,18 @@
 // build-api-docs.js — automatic @imqueue API-reference builder.
 //
+// Which packages are documented, and how they are grouped, lives in
+// scripts/lib/api-packages.js — shared with the /api/ landing page and the
+// generated Pages Functions, so adding a package is one config entry rather than
+// a hand edit in four files.
+//
 // Policy (per package):
 //   * /api/<pkg>/latest/  ALWAYS serves the current MAJOR's newest release.
 //     A new minor/patch of the current major just moves /latest/ forward — it
 //     is NOT published under its own versioned URL.
 //   * Each PAST major keeps exactly ONE archived copy: that major's highest
-//     release, at /api/<pkg>/<version>/ (shown under "Older versions").
+//     release, at /api/<pkg>/<version>/ (shown under "Older versions") —
+//     UNLESS the package is `latestOnly`, which publishes /latest/ and nothing
+//     else. Everything except core and rpc is latestOnly; see api-packages.js.
 //   * When a new major ships, the outgoing major's highest release becomes its
 //     archive entry and /latest/ moves to the new major.
 //
@@ -14,21 +21,53 @@
 //
 //   npm run build-docs                 # rebuild all packages per policy
 //   node scripts/build-api-docs.js rpc # just one package
+//   npm run build-docs -- --strict-prose  # fail, don't warn, under the summary floor
 //
 // Outputs: src/org/api/<pkg>/{latest,<archive-ver>}/ pages, src/_data/
-// apiVersions.json (consumed by the /api/ landing page), and the generated API
-// section of src/org/_redirects (retired version URLs 301 to their kept copy).
+// apiVersions.json (consumed by the /api/ landing page), functions/api/<pkg>/
+// (one Pages Function per package), and the generated API section of
+// src/org/_redirects (retired version URLs 301 to their kept copy).
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { ExtractorConfig, Extractor } = require('@microsoft/api-extractor');
-const { apiDescription } = require('./lib/api-summary');
+const { apiDescription, summaryParagraph } = require('./lib/api-summary');
+const { assertNoLostPages } = require('./lib/api-pages');
+const { PACKAGES: PACKAGES_ALL, shipped } = require('./lib/api-packages');
 const { generate: genCrosslinks } = require('./gen-api-crosslinks');
 
 const ROOT = process.cwd();
 const TMP = path.join(ROOT, '.api-tmp', 'build');
 const DOCUMENTER = path.join(ROOT, 'node_modules', '.bin', 'api-documenter');
-const PKGS = ['core', 'rpc'];
+// `planned` packages are in the taxonomy but have no pages yet — flipping one to
+// `shipped` in api-packages.js is what makes a wave land.
+const PKG_CONFIG = shipped();
+const PKGS = PKG_CONFIG.map(p => p.name);
+
+// summary%: the share of a package's generated pages whose OWN summary section
+// yields prose — i.e. pages where summaryParagraph() finds a real sentence between
+// the symbol heading and its signature block.
+//
+// This is the one doc-quality number this build reports, and it is deliberately
+// NOT the "prose%" proxy used to survey the packages before this landed. That
+// proxy asked whether the page contained any capital-initial line of 40+
+// characters anywhere, which counts table rows and Remarks prose. It ranked the
+// packages differently enough to matter: measured over the same api-documenter
+// output, pg-pubsub is 80% here against 53% by the proxy, async-logger 71% against
+// 36%, while opentelemetry drops from 86% to 64%.
+//
+// This measure is the one worth gating on because it is the same function that
+// fills each page's meta description and its /api/search-index.json summary. A
+// page counted as failing here is precisely a page whose description falls back to
+// "<symbol> — @imqueue/<pkg> <version> API reference" and whose search-index entry
+// carries no summary — a stub for both search and agents.
+//
+// Calibration under THIS metric: core 99% (160/161), rpc 99% (189/190). The
+// in-scope packages run 13%–83%, so a floor at the spine's level would reject all
+// of them. 40% is set to catch the packages that would ship mostly signature-only
+// stubs — type-graphql-dependency (13%), http-protect (31%), pg-cache (39%) — and
+// to pass the rest. Warn-only unless --strict-prose.
+const SUMMARY_FLOOR = 0.40;
 
 const GROUPS = [
   'Classes', 'Abstract Classes', 'Enumerations', 'Functions',
@@ -98,7 +137,17 @@ function cmpVer(a, b) {
 function majorOf(v) { return parseVer(v)[0]; }
 
 // Compute the publish plan for a package from its npm version history.
-function planFor(pkg) {
+//
+// `latestOnly` (api-packages.js) suppresses the archive derivation entirely.
+// Without it every new package would silently generate 2–4 extra copies of
+// itself: most have several past majors (pg-cache has 4, sequelize 3), and this
+// derivation is unconditional. Two knock-on effects are deliberate:
+//
+//   * a past-major URL 301s to /latest/ rather than 404ing, via the archive
+//     fallback in lib/api-redirects.js
+//   * cleanStale() keeps only `latest`, so flipping latestOnly ON for core or rpc
+//     later would DELETE the archives they already publish
+function planFor(pkg, { latestOnly = false } = {}) {
   const raw = JSON.parse(shq(`npm view @imqueue/${pkg} versions --json`));
   const versions = (Array.isArray(raw) ? raw : [raw])
     .filter(v => !v.includes('-')) // drop pre-releases
@@ -114,8 +163,10 @@ function planFor(pkg) {
   // highest release of each past major, newest major first
   const byMajor = {};
   for (const v of versions) { const m = majorOf(v); if (!byMajor[m] || cmpVer(v, byMajor[m]) > 0) byMajor[m] = v; }
-  const archives = Object.keys(byMajor).map(Number).filter(m => m < currentMajor)
-    .sort((a, b) => b - a).map(m => byMajor[m]);
+  const archives = latestOnly
+    ? []
+    : Object.keys(byMajor).map(Number).filter(m => m < currentMajor)
+      .sort((a, b) => b - a).map(m => byMajor[m]);
 
   return { versions, latest, currentMajor, archives, highestOfMajor: byMajor, released };
 }
@@ -219,6 +270,11 @@ function embed({ pkg, version, seg, mdDir, latestFiles, released }) {
 
   const basenames = new Set(['index']);
   let count = 0;
+  // summary%: pages whose own summary section yields prose. Uses the very same
+  // summaryParagraph() that fills the meta description, so a page counted as
+  // failing here is exactly a page whose description had to fall back to
+  // "<symbol> — @imqueue/<pkg> <version> API reference."
+  let withProse = 0;
   for (const file of fs.readdirSync(mdDir)) {
     if (!file.endsWith('.md')) continue;
     // api-documenter's package page is `<pkg>.md`, and it is also what index.md
@@ -237,6 +293,7 @@ function embed({ pkg, version, seg, mdDir, latestFiles, released }) {
     fs.writeFileSync(path.join(outDir, file),
       frontMatter(title, latestUrlFor(b), desc, crumbs, isMemberPage(b)) + md);
     count++;
+    if (summaryParagraph(raw)) withProse++;
   }
   const indexTitle = `@imqueue/${pkg} ${version} · API reference${isArchived ? ' (archived)' : ''}`;
   const indexDesc = apiDescription(pkgPageMd, { pkg, version, symbol: `${pkg} package` });
@@ -253,12 +310,15 @@ function embed({ pkg, version, seg, mdDir, latestFiles, released }) {
   fs.writeFileSync(path.join(outDir, `${seg}.11tydata.json`),
     JSON.stringify({ layout: 'apiref.html', section: 'api', bareTitle: true, apiPkg: pkg, apiVersion: version, apiVersionPath: seg, apiReleased: released || null, apiNav }, null, 2));
 
+  if (summaryParagraph(pkgPageMd)) withProse++;
+
+  const pages = count + 1; // + the package-root index.md
   console.log(`  embedded ${count} pages -> src/org/api/${pkg}/${seg}/ (${apiNav.reduce((n, g) => n + g.items.length, 0)} symbols)`);
-  return basenames;
+  return { basenames, summary: { pages, withProse } };
 }
 
 // Fetch a published version from npm and emit it at the given URL segment.
-// Returns the set of page basenames written (see embed()).
+// Returns { basenames, prose } — see embed().
 function generate({ pkg, version, seg, latestFiles, released }) {
   console.log(`\n=== @imqueue/${pkg}@${version}  ->  /api/${pkg}/${seg}/ ===`);
   const work = path.join(TMP, `${pkg}-${version}`);
@@ -272,11 +332,38 @@ function generate({ pkg, version, seg, latestFiles, released }) {
   const pj = require(path.join(pkgDir, 'package.json'));
   const entry = pj.types || pj.typings || 'index.d.ts';
 
-  // Resolve @imqueue/core for rpc's cross-package type references, but never
-  // bundle it (core has its own pages; bundling hits an api-extractor defect).
-  if (pj.dependencies && pj.dependencies['@imqueue/core']) {
-    sh(`npm install @imqueue/core@"${pj.dependencies['@imqueue/core']}" --no-save --no-audit --no-fund --ignore-scripts --loglevel=error`, pkgDir);
-    stripReexports(pkgDir, '@imqueue/core', { skipNodeModules: true });
+  // Resolve EVERY @imqueue/* dependency for cross-package type references, but
+  // never bundle one (each has its own pages; bundling hits an api-extractor
+  // defect). Then strip its re-exports, which is what stops a package
+  // re-documenting symbols another package owns.
+  //
+  // This used to be hard-coded to the single `@imqueue/core` case, which handled
+  // exactly one in-scope package (`job`). Six others depend on an @imqueue
+  // package that is NOT core and so got nothing installed and nothing stripped:
+  //
+  //   sequelize, tag-cache, dd-trace       -> @imqueue/rpc
+  //   pg-cache    -> @imqueue/pg-pubsub, @imqueue/rpc, @imqueue/tag-cache
+  //   http-protect            -> @imqueue/net
+  //   type-graphql-dependency -> @imqueue/graphql-dependency
+  //
+  // Worth being precise about what that cost, because it is easy to overstate:
+  // those packages still EXTRACT without this (measured — sequelize and dd-trace
+  // both produce complete models). What they lose is resolved cross-package types
+  // in signatures, and de-duplication: every symbol re-exported from a dependency
+  // ships a second page under this package's name, competing with the page the
+  // owning package publishes.
+  for (const [dep, range] of Object.entries(pj.dependencies || {})) {
+    if (!dep.startsWith('@imqueue/')) continue;
+
+    // Best-effort, matching the rest of this script: a dependency that cannot be
+    // installed degrades the output (unresolved types, duplicate pages) but must
+    // not take the whole build down.
+    try {
+      sh(`npm install ${dep}@"${range}" --no-save --no-audit --no-fund --ignore-scripts --loglevel=error`, pkgDir);
+      stripReexports(pkgDir, dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), { skipNodeModules: true });
+    } catch {
+      console.warn(`  WARN  could not install ${dep}@${range} for ${pkg} — its re-exported symbols will ship duplicate pages`);
+    }
   }
   // core re-exports EventEmitter from node:events; api-extractor throws a hard
   // "Unsupported export" on a re-exported EXTERNAL symbol. Strip those re-export
@@ -288,7 +375,14 @@ function generate({ pkg, version, seg, latestFiles, released }) {
     projectFolder: pkgDir,
     mainEntryPointFilePath: path.join(pkgDir, entry),
     bundledPackages: [],
-    compiler: { overrideTsconfig: { compilerOptions: { target: 'ESNext', module: 'nodenext', moduleResolution: 'nodenext', skipLibCheck: true, types: [], lib: ['ESNext'] }, include: [entry] } },
+    // types: ['node'], not []. With no ambient Node types, api-extractor throws a
+    // hard `Unable to follow symbol for "Buffer"` on any package that uses Buffer
+    // in its public surface — @imqueue/net does, and could not be documented at
+    // all. Measured safe to apply globally: against published core@3.3.0 and
+    // rpc@3.5.1 the two settings produce identical models (169 and 202 nodes, 0
+    // warnings, no symbol differences), so this does not perturb the pages the
+    // site already publishes. @types/node is a declared devDependency for this.
+    compiler: { overrideTsconfig: { compilerOptions: { target: 'ESNext', module: 'nodenext', moduleResolution: 'nodenext', skipLibCheck: true, types: ['node'], lib: ['ESNext'] }, include: [entry] } },
     apiReport: { enabled: false },
     docModel: { enabled: true, apiJsonFilePath: path.join(work, `${pkg}.api.json`) },
     dtsRollup: { enabled: false },
@@ -302,11 +396,23 @@ function generate({ pkg, version, seg, latestFiles, released }) {
     throw new Error(`API Extractor failed for ${pkg}@${version}`);
   }
 
+  const modelPath = path.join(work, `${pkg}.api.json`);
   const modelDir = path.join(work, 'model');
   fs.mkdirSync(modelDir, { recursive: true });
-  fs.copyFileSync(path.join(work, `${pkg}.api.json`), path.join(modelDir, `${pkg}.api.json`));
+  fs.copyFileSync(modelPath, path.join(modelDir, `${pkg}.api.json`));
   const mdDir = path.join(work, 'md');
   sh(`"${DOCUMENTER}" markdown --input-folder "${modelDir}" --output-folder "${mdDir}"`);
+
+  // Every symbol in the model must have got its own page. api-documenter builds
+  // filenames from lowercased symbol names and silently overwrites on a clash, so
+  // a lost page is otherwise invisible — see scripts/lib/api-pages.js.
+  const counts = assertNoLostPages({
+    pkg,
+    version,
+    model: JSON.parse(fs.readFileSync(modelPath, 'utf8')),
+    emitted: fs.readdirSync(mdDir).filter(f => f.endsWith('.md')),
+  });
+  console.log(`  ${counts.expected} model symbols -> ${counts.emitted} pages, no collisions`);
 
   return embed({ pkg, version, seg, mdDir, latestFiles, released });
 }
@@ -374,22 +480,167 @@ ${body}
   console.log(`Wrote lib/api-versions.js`);
 }
 
+// One Cloudflare Pages Function per package, GENERATED from api-packages.js.
+//
+// Deliberately still one mount per package rather than a single
+// functions/api/[pkg]/[[path]].js. `[[path]]` is an OPTIONAL catch-all, so
+// functions/api/[pkg]/[[path]].js compiles to /api/:pkg/* and DOES match a bare
+// single segment — proven live: GET /api/core, with nothing after `core`, 301s to
+// /api/core/latest/, which can only come from functions/api/core/[[path]].js. A
+// dynamic segment directly under /api/ would therefore sit on top of /api/contact
+// and rely on Pages route specificity, which lib/api-handler.js records as holding
+// "by convention" only. Generating the mounts removes the copy-paste cost — the
+// only real objection to the per-package layout — without taking that risk.
+//
+// Note check:redirects CANNOT catch a regression here: it runs
+// lib/api-redirects.js under plain node and has zero references to functions/.
+function writeFunctions() {
+  const dir = path.join(ROOT, 'functions', 'api');
+
+  for (const pkg of PKGS) {
+    const out = path.join(dir, pkg);
+    fs.mkdirSync(out, { recursive: true });
+    fs.writeFileSync(path.join(out, '[[path]].js'),
+      `// GENERATED by scripts/build-api-docs.js — do not edit by hand.
+// Cloudflare Pages Function — /api/${pkg}/*
+// Resolves retired @imqueue/${pkg} version URLs onto the kept version trees.
+// See lib/api-redirects.js for the policy and why this is not in _redirects.
+import { handleApiRequest } from "../../../lib/api-handler.js";
+
+export const onRequest = handleApiRequest;
+`);
+  }
+
+  // Retire the mount of a package that is no longer shipped. Scoped to names this
+  // config knows about, so functions/api/contact.js and anything hand-authored is
+  // never a candidate.
+  for (const p of PACKAGES_ALL) {
+    if (PKGS.includes(p.name)) continue;
+
+    const stale = path.join(dir, p.name);
+
+    if (fs.existsSync(stale)) {
+      rmrf(stale);
+      console.log(`  removed stale functions/api/${p.name}/`);
+    }
+  }
+
+  console.log(`Wrote ${PKGS.length} Pages Function(s): ${PKGS.map(p => `functions/api/${p}/`).join(', ')}`);
+}
+
+// No two packages may publish a page for the same symbol.
+//
+// De-duplication happens by stripping a dependency's re-exports (see generate()),
+// so a duplicate here means that stripping missed one: the same symbol would ship
+// at /api/<a>/latest/<a>.<sym>/ AND /api/<b>/latest/<b>.<sym>/, both
+// self-canonical and both in the sitemap for top-level symbols — a duplicate
+// signal the site generates against itself.
+function checkCrossPackageDupes() {
+  const owners = new Map();
+
+  for (const pkg of PKGS) {
+    const dir = path.join(ROOT, 'src', 'org', 'api', pkg, 'latest');
+
+    if (!fs.existsSync(dir)) continue;
+
+    for (const f of fs.readdirSync(dir)) {
+      if (!f.endsWith('.md') || f === 'index.md') continue;
+      if (!f.startsWith(`${pkg}.`)) continue;
+
+      const sym = f.slice(pkg.length + 1).replace(/\.md$/, '');
+
+      if (!owners.has(sym)) owners.set(sym, []);
+      owners.get(sym).push(pkg);
+    }
+  }
+
+  const dupes = [...owners].filter(([, pkgs]) => pkgs.length > 1);
+
+  if (!dupes.length) {
+    console.log(`\nNo cross-package duplicate symbols (${owners.size} symbols across ${PKGS.length} package(s)).`);
+    return;
+  }
+
+  console.error(`\n${dupes.length} symbol(s) documented by more than one package:`);
+  for (const [sym, pkgs] of dupes.slice(0, 20)) {
+    console.error(`  ${sym} <- ${pkgs.join(', ')}`);
+  }
+  if (dupes.length > 20) console.error(`  (+${dupes.length - 20} more)`);
+  console.error(
+    '\nEach of these ships two self-canonical pages for one symbol. Either the\n' +
+    'owning package\'s re-exports are not being stripped (check the @imqueue/*\n' +
+    'dependency install in generate()), or the symbol is genuinely declared twice.',
+  );
+  process.exitCode = 1;
+}
+
+// summary%, per package, against SUMMARY_FLOOR.
+function reportSummaryCoverage(coverage, strict) {
+  console.log('\nDoc-block coverage (summary%: pages whose own summary section has prose)');
+
+  let breached = 0;
+
+  for (const [pkg, m] of Object.entries(coverage)) {
+    const pct = m.pages ? m.withProse / m.pages : 0;
+    const under = pct < SUMMARY_FLOOR;
+
+    if (under) breached++;
+    console.log(
+      `  ${under ? 'LOW ' : 'ok  '}  ${pkg.padEnd(38)} ` +
+      `${String(Math.round(pct * 100)).padStart(3)}%  (${m.withProse}/${m.pages} pages)`,
+    );
+  }
+
+  if (!breached) return;
+
+  const msg =
+    `${breached} package(s) below the ${Math.round(SUMMARY_FLOOR * 100)}% summary floor. ` +
+    'Those pages ship as signature-only stubs — no meta description of their own ' +
+    'and no search-index summary: bad for search, and worse for an agent that gets ' +
+    'a type with no explanation. Improve the doc-blocks and RELEASE them — this ' +
+    'generator reads the published tarball, so an unreleased fix does not appear.';
+
+  if (strict) {
+    console.error(`\nFAIL  ${msg}`);
+    process.exitCode = 1;
+  } else {
+    console.warn(`\nWARN  ${msg}\n      (--strict-prose makes this fail)`);
+  }
+}
+
 function main() {
-  const only = process.argv.slice(2);
+  const argv = process.argv.slice(2);
+  const strictProse = argv.includes('--strict-prose');
+  const only = argv.filter(a => !a.startsWith('--'));
   const pkgs = only.length ? PKGS.filter(p => only.includes(p)) : PKGS;
+
+  const unknown = only.filter(p => !PKGS.includes(p));
+  if (unknown.length) {
+    throw new Error(
+      `Not a shipped package: ${unknown.join(', ')}. Shipped: ${PKGS.join(', ')}. ` +
+      'Add it to scripts/lib/api-packages.js, or flip its status to "shipped".',
+    );
+  }
 
   rmrf(TMP);
   fs.mkdirSync(TMP, { recursive: true });
   const apiVersions = {};
+  const coverage = {};
   try {
     for (const pkg of pkgs) {
-      const plan = planFor(pkg);
-      console.log(`\n##### @imqueue/${pkg}: latest ${plan.latest} (major ${plan.currentMajor}), archives [${plan.archives.join(', ') || 'none'}]`);
-      const latestFiles = generate({
+      const cfg = PKG_CONFIG.find(p => p.name === pkg);
+      const plan = planFor(pkg, { latestOnly: cfg.latestOnly });
+      console.log(
+        `\n##### @imqueue/${pkg}: latest ${plan.latest} (major ${plan.currentMajor}), ` +
+        `archives [${plan.archives.join(', ') || 'none'}]` +
+        `${cfg.latestOnly ? ' (latestOnly)' : ''}`,
+      );
+      const result = generate({
         pkg, version: plan.latest, seg: 'latest', released: plan.released[plan.latest],
       });
+      coverage[pkg] = result.summary;
       for (const v of plan.archives) {
-        generate({ pkg, version: v, seg: v, latestFiles, released: plan.released[v] });
+        generate({ pkg, version: v, seg: v, latestFiles: result.basenames, released: plan.released[v] });
       }
       cleanStale(pkg, ['latest', ...plan.archives]);
       apiVersions[pkg] = { latest: plan.latest, archives: plan.archives };
@@ -399,17 +650,21 @@ function main() {
   }
 
   // Only rewrite shared outputs for a full build (partial builds would drop the
-  // other package's data / redirects).
+  // other packages' data / redirects / Functions).
   if (pkgs.length === PKGS.length) {
     fs.writeFileSync(path.join(ROOT, 'src', '_data', 'apiVersions.json'), JSON.stringify(apiVersions, null, 2) + '\n');
     console.log(`\nWrote src/_data/apiVersions.json: ${JSON.stringify(apiVersions)}`);
     writeVersionModule(apiVersions);
     writeRedirects();
-    // Depends on both packages' pages being on disk, so it runs last.
+    writeFunctions();
+    // Both depend on every package's pages being on disk, so they run last.
     genCrosslinks();
+    checkCrossPackageDupes();
   } else {
-    console.log('\nPartial build — left src/_data/apiVersions.json, lib/api-versions.js and src/org/_redirects untouched.');
+    console.log('\nPartial build — left src/_data/apiVersions.json, lib/api-versions.js, src/org/_redirects and functions/api/ untouched.');
   }
+
+  reportSummaryCoverage(coverage, strictProse);
   console.log('\nDone!');
 }
 

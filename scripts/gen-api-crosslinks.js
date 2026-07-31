@@ -17,9 +17,34 @@
 // does not exist. Run standalone or via `npm run build-docs`.
 //
 //   node scripts/gen-api-crosslinks.js
+//
+// --- why this stays the core/rpc pair, and is NOT generalised ---------------
+//
+// build-api-docs.js now strips the re-exports of EVERY @imqueue/* dependency, not
+// just core's, so several packages will have symbols removed from their generated
+// surface. The obvious next step looks like emitting a salvage map for each of
+// those pairs too. It would be wrong.
+//
+// This map exists for one historical accident: ~159 /api/rpc/latest/rpc.<sym>/
+// URLs were PUBLISHED, indexed by Google, and then stopped existing when the
+// stripping landed. The 301s pay off that specific debt. A package documented for
+// the first time in a later wave has no such debt — its stripped symbols were
+// never published under its name, so a redirect for them would be inventing a
+// mapping for a URL that never existed, and pointing crawlers at a shape the site
+// never had.
+//
+// The generalisation that IS needed is the other half: an assertion that no two
+// packages publish a page for the same symbol. That lives in build-api-docs.js
+// (checkCrossPackageDupes) because it needs every package's pages on disk, and it
+// catches a stripping failure at build time instead of waiting for a duplicate to
+// be indexed.
+//
+// So: if a future package ever ships pages and only LATER gets its re-exports
+// stripped, that is when it needs an entry here — not on first publication.
 
 const fs = require('fs');
 const path = require('path');
+const { shipped } = require('./lib/api-packages');
 
 const ROOT = path.join(__dirname, '..');
 const API_DIR = path.join(ROOT, 'src', 'org', 'api');
@@ -42,6 +67,19 @@ function symbolsOf(pkg) {
 }
 
 function generate() {
+  // Guard the assumption above rather than leaving it implicit: if either half of
+  // the pair ever stops being generated, this map would silently emit an empty (or
+  // wildly wrong) set and 159 indexed URLs would go back to 404ing.
+  const names = shipped().map(p => p.name);
+  const missing = ['core', 'rpc'].filter(p => !names.includes(p));
+
+  if (missing.length) {
+    throw new Error(
+      `gen-api-crosslinks: ${missing.join(' and ')} not shipped, but the salvage ` +
+      'map is derived from the core/rpc pair. See the note at the top of this file.',
+    );
+  }
+
   const core = symbolsOf('core');
   const rpc = symbolsOf('rpc');
 
