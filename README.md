@@ -51,6 +51,13 @@ Per-edition `_redirects` and `_headers` are generated into each build
 
 `functions/` is shared by both Pages projects:
 
+- `functions/_middleware.js` — 301s `imqueue.net` and `www.imqueue.net` onto
+  imqueue.org. Both are custom domains on the imqueue-org project, so without this
+  they serve the docs site on a second hostname rather than pointing at it. Because
+  this directory is shared, a root middleware runs in front of **every** request to
+  both sites, so it is written to fail open: any internal error falls through to
+  `next()`, degrading to "no redirect" rather than "site down". A Cloudflare Redirect
+  Rule is the better mechanism and should replace it — see the header comment.
 - `functions/api/contact.js` — the commercial lead form (imqueue.com `/pricing/`).
 - `functions/api/{core,rpc}/[[path]].js` — resolves retired API version URLs onto
   the version trees that are actually published, using `lib/api-redirects.js`.
