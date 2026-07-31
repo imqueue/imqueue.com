@@ -36,6 +36,13 @@
 /* tables (scroll horizontally within their own box instead of overflowing the page) */
 .prose table { display: block; width: 100%; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 0 0 20px; font-size: 16.5px; }
 .prose th, .prose td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+/* Inline code in a table cell must not break mid-word. `overflow-wrap: anywhere`
+   above is right for prose — it stops a long type name overflowing the page — but
+   it also drops the cell's min-content width to a single character, so a narrow
+   viewport squeezed the generated reference's MODIFIERS column until `readonly`
+   split into "readonl" / "y". Reverting to `normal` makes the longest word the
+   floor again, and the table's own overflow-x handles anything wider. */
+.prose th :not(pre) > code, .prose td :not(pre) > code { overflow-wrap: normal; }
 .prose th { font-family: var(--font-mono); font-size: 13.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 
 /* docs layout: left sticky sidebar nav + content (same pattern as the tutorial).
@@ -82,9 +89,23 @@
    Deliberately lighter than .api-ref-card: the two spine cards stay the visual
    anchor of the section, and 14 cards of equal weight would flatten that. */
 .prose .api-pkg-list { list-style: none; padding: 0; margin: 0 0 18px; display: flex; flex-direction: column; gap: 8px; }
-.prose .api-pkg { margin: 0; padding: 13px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface2); display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.prose .api-pkg { margin: 0; }
+/* The whole entry is the link, so the accent-border hover covers the entire box —
+   the same behaviour as .api-ref-card above, .post-card and a.card, using the same
+   transition and the same token so all four match. Linking only the package name
+   would have left most of the box looking clickable without being clickable.
+   text-decoration:none overrides .prose a:hover, which would otherwise underline
+   the blurb and the tag chips along with the name. */
+.prose .api-pkg-link { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 13px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface2); transition: border-color .15s ease; }
+.prose .api-pkg-link:hover { border-color: var(--accent); text-decoration: none; }
 .prose .api-pkg-name { font-family: var(--font-mono); font-weight: 600; font-size: 15.5px; color: var(--accent); }
 .prose .api-pkg-tags { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+/* Current version, same .api-ref-ver pill the two spine cards use. Pushed to the
+   right edge so it does not read as a third tag: on the spine cards the version
+   sits opposite the package name, and keeping that position is what makes the two
+   blocks recognisably the same information. Tier 2 is `latest` only, so there is
+   no "Older versions" list to sit beside it. */
+.prose .api-pkg-ver { margin-left: auto; }
 .prose .api-pkg-blurb { flex: 1 1 100%; font-size: 15px; color: var(--muted); line-height: 1.6; }
 @media (max-width: 620px) { .prose .api-ref-cards { grid-template-columns: 1fr; } }
 
