@@ -51,10 +51,6 @@
         {
           "name": "Dependency",
           "url": "/api/graphql-dependency/latest/graphql-dependency.dependency/"
-        },
-        {
-          "name": "GraphQLDependency.create()",
-          "url": "/api/graphql-dependency/latest/graphql-dependency.graphqldependency.create/"
         }
       ]
     },
@@ -72,10 +68,6 @@
         {
           "name": "DependencyFieldsGetter",
           "url": "/api/graphql-dependency/latest/graphql-dependency.dependencyfieldsgetter/"
-        },
-        {
-          "name": "DependencyOptionsGetter",
-          "url": "/api/graphql-dependency/latest/graphql-dependency.dependencyoptionsgetter/"
         },
         {
           "name": "DependencyOptionsGetter",
