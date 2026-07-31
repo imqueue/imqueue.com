@@ -71,7 +71,18 @@
     // active chapter).
     var links = [].slice.call(layout.querySelectorAll('.doc-toc a[href^="#"]'));
     var targets = links.map(function (a) {
-      var el = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+      // markdown-it-anchor runs the slug through encodeURIComponent and writes
+      // the RESULT into the id attribute, so a heading like "Data & events"
+      // really is id="data-%26-events". Look the raw fragment up first;
+      // decoding it would ask for "data-&-events" and find nothing, and a
+      // dropped target silently leaves the previous item highlighted while
+      // that section is on screen. The decoded form stays as a fallback for a
+      // hand-written id holding a literal non-ASCII character.
+      var frag = a.getAttribute('href').slice(1);
+      var el = document.getElementById(frag);
+      if (!el) {
+        try { el = document.getElementById(decodeURIComponent(frag)); } catch (e) {}
+      }
       return el ? { a: a, el: el } : null;
     }).filter(Boolean);
     if (!targets.length) return;
