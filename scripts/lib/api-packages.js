@@ -199,10 +199,11 @@ const PACKAGES = [
     tier: 2,
     group: 'API composition',
     tags: [],
-    blurb: 'Cross-service GraphQL dependencies for underlying @imqueue services.',
+    blurb:
+      'Declarative cross-service dependency loading for GraphQL — nested data in bulk instead of one call per resolved object.',
     cliId: 'graphql-dependency',
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 3,
   },
   {
@@ -210,10 +211,11 @@ const PACKAGES = [
     tier: 2,
     group: 'API composition',
     tags: [],
-    blurb: 'Adoption of @imqueue/graphql-dependency for use with type-graphql.',
+    blurb:
+      'The same dependency loading for type-graphql — declared on your decorated classes rather than on raw GraphQL types.',
     cliId: 'type-graphql-dependency',
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 3,
   },
 

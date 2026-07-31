@@ -1,0 +1,91 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "graphql-dependency",
+  "apiVersion": "3.1.0",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-07-31T20:24:23.203Z",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "GraphQLDependency",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.graphqldependency/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "DataInitializerResult",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.datainitializerresult/"
+        },
+        {
+          "name": "DependencyFilterOptions",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.dependencyfilteroptions/"
+        },
+        {
+          "name": "DependencyOptions",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.dependencyoptions/"
+        },
+        {
+          "name": "ResolutionCacheData",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.resolutioncachedata/"
+        },
+        {
+          "name": "ResolutionCacheDataMap",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.resolutioncachedatamap/"
+        },
+        {
+          "name": "ResolutionCallsMap",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.resolutioncallsmap/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "Dependency",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.dependency/"
+        },
+        {
+          "name": "GraphQLDependency.create()",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.graphqldependency.create/"
+        }
+      ]
+    },
+    {
+      "group": "Type Aliases",
+      "items": [
+        {
+          "name": "DataInitializer",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.datainitializer/"
+        },
+        {
+          "name": "DataLoader",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.dataloader/"
+        },
+        {
+          "name": "DependencyFieldsGetter",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.dependencyfieldsgetter/"
+        },
+        {
+          "name": "DependencyOptionsGetter",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.dependencyoptionsgetter/"
+        },
+        {
+          "name": "DependencyOptionsGetter",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.dependencyoptionsgetter/"
+        },
+        {
+          "name": "ResolutionCache",
+          "url": "/api/graphql-dependency/latest/graphql-dependency.resolutioncache/"
+        }
+      ]
+    }
+  ]
+}

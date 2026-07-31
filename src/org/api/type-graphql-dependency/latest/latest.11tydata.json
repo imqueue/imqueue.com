@@ -1,0 +1,75 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "type-graphql-dependency",
+  "apiVersion": "3.0.3",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-07-31T20:24:50.695Z",
+  "apiNav": [
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "DependencyFor(options)",
+          "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.dependencyfor/"
+        },
+        {
+          "name": "onCreateSchema(handler)",
+          "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.oncreateschema/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "DependencyInterface",
+          "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.dependencyinterface/"
+        },
+        {
+          "name": "Dependency",
+          "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.dependency/"
+        },
+        {
+          "name": "DependentTypeRelations",
+          "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.dependenttyperelations/"
+        },
+        {
+          "name": "DependsOptions",
+          "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.dependsoptions/"
+        },
+        {
+          "name": "DependencyFor()",
+          "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.dependencyfor/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "Dependency",
+          "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.dependency/"
+        },
+        {
+          "name": "schemaHooks",
+          "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.schemahooks/"
+        }
+      ]
+    },
+    {
+      "group": "Type Aliases",
+      "items": [
+        {
+          "name": "CreateSchemaHook",
+          "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.createschemahook/"
+        },
+        {
+          "name": "DependentType",
+          "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.dependenttype/"
+        }
+      ]
+    }
+  ]
+}
