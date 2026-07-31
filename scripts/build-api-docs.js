@@ -33,6 +33,7 @@ const path = require('path');
 const { ExtractorConfig, Extractor } = require('@microsoft/api-extractor');
 const { apiDescription, summaryParagraph } = require('./lib/api-summary');
 const { assertNoLostPages } = require('./lib/api-pages');
+const { normalizeModel } = require('./lib/api-model');
 const { PACKAGES: PACKAGES_ALL, shipped } = require('./lib/api-packages');
 const { generate: genCrosslinks } = require('./gen-api-crosslinks');
 
@@ -396,20 +397,29 @@ function generate({ pkg, version, seg, latestFiles, released }) {
     throw new Error(`API Extractor failed for ${pkg}@${version}`);
   }
 
-  const modelPath = path.join(work, `${pkg}.api.json`);
+  // Normalise the model into a shape api-documenter can represent before it runs:
+  // fold a declaration-merged class+interface into one symbol, and give
+  // same-name static/instance siblings distinct pages. Without this a legitimate
+  // TypeScript pattern silently loses a page — see scripts/lib/api-model.js.
+  const model = JSON.parse(fs.readFileSync(path.join(work, `${pkg}.api.json`), 'utf8'));
+  for (const note of normalizeModel(model)) {
+    console.log(`  model: ${note}`);
+  }
+
   const modelDir = path.join(work, 'model');
   fs.mkdirSync(modelDir, { recursive: true });
-  fs.copyFileSync(modelPath, path.join(modelDir, `${pkg}.api.json`));
+  fs.writeFileSync(path.join(modelDir, `${pkg}.api.json`), JSON.stringify(model));
   const mdDir = path.join(work, 'md');
   sh(`"${DOCUMENTER}" markdown --input-folder "${modelDir}" --output-folder "${mdDir}"`);
 
   // Every symbol in the model must have got its own page. api-documenter builds
   // filenames from lowercased symbol names and silently overwrites on a clash, so
-  // a lost page is otherwise invisible — see scripts/lib/api-pages.js.
+  // a lost page is otherwise invisible — see scripts/lib/api-pages.js. Asserted
+  // against the NORMALISED model, which is what api-documenter was given.
   const counts = assertNoLostPages({
     pkg,
     version,
-    model: JSON.parse(fs.readFileSync(modelPath, 'utf8')),
+    model,
     emitted: fs.readdirSync(mdDir).filter(f => f.endsWith('.md')),
   });
   console.log(`  ${counts.expected} model symbols -> ${counts.emitted} pages, no collisions`);
@@ -528,13 +538,29 @@ export const onRequest = handleApiRequest;
   console.log(`Wrote ${PKGS.length} Pages Function(s): ${PKGS.map(p => `functions/api/${p}/`).join(', ')}`);
 }
 
-// No two packages may publish a page for the same symbol.
+// Report symbols that more than one package documents.
 //
-// De-duplication happens by stripping a dependency's re-exports (see generate()),
-// so a duplicate here means that stripping missed one: the same symbol would ship
-// at /api/<a>/latest/<a>.<sym>/ AND /api/<b>/latest/<b>.<sym>/, both
-// self-canonical and both in the sitemap for top-level symbols — a duplicate
-// signal the site generates against itself.
+// This is a REPORT, not a gate, and the distinction took a wrong turn to find.
+// The obvious assumption is that a shared name means de-duplication failed —
+// stripping a dependency's re-exports (see generate()) is what stops a package
+// re-documenting symbols another package owns, so a leftover looks like a bug.
+//
+// Measured, it is the opposite. Every shared name in the current set is an
+// INDEPENDENT declaration that happens to reuse a name:
+//
+//   AnyJson    core: boolean|number|string|null|undefined|JsonArray|JsonObject
+//              pg-pubsub: boolean|number|string|null|JsonArray|JsonMap
+//   ILogger    pg-cache declares its own in src/env.ts rather than depending on core
+//
+// Those are different types, in different packages, at different URLs. Each one
+// needs its own page — suppressing either would document a type the package does
+// not have. So failing the build here would block a wave over correct output.
+//
+// What the report is for: a signature that is byte-IDENTICAL across two packages
+// is the shape a genuinely unstripped re-export takes, and that is worth looking
+// at. A differing signature is just a reused name. Both are listed, separately,
+// because "pg-cache copied ILogger instead of importing it" is useful to know
+// even though it is not a docs bug.
 function checkCrossPackageDupes() {
   const owners = new Map();
 
@@ -548,30 +574,49 @@ function checkCrossPackageDupes() {
       if (!f.startsWith(`${pkg}.`)) continue;
 
       const sym = f.slice(pkg.length + 1).replace(/\.md$/, '');
+      const md = fs.readFileSync(path.join(dir, f), 'utf8');
+      // api-documenter emits CRLF, so \r?\n — anchoring on \n alone made every
+      // signature read as empty, which reported all of them as identical.
+      const sig = (/```typescript\r?\n([\s\S]*?)```/.exec(md) || [, ''])[1]
+        .replace(/\r/g, '').trim();
 
       if (!owners.has(sym)) owners.set(sym, []);
-      owners.get(sym).push(pkg);
+      owners.get(sym).push({ pkg, sig });
     }
   }
 
-  const dupes = [...owners].filter(([, pkgs]) => pkgs.length > 1);
+  const shared = [...owners].filter(([, list]) => list.length > 1);
 
-  if (!dupes.length) {
-    console.log(`\nNo cross-package duplicate symbols (${owners.size} symbols across ${PKGS.length} package(s)).`);
+  if (!shared.length) {
+    console.log(`\nNo symbol names shared across packages (${owners.size} symbols, ${PKGS.length} package(s)).`);
     return;
   }
 
-  console.error(`\n${dupes.length} symbol(s) documented by more than one package:`);
-  for (const [sym, pkgs] of dupes.slice(0, 20)) {
-    console.error(`  ${sym} <- ${pkgs.join(', ')}`);
+  const identical = shared.filter(([, l]) => new Set(l.map(x => x.sig)).size === 1);
+  const distinct = shared.filter(([, l]) => new Set(l.map(x => x.sig)).size > 1);
+
+  console.log(`\n${shared.length} symbol name(s) documented by more than one package:`);
+
+  for (const [sym, list] of distinct) {
+    console.log(`  differing  ${sym.padEnd(26)} ${list.map(x => x.pkg).join(', ')}`);
   }
-  if (dupes.length > 20) console.error(`  (+${dupes.length - 20} more)`);
-  console.error(
-    '\nEach of these ships two self-canonical pages for one symbol. Either the\n' +
-    'owning package\'s re-exports are not being stripped (check the @imqueue/*\n' +
-    'dependency install in generate()), or the symbol is genuinely declared twice.',
-  );
-  process.exitCode = 1;
+  for (const [sym, list] of identical) {
+    console.log(`  IDENTICAL  ${sym.padEnd(26)} ${list.map(x => x.pkg).join(', ')}`);
+  }
+
+  if (distinct.length) {
+    console.log(
+      `  ${distinct.length} have different signatures — separate types that reuse a name.\n` +
+      '  Correct as-is: each package documents the type it actually exports.',
+    );
+  }
+  if (identical.length) {
+    console.log(
+      `  ${identical.length} are byte-identical. Check whether one is an unstripped re-export\n` +
+      '  from a dependency (see the @imqueue/* install in generate()); if it is a\n' +
+      '  hand-copied declaration, that is the package\'s call, not this build\'s.',
+    );
+  }
 }
 
 // summary%, per package, against SUMMARY_FLOOR.
