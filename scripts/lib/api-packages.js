@@ -260,10 +260,11 @@ const PACKAGES = [
     tier: 2,
     group: 'Background work',
     tags: [],
-    blurb: 'Simple job queue.',
+    blurb: 'Safe-by-default Redis job queue — delayed and scheduled jobs, '
+      + 'at-least-once delivery, and retries driven by the handler.',
     cliId: 'job',
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 4,
   },
 ];
