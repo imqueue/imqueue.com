@@ -361,6 +361,5 @@ npm i --save @imqueue/pg-pubsub
 ~~~
 
 The [full option list and API
-docs](https://github.com/imqueue/pg-pubsub/wiki) cover the reconnect settings,
-the `filtered` option for ignoring your own notifications, and the environment
-variables for the lock schema name.
+reference](/api/pg-pubsub/latest/) covers the reconnect settings, the `filtered`
+option for ignoring your own notifications, and the lock schema name.

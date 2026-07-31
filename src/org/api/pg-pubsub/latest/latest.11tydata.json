@@ -1,0 +1,188 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "pg-pubsub",
+  "apiVersion": "3.0.3",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-07-31T16:26:11.190Z",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "NoLock",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.nolock/"
+        },
+        {
+          "name": "PgIpLock",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.pgiplock/"
+        },
+        {
+          "name": "PgPubSub",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.pgpubsub/"
+        }
+      ]
+    },
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "channel(payload)",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.channel/"
+        },
+        {
+          "name": "close()",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.close/"
+        },
+        {
+          "name": "connect()",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.connect/"
+        },
+        {
+          "name": "enableGracefulShutdown()",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.enablegracefulshutdown/"
+        },
+        {
+          "name": "end()",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.end/"
+        },
+        {
+          "name": "error(err)",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.error/"
+        },
+        {
+          "name": "listen(channels)",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.listen/"
+        },
+        {
+          "name": "message(chan, payload)",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.message/"
+        },
+        {
+          "name": "notify(chan, payload)",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.notify/"
+        },
+        {
+          "name": "pack(input, logger, pretty)",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.pack/"
+        },
+        {
+          "name": "reconnect(retries)",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.reconnect/"
+        },
+        {
+          "name": "signature(processId, channel, payload)",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.signature/"
+        },
+        {
+          "name": "unlisten(channels)",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.unlisten/"
+        },
+        {
+          "name": "unpack(input, logger)",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.unpack/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "AnyLock",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.anylock/"
+        },
+        {
+          "name": "AnyLogger",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.anylogger/"
+        },
+        {
+          "name": "JsonMap",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.jsonmap/"
+        },
+        {
+          "name": "PgClient",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.pgclient/"
+        },
+        {
+          "name": "PgPubSubOptions",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.pgpubsuboptions/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "ACQUIRE_INTERVAL",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.acquire_interval/"
+        },
+        {
+          "name": "DefaultOptions",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.defaultoptions/"
+        },
+        {
+          "name": "EXECUTION_LOCK",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.execution_lock/"
+        },
+        {
+          "name": "UNIQUE_LOCK_TTL",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.unique_lock_ttl/"
+        },
+        {
+          "name": "IS_ONE_PROCESS",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.is_one_process/"
+        },
+        {
+          "name": "RETRY_DELAY",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.retry_delay/"
+        },
+        {
+          "name": "RETRY_LIMIT",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.retry_limit/"
+        },
+        {
+          "name": "RX_LOCK_CHANNEL",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.rx_lock_channel/"
+        },
+        {
+          "name": "PgIpLock",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.pgiplock/"
+        },
+        {
+          "name": "SCHEMA_NAME",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.schema_name/"
+        },
+        {
+          "name": "SHUTDOWN_TIMEOUT",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.shutdown_timeout/"
+        },
+        {
+          "name": "PgPubSub.destroy()",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.pgpubsub.destroy/"
+        },
+        {
+          "name": "ACQUIRE_INTERVAL",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.acquire_interval/"
+        },
+        {
+          "name": "UNIQUE_LOCK_TTL",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.unique_lock_ttl/"
+        }
+      ]
+    },
+    {
+      "group": "Type Aliases",
+      "items": [
+        {
+          "name": "AnyJson",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.anyjson/"
+        },
+        {
+          "name": "JsonArray",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.jsonarray/"
+        }
+      ]
+    }
+  ]
+}
