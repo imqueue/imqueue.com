@@ -36,12 +36,22 @@ const PAGE_EXT = new Set(['.md', '.html']);
 // Excluded by prefix, relative to ROOT and posix-separated.
 const SKIP = [
   'src/org/blog/posts/', // real `date:` front matter
-  // The GENERATED version trees only — no editorial date, and their sitemap
-  // lastmod comes from the npm release date instead (apiReleased). The /api/
-  // landing page above them is hand-authored, so it does belong here.
-  'src/org/api/core/',
-  'src/org/api/rpc/',
 ];
+
+// The GENERATED API version trees — no editorial date, and their sitemap lastmod
+// comes from the npm release date instead (apiReleased).
+//
+// Matched by SHAPE, not by package name. This used to be two literal prefixes
+// ('src/org/api/core/', 'src/org/api/rpc/'), which silently stopped working the
+// moment a third package was documented: its pages fell through to datesFor(),
+// and `check:dates` exited 1 on every wave. That failure is nastier than it
+// sounds — at pre-commit the generated files are staged but uncommitted, so
+// datesFor() returns null, they are omitted as "untracked", and the hook PASSES.
+// The build then fails in CI, after the commit is already made.
+//
+// Anything one level below src/org/api/ is a package tree; src/org/api/index.md
+// sits directly in it, is hand-authored, and does belong here.
+const API_VERSION_TREE = /^src\/org\/api\/[^/]+\//;
 
 const posix = (p) => p.split(path.sep).join('/');
 
@@ -59,7 +69,9 @@ function walk(dir, out = []) {
 
     const rel = posix(path.relative(ROOT, full));
 
-    if (!SKIP.some((s) => rel.startsWith(s))) out.push(rel);
+    if (SKIP.some((s) => rel.startsWith(s)) || API_VERSION_TREE.test(rel)) continue;
+
+    out.push(rel);
   }
   return out;
 }
