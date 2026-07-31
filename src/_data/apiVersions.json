@@ -44,5 +44,9 @@
   "type-graphql-dependency": {
     "latest": "3.0.3",
     "archives": []
+  },
+  "job": {
+    "latest": "3.0.3",
+    "archives": []
   }
 }

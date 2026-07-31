@@ -1,0 +1,66 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "job",
+  "apiVersion": "3.0.3",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-07-31T21:47:39.672Z",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "JobQueue",
+          "url": "/api/job/latest/job.jobqueue/"
+        },
+        {
+          "name": "JobQueuePublisher",
+          "url": "/api/job/latest/job.jobqueuepublisher/"
+        },
+        {
+          "name": "JobQueueWorker",
+          "url": "/api/job/latest/job.jobqueueworker/"
+        }
+      ]
+    },
+    {
+      "group": "Abstract Classes",
+      "items": [
+        {
+          "name": "BaseJobQueue",
+          "url": "/api/job/latest/job.basejobqueue/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "AnyJobQueue",
+          "url": "/api/job/latest/job.anyjobqueue/"
+        },
+        {
+          "name": "AnyJobQueuePublisher",
+          "url": "/api/job/latest/job.anyjobqueuepublisher/"
+        },
+        {
+          "name": "AnyJobQueueWorker",
+          "url": "/api/job/latest/job.anyjobqueueworker/"
+        },
+        {
+          "name": "JobQueueOptions",
+          "url": "/api/job/latest/job.jobqueueoptions/"
+        },
+        {
+          "name": "JobQueuePopHandler",
+          "url": "/api/job/latest/job.jobqueuepophandler/"
+        },
+        {
+          "name": "PushOptions",
+          "url": "/api/job/latest/job.pushoptions/"
+        }
+      ]
+    }
+  ]
+}
