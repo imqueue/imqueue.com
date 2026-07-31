@@ -1,6 +1,6 @@
 ---
 title: "IJson type · @imqueue/core v2.0.26 (archived)"
-description: "> Warning: This API is now obsolete. > >"
+description: "Warning: This API is now obsolete."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/2.0.26/"},{"name":"IJson","url":"/api/core/2.0.26/core.ijson/"}]
 noindex: true
 latestUrl: "/api/core/latest/"

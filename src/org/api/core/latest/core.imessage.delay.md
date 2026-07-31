@@ -1,6 +1,6 @@
 ---
 title: "IMessage.delay property · @imqueue/core"
-description: "> Warning: This API is now obsolete. > > Inert, and always absent in practice — the Redis adapter never writes this field and never reads it."
+description: "Warning: This API is now obsolete. Inert, and always absent in practice — the Redis adapter never writes this field and never reads it."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"IMessage","url":"/api/core/latest/core.imessage/"},{"name":"delay","url":"/api/core/latest/core.imessage.delay/"}]
 sitemap: false
 ---
