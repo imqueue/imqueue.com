@@ -77,6 +77,15 @@
 .prose .api-older-body { padding: 0 18px 16px; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-mono); font-size: 14.5px; }
 .prose .api-older-body a { color: var(--accent); margin-right: 10px; }
 .prose .api-older-pkg { color: var(--muted); margin-right: 10px; }
+
+/* Tier 2 groups on /api/ — one flat list per group, tags as chips on the entry.
+   Deliberately lighter than .api-ref-card: the two spine cards stay the visual
+   anchor of the section, and 14 cards of equal weight would flatten that. */
+.prose .api-pkg-list { list-style: none; padding: 0; margin: 0 0 18px; display: flex; flex-direction: column; gap: 8px; }
+.prose .api-pkg { margin: 0; padding: 13px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface2); display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.prose .api-pkg-name { font-family: var(--font-mono); font-weight: 600; font-size: 15.5px; color: var(--accent); }
+.prose .api-pkg-tags { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.prose .api-pkg-blurb { flex: 1 1 100%; font-size: 15px; color: var(--muted); line-height: 1.6; }
 @media (max-width: 620px) { .prose .api-ref-cards { grid-template-columns: 1fr; } }
 
 /* FAQ accordion */
