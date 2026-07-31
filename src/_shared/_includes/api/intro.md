@@ -1,8 +1,11 @@
 ## Introduction
 
-`@imqueue` is made up of three packages — `core`, `rpc` and `cli`. `cli` is a
-rapid-development command-line tool, used globally as a utility; `core` and `rpc`
-make up the runtime API documented below.
+`core` and `rpc` are the framework spine — the runtime API documented below, and
+the two packages every @imqueue service is built on. Capability packages such as
+`pg-pubsub` or `async-logger` layer on top of them, each publishing its own
+generated reference under `/api/`. `cli` is different again: a rapid-development
+command-line tool installed globally, documented by a handwritten manual rather
+than a generated reference.
 
 @imqueue packaging follows a nesting principle: each higher-level package
 re-exports the full functionality of the package it depends on. So importing
