@@ -14,15 +14,15 @@
     ]
   },
   "pg-pubsub": {
-    "latest": "3.0.3",
+    "latest": "3.0.4",
     "archives": []
   },
   "pg-cache": {
-    "latest": "5.0.3",
+    "latest": "5.0.4",
     "archives": []
   },
   "tag-cache": {
-    "latest": "3.0.2",
+    "latest": "3.0.3",
     "archives": []
   }
 }

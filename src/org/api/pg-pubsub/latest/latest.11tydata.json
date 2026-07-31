@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "pg-pubsub",
-  "apiVersion": "3.0.3",
+  "apiVersion": "3.0.4",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-07-31T16:26:11.190Z",
+  "apiReleased": "2026-07-31T16:48:45.340Z",
   "apiNav": [
     {
       "group": "Classes",
@@ -21,6 +21,14 @@
         {
           "name": "PgPubSub",
           "url": "/api/pg-pubsub/latest/pg-pubsub.pgpubsub/"
+        },
+        {
+          "name": "PgPubSubOptions",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.pgpubsuboptions/"
+        },
+        {
+          "name": "PgPubSub.channels",
+          "url": "/api/pg-pubsub/latest/pg-pubsub.pgpubsub.channels/"
         }
       ]
     },
