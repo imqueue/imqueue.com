@@ -11,6 +11,16 @@
 //
 // Only the current major of each package is indexed, matching the markdown
 // mirrors: an agent must never be handed a stale API surface.
+//
+// The summary comes from the SHARED extractor that also writes each page's meta
+// description. This file used to carry its own near-copy, and the copy was broken
+// in two ways that only showed up here: it had no table-markup rejection, and it
+// anchored the symbol section to `##` when a stored page's symbol heading has been
+// promoted to `#`. Between them, 101 of the 349 shipped entries had
+// `"summary": "<table><thead><tr><th>"` and 81 were empty — 52% junk, in the feed
+// llms.txt advertises for symbol lookup. There is now one implementation.
+const { summaryParagraph } = require("../../../scripts/lib/api-summary");
+
 const API_LATEST = /^\/api\/([^/]+)\/latest\//;
 
 // api-documenter's page titles are "<Name> <kind> · @imqueue/<pkg>", e.g.
@@ -46,41 +56,6 @@ function parseTitle(title, isPackageIndex) {
   return { name, kind: "" };
 }
 
-// The summary is the first prose paragraph after the page's `## ` heading.
-// Everything here is api-documenter output, so the shape is predictable.
-function extractSummary(raw) {
-  const body = String(raw || "").replace(/^---[\s\S]*?\n---\n/, "");
-  const afterHeading = body.split(/\n##\s+[^\n]*\n/)[1];
-
-  if (!afterHeading) {
-    return "";
-  }
-
-  for (const block of afterHeading.split(/\n\s*\n/)) {
-    const text = block
-      .replace(/<!-- -->/g, "")
-      .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1") // links -> their text
-      .replace(/&gt;/g, ">")
-      .replace(/&lt;/g, "<")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&amp;/g, "&")
-      .replace(/\\([\\`*_{}[\]()#+\-.!|<>~])/g, "$1") // api-documenter escapes
-      .replace(/\s+/g, " ")
-      .trim();
-
-    // Skip the deprecation banner and the signature block; keep looking for prose.
-    if (!text || text.startsWith(">") || text.startsWith("**") || text.startsWith("|")
-      || text.startsWith("```")) {
-      continue;
-    }
-
-    return text;
-  }
-
-  return "";
-}
-
 module.exports = class ApiSearchIndex {
   data() {
     return {
@@ -109,7 +84,7 @@ module.exports = class ApiSearchIndex {
         kind,
         package: `@imqueue/${match[1]}`,
         url,
-        summary: extractSummary(raw),
+        summary: summaryParagraph(raw),
       };
 
       // api-documenter renders `@deprecated` as this banner. Surfacing it in the

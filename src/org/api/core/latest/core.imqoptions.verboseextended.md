@@ -1,6 +1,6 @@
 ---
 title: "IMQOptions.verboseExtended property · @imqueue/core"
-description: "> Warning: This API is now obsolete. > > Never implemented — no code path reads this option, so setting it produces no additional output whatsoever."
+description: "Warning: This API is now obsolete. Never implemented — no code path reads this option, so setting it produces no additional output whatsoever."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"IMQOptions","url":"/api/core/latest/core.imqoptions/"},{"name":"verboseExtended","url":"/api/core/latest/core.imqoptions.verboseextended/"}]
 sitemap: false
 ---

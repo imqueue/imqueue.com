@@ -5,9 +5,17 @@
 // sentence api-documenter already emits under the symbol heading is exactly the
 // right text, it just was not being lifted into the front matter.
 //
-// Shared by scripts/build-api-docs.js (at generation time) and
+// Shared by scripts/build-api-docs.js (at generation time),
 // scripts/backfill-api-descriptions.js (which applies it to pages that were
-// generated before this existed), so the two can never drift.
+// generated before this existed), and src/org/api/search-index.11ty.js (which
+// reads the STORED pages), so the three can never drift.
+//
+// It has to handle both inputs, and they differ in one way that matters: raw
+// api-documenter markdown opens the symbol section at `##`, while a stored page
+// has had that first heading promoted to `#` (promoteFirstHeading, so the page has
+// a real h1). Hence the `#{1,2}` below — anchoring to `##` alone made this read
+// the section after `## Parameters` on a stored page and return the parameter
+// table, which is exactly the defect the search index shipped.
 
 const MAX = 160; // Google renders ~155–160 characters
 
@@ -26,6 +34,13 @@ function toPlainText(md) {
   return md
     .replace(/<!-- -->/g, '')
     .replace(/<!--[\s\S]*?-->/g, '')
+    // Blockquote markers, per line. api-documenter renders `@deprecated` as a
+    // blockquote whose PROSE is inside the quote, so the block cannot just be
+    // skipped — doing that leaves a deprecated symbol with no summary at all.
+    // Dropping the syntax and keeping the sentence gives the real thing:
+    // "Warning: This API is now obsolete. Inert, and always absent in practice…"
+    // instead of "> Warning: This API is now obsolete. > > Inert, and always…".
+    .replace(/^[ \t]*>+[ \t]?/gm, '')
     .replace(/!\[[^\]]*\]\([^)]*\)/g, '')            // images
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')         // links -> label
     .replace(/`([^`]+)`/g, '$1')                     // inline code
@@ -43,14 +58,17 @@ function toPlainText(md) {
 
 // The first prose paragraph of the page's own summary section.
 //
-// Scoped strictly to the text between the `## <Symbol> <kind>` heading and
-// whatever ends that section — the signature block, or the next `##`. Searching
-// the whole page instead lets a symbol whose summary is very short ("Any JSON
+// Scoped strictly to the text between the `<Symbol> <kind>` heading and whatever
+// ends that section — the signature block, or the next heading. Searching the
+// whole page instead lets a symbol whose summary is very short ("Any JSON
 // value.") fall through and pick up a sentence from ## Remarks, which reads as a
 // non-sequitur in a search result.
 function summaryParagraph(md) {
   const body = md.replace(/^---\n[\s\S]*?\n---\n/, '');
-  const section = (body.split(/^##\s+.+$/m)[1] || '')
+  // `#` or `##`: the symbol heading is `##` in raw api-documenter output and `#`
+  // in a stored page. Sub-headings ("Parameters", "Remarks") stay `##` in both, so
+  // splitting on either level still ends the section in the right place.
+  const section = (body.split(/^#{1,2}\s+.+$/m)[1] || '')
     .split(/^\*\*Signature:\*\*/m)[0];
 
   if (!section.trim()) {
