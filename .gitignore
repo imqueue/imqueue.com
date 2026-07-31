@@ -44,7 +44,9 @@ legal/
 # Local only: never commit this, the repo is public.
 promotion/
 
-# Internal planning notes. Both were tracked and were purged from history on
-# 2026-07-31; local only from now on, for the same reason as promotion/ above.
+# Internal planning notes. The first two were tracked and were purged from
+# history on 2026-07-31; local only from now on, for the same reason as
+# promotion/ above.
 BLOG-BACKLOG.md
 REBRAND-PLAN.md
+API-DOCS-PLAN.md
