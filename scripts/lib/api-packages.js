@@ -161,10 +161,11 @@ const PACKAGES = [
     // Untagged on purpose: not part of the CLI's exclusive tracing pair, and a
     // service can run it alongside either tracer.
     tags: [],
-    blurb: 'Configurable async logger over winston for @imqueue services.',
+    blurb: 'Non-blocking logger over winston, with file and HTTP transports '
+      + 'configured from the environment.',
     cliId: null,
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 2,
   },
   {
@@ -172,10 +173,11 @@ const PACKAGES = [
     tier: 2,
     group: 'Observability',
     tags: ['tracing & APM'],
-    blurb: 'OpenTelemetry instrumentation for @imqueue.',
+    blurb: 'OpenTelemetry instrumentation for @imqueue/rpc — every RPC traced, '
+      + 'with no changes to service or client code.',
     cliId: 'opentelemetry',
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 2,
   },
   {
@@ -183,10 +185,11 @@ const PACKAGES = [
     tier: 2,
     group: 'Observability',
     tags: ['tracing & APM'],
-    blurb: 'Datadog tracing integration for @imqueue.',
+    blurb: 'Datadog APM tracing for @imqueue/rpc — a drop-in dd-trace '
+      + 'replacement that traces every RPC.',
     cliId: 'dd-trace',
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 2,
   },
 
