@@ -1,0 +1,37 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "tag-cache",
+  "apiVersion": "3.0.2",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-07-31T16:24:31.577Z",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "TagCache",
+          "url": "/api/tag-cache/latest/tag-cache.tagcache/"
+        },
+        {
+          "name": "TagCache.destroy()",
+          "url": "/api/tag-cache/latest/tag-cache.tagcache.destroy/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "REDIS_INIT_ERROR",
+          "url": "/api/tag-cache/latest/tag-cache.redis_init_error/"
+        },
+        {
+          "name": "TagCache.destroy()",
+          "url": "/api/tag-cache/latest/tag-cache.tagcache.destroy/"
+        }
+      ]
+    }
+  ]
+}

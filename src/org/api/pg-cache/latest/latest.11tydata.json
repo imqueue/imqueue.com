@@ -1,0 +1,208 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "pg-cache",
+  "apiVersion": "5.0.3",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-07-31T16:25:40.522Z",
+  "apiNav": [
+    {
+      "group": "Enumerations",
+      "items": [
+        {
+          "name": "ChannelOperation",
+          "url": "/api/pg-cache/latest/pg-cache.channeloperation/"
+        }
+      ]
+    },
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "cacheBy(model, options)",
+          "url": "/api/pg-cache/latest/pg-cache.cacheby/"
+        },
+        {
+          "name": "cacheWith(options)",
+          "url": "/api/pg-cache/latest/pg-cache.cachewith/"
+        },
+        {
+          "name": "channelsOf(model, fields, tables)",
+          "url": "/api/pg-cache/latest/pg-cache.channelsof/"
+        },
+        {
+          "name": "declaringPrototype(instance, methodName)",
+          "url": "/api/pg-cache/latest/pg-cache.declaringprototype/"
+        },
+        {
+          "name": "envBool(name, defaultValue)",
+          "url": "/api/pg-cache/latest/pg-cache.envbool/"
+        },
+        {
+          "name": "fetchError(logger, err, key, decorator)",
+          "url": "/api/pg-cache/latest/pg-cache.fetcherror/"
+        },
+        {
+          "name": "initError(logger, className, methodName, decorator)",
+          "url": "/api/pg-cache/latest/pg-cache.initerror/"
+        },
+        {
+          "name": "isStandardDecorator(context)",
+          "url": "/api/pg-cache/latest/pg-cache.isstandarddecorator/"
+        },
+        {
+          "name": "makeChannel(name, method, options)",
+          "url": "/api/pg-cache/latest/pg-cache.makechannel/"
+        },
+        {
+          "name": "PgCache(options)",
+          "url": "/api/pg-cache/latest/pg-cache.pgcache/"
+        },
+        {
+          "name": "cacheWith()",
+          "url": "/api/pg-cache/latest/pg-cache.cachewith/"
+        },
+        {
+          "name": "cacheBy()",
+          "url": "/api/pg-cache/latest/pg-cache.cacheby/"
+        },
+        {
+          "name": "registerChannelsOnce(proto, methodName, register)",
+          "url": "/api/pg-cache/latest/pg-cache.registerchannelsonce/"
+        },
+        {
+          "name": "setError(logger, err, key, decorator)",
+          "url": "/api/pg-cache/latest/pg-cache.seterror/"
+        },
+        {
+          "name": "setInfo(logger, res, key, decorator)",
+          "url": "/api/pg-cache/latest/pg-cache.setinfo/"
+        },
+        {
+          "name": "PG_CACHE_DEBUG",
+          "url": "/api/pg-cache/latest/pg-cache.pg_cache_debug/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "CacheByOptions",
+          "url": "/api/pg-cache/latest/pg-cache.cachebyoptions/"
+        },
+        {
+          "name": "CacheWithOptions",
+          "url": "/api/pg-cache/latest/pg-cache.cachewithoptions/"
+        },
+        {
+          "name": "cacheWith()",
+          "url": "/api/pg-cache/latest/pg-cache.cachewith/"
+        },
+        {
+          "name": "ChannelPayload",
+          "url": "/api/pg-cache/latest/pg-cache.channelpayload/"
+        },
+        {
+          "name": "FilteredChannels",
+          "url": "/api/pg-cache/latest/pg-cache.filteredchannels/"
+        },
+        {
+          "name": "ILogger",
+          "url": "/api/pg-cache/latest/pg-cache.ilogger/"
+        },
+        {
+          "name": "PgCacheable",
+          "url": "/api/pg-cache/latest/pg-cache.pgcacheable/"
+        },
+        {
+          "name": "PgCache()",
+          "url": "/api/pg-cache/latest/pg-cache.pgcache/"
+        },
+        {
+          "name": "PgCacheChannels",
+          "url": "/api/pg-cache/latest/pg-cache.pgcachechannels/"
+        },
+        {
+          "name": "PgCacheOptions",
+          "url": "/api/pg-cache/latest/pg-cache.pgcacheoptions/"
+        },
+        {
+          "name": "PgCache()",
+          "url": "/api/pg-cache/latest/pg-cache.pgcache/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "DEFAULT_CACHE_TTL",
+          "url": "/api/pg-cache/latest/pg-cache.default_cache_ttl/"
+        },
+        {
+          "name": "PG_CACHE_DEBUG",
+          "url": "/api/pg-cache/latest/pg-cache.pg_cache_debug/"
+        },
+        {
+          "name": "PG_CACHE_TRIGGER",
+          "url": "/api/pg-cache/latest/pg-cache.pg_cache_trigger/"
+        },
+        {
+          "name": "ChannelPayload",
+          "url": "/api/pg-cache/latest/pg-cache.channelpayload/"
+        },
+        {
+          "name": "PgCacheOptions",
+          "url": "/api/pg-cache/latest/pg-cache.pgcacheoptions/"
+        }
+      ]
+    },
+    {
+      "group": "Type Aliases",
+      "items": [
+        {
+          "name": "ChannelFilter",
+          "url": "/api/pg-cache/latest/pg-cache.channelfilter/"
+        },
+        {
+          "name": "ChannelOperation",
+          "url": "/api/pg-cache/latest/pg-cache.channeloperation/"
+        },
+        {
+          "name": "ChannelPayloadFilter",
+          "url": "/api/pg-cache/latest/pg-cache.channelpayloadfilter/"
+        },
+        {
+          "name": "ChannelPayloadFilter",
+          "url": "/api/pg-cache/latest/pg-cache.channelpayloadfilter/"
+        },
+        {
+          "name": "ChannelFilter",
+          "url": "/api/pg-cache/latest/pg-cache.channelfilter/"
+        },
+        {
+          "name": "ClassDecorator_2",
+          "url": "/api/pg-cache/latest/pg-cache.classdecorator_2/"
+        },
+        {
+          "name": "PgCacheable",
+          "url": "/api/pg-cache/latest/pg-cache.pgcacheable/"
+        },
+        {
+          "name": "MethodDecorator_2",
+          "url": "/api/pg-cache/latest/pg-cache.methoddecorator_2/"
+        },
+        {
+          "name": "isStandardDecorator()",
+          "url": "/api/pg-cache/latest/pg-cache.isstandarddecorator/"
+        },
+        {
+          "name": "PgCacheChannel",
+          "url": "/api/pg-cache/latest/pg-cache.pgcachechannel/"
+        }
+      ]
+    }
+  ]
+}

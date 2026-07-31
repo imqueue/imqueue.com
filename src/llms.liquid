@@ -69,10 +69,24 @@ remarks. Only the current major is mirrored; archived majors are HTML-only.
 To look a symbol up by name, fetch {{ siteUrl }}/api/search-index.json — every
 exported symbol of the current majors as `{name, kind, package, url, summary}`,
 with `deprecated: true` on obsolete members.
-- [API Documentation]({{ siteUrl }}/api/): Full generated API reference for @imqueue/core and @imqueue/rpc (classes, interfaces, methods, types). — [markdown]({{ siteUrl }}/api/index.md)
+- [API Documentation]({{ siteUrl }}/api/): Full generated API reference for every documented @imqueue package (classes, interfaces, methods, types), grouped by what the package is for. — [markdown]({{ siteUrl }}/api/index.md)
 - [@imqueue/core API reference]({{ siteUrl }}/api/core/latest/): Every exported symbol of @imqueue/core, generated from {{ apiVersions.core.latest }} — this URL always serves the current major. The Redis-backed message queue: IMQ factory, RedisQueue, ClusteredRedisQueue, IMQOptions, the profile decorator and the cluster-manager extension points. — [markdown]({{ siteUrl }}/api/core/latest/index.md)
 - [@imqueue/rpc API reference]({{ siteUrl }}/api/rpc/latest/): Every exported symbol of @imqueue/rpc, generated from {{ apiVersions.rpc.latest }} — this URL always serves the current major. Typed RPC: IMQService, IMQClient, the expose/property/classType/lock/cache/logged decorators, the service Description shape used for client generation, and the cache and lock APIs. — [markdown]({{ siteUrl }}/api/rpc/latest/index.md)
 - [Documentation home]({{ siteUrl }}/docs/): Entry point to all @imqueue documentation.
+{%- comment -%}
+The framework spine above stays hand-written — its two entries name the symbols an
+agent is most likely to be looking for, which a one-line blurb cannot. Below it,
+one heading per Tier 2 group with its shipped packages, generated from
+src/_data/apiPackages.js so this file cannot list a package the build did not
+generate. A group with nothing shipped yet emits no heading.
+{%- endcomment -%}
+{%- for group in apiPackages.groups %}
+
+### Reference — {{ group.group }}
+{%- for pkg in group.packages %}
+- [{{ pkg.scoped }} API reference]({{ siteUrl }}{{ pkg.url }}): Every exported symbol of {{ pkg.scoped }}, generated from {{ apiVersions[pkg.name].latest }} — this URL always serves the current major. {{ pkg.blurb }}{% if pkg.tags.size > 0 %} Tagged {% for tag in pkg.tags %}`{{ tag.label }}`{% unless forloop.last %}, {% endunless %}{% endfor %}{% for tag in pkg.tags %}{% if tag.exclusive %} (pick at most one package with this tag){% endif %}{% endfor %}.{% endif %} — [markdown]({{ siteUrl }}{{ pkg.url }}index.md)
+{%- endfor %}
+{%- endfor %}
 
 ## Articles
 Every article is also published as agent-friendly plain markdown at `<article-url>index.md` — same content, no HTML. Canonical HTML pages are listed first, the markdown mirror after each summary.
