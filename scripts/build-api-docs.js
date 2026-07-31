@@ -284,6 +284,12 @@ function embed({ pkg, version, seg, mdDir, latestFiles, released }) {
     // self-canonical and both in the sitemap. rewriteLinks() already points
     // `<pkg>.md` links at the package root, so nothing links to the duplicate.
     if (file === `${pkg}.md`) continue;
+    // api-documenter also emits its own index.md for the model root. The package
+    // root page is written from `<pkg>.md` further down and overwrites it, so
+    // embedding it here was wasted work — and it made summary% unreachable at
+    // 100%: the index page was counted twice, once as this (prose-less) model page
+    // and once as the real package page, so every package reported one page short.
+    if (file === 'index.md') continue;
     const b = file.replace(/\.md$/, '');
     basenames.add(b);
     const raw = fs.readFileSync(path.join(mdDir, file), 'utf8');
