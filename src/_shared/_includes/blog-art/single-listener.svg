@@ -1,0 +1,19 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="34" y="104" width="116" height="52" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="92" y="136" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="14" fill="var(--accent)" stroke="none">NOTIFY</text>
+    <path d="M 150 130 C 210 130 226 64 286 64" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 286 64 l -8 -4 m 8 4 l -8 4" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 150 130 C 200 130 216 130 246 130" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="4 6"/>
+    <path d="M 150 130 C 210 130 226 196 246 196" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="4 6"/>
+    <rect x="290" y="40" width="146" height="48" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <circle cx="312" cy="64" r="6" fill="var(--accent)" fill-opacity="0.55" stroke="var(--accent)" stroke-width="1.6"/>
+    <text x="386" y="69" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--accent)" stroke="none">LISTEN</text>
+    <rect x="290" y="106" width="146" height="48" rx="10" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.6"/>
+    <circle cx="312" cy="130" r="6" fill="none" stroke="var(--muted)" stroke-width="1.6"/>
+    <text x="386" y="135" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">idle</text>
+    <rect x="290" y="172" width="146" height="48" rx="10" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.6"/>
+    <circle cx="312" cy="196" r="6" fill="none" stroke="var(--muted)" stroke-width="1.6"/>
+    <text x="386" y="201" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">idle</text>
+  </g>
+</svg>
