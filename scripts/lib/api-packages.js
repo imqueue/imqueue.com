@@ -105,7 +105,7 @@ const PACKAGES = [
     blurb: 'Reliable PostgreSQL LISTEN/NOTIFY with inter-process lock support.',
     cliId: 'pg-pubsub',
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 1,
   },
   {
@@ -116,7 +116,7 @@ const PACKAGES = [
     blurb: 'PostgreSQL-managed cache on Redis for @imqueue service methods.',
     cliId: 'pg-cache',
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 1,
   },
   {
@@ -127,7 +127,7 @@ const PACKAGES = [
     blurb: 'Tagged cache implementation over Redis.',
     cliId: 'tag-cache',
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 1,
   },
   {
