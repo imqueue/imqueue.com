@@ -1,0 +1,104 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "async-logger",
+  "apiVersion": "3.2.0",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-07-31T19:13:34.672Z",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "Logger",
+          "url": "/api/async-logger/latest/async-logger.logger/"
+        }
+      ]
+    },
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "buildMessage(args)",
+          "url": "/api/async-logger/latest/async-logger.buildmessage/"
+        },
+        {
+          "name": "defaultMetadata()",
+          "url": "/api/async-logger/latest/async-logger.defaultmetadata/"
+        },
+        {
+          "name": "getTransport(type, options)",
+          "url": "/api/async-logger/latest/async-logger.gettransport/"
+        },
+        {
+          "name": "pkg()",
+          "url": "/api/async-logger/latest/async-logger.pkg/"
+        },
+        {
+          "name": "transportsConfig()",
+          "url": "/api/async-logger/latest/async-logger.transportsconfig/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "AsyncLoggerOptions",
+          "url": "/api/async-logger/latest/async-logger.asyncloggeroptions/"
+        },
+        {
+          "name": "Logger",
+          "url": "/api/async-logger/latest/async-logger.logger/"
+        },
+        {
+          "name": "ILogger",
+          "url": "/api/async-logger/latest/async-logger.ilogger/"
+        },
+        {
+          "name": "JsonArray",
+          "url": "/api/async-logger/latest/async-logger.jsonarray/"
+        },
+        {
+          "name": "AnyJson",
+          "url": "/api/async-logger/latest/async-logger.anyjson/"
+        },
+        {
+          "name": "JsonObject",
+          "url": "/api/async-logger/latest/async-logger.jsonobject/"
+        },
+        {
+          "name": "AnyJson",
+          "url": "/api/async-logger/latest/async-logger.anyjson/"
+        },
+        {
+          "name": "TransportOptions",
+          "url": "/api/async-logger/latest/async-logger.transportoptions/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "_default",
+          "url": "/api/async-logger/latest/async-logger._default/"
+        },
+        {
+          "name": "Logger",
+          "url": "/api/async-logger/latest/async-logger.logger/"
+        }
+      ]
+    },
+    {
+      "group": "Type Aliases",
+      "items": [
+        {
+          "name": "AnyJson",
+          "url": "/api/async-logger/latest/async-logger.anyjson/"
+        }
+      ]
+    }
+  ]
+}

@@ -121,7 +121,7 @@ Browse the complete generated reference for the latest release — every class, 
 
 <ul class="api-pkg-list">
 {%- for pkg in group.packages %}
-<li class="api-pkg"><a class="api-pkg-link" href="{{ pkg.url }}"><span class="api-pkg-name">{{ pkg.scoped | escape }}</span>{% if pkg.tags.size > 0 %} <span class="api-pkg-tags">{% for tag in pkg.tags %}<span class="topic-chip topic-chip--flat"{% if tag.exclusive %} title="Exclusive — pick at most one package carrying this tag"{% endif %}>{{ tag.label | escape }}{% if tag.exclusive %} <span>one of</span>{% endif %}</span>{% endfor %}</span>{% endif %}{% if apiVersions[pkg.name].latest %}<span class="api-ref-ver api-pkg-ver">v{{ apiVersions[pkg.name].latest }}</span>{% endif %}<span class="api-pkg-blurb">{{ pkg.blurb | escape }}</span></a></li>
+<li class="api-pkg"><a class="api-pkg-link" href="{{ pkg.url }}"><span class="api-pkg-name">{{ pkg.scoped | escape }}</span>{% if pkg.tags.size > 0 %} <span class="api-pkg-tags">{% for tag in pkg.tags %}<span class="topic-chip topic-chip--flat"{% if tag.exclusive %} title="Exclusive — pick at most one package carrying this tag"{% endif %}>{{ tag.label | escape }}</span>{% endfor %}</span>{% endif %}{% if apiVersions[pkg.name].latest %}<span class="api-ref-ver api-pkg-ver">v{{ apiVersions[pkg.name].latest }}</span>{% endif %}<span class="api-pkg-blurb">{{ pkg.blurb | escape }}</span></a></li>
 {%- endfor %}
 </ul>
 {%- endfor %}
