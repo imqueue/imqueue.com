@@ -28,10 +28,6 @@
           "url": "/api/opentelemetry-instrumentation-imqueue/latest/opentelemetry-instrumentation-imqueue.spannames/"
         },
         {
-          "name": "AttributeNames.RESOURCE_NAME",
-          "url": "/api/opentelemetry-instrumentation-imqueue/latest/opentelemetry-instrumentation-imqueue.attributenames/"
-        },
-        {
           "name": "TraceKind",
           "url": "/api/opentelemetry-instrumentation-imqueue/latest/opentelemetry-instrumentation-imqueue.tracekind/"
         }
@@ -49,16 +45,8 @@
           "url": "/api/opentelemetry-instrumentation-imqueue/latest/opentelemetry-instrumentation-imqueue.traceend/"
         },
         {
-          "name": "traceStart()",
-          "url": "/api/opentelemetry-instrumentation-imqueue/latest/opentelemetry-instrumentation-imqueue.tracestart/"
-        },
-        {
           "name": "traceStart(name, tags, tracerName)",
           "url": "/api/opentelemetry-instrumentation-imqueue/latest/opentelemetry-instrumentation-imqueue.tracestart/"
-        },
-        {
-          "name": "traceEnd()",
-          "url": "/api/opentelemetry-instrumentation-imqueue/latest/opentelemetry-instrumentation-imqueue.traceend/"
         }
       ]
     },

@@ -13,10 +13,6 @@
         {
           "name": "TagCache",
           "url": "/api/tag-cache/latest/tag-cache.tagcache/"
-        },
-        {
-          "name": "TagCache.destroy()",
-          "url": "/api/tag-cache/latest/tag-cache.tagcache.destroy/"
         }
       ]
     },
@@ -26,10 +22,6 @@
         {
           "name": "REDIS_INIT_ERROR",
           "url": "/api/tag-cache/latest/tag-cache.redis_init_error/"
-        },
-        {
-          "name": "TagCache.destroy()",
-          "url": "/api/tag-cache/latest/tag-cache.tagcache.destroy/"
         }
       ]
     }

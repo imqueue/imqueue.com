@@ -65,20 +65,12 @@
           "url": "/api/dd-trace/latest/dd-trace.trace/"
         },
         {
-          "name": "traceEnd()",
-          "url": "/api/dd-trace/latest/dd-trace.traceend/"
-        },
-        {
           "name": "traced(options)",
           "url": "/api/dd-trace/latest/dd-trace.traced/"
         },
         {
           "name": "traceEnd(name)",
           "url": "/api/dd-trace/latest/dd-trace.traceend/"
-        },
-        {
-          "name": "trace()",
-          "url": "/api/dd-trace/latest/dd-trace.trace/"
         }
       ]
     },
@@ -108,10 +100,6 @@
         {
           "name": "TracedOptions",
           "url": "/api/dd-trace/latest/dd-trace.tracedoptions/"
-        },
-        {
-          "name": "traced()",
-          "url": "/api/dd-trace/latest/dd-trace.traced/"
         },
         {
           "name": "TraceTags",

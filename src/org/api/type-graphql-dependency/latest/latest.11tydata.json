@@ -28,20 +28,12 @@
           "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.dependencyinterface/"
         },
         {
-          "name": "Dependency",
-          "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.dependency/"
-        },
-        {
           "name": "DependentTypeRelations",
           "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.dependenttyperelations/"
         },
         {
           "name": "DependsOptions",
           "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.dependsoptions/"
-        },
-        {
-          "name": "DependencyFor()",
-          "url": "/api/type-graphql-dependency/latest/type-graphql-dependency.dependencyfor/"
         }
       ]
     },

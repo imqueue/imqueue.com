@@ -49,10 +49,6 @@
           "url": "/api/async-logger/latest/async-logger.asyncloggeroptions/"
         },
         {
-          "name": "Logger",
-          "url": "/api/async-logger/latest/async-logger.logger/"
-        },
-        {
           "name": "ILogger",
           "url": "/api/async-logger/latest/async-logger.ilogger/"
         },
@@ -61,16 +57,8 @@
           "url": "/api/async-logger/latest/async-logger.jsonarray/"
         },
         {
-          "name": "AnyJson",
-          "url": "/api/async-logger/latest/async-logger.anyjson/"
-        },
-        {
           "name": "JsonObject",
           "url": "/api/async-logger/latest/async-logger.jsonobject/"
-        },
-        {
-          "name": "AnyJson",
-          "url": "/api/async-logger/latest/async-logger.anyjson/"
         },
         {
           "name": "TransportOptions",
@@ -84,10 +72,6 @@
         {
           "name": "_default",
           "url": "/api/async-logger/latest/async-logger._default/"
-        },
-        {
-          "name": "Logger",
-          "url": "/api/async-logger/latest/async-logger.logger/"
         }
       ]
     },
