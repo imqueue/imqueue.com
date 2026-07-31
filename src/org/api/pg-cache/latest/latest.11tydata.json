@@ -60,14 +60,6 @@
           "url": "/api/pg-cache/latest/pg-cache.pgcache/"
         },
         {
-          "name": "cacheWith()",
-          "url": "/api/pg-cache/latest/pg-cache.cachewith/"
-        },
-        {
-          "name": "cacheBy()",
-          "url": "/api/pg-cache/latest/pg-cache.cacheby/"
-        },
-        {
           "name": "registerChannelsOnce(proto, methodName, register)",
           "url": "/api/pg-cache/latest/pg-cache.registerchannelsonce/"
         },
@@ -78,10 +70,6 @@
         {
           "name": "setInfo(logger, res, key, decorator)",
           "url": "/api/pg-cache/latest/pg-cache.setinfo/"
-        },
-        {
-          "name": "PG_CACHE_DEBUG",
-          "url": "/api/pg-cache/latest/pg-cache.pg_cache_debug/"
         }
       ]
     },
@@ -95,10 +83,6 @@
         {
           "name": "CacheWithOptions",
           "url": "/api/pg-cache/latest/pg-cache.cachewithoptions/"
-        },
-        {
-          "name": "cacheWith()",
-          "url": "/api/pg-cache/latest/pg-cache.cachewith/"
         },
         {
           "name": "ChannelPayload",
@@ -117,20 +101,12 @@
           "url": "/api/pg-cache/latest/pg-cache.pgcacheable/"
         },
         {
-          "name": "PgCache()",
-          "url": "/api/pg-cache/latest/pg-cache.pgcache/"
-        },
-        {
           "name": "PgCacheChannels",
           "url": "/api/pg-cache/latest/pg-cache.pgcachechannels/"
         },
         {
           "name": "PgCacheOptions",
           "url": "/api/pg-cache/latest/pg-cache.pgcacheoptions/"
-        },
-        {
-          "name": "PgCache()",
-          "url": "/api/pg-cache/latest/pg-cache.pgcache/"
         }
       ]
     },
@@ -148,14 +124,6 @@
         {
           "name": "PG_CACHE_TRIGGER",
           "url": "/api/pg-cache/latest/pg-cache.pg_cache_trigger/"
-        },
-        {
-          "name": "ChannelPayload",
-          "url": "/api/pg-cache/latest/pg-cache.channelpayload/"
-        },
-        {
-          "name": "PgCacheOptions",
-          "url": "/api/pg-cache/latest/pg-cache.pgcacheoptions/"
         }
       ]
     },
@@ -167,36 +135,16 @@
           "url": "/api/pg-cache/latest/pg-cache.channelfilter/"
         },
         {
-          "name": "ChannelOperation",
-          "url": "/api/pg-cache/latest/pg-cache.channeloperation/"
-        },
-        {
           "name": "ChannelPayloadFilter",
           "url": "/api/pg-cache/latest/pg-cache.channelpayloadfilter/"
-        },
-        {
-          "name": "ChannelPayloadFilter",
-          "url": "/api/pg-cache/latest/pg-cache.channelpayloadfilter/"
-        },
-        {
-          "name": "ChannelFilter",
-          "url": "/api/pg-cache/latest/pg-cache.channelfilter/"
         },
         {
           "name": "ClassDecorator_2",
           "url": "/api/pg-cache/latest/pg-cache.classdecorator_2/"
         },
         {
-          "name": "PgCacheable",
-          "url": "/api/pg-cache/latest/pg-cache.pgcacheable/"
-        },
-        {
           "name": "MethodDecorator_2",
           "url": "/api/pg-cache/latest/pg-cache.methoddecorator_2/"
-        },
-        {
-          "name": "isStandardDecorator()",
-          "url": "/api/pg-cache/latest/pg-cache.isstandarddecorator/"
         },
         {
           "name": "PgCacheChannel",

@@ -21,14 +21,6 @@
         {
           "name": "PgPubSub",
           "url": "/api/pg-pubsub/latest/pg-pubsub.pgpubsub/"
-        },
-        {
-          "name": "PgPubSubOptions",
-          "url": "/api/pg-pubsub/latest/pg-pubsub.pgpubsuboptions/"
-        },
-        {
-          "name": "PgPubSub.channels",
-          "url": "/api/pg-pubsub/latest/pg-pubsub.pgpubsub.channels/"
         }
       ]
     },
@@ -134,10 +126,6 @@
           "url": "/api/pg-pubsub/latest/pg-pubsub.execution_lock/"
         },
         {
-          "name": "UNIQUE_LOCK_TTL",
-          "url": "/api/pg-pubsub/latest/pg-pubsub.unique_lock_ttl/"
-        },
-        {
           "name": "IS_ONE_PROCESS",
           "url": "/api/pg-pubsub/latest/pg-pubsub.is_one_process/"
         },
@@ -154,24 +142,12 @@
           "url": "/api/pg-pubsub/latest/pg-pubsub.rx_lock_channel/"
         },
         {
-          "name": "PgIpLock",
-          "url": "/api/pg-pubsub/latest/pg-pubsub.pgiplock/"
-        },
-        {
           "name": "SCHEMA_NAME",
           "url": "/api/pg-pubsub/latest/pg-pubsub.schema_name/"
         },
         {
           "name": "SHUTDOWN_TIMEOUT",
           "url": "/api/pg-pubsub/latest/pg-pubsub.shutdown_timeout/"
-        },
-        {
-          "name": "PgPubSub.destroy()",
-          "url": "/api/pg-pubsub/latest/pg-pubsub.pgpubsub.destroy/"
-        },
-        {
-          "name": "ACQUIRE_INTERVAL",
-          "url": "/api/pg-pubsub/latest/pg-pubsub.acquire_interval/"
         },
         {
           "name": "UNIQUE_LOCK_TTL",

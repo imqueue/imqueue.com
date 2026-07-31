@@ -222,21 +222,62 @@ function embed({ pkg, version, seg, mdDir, latestFiles, released }) {
   const pkgPageMd = fs.readFileSync(path.join(mdDir, `${pkg}.md`), 'utf8');
   const apiNav = [];
   let cur = null;
+  // Which cell of the current table row we are inside: 0 is the symbol column,
+  // 1 the summary column, -1 not in a row yet.
+  let cell = -1;
   for (const line of pkgPageMd.split('\n')) {
     const h = line.match(/^##\s+(.+?)\s*$/);
-    if (h) { cur = GROUPS.includes(h[1].trim()) ? { group: h[1].trim(), items: [] } : null; if (cur) apiNav.push(cur); continue; }
+    if (h) { cur = GROUPS.includes(h[1].trim()) ? { group: h[1].trim(), items: [] } : null; if (cur) apiNav.push(cur); cell = -1; continue; }
     if (cur) {
       const re = /\[([^\]]+)\]\((?:\.\/)?([A-Za-z0-9._-]+)\.md\)/g;
-      let m;
-      // api-documenter escapes markdown-significant characters in link text, so
-      // `DEFAULT_IMQ_OPTIONS` arrives as `DEFAULT\_IMQ\_OPTIONS`. The sidebar
-      // renders these labels as plain text, so unescape them.
-      while ((m = re.exec(line))) {
-        cur.items.push({ name: unescapeMd(m[1]), url: urlFor(m[2]) });
+      // Each group is a two-column table: the symbol link, then its summary.
+      // ONLY the first column is a sidebar entry. A summary routinely contains
+      // {@link} cross-references, which render as links to other symbols — and
+      // taking every link on the line pulled those in as entries too. They
+      // appeared under the wrong group (a function listed under Interfaces) and
+      // duplicated an entry that already existed elsewhere, and because the
+      // highlight matches on url, landing on such a page lit up two items at
+      // once. Attribute each link to the cell it is actually in.
+      if (/<tr[\s>]/.test(line)) {
+        cell = -1;
+      }
+      const cells = line.split(/<td[^>]*>/);
+      for (let i = 0; i < cells.length; i++) {
+        if (i > 0) {
+          cell++;
+        }
+        if (cell !== 0) {
+          continue;
+        }
+        // api-documenter escapes markdown-significant characters in link text,
+        // so `DEFAULT_IMQ_OPTIONS` arrives as `DEFAULT\_IMQ\_OPTIONS`. The
+        // sidebar renders these labels as plain text, so unescape them.
+        let m;
+        re.lastIndex = 0;
+        while ((m = re.exec(cells[i]))) {
+          cur.items.push({ name: unescapeMd(m[1]), url: urlFor(m[2]) });
+        }
       }
     }
   }
   if (!apiNav.length) throw new Error(`No symbols parsed for ${pkg}@${version} sidebar`);
+
+  // A url must appear once across the whole sidebar, or the current-page
+  // highlight marks every entry that shares it. The cell attribution above is
+  // what guarantees that; this asserts it rather than trusting it, since the
+  // failure is silent in the build and only visible as a double highlight.
+  const seenUrls = new Map();
+  for (const group of apiNav) {
+    for (const item of group.items) {
+      if (seenUrls.has(item.url)) {
+        throw new Error(
+          `Duplicate sidebar url for ${pkg}@${version}: ${item.url} listed as ` +
+          `"${seenUrls.get(item.url)}" and again as "${group.group}/${item.name}"`,
+        );
+      }
+      seenUrls.set(item.url, `${group.group}/${item.name}`);
+    }
+  }
 
   // Build the YAML front matter for one embedded page.
   //
