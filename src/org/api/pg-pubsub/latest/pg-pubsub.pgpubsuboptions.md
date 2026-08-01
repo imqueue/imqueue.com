@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-pubsub",
 
 # PgPubSubOptions interface
 
-Options accepted as option argument of PgPubSub constructor. It extends `pg.ClientConfig` options, mostly because it is used to construct PostgreSQL database connection, adding more properties required to configure PgBubSub objects behavior.
+Options accepted as option argument of PgPubSub constructor. It extends `pg.ClientConfig` options, mostly because it is used to construct PostgreSQL database connection, adding more properties required to configure PgPubSub objects behavior.
 
 **Signature:**
 
