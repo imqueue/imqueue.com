@@ -114,17 +114,166 @@ Browse the complete generated reference for the latest release — every class, 
 
      Only `shipped` packages appear. A `planned` package has no pages yet, so
      listing it would ship a 404 and fail check:links. There are no archived
-     versions to list for any of these: Tier 2 is `latest` only. -->
+     versions to list for any of these: Tier 2 is `latest` only.
+
+     Each group is a <details>, open by default, and its state is remembered per
+     visitor. Two details of the markup are load-bearing:
+
+       * The `### heading` stays MARKDOWN, on its own line with blank lines around
+         it. markdown-it ends an HTML block at a blank line, so the heading is still
+         parsed as a heading and still reaches [[toc]] — which is generated from the
+         markdown AST, not the DOM, so an HTML <h3> written by hand would silently
+         vanish from the "On this page" sidebar.
+       * The heading goes in the <summary>, not the body, so a collapsed group is
+         still a visible anchor target when its sidebar link is clicked. -->
 {%- for group in apiPackages.groups %}
+<details class="api-pkg-group" open data-api-group="{{ group.id }}">
+<summary>
 
 ### {{ group.group }}
+
+</summary>
 
 <ul class="api-pkg-list">
 {%- for pkg in group.packages %}
 <li class="api-pkg"><a class="api-pkg-link" href="{{ pkg.url }}"><span class="api-pkg-name">{{ pkg.scoped | escape }}</span>{% if pkg.tags.size > 0 %} <span class="api-pkg-tags">{% for tag in pkg.tags %}<span class="topic-chip topic-chip--flat"{% if tag.exclusive %} title="Exclusive — pick at most one package carrying this tag"{% endif %}>{{ tag.label | escape }}</span>{% endfor %}</span>{% endif %}{% if apiVersions[pkg.name].latest %}<span class="api-ref-ver api-pkg-ver">v{{ apiVersions[pkg.name].latest }}</span>{% endif %}<span class="api-pkg-blurb">{{ pkg.blurb | escape }}</span></a></li>
 {%- endfor %}
 </ul>
+
+</details>
 {%- endfor %}
+
+<!-- Collapsed-group state, inline and parser-blocking ON PURPOSE.
+     It has to run after these <details> exist and before they paint. site.js is
+     `defer`, so it runs only after the whole document is parsed — and this page is
+     long enough that first paint happens well before that, which would flash every
+     remembered-closed group open. head.html's no-FOUC theme script has the mirror
+     problem: it runs early but the elements do not exist yet.
+     Storing the CLOSED ids (not the open ones) is what makes a group added by a
+     later wave default to open without touching stored state. -->
+<script>
+(function () {
+  var KEY = 'imqueue-api-groups';
+  var groups = [].slice.call(document.querySelectorAll('.api-pkg-group[data-api-group]'));
+  var stored;
+
+  try { stored = JSON.parse(localStorage.getItem(KEY)); } catch (e) { stored = null; }
+  var shut = stored || [];
+
+  groups.forEach(function (el) {
+    if (shut.indexOf(el.getAttribute('data-api-group')) !== -1) {
+      el.removeAttribute('open');
+    }
+  });
+
+  // Derived from the DOM on every change rather than patched incrementally: that
+  // cannot produce a duplicate or a stale id, and it does not care in which order
+  // the events arrive — which matters, because they are not all user-driven.
+  function state() {
+    return JSON.stringify(groups.filter(function (el) { return !el.open; })
+      .map(function (el) { return el.getAttribute('data-api-group'); }));
+  }
+
+  // `toggle` does not bubble, so listen in the capture phase — that still reaches a
+  // non-bubbling event on the way down, and needs one listener rather than one per
+  // group.
+  //
+  // Chrome fires `toggle` when a <details open> is INSERTED, not only when its state
+  // changes, so simply loading this page queues one event per group before anyone has
+  // clicked anything. Writing unconditionally therefore wrote to storage on every
+  // visit, including a first visit — hence the two guards below: skip when the value
+  // has not changed, and never create the key just to record "nothing is closed".
+  document.addEventListener('toggle', function (e) {
+    var el = e.target;
+
+    if (!el.classList || !el.classList.contains('api-pkg-group')) { return; }
+
+    try {
+      var next = state();
+
+      if (next === '[]' && localStorage.getItem(KEY) === null) { return; }
+      if (next !== localStorage.getItem(KEY)) { localStorage.setItem(KEY, next); }
+    } catch (e2) {}
+  }, true);
+
+  // ---- roll down / roll up ------------------------------------------------
+  // <details> cannot be animated natively: the body is not rendered at all while
+  // the element is closed, so there is no height to transition from or to. The
+  // browser also flips the state the instant the summary is clicked, which leaves
+  // nothing on screen to animate out.
+  //
+  // So the open flag is driven by hand. Opening sets it first and animates the
+  // list up from zero; closing animates down and only then clears it, which is
+  // what keeps the content visible for the length of the roll-up.
+  var DURATION = 200;
+  var reduced = window.matchMedia
+    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+    : { matches: false };
+
+  // Both disclosures on this page roll: the package groups and the "Older versions"
+  // list above them. Each needs its body named, because the element that grows is the
+  // one whose height is animated — a <details> has no single "content" child to find
+  // generically.
+  var ROLLS = [
+    { group: '.api-pkg-group', body: '.api-pkg-list' },
+    { group: '.api-older', body: '.api-older-body' },
+  ];
+
+  function roll(el, body) {
+    var summary = el.querySelector('summary');
+
+    if (!summary || !body || !body.animate) { return; }
+
+    summary.addEventListener('click', function (e) {
+      // Honour the OS setting by doing nothing and letting <details> behave
+      // natively — the state still changes, just without the movement.
+      if (reduced.matches) { return; }
+      // Ignore a click that lands mid-roll rather than queueing or reversing it.
+      if (el.hasAttribute('data-rolling')) { e.preventDefault(); return; }
+
+      e.preventDefault();
+      var opening = !el.open;
+
+      // The value, not just the presence, so the marker can flip at the start of a
+      // roll-up instead of waiting for `open` to clear at the end of it.
+      el.setAttribute('data-rolling', opening ? 'open' : 'close');
+
+      if (opening) { el.open = true; }
+
+      // Measured while open, so the target is the real laid-out height rather than
+      // a guess. Padding and margin ride along with it, or a body that has either
+      // would leave its spacing behind at zero height.
+      var box = getComputedStyle(body);
+      var end = {
+        height: body.scrollHeight + 'px',
+        marginBottom: box.marginBottom,
+        paddingTop: box.paddingTop,
+        paddingBottom: box.paddingBottom,
+        opacity: 1,
+      };
+      var start = { height: '0px', marginBottom: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0 };
+      var frames = opening ? [start, end] : [end, start];
+
+      body.style.overflow = 'hidden';
+
+      var anim = body.animate(frames, { duration: DURATION, easing: 'ease' });
+
+      anim.onfinish = anim.oncancel = function () {
+        body.style.overflow = '';
+        // Only now, so the body was on screen for the whole roll-up.
+        if (!opening) { el.open = false; }
+        el.removeAttribute('data-rolling');
+      };
+    });
+  }
+
+  ROLLS.forEach(function (kind) {
+    [].forEach.call(document.querySelectorAll(kind.group), function (el) {
+      roll(el, el.querySelector(kind.body));
+    });
+  });
+})();
+</script>
 
 {% include "api/intro.md" %}
 {% include "api/rpc.md" %}
