@@ -42,6 +42,7 @@ const { apiDescription, summaryParagraph } = require('./lib/api-summary');
 const { assertNoLostPages } = require('./lib/api-pages');
 const { normalizeModel } = require('./lib/api-model');
 const { PACKAGES: PACKAGES_ALL, RENAMED_PACKAGES, shipped } = require('./lib/api-packages');
+const { cmpVer, majorOf, releaseVersions } = require('./lib/npm-releases');
 const { generate: genCrosslinks } = require('./gen-api-crosslinks');
 
 const ROOT = process.cwd();
@@ -135,15 +136,6 @@ function extractTrail(text) {
   return { body: text.slice(0, m.index) + after, crumbs };
 }
 
-// --- semver (release versions only) --------------------------------------
-function parseVer(v) { return v.split('.').map(Number); }
-function cmpVer(a, b) {
-  const x = parseVer(a), y = parseVer(b);
-  for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); }
-  return 0;
-}
-function majorOf(v) { return parseVer(v)[0]; }
-
 // Compute the publish plan for a package from its npm version history.
 //
 // `latestOnly` (api-packages.js) suppresses the archive derivation entirely.
@@ -156,10 +148,7 @@ function majorOf(v) { return parseVer(v)[0]; }
 //   * cleanStale() keeps only `latest`, so flipping latestOnly ON for core or rpc
 //     later would DELETE the archives they already publish
 function planFor(pkg, { latestOnly = false } = {}) {
-  const raw = JSON.parse(shq(`npm view @imqueue/${pkg} versions --json`));
-  const versions = (Array.isArray(raw) ? raw : [raw])
-    .filter(v => !v.includes('-')) // drop pre-releases
-    .sort(cmpVer);
+  const versions = releaseVersions(pkg);
   const latest = versions[versions.length - 1];
   const currentMajor = majorOf(latest);
   // Release timestamps, so the sitemap can date an API page by when its version

@@ -1,0 +1,180 @@
+name: Refresh API reference
+
+# Regenerates the generated API reference from the PUBLISHED npm tarballs and commits
+# the result to master — which deploys the site.
+#
+# Why this exists: `npm run build-docs` was a step in the release habit, and skipping
+# it fails silently. Nothing breaks, no page 404s, the site just keeps advertising the
+# previous version's reference — `core` and `rpc` sat four days stale that way, and
+# only a hand comparison of src/_data/apiVersions.json against npm caught it. With 16
+# documented packages a habit is not a mechanism.
+#
+# Three triggers, in descending order of reliability:
+#
+#   schedule             the safety net, and the one that matters. Asks npm what is
+#                        published, rebuilds only the packages that moved. It needs
+#                        nothing in the package repos, so it cannot be forgotten
+#                        when a repo is added or a release is cut by hand.
+#   repository_dispatch  the fast path — a package repo pings this after `npm publish`
+#                        so /api/ is current in minutes instead of by tomorrow. Wiring
+#                        it is optional per repo; see the snippet at the bottom.
+#   workflow_dispatch    by hand, optionally naming packages.
+#
+# Cost when nothing shipped: a checkout, `npm ci`, and 16 `npm view` calls (~17s). A
+# one-package rebuild reads one tarball and takes ~4s, because a partial build MERGES
+# into the shared outputs instead of rewriting them.
+
+on:
+  schedule:
+    # 04:17 UTC. Off the hour on purpose — GitHub delays cron under load, and the
+    # top of the hour is where every scheduled job in the world queues up.
+    - cron: '17 4 * * *'
+  repository_dispatch:
+    types: [package-released]
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: "Packages to rebuild (space-separated, no @imqueue/ scope). Empty = whatever npm says is stale."
+        default: ""
+
+# Never let two refreshes race on a push to master.
+concurrency:
+  group: refresh-api-docs
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # REQUIRED for the `npm test` step: check:dates reads git history
+          # (`git log --follow --diff-filter=A`) to verify every page's publication
+          # date. The default shallow fetch has one commit, so every file looks as
+          # though that commit added it and the check fails on every run.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Decide what to rebuild
+        id: pkgs
+        env:
+          # A dispatching repo names itself; a human may name several.
+          REQUESTED: ${{ github.event.inputs.packages || github.event.client_payload.package || '' }}
+        run: |
+          if [ -n "$REQUESTED" ]; then
+            list="$REQUESTED"
+            echo "Requested explicitly: $list"
+          else
+            # --list prints names and nothing else, and THROWS if npm is
+            # unreachable — a registry failure must fail this job rather than
+            # resolve to an empty list, which would look exactly like success.
+            list="$(node scripts/check-api-versions.js --list)"
+            echo "Stale per npm: ${list:-none}"
+          fi
+          # One line, single-spaced, no trailing space. --list emits one name per
+          # line, and a stray trailing space would later be read as part of a
+          # package name when the commit message looks its version up.
+          echo "list=$(echo $list | xargs)" >> "$GITHUB_OUTPUT"
+
+      - name: Regenerate
+        if: steps.pkgs.outputs.list != ''
+        env:
+          PKGS: ${{ steps.pkgs.outputs.list }}
+        run: |
+          # These names can arrive in a dispatch payload, so validate the shape
+          # before a shell expands them. build-docs rejects unknown packages too,
+          # but only after the string has already been through the shell.
+          case "$PKGS" in
+            *[!a-z0-9\ -]*) echo "Refusing suspicious package list: $PKGS"; exit 1 ;;
+          esac
+          # Unquoted on purpose: one word per package. (Safe in bash; note zsh does
+          # NOT word-split unquoted variables, so this line would break locally.)
+          #
+          # No --strict-prose: the summary floor stays warn-only, so a package that
+          # releases with a doc-block regression still gets its version published
+          # here rather than having the refresh blocked. API-DOCS-PLAN.md §3 item 9.
+          npm run build-docs -- $PKGS
+
+      - name: Verify — redirects, dates, links, sitemap
+        if: steps.pkgs.outputs.list != ''
+        # This is not belt-and-braces. A push made with GITHUB_TOKEN does not trigger
+        # other workflows, so checks.yml will NOT run for the commit this job creates
+        # — the gate has to run here or not at all. Cloudflare Pages deploys from the
+        # git push itself, so an unverified push would ship straight to production.
+        run: npm test
+
+      - name: Commit & push if changed
+        if: steps.pkgs.outputs.list != ''
+        env:
+          PKGS: ${{ steps.pkgs.outputs.list }}
+        run: |
+          # An explicit path list, not `git add -A`: the working tree of this repo
+          # also holds untracked local-only material (promotion/, the *-PLAN.md
+          # notes) that must never be committed by a bot or anyone else.
+          paths="src/org/api src/org/_redirects src/_data/apiVersions.json \
+                 lib/api-versions.js lib/api-renames.js lib/api-renamed.js \
+                 functions/api"
+
+          if [ -z "$(git status --porcelain -- $paths)" ]; then
+            echo "Nothing changed — the reference already matches npm."
+            exit 0
+          fi
+
+          # A version-only release is a 2-6 line diff (the version a page advertises
+          # lives in apiVersions.json, not in the page), so name it in the message —
+          # that number is the whole reason the commit exists.
+          #
+          # set -- word-splits, so $1 is a package name and never a name plus
+          # whitespace. (Again bash-only: zsh does not split unquoted variables and
+          # would leave every positional empty.)
+          set -- $PKGS
+          if [ "$#" = 1 ]; then
+            ver=$(node -p "require('./src/_data/apiVersions.json')['$1'].latest")
+            msg="docs(api): resync $1 with npm — $ver"
+          else
+            msg="docs(api): resync $# packages with npm — $*"
+          fi
+
+          git config user.name "imqueue-bot"
+          git config user.email "bot@imqueue.com"
+          git add -- $paths
+          git commit -m "$msg"
+          git push
+          echo "Pushed: $msg"
+
+# ---------------------------------------------------------------------------
+# The schedule alone keeps /api/ correct within a day. To make a release show up
+# within minutes instead, add a step to a package repo's release workflow AFTER the
+# successful `npm publish`:
+#
+#   - name: Notify imqueue.com to refresh the API reference
+#     run: |
+#       curl -sSf -X POST \
+#         -H "Authorization: Bearer ${{ secrets.SITE_DISPATCH_TOKEN }}" \
+#         -H "Accept: application/vnd.github+json" \
+#         https://api.github.com/repos/imqueue/imqueue.com/dispatches \
+#         -d '{"event_type":"package-released","client_payload":{"package":"pg-pubsub"}}'
+#
+# `package` is the /api/ segment — the npm name without the @imqueue/ scope. Three
+# packages were renamed on 2026-08-01, so send the CURRENT name: `opentelemetry`,
+# `datadog`, `pg-sequelize`. Omit client_payload entirely and this rebuilds whatever
+# npm says is stale, which is also correct and needs no per-repo edit.
+#
+# SITE_DISPATCH_TOKEN is a fine-grained PAT (or a classic PAT with `repo` scope) that
+# may send dispatches to imqueue/imqueue.com, stored as a secret in the package repo.
+# It is the same credential sync-cli-guide.yml documents, and the only one to create
+# by hand. Without it, the schedule still covers every package.
+#
+# IndexNow is deliberately not pinged from here: scripts/indexnow-ping.js passes
+# --exclude=/api/ (API pages reach search engines through the sitemap only), so the
+# generated reference has nothing to submit. See API-DOCS-PLAN.md §5 decision 2.
+# ---------------------------------------------------------------------------
