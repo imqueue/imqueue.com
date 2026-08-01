@@ -165,10 +165,11 @@ const PACKAGES = [
     tier: 2,
     group: 'Data & events',
     tags: ['ORM & migrations'],
-    blurb: 'Prisma/Postgres toolkit — soft-delete, audit and access-scope query extensions, row archiving, change-notify triggers, down-migrations, and a generator for typed @imqueue/rpc models.',
+    blurb: 'Prisma query extensions — soft-delete, access scoping, authorship and '
+      + 'audit trails — plus row archiving, change-notify triggers and down-migrations.',
     cliId: 'prisma',
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 6,
   },
 

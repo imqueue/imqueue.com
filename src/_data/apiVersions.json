@@ -25,6 +25,10 @@
     "latest": "3.0.3",
     "archives": []
   },
+  "pg-prisma": {
+    "latest": "1.0.1",
+    "archives": []
+  },
   "async-logger": {
     "latest": "3.2.0",
     "archives": []
