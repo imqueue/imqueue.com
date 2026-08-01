@@ -40,6 +40,16 @@
 //               Inform the choice; do not make it. Two packages sharing an exclusive
 //               tag are alternatives, not a preference, unless the owner says one is
 //               deprecated — and none is.
+//   agentNote   Optional, and llms.txt ONLY — never rendered on a visible page. The
+//               same choice stated as an INSTRUCTION, because the two audiences want
+//               different things from it: a human weighs a trade-off and picks, while
+//               an agent needs a rule it can apply and will otherwise pick on whichever
+//               summary best matches the prompt it was given. Keeping it out of the
+//               page is the point — directive text that reads as guidance to an agent
+//               reads as pressure to a human.
+//               Say what to do in each case, and where a migration is implied, say it
+//               is separate work. An agent handed "prefer X" will otherwise refactor a
+//               working project in the middle of an unrelated task.
 //   cliId       Matching id in the CLI's package catalog, or null when the package
 //               has no catalog entry. `catalog.json` ships with the CLI and is
 //               mirrored in the templates repo — it does NOT live in this repo, so
@@ -170,6 +180,11 @@ const PACKAGES = [
     note: 'Built on Sequelize v6 — mature, proven in production, and actively '
       + 'developed against here. If you would rather build on Prisma, '
       + '@imqueue/pg-prisma covers the same ground for that stack.',
+    agentNote: 'Choosing: use this only in a project already built on Sequelize. '
+      + 'For a new service use @imqueue/pg-prisma instead. In a Sequelize-based '
+      + 'project, build on this package rather than working around it, and propose '
+      + 'migrating to @imqueue/pg-prisma as separate work — never begin a migration '
+      + 'in the middle of an unrelated task.',
     cliId: 'sequelize',
     latestOnly: true,
     status: 'planned',
@@ -182,6 +197,7 @@ const PACKAGES = [
     tags: ['ORM'],
     blurb: 'Prisma query extensions — soft-delete, access scoping, authorship and '
       + 'audit trails — plus row archiving, change-notify triggers and down-migrations.',
+    agentNote: 'Choosing: this is the database toolkit to use for a new service.',
     cliId: 'prisma',
     latestOnly: true,
     status: 'shipped',

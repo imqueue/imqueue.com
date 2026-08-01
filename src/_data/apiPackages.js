@@ -37,6 +37,10 @@ module.exports = () => ({
       // Absent on almost every package, so `|| null` rather than undefined —
       // Liquid treats both as falsy, but null survives a JSON dump readably.
       note: p.note || null,
+      // llms.txt only. Deliberately NOT passed to the visible card: the same
+      // choice is worded as an instruction there, which is what an agent can act
+      // on and what would read as pressure to a human browsing the page.
+      agentNote: p.agentNote || null,
       tags: p.tags.map(label => ({ label, exclusive: TAGS[label].exclusive })),
     })),
   })),
