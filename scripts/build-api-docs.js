@@ -23,6 +23,13 @@
 //   node scripts/build-api-docs.js rpc # just one package
 //   npm run build-docs -- --strict-prose  # fail, don't warn, under the summary floor
 //
+// Naming packages is the cheap path for a release: a one-package run MERGES its
+// entries into the shared outputs (apiVersions.json, lib/api-versions.js,
+// lib/api-renames.js, functions/api/) instead of rewriting them, so the packages it
+// did not build keep theirs. It used to skip those files, which meant the version a
+// page advertises — it lives in apiVersions.json, not in the page — could only be
+// moved by rebuilding all 16 from their published tarballs.
+//
 // Outputs: src/org/api/<pkg>/{latest,<archive-ver>}/ pages, src/_data/
 // apiVersions.json (consumed by the /api/ landing page), functions/api/<pkg>/
 // (one Pages Function per package), and the generated API section of
@@ -541,12 +548,101 @@ function recordRenames({ pkg, seg, renames }) {
   }
 }
 
+// Row shape writeRenames() emits, parsed back so a build of SOME packages can keep
+// the entries it did not rebuild. `kind` lives only in the trailing comment, so it
+// is captured here rather than re-derived: re-deriving it would need the API model
+// of a package this run never built.
+const RENAME_ROW = /^\s*\[("(?:[^"\\]|\\.)*"),\s*("(?:[^"\\]|\\.)*")\],\s*\/\/\s*(.+)$/;
+
+function readExistingRenames() {
+  const file = path.join(ROOT, 'lib', 'api-renames.js');
+
+  if (!fs.existsSync(file)) return [];
+
+  const text = fs.readFileSync(file, 'utf8');
+  const rows = [];
+
+  for (const line of text.split('\n')) {
+    const m = RENAME_ROW.exec(line);
+
+    if (m) rows.push({ from: JSON.parse(m[1]), to: JSON.parse(m[2]), kind: m[3].trim() });
+  }
+
+  // Never let a format change here fail quietly. Every row is a published, indexed
+  // URL that 301s; silently parsing zero of them would emit an empty map and turn
+  // each one back into the 404 this file exists to prevent.
+  const declared = (text.match(/^\s*\[/gm) || []).length;
+
+  if (rows.length !== declared) {
+    throw new Error(
+      `lib/api-renames.js: parsed ${rows.length} of ${declared} row(s). The emitted row ` +
+      'format and RENAME_ROW have diverged — fix the pattern rather than regenerating, ' +
+      'because dropping a row turns a live 301 into a 404.',
+    );
+  }
+
+  return rows;
+}
+
+// Renames for `builtPkgs` come from this run; every other shipped package keeps what
+// is already on disk. A full build passes every package, so nothing is carried over
+// and the result is exactly what the old rewrite-from-scratch produced.
+function mergedRenames(builtPkgs) {
+  const fresh = [...RENAMED_PAGES.entries()]
+    .map(([from, { to, kind }]) => ({ from, to, kind }));
+
+  // A full build recomputes every row, so it neither reads what is on disk nor may
+  // be blocked by it: readExistingRenames() throws on a malformed file, and failing
+  // the one build that would rewrite that file correctly is the wrong trade.
+  if (builtPkgs.length === PKGS.length) {
+    return { rows: fresh, carried: 0, fresh: fresh.length };
+  }
+
+  const built = new Set(builtPkgs);
+  const pkgOf = key => key.split('/')[0];
+  const carried = readExistingRenames()
+    // An unshipped package's rows go with it, the way writeFunctions() retires its
+    // mount — otherwise a partial build would preserve them forever.
+    .filter(r => !built.has(pkgOf(r.from)) && PKGS.includes(pkgOf(r.from)));
+
+  return { rows: [...carried, ...fresh], carried: carried.length, fresh: fresh.length };
+}
+
+// Same rule for the version map: this run's entries win, the rest stand. Emitted in
+// PKGS order so the file's shape does not depend on what a given run happened to
+// build, which keeps the diff to the versions that actually moved.
+function mergedVersions(built) {
+  const file = path.join(ROOT, 'src', '_data', 'apiVersions.json');
+  // Same reasoning as mergedRenames(): a full build supplies every entry itself, so
+  // it does not read — and cannot be tripped by — the file it is about to replace.
+  const prior = Object.keys(built).length !== PKGS.length && fs.existsSync(file)
+    ? JSON.parse(fs.readFileSync(file, 'utf8'))
+    : {};
+  const out = {};
+  let carried = 0;
+
+  for (const pkg of PKGS) {
+    if (built[pkg]) {
+      out[pkg] = built[pkg];
+    } else if (prior[pkg]) {
+      out[pkg] = prior[pkg];
+      carried++;
+    }
+    // A shipped package with neither is one that has never been built. Leaving it
+    // out is deliberate: it has no pages, so routing it would serve a 404.
+  }
+
+  return { versions: out, carried };
+}
+
 // The old URL may already be published, submitted in sitemap-api.xml and indexed
 // — pg-cache shipped ClassDecorator_2 and MethodDecorator_2 for three waves — so
 // it must 301 rather than 404. Same policy and same shape as
 // lib/api-crosslinks.js, which salvages rpc's stripped core re-exports.
-function writeRenames() {
-  const rows = [...RENAMED_PAGES.entries()].sort(([a], [b]) => a.localeCompare(b));
+function writeRenames(rowList) {
+  const rows = rowList
+    .map(({ from, to, kind }) => [from, { to, kind }])
+    .sort(([a], [b]) => a.localeCompare(b));
   const body = rows
     .map(([from, { to, kind }]) => `    [${JSON.stringify(from)}, ${JSON.stringify(to)}], // ${kind}`)
     .join('\n');
@@ -770,7 +866,7 @@ function main() {
 
   rmrf(TMP);
   fs.mkdirSync(TMP, { recursive: true });
-  const apiVersions = {};
+  const built = {};
   const coverage = {};
   try {
     for (const pkg of pkgs) {
@@ -789,27 +885,49 @@ function main() {
         generate({ pkg, version: v, seg: v, latestFiles: result.basenames, released: plan.released[v] });
       }
       cleanStale(pkg, ['latest', ...plan.archives]);
-      apiVersions[pkg] = { latest: plan.latest, archives: plan.archives };
+      built[pkg] = { latest: plan.latest, archives: plan.archives };
     }
   } finally {
     rmrf(TMP);
   }
 
-  // Only rewrite shared outputs for a full build (partial builds would drop the
-  // other packages' data / redirects / Functions).
-  if (pkgs.length === PKGS.length) {
-    fs.writeFileSync(path.join(ROOT, 'src', '_data', 'apiVersions.json'), JSON.stringify(apiVersions, null, 2) + '\n');
-    console.log(`\nWrote src/_data/apiVersions.json: ${JSON.stringify(apiVersions)}`);
-    writeVersionModule(apiVersions);
-    writeRenames();
-    writeRedirects();
-    writeFunctions();
-    // Both depend on every package's pages being on disk, so they run last.
-    genCrosslinks();
-    checkCrossPackageDupes();
-  } else {
-    console.log('\nPartial build — left src/_data/apiVersions.json, lib/api-versions.js, src/org/_redirects and functions/api/ untouched.');
+  // Shared outputs are per-package data, so a build of SOME packages MERGES its
+  // entries over what is on disk. It used to skip these files entirely, which made
+  // a routine version bump cost a full build of all 16 packages — reading every
+  // published tarball for ~8 minutes to move one string — because the version a
+  // page advertises lives in apiVersions.json, not in the page.
+  //
+  // Merging, not rewriting, is the whole point: writing these from only what this
+  // run built would drop every other package's version and every published rename
+  // 301. A full build passes every package, so both merges carry nothing over and
+  // the output is byte-identical to what the old branch produced.
+  const { versions: apiVersions, carried: carriedVersions } = mergedVersions(built);
+  const { rows: renameRows, carried: carriedRenames, fresh: freshRenames } = mergedRenames(pkgs);
+
+  fs.writeFileSync(path.join(ROOT, 'src', '_data', 'apiVersions.json'), JSON.stringify(apiVersions, null, 2) + '\n');
+  console.log(`\nWrote src/_data/apiVersions.json: ${JSON.stringify(apiVersions)}`);
+  writeVersionModule(apiVersions);
+  writeRenames(renameRows);
+
+  if (pkgs.length !== PKGS.length) {
+    console.log(
+      `  merged a partial build: rebuilt ${pkgs.join(', ')}; carried over ` +
+      `${carriedVersions} package version(s) and ${carriedRenames} rename 301(s) ` +
+      `already on disk (${freshRenames} from this run).`,
+    );
   }
+
+  // Neither depends on being a full build. Both derive from the pages on disk, and
+  // the packages this run did not build still have theirs — writeRedirects() is
+  // static text, and writeFunctions() mounts every shipped package regardless.
+  writeRedirects();
+  writeFunctions();
+  // genCrosslinks() reads core's and rpc's page basenames and emits a salvage map;
+  // it does not touch pages. Running it on every build is not merely safe but
+  // required: rebuilding rpc alone can change which core symbols it still
+  // documents, and a stale map would 301 URLs that now resolve on their own.
+  genCrosslinks();
+  checkCrossPackageDupes();
 
   reportSummaryCoverage(coverage, strictProse);
   console.log('\nDone!');
