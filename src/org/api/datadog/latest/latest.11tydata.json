@@ -1,0 +1,180 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "datadog",
+  "apiVersion": "3.2.0",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-08-01T16:25:59.805Z",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "ImqClientPlugin",
+          "url": "/api/datadog/latest/datadog.imqclientplugin/"
+        },
+        {
+          "name": "ImqPlugin",
+          "url": "/api/datadog/latest/datadog.imqplugin/"
+        },
+        {
+          "name": "ImqServerPlugin",
+          "url": "/api/datadog/latest/datadog.imqserverplugin/"
+        }
+      ]
+    },
+    {
+      "group": "Enumerations",
+      "items": [
+        {
+          "name": "TraceKind",
+          "url": "/api/datadog/latest/datadog.tracekind/"
+        }
+      ]
+    },
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "allowPluginEnvConfig(id)",
+          "url": "/api/datadog/latest/datadog.allowpluginenvconfig/"
+        },
+        {
+          "name": "enablePlugin()",
+          "url": "/api/datadog/latest/datadog.enableplugin/"
+        },
+        {
+          "name": "installHooks(options, hooks)",
+          "url": "/api/datadog/latest/datadog.installhooks/"
+        },
+        {
+          "name": "instrument()",
+          "url": "/api/datadog/latest/datadog.instrument/"
+        },
+        {
+          "name": "publishLoad(name)",
+          "url": "/api/datadog/latest/datadog.publishload/"
+        },
+        {
+          "name": "registerPlugin()",
+          "url": "/api/datadog/latest/datadog.registerplugin/"
+        },
+        {
+          "name": "trace(name, tags)",
+          "url": "/api/datadog/latest/datadog.trace/"
+        },
+        {
+          "name": "traced(options)",
+          "url": "/api/datadog/latest/datadog.traced/"
+        },
+        {
+          "name": "traceEnd(name)",
+          "url": "/api/datadog/latest/datadog.traceend/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "CallHooks",
+          "url": "/api/datadog/latest/datadog.callhooks/"
+        },
+        {
+          "name": "CompositePluginConstructor",
+          "url": "/api/datadog/latest/datadog.compositepluginconstructor/"
+        },
+        {
+          "name": "DDChannel",
+          "url": "/api/datadog/latest/datadog.ddchannel/"
+        },
+        {
+          "name": "ImqCallContext",
+          "url": "/api/datadog/latest/datadog.imqcallcontext/"
+        },
+        {
+          "name": "StartSpanOptions",
+          "url": "/api/datadog/latest/datadog.startspanoptions/"
+        },
+        {
+          "name": "TracedOptions",
+          "url": "/api/datadog/latest/datadog.tracedoptions/"
+        },
+        {
+          "name": "TraceTags",
+          "url": "/api/datadog/latest/datadog.tracetags/"
+        },
+        {
+          "name": "TracingPluginConstructor",
+          "url": "/api/datadog/latest/datadog.tracingpluginconstructor/"
+        },
+        {
+          "name": "TracingPluginType",
+          "url": "/api/datadog/latest/datadog.tracingplugintype/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "CALL_CONTEXT",
+          "url": "/api/datadog/latest/datadog.call_context/"
+        },
+        {
+          "name": "CARRIER_KEY",
+          "url": "/api/datadog/latest/datadog.carrier_key/"
+        },
+        {
+          "name": "CLIENT_OPERATION",
+          "url": "/api/datadog/latest/datadog.client_operation/"
+        },
+        {
+          "name": "clientChannels",
+          "url": "/api/datadog/latest/datadog.clientchannels/"
+        },
+        {
+          "name": "clientHooks",
+          "url": "/api/datadog/latest/datadog.clienthooks/"
+        },
+        {
+          "name": "CompositePlugin",
+          "url": "/api/datadog/latest/datadog.compositeplugin/"
+        },
+        {
+          "name": "IMQ_COMPONENT",
+          "url": "/api/datadog/latest/datadog.imq_component/"
+        },
+        {
+          "name": "LOAD_CHANNEL",
+          "url": "/api/datadog/latest/datadog.load_channel/"
+        },
+        {
+          "name": "pluginRegistry",
+          "url": "/api/datadog/latest/datadog.pluginregistry/"
+        },
+        {
+          "name": "REGISTRY_KEY",
+          "url": "/api/datadog/latest/datadog.registry_key/"
+        },
+        {
+          "name": "SERVER_OPERATION",
+          "url": "/api/datadog/latest/datadog.server_operation/"
+        },
+        {
+          "name": "serverChannels",
+          "url": "/api/datadog/latest/datadog.serverchannels/"
+        },
+        {
+          "name": "serverHooks",
+          "url": "/api/datadog/latest/datadog.serverhooks/"
+        },
+        {
+          "name": "TracingPlugin",
+          "url": "/api/datadog/latest/datadog.tracingplugin/"
+        }
+      ]
+    }
+  ]
+}
