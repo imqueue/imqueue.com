@@ -78,7 +78,7 @@ const TAGS = {
   'tracing & APM': { exclusive: true },
   logging: { exclusive: false },
   GraphQL: { exclusive: false },
-  'IP & CIDR': { exclusive: false },
+  'network validation': { exclusive: false },
   'DDoS protection': { exclusive: false },
   'input validation': { exclusive: false },
   'jobs & scheduling': { exclusive: false },
@@ -243,7 +243,7 @@ const PACKAGES = [
     name: 'net',
     tier: 2,
     group: 'Hardening & validation',
-    tags: ['IP & CIDR'],
+    tags: ['network validation'],
     blurb: 'CIDR membership testing for IPv4 and IPv6 — sorted binary ranges '
       + 'searched in O(log n) rather than one comparison per network.',
     cliId: 'net',
