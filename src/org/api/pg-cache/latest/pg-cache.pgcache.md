@@ -74,7 +74,7 @@ PostgreSQL and redis connection details, plus the cache-key prefix, publication 
 
 **Returns:**
 
-[ClassDecorator](/api/pg-cache/latest/pg-cache.classdecorator_2/)
+[ClassDecorator](/api/pg-cache/latest/pg-cache.classdecorator/)
 
 the class decorator to apply, which augments the class with [PgCacheable](/api/pg-cache/latest/pg-cache.pgcacheable/)
 
