@@ -216,14 +216,22 @@ on the page that is actually about the product).
       "author": { "@id": "{{ siteUrl }}/#org" },
       "publisher": { "@id": "{{ siteUrl }}/#org" }
     }{% endif %}{% if mcpApp %},
+    {%- comment -%}
+      The MCP server is one entity, so its @id and url are absolute rather than
+      per-page: emitted from both /mcp/ and the home page, these describe the same
+      node instead of forking it into two. `mcpDesc` lets a page whose own meta
+      description is about something else (the home page) still describe the
+      server correctly; /mcp/'s metaDesc already is that description.
+    {%- endcomment -%}
     {
       "@type": "SoftwareApplication",
-      "@id": "{{ metaUrl }}#mcp",
+      "@id": "{{ siteUrl }}/#mcp",
       "name": "@imqueue/mcp",
       "applicationCategory": "DeveloperApplication",
+      "applicationSubCategory": "Model Context Protocol (MCP) server",
       "operatingSystem": "Node.js",
-      "url": "{{ metaUrl }}",
-      "description": {{ metaDesc | json }},
+      "url": "{{ siteUrl }}/mcp/",
+      "description": {{ mcpDesc | default: metaDesc | json }},
       "softwareRequirements": "Node.js >= 18",
       "downloadUrl": "https://www.npmjs.com/package/@imqueue/mcp",
       "programmingLanguage": ["TypeScript", "JavaScript"],
