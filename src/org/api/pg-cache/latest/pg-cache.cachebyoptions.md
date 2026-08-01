@@ -56,7 +56,7 @@ number
 
 _(Optional)_ Zero-index based position of fields argument in a method arguments, which are passed at runtime. Fields argument are usually passed from a client to specify a query map to be extracted and returned from a service method. For example, fields map can be built from an incoming GraphQL request using fieldsMap() function from graphql-fields-list package.
 
-Usually pg-based `@imqueue` services, which utilize `@imqueue/sequelize` package passing fields as a second argument to service methods, so if this option is omitted, it will try to check for the second passed argument. If you need to explicitly disable it, pass -1.
+Usually pg-based `@imqueue` services, which utilize `@imqueue/pg-sequelize` package passing fields as a second argument to service methods, so if this option is omitted, it will try to check for the second passed argument. If you need to explicitly disable it, pass -1.
 
 
 </td></tr>
