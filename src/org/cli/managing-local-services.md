@@ -1,6 +1,6 @@
 ---
 chapter: 8
-title: "Run a local fleet: start, stop, logs"
+title: "Managing Local Services"
 docLabel: "CLI MANUAL — 08 / 12"
 lead: "Run a whole fleet of services side by side with imq ctl, imq log and imq up — start, stop, tail logs and bulk-update dependencies."
 description: "Manage a local @imqueue fleet: imq ctl start/stop/restart/status, combined colour-prefixed logs with imq log, and bulk dependency updates with imq up."
