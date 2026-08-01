@@ -74,7 +74,7 @@ const GROUP_ORDER = [
 const TAGS = {
   events: { exclusive: false },
   caching: { exclusive: false },
-  'ORM & migrations': { exclusive: true },
+  ORM: { exclusive: true },
   'tracing & APM': { exclusive: true },
   logging: { exclusive: false },
   GraphQL: { exclusive: false },
@@ -153,7 +153,7 @@ const PACKAGES = [
     name: 'sequelize',
     tier: 2,
     group: 'Data & events',
-    tags: ['ORM & migrations'],
+    tags: ['ORM'],
     blurb: 'Sequelize ORM refinements for @imqueue services.',
     cliId: 'sequelize',
     latestOnly: true,
@@ -164,7 +164,7 @@ const PACKAGES = [
     name: 'pg-prisma',
     tier: 2,
     group: 'Data & events',
-    tags: ['ORM & migrations'],
+    tags: ['ORM'],
     blurb: 'Prisma query extensions — soft-delete, access scoping, authorship and '
       + 'audit trails — plus row archiving, change-notify triggers and down-migrations.',
     cliId: 'prisma',
