@@ -1,0 +1,75 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "opentelemetry",
+  "apiVersion": "4.0.0",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-08-01T16:25:19.895Z",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "ImqueueInstrumentation",
+          "url": "/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation/"
+        }
+      ]
+    },
+    {
+      "group": "Enumerations",
+      "items": [
+        {
+          "name": "AttributeNames",
+          "url": "/api/opentelemetry/latest/opentelemetry.attributenames/"
+        },
+        {
+          "name": "SpanNames",
+          "url": "/api/opentelemetry/latest/opentelemetry.spannames/"
+        },
+        {
+          "name": "TraceKind",
+          "url": "/api/opentelemetry/latest/opentelemetry.tracekind/"
+        }
+      ]
+    },
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "traced(options)",
+          "url": "/api/opentelemetry/latest/opentelemetry.traced/"
+        },
+        {
+          "name": "traceEnd(name)",
+          "url": "/api/opentelemetry/latest/opentelemetry.traceend/"
+        },
+        {
+          "name": "traceStart(name, tags, tracerName)",
+          "url": "/api/opentelemetry/latest/opentelemetry.tracestart/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "IMQCallHooks",
+          "url": "/api/opentelemetry/latest/opentelemetry.imqcallhooks/"
+        },
+        {
+          "name": "RpcModule",
+          "url": "/api/opentelemetry/latest/opentelemetry.rpcmodule/"
+        },
+        {
+          "name": "TraceAttributes",
+          "url": "/api/opentelemetry/latest/opentelemetry.traceattributes/"
+        },
+        {
+          "name": "TracedOptions",
+          "url": "/api/opentelemetry/latest/opentelemetry.tracedoptions/"
+        }
+      ]
+    }
+  ]
+}
