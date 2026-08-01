@@ -225,10 +225,11 @@ const PACKAGES = [
     tier: 2,
     group: 'Hardening & validation',
     tags: [],
-    blurb: 'Fast binary network address checker with IPv4 and IPv6 support.',
+    blurb: 'CIDR membership testing for IPv4 and IPv6 — sorted binary ranges '
+      + 'searched in O(log n) rather than one comparison per network.',
     cliId: 'net',
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 5,
   },
   {
@@ -236,10 +237,11 @@ const PACKAGES = [
     tier: 2,
     group: 'Hardening & validation',
     tags: [],
-    blurb: 'HTTP DDoS protection middleware.',
+    blurb: 'Per-IP rate limiting and banning for express-like servers, backed by '
+      + 'Redis so every process sees one view of a client.',
     cliId: 'http-protect',
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 5,
   },
   {
@@ -250,7 +252,7 @@ const PACKAGES = [
     blurb: 'Zod-backed field- and method-level validation via native (TC39) decorators.',
     cliId: null,
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 5,
   },
 
