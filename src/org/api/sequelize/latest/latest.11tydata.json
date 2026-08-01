@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "sequelize",
-  "apiVersion": "4.1.1",
+  "apiVersion": "4.1.2",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-01T13:53:57.658Z",
+  "apiReleased": "2026-08-01T13:58:41.489Z",
   "apiNav": [
     {
       "group": "Classes",
