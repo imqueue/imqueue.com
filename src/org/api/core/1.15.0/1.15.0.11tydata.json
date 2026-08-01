@@ -49,7 +49,7 @@
           "url": "/api/core/1.15.0/core.intrand/"
         },
         {
-          "name": "logDebugInfo({ debugTime, debugArgs, className, args, methodName, start, logger, logLevel, }, input)",
+          "name": "logDebugInfo(input)",
           "url": "/api/core/1.15.0/core.logdebuginfo/"
         },
         {
