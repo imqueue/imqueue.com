@@ -171,7 +171,9 @@ addresses — `localhost:6379`, `localhost:27017` and `localhost:5432`.
 You'll also need a PostgreSQL database named `tutmq`, owned by a user `tutmq`
 with the password `tutmq` — or point the time-table service at a different
 database through its `DB_CONN_STR` environment variable. The schema itself is
-created on start-up, so there's nothing to migrate by hand.
+created on start-up, so there's nothing to migrate by hand. If you want to watch
+the statements it issues, start it with `SQL_LOG=1`; `SQL_PRETTIFY=1` and
+`SQL_COLORIZE=1` make them readable.
 
 The auth service signs its JWTs with a secret you supply and refuses to start
 without one. `.env` files are git-ignored, so a fresh clone has none — generate

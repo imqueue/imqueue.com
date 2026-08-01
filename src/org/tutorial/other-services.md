@@ -3,8 +3,8 @@ chapter: 4
 title: "Domain services: PostgreSQL & in-memory data"
 docLabel: TUTORIAL — CHAPTER 4
 lead: "Add the remaining domain services — Car and Time-Table — an in-memory car catalog and a PostgreSQL-backed reservation time-table."
-description: "Add the remaining @imqueue domain services: Car, an in-memory catalog built from the EPA dataset, and Time-Table, PostgreSQL-backed reservations via Sequelize."
-keywords: "@imqueue domain services, car catalog microservice, self-describing services, Sequelize RPC microservice, PostgreSQL microservice, TypeScript service client"
+description: "Add the remaining @imqueue domain services: Car, an in-memory catalog from the EPA dataset, and Time-Table, PostgreSQL reservations via @imqueue/pg-sequelize."
+keywords: "@imqueue domain services, car catalog microservice, self-describing services, @imqueue/pg-sequelize, Sequelize RPC microservice, PostgreSQL microservice, TypeScript service client"
 ogType: article
 ---
 
@@ -86,8 +86,19 @@ dataset — see `CarsDB` in the
 
 ## Time-Table service requirements
 
-This is the central service. Use a relational database as its data store — for
-example, PostgreSQL (or another of your choice) with the Sequelize ORM on top.
+This is the central service. Use a relational database as its data store — the
+reference implementation uses PostgreSQL, reached through
+[`@imqueue/pg-sequelize`](/api/pg-sequelize/latest/), the framework's Sequelize
+toolkit. Scaffold the service with that package already wired in:
+
+~~~bash
+imq service create time-table ./time-table --packages sequelize
+~~~
+
+The catalog id is `sequelize`, kept as it was when the package was renamed so
+that existing configs keep working; what it installs is `@imqueue/pg-sequelize`,
+and with it Sequelize, `sequelize-typescript` and the `pg` driver. See
+[Package Catalog](/cli/package-catalog/) for the rest of the list.
 
 Here is the interface expected for this service:
 
@@ -159,8 +170,98 @@ It also exposes these complex types:
    }
    ~~~
 
-**Something to think about:** (a) exposing a Sequelize model as an @imqueue
-complex type; (b) storing the options as configurable database records.
+### The data layer
+
+`@imqueue/pg-sequelize` re-exports everything `sequelize` and
+`sequelize-typescript` export, so `Table`, `Column`, `DataType` and the rest
+arrive from the same place as the package's own additions. That is what lets the
+table and the wire format be a single declaration: put `@classType()` and
+`@property()` from `@imqueue/rpc` on the same class that carries the Sequelize
+decorators, and one file describes both.
+
+~~~typescript
+import {
+    AllowNull, AutoIncrement, BaseModel, Column, ColumnIndex,
+    DataType, IndexMethod, PrimaryKey, Table,
+} from '@imqueue/pg-sequelize';
+import { classType, property } from '@imqueue/rpc';
+
+@classType()
+@Table({
+    tableName: 'Reservation',
+    freezeTableName: true,
+    timestamps: true,
+    paranoid: true,
+})
+export class Reservation extends BaseModel<Reservation> {
+    @property('number')
+    @AutoIncrement
+    @PrimaryKey
+    @Column(DataType.BIGINT)
+    public id: number;
+
+    // GiST is the method that makes range containment — the query every read
+    // runs — use an index instead of a scan
+    @property('[string, string]')
+    @ColumnIndex({
+        name: 'reservation_duration',
+        method: IndexMethod.GIST,
+        safe: true,
+    })
+    @AllowNull(false)
+    @Column(DataType.RANGE(DataType.DATE))
+    public duration: [Date, Date];
+}
+~~~
+
+Three things about the reference implementation are worth knowing before you
+write your own:
+
+- **The connection is a singleton the package owns.**
+  [`database(dbConfig)`](/api/pg-sequelize/latest/pg-sequelize.database/) builds
+  it on the first call and hands back the same instance on every later one,
+  ignoring its argument — so those options are start-up configuration, not
+  something to vary per call.
+- **Models are discovered, not listed.**
+  [`modelsPath`](/api/pg-sequelize/latest/pg-sequelize.imqormoptions.modelspath/)
+  points at the *compiled* output, and each file under it must export a symbol
+  named after itself — `Reservation.js` exporting `Reservation`. That is why the
+  model lives in a directory of its own with nothing else in it: an `index.js`
+  sitting alongside would hand Sequelize `undefined`.
+- **Indices are declared on the columns.** `orm.sync()` creates the tables and
+  then every index declared with `@ColumnIndex`. What that cannot express stays
+  an explicit statement in the schema bootstrap — here the double-booking guard,
+  whose key is one column plus two expressions.
+
+The `fields?: string[]` parameter every read method above takes is not plumbing
+you write by hand.
+[`query.autoQuery()`](/api/pg-sequelize/latest/pg-sequelize.query.autoquery/)
+turns it into the `SELECT` list, intersecting it with the model's real columns
+and falling back to the primary key — so a gateway can pass its GraphQL
+selection set straight through, and a name that is not a column never reaches
+the SQL:
+
+~~~typescript
+return await Reservation.findAll(query.autoQuery<FindOptions>(
+    Reservation,
+    fields,
+    {
+        where: {
+            duration: {
+                [Op.contained]: [today(dateObj), tomorrow(dateObj)],
+            },
+        },
+    },
+));
+~~~
+
+`Op` is the one import that still comes from `sequelize` itself: its operators
+are ES symbols, which is also why the package offers a JSON-friendly
+[`FilterInput`](/api/pg-sequelize/latest/pg-sequelize.filterinput/) for filters
+that arrive over the wire.
+
+**Something to think about:** storing the time-table options as configurable
+database records rather than as defaults in code.
 
 Either way, the [complete source code is on GitHub](https://github.com/imqueue-sandbox/time-table).
 
