@@ -30,6 +30,7 @@
     "test": "npm run check:redirects && npm run check:agent-analytics && npm run check:dates && npm run check:links && npm run check:sitemap",
     "check:redirects": "node scripts/check-redirects.js",
     "check:agent-analytics": "node scripts/check-agent-analytics.js",
+    "probe:agent-analytics": "node scripts/probe-agent-analytics.js",
     "check:dates": "node scripts/gen-page-dates.js --check",
     "check:sitemap": "node scripts/check-sitemap.js",
     "check:api-versions": "node scripts/check-api-versions.js",
