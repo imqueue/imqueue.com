@@ -164,6 +164,142 @@ async function checkLegacyApiRules() {
   await checkDupePackagePages();
   await checkCoreReexports();
   await checkRenamedPages();
+  await checkRenamedPackages();
+}
+
+// --- 2e. a renamed package's old URLs reach the new ones, in one hop ----------
+// Nothing else in this file covers a package RENAME: the legacy fixture holds only
+// core and rpc rules, and every other assertion iterates API_VERSIONS — which a
+// retired slug leaves the moment the rename lands. So the suite would go on
+// printing all-green over 300 dead URLs.
+//
+// Two traps this exists to catch, both of which look fine at the package root:
+//
+//   * api-documenter puts the package name in the page BASENAME as well as the
+//     directory, so a splat-style rule sends every symbol page to a 404 while
+//     /api/<old>/ itself redirects correctly.
+//   * the basename rewrite has to be anchored. Eleven sequelize pages carry the
+//     name twice (sequelize.sequelize.define, sequelize.queryinterface.sequelize),
+//     and a global replace turns them into pg-sequelize.pg-sequelize.define.
+async function checkRenamedPackages() {
+  const { resolveApiRedirect, resolveRenamedPackage } =
+    await import('../lib/api-redirects.js');
+  const { API_VERSIONS } = await import('../lib/api-versions.js');
+  const { RENAMED_PACKAGES: MAP } = await import('../lib/api-renamed.js');
+  const { RENAMED_PACKAGES: CONFIG } = require('./lib/api-packages');
+
+  // The runtime map is generated; a stale commit of it is a silent regression,
+  // since the resolver reads the generated copy and nothing else would notice.
+  const generated = [...MAP].map(([from, to]) => `${from}=>${to}`).sort();
+  const configured = CONFIG.map(r => `${r.from}=>${r.to}`).sort();
+
+  if (JSON.stringify(generated) !== JSON.stringify(configured)) {
+    fail(
+      'lib/api-renamed.js is out of step with RENAMED_PACKAGES in ' +
+      `scripts/lib/api-packages.js (generated: ${generated.join(', ') || 'none'}; ` +
+      `configured: ${configured.join(', ') || 'none'}) — run npm run build-docs`,
+    );
+  } else {
+    pass(`lib/api-renamed.js matches the config (${generated.length} rename(s))`);
+  }
+
+  let pending = 0;
+
+  for (const [from, to] of MAP) {
+    // Before the cutover the old slug is still the live package and the new one
+    // has no pages, so the resolver is deliberately inert. Assert THAT instead:
+    // an active redirect here would be pointing at a 404.
+    if (!API_VERSIONS[to]) {
+      pending++;
+
+      if (resolveRenamedPackage(`/api/${from}/latest/`) !== null) {
+        fail(`${from} -> ${to} redirects before ${to} has any published docs`);
+      }
+
+      continue;
+    }
+
+    const mustBeMounted = path.join(ROOT, 'functions', 'api', from, '[[path]].js');
+
+    // Functions are evaluated ahead of _redirects, so no mount means the resolver
+    // never runs for these paths, however correct it is. check:links cannot see
+    // this — it knows nothing about functions/.
+    if (!fs.existsSync(mustBeMounted)) {
+      fail(`functions/api/${from}/[[path]].js is missing — /api/${from}/* would 404`);
+    } else {
+      pass(`functions/api/${from}/ is mounted so its URLs reach the resolver`);
+    }
+
+    const dir = path.join(ROOT, 'src', 'org', 'api', from);
+
+    if (fs.existsSync(dir)) {
+      fail(`src/org/api/${from}/ still exists — it keeps building pages under the retired name`);
+    }
+
+    // One hop, and onto a page that is actually on disk.
+    const cases = [
+      `/api/${from}`,
+      `/api/${from}/`,
+      `/api/${from}/latest/`,
+      `/api/${from}/latest/${from}/`,
+      `/api/${from}/1.0.0/`,
+    ];
+
+    for (const page of pagesOf(to)) {
+      cases.push(`/api/${from}/latest/${from}.${page}/`);
+      cases.push(`/api/${from}/3.0.0/${from}.${page}/`);
+    }
+
+    for (const from_ of cases) {
+      const target = resolveApiRedirect(from_);
+
+      if (!target) {
+        fail(`${from_} does not redirect`);
+        continue;
+      }
+      if (resolveApiRedirect(target)) {
+        fail(`${from_} -> ${target} needs a second hop`);
+      }
+      if (!existsOnDisk(target)) {
+        fail(`${from_} -> ${target}, which is not a page on disk`);
+      }
+    }
+
+    pass(`${from} -> ${to}: ${cases.length} URL(s) resolve in one hop to a real page`);
+  }
+
+  if (pending) {
+    pass(`${pending} rename(s) staged but not cut over yet — resolver inert, as intended`);
+  }
+}
+
+/** Symbol page basenames published for a package, without the `<pkg>.` prefix. */
+function pagesOf(pkg) {
+  const dir = path.join(ROOT, 'src', 'org', 'api', pkg, 'latest');
+
+  if (!fs.existsSync(dir)) {
+    return [];
+  }
+
+  return fs.readdirSync(dir)
+    .filter(f => f.startsWith(`${pkg}.`) && f.endsWith('.md'))
+    .map(f => f.slice(pkg.length + 1, -3));
+}
+
+/** Whether a /api/… pathname has a source page behind it. */
+function existsOnDisk(pathname) {
+  const m = /^\/api\/([^/]+)\/([^/]+)\/(.+?)?\/?$/.exec(pathname);
+
+  if (!m) {
+    return false;
+  }
+
+  const [, pkg, seg, page] = m;
+  const base = path.join(ROOT, 'src', 'org', 'api', pkg, seg);
+
+  return page
+    ? fs.existsSync(path.join(base, `${page}.md`))
+    : fs.existsSync(path.join(base, 'index.md'));
 }
 
 // --- 2b. the retired duplicate package page 301s onto the package root -------

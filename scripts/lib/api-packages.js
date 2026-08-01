@@ -371,6 +371,77 @@ const PACKAGES = [
   }
 })();
 
+/**
+ * Packages that were published under a different name, retired slug -> current.
+ *
+ * The slug is the /api/<slug>/ segment, i.e. the npm name without the scope. Every
+ * page under a retired slug was indexed and submitted in sitemap-api.xml, and
+ * api-documenter prefixes every page BASENAME with the package name too, so a
+ * directory-level rule cannot fix them — see resolveRenamedPackage() in
+ * lib/api-redirects.js, which rewrites both halves.
+ *
+ * This is the source of truth for three things that have to agree:
+ *
+ *   * lib/api-renamed.js       generated from here by build-api-docs.js; the
+ *                              resolver reads that at request time
+ *   * functions/api/<retired>/ a Pages Function stays mounted per retired slug,
+ *                              because Functions are evaluated ahead of
+ *                              _redirects — with no mount the request never
+ *                              reaches the resolver at all
+ *   * the stale-mount sweep    writeFunctions() must NOT treat these as stale
+ *
+ * A retired slug must NOT end up with a PACKAGES entry of its own. Modelling one
+ * as `status: 'planned'` is the intuitive move and is exactly wrong: PACKAGES
+ * entries outside shipped() are swept, so the next docs build would delete the
+ * very mount the redirect depends on.
+ *
+ * A pair may be listed BEFORE the rename is carried out, which is how the machinery
+ * gets to land and be tested separately from the cutover. While `from` is still a
+ * live PACKAGES entry it wins: writeFunctions() mounts it as a live package, and
+ * resolveRenamedPackage() stays inert because the new slug is not in the version map
+ * yet. The pair activates by itself when `from` is renamed to `to` in PACKAGES and
+ * the docs are regenerated. Nothing has to be sequenced by hand.
+ *
+ * Entries are permanent. Search-engine consolidation takes months and inbound
+ * links never fully die; the cost of keeping one is a seven-line generated file.
+ */
+const RENAMED_PACKAGES = [
+  { from: 'opentelemetry-instrumentation-imqueue', to: 'opentelemetry' },
+  { from: 'sequelize', to: 'pg-sequelize' },
+  { from: 'dd-trace', to: 'datadog' },
+];
+
+(function validateRenames() {
+  const seen = new Set();
+
+  for (const r of RENAMED_PACKAGES) {
+    // EXACTLY one side is a PACKAGES entry, and which one says where the cutover
+    // has got to: `from` before it, `to` after. Both would mean two entries for one
+    // package — the rename applied as an addition, leaving the old slug generating
+    // its own frozen copy. Neither means a typo on one side, which would otherwise
+    // sit here as a redirect that never fires.
+    const hasFrom = PACKAGES.some(p => p.name === r.from);
+    const hasTo = PACKAGES.some(p => p.name === r.to);
+
+    if (hasFrom === hasTo) {
+      throw new Error(
+        hasFrom
+          ? `api-packages: "${r.from}" and "${r.to}" are both packages — a rename ` +
+            'is one entry changing its name, not a second entry alongside it'
+          : `api-packages: neither "${r.from}" nor "${r.to}" is a package — a ` +
+            'rename must name the entry it applies to',
+      );
+    }
+    if (r.from === r.to) {
+      throw new Error(`api-packages: rename "${r.from}" points at itself`);
+    }
+    if (seen.has(r.from)) {
+      throw new Error(`api-packages: duplicate rename source "${r.from}"`);
+    }
+    seen.add(r.from);
+  }
+})();
+
 /** Packages the site actually generates and links to. */
 function shipped() {
   return PACKAGES.filter(p => p.status === 'shipped');
@@ -396,4 +467,12 @@ function shippedGroups() {
     .filter(g => g.packages.length);
 }
 
-module.exports = { PACKAGES, GROUP_ORDER, TAGS, shipped, shippedGroups, byName };
+module.exports = {
+  PACKAGES,
+  GROUP_ORDER,
+  TAGS,
+  RENAMED_PACKAGES,
+  shipped,
+  shippedGroups,
+  byName,
+};
