@@ -114,10 +114,21 @@ Setup, all free:
    `GA4_MP_MEASUREMENT_ID` and `GA4_MP_API_SECRET` (encrypt the secret). With either
    missing the module does nothing at all, which is also what keeps forks and preview
    deploys silent.
-4. **Verify once** by also setting `GA4_MP_DEBUG=1`: hits go to GA4's validation
-   endpoint and the result is logged to the project's function logs, where an empty
-   `validationMessages` means the payload is good. **Then unset it** — the validation
-   endpoint reports but records nothing.
+4. **Verify delivery** — `npm test` proves the logic offline and can prove nothing about
+   a real property, so this is a separate, opt-in step:
+
+   ```bash
+   export GA4_MP_MEASUREMENT_ID='G-…' GA4_MP_API_SECRET='…'
+   npm run probe:agent-analytics     # GA4_MP_DEBUG=1 to validate instead of send
+   ```
+
+   It sends three events through `lib/agent-analytics.js` itself — including a 404 — so
+   a pass means the module, the credential and the property agree. GA4 answers 204 to
+   valid and invalid hits alike, so the proof is **Realtime**, not the exit code. The
+   probe refuses to run against the property `eleventy.config.js` reports to, and never
+   prints the secret. On Pages, `GA4_MP_DEBUG=1` does the same validation server-side
+   and logs the verdict to the project's function logs; **unset it afterwards**, since
+   the validation endpoint reports but records nothing.
 5. Optional, for slicing: Admin → Custom definitions → register `crawler`,
    `operator`, `surface`, `status` and `edition` as **event-scoped custom
    dimensions**. Events are sent as `page_view` with `page_location`, so the built-in
