@@ -158,8 +158,9 @@ serve the documentation in machine-friendly form:
 - **Markdown mirror of any docs page** — append `index.md` to a page URL, e.g.
   [`/get-started/index.md`](/get-started/index.md) or
   [`/tutorial/user-service/index.md`](/tutorial/user-service/index.md).
-- **[/api/](/api/)** — the full generated API reference for `@imqueue/core` and
-  `@imqueue/rpc`.
+- **[/api/](/api/)** — the full generated API reference for every documented
+  `@imqueue` package, and [`/api/search-index.json`](/api/search-index.json) to
+  resolve a symbol name to its page.
 
 ## Agent recipes
 
