@@ -7,7 +7,13 @@ section: home
 title: "@imqueue — TypeScript RPC over a message queue"
 bareTitle: true
 description: "RPC over a message queue for service-oriented Node.js & TypeScript back-ends. Self-describing services generate their own typed clients — no boilerplate."
-keywords: "@imqueue, Node.js message queue, TypeScript RPC framework, Node.js microservices framework, RPC over Redis, message queue RPC, service-oriented architecture, self-describing services, inter-service communication, scalable Node.js back-end, typed RPC, distributed systems Node.js"
+keywords: "@imqueue, Node.js message queue, TypeScript RPC framework, Node.js microservices framework, RPC over Redis, message queue RPC, service-oriented architecture, self-describing services, inter-service communication, scalable Node.js back-end, typed RPC, distributed systems Node.js, MCP server, AI coding agent, Claude Code, Cursor, llms.txt"
+# The @imqueue/mcp SoftwareApplication node (head.html) is emitted here as well as
+# on /mcp/ — same @id, so it is one entity described from the highest-authority
+# URL on the domain. mcpDesc exists because that node otherwise borrows the
+# page's own meta description, which here is about the framework, not the server.
+mcpApp: true
+mcpDesc: "Official Model Context Protocol server for @imqueue: docs search, typed service and client scaffolding, and imq CLI control as tools an AI coding agent calls."
 ---
 <style>
   .hero { display:grid; grid-template-columns:1fr 1fr; gap:52px; align-items:center; padding-block:56px 40px; }
@@ -36,6 +42,63 @@ keywords: "@imqueue, Node.js message queue, TypeScript RPC framework, Node.js mi
   .pkg { display:block; }
   .pkg .name { font-family:var(--font-mono); font-weight:600; font-size:15px; color:var(--accent); margin-bottom:6px; }
   .pkg p { font-size:13.5px; }
+
+  /* The install command wraps rather than scrolling. It was a scroll container at
+     first, which hid the end of the one line on the page most meant to be copied —
+     and a horizontal scrollbar inside a card is worse than a second line.
+     pre-wrap breaks at spaces only, so it never splits `@imqueue/mcp`, and the
+     text stays one logical line: a copy still yields the exact command.
+     It does take two lines in a three-up card (~340px) and on a phone, hence the
+     hanging indent — negative text-indent pulls the first line back to the real
+     padding and leaves continuations inset, so the wrap reads as one command
+     continuing rather than as two separate ones. */
+  .agent-cmd { font-family:var(--font-mono); font-size:12.5px; line-height:1.6; color:var(--code);
+    background:var(--bg); border:1px solid var(--line); border-radius:6px;
+    padding:10px 12px 10px 27px; text-indent:-15px;
+    margin:14px 0 12px; white-space:pre-wrap; }
+  /* Flex column + margin-top:auto pins each card's link to the bottom — card 1
+     carries the command box, so without this the three "→" links sit at three
+     different heights.
+     min-width:0 guards the track widths: `1fr` is minmax(auto,1fr), so a column
+     cannot shrink below its content's min-content width, and one long unbreakable
+     token is enough to make a card keep its full width while the other two get
+     squeezed. That is exactly what the nowrap command box did before it wrapped. */
+  .agent-card { display:flex; flex-direction:column; min-width:0; }
+  .agent-more { font-family:var(--font-mono); font-size:13px; margin:auto 0 0; padding-top:14px; }
+
+  /* The two prose sections alternate sides — // WHAT IS @IMQUEUE stays left, this
+     one is pushed to the container's right edge — so the page reads as a
+     deliberate zigzag rather than one long left column. The *block* moves; the
+     text inside it stays left-aligned, so all three elements share a left edge
+     and it reads as an offset column rather than as right-aligned copy (ragged
+     left is measurably harder to read over five lines).
+     Scoped to the section's own direct children: the card grid below stays full
+     width, which is what makes the shift read as intentional. Size and colour
+     live here rather than inline so the media query below can override
+     margin-left — an inline margin shorthand beats any selector. */
+  .agent-intro > .section-label,
+  .agent-intro > h2,
+  .agent-intro > p { max-width:780px; margin-left:auto; }
+  .agent-intro > h2 { font-size:30px; margin-top:0; margin-bottom:16px; }
+  .agent-intro > p { font-size:16.5px; line-height:1.7; color:var(--muted);
+    margin-top:0; margin-bottom:26px; }
+
+  /* Collapses ahead of the shared 760px `.grid-3` rule, and deliberately so: these
+     three cards carry ~4x the prose of the feature cards above plus a command
+     line, so at 900px they were three columns of two-or-three-word lines. The
+     short grid-3 sections on this page still read fine down to 760, so this is
+     scoped rather than applied to .grid-3. 1000px matches the breakpoint the
+     terminal-skin nav already uses. */
+  @media (max-width:1000px) {
+    .agent-grid { grid-template-columns:1fr; }
+    /* The zigzag is a wide-screen conceit, and it dies at the same width as the
+       three-up grid so the whole section changes mode at one breakpoint. An
+       indented prose column above single-column full-width cards would read as a
+       misalignment, and below ~870px the 780px block fills the container anyway. */
+    .agent-intro > .section-label,
+    .agent-intro > h2,
+    .agent-intro > p { margin-left:0; }
+  }
 
   @media (max-width:760px) {
     .hero { grid-template-columns:1fr; gap:32px; padding-block-start:28px; }
@@ -138,7 +201,17 @@ that out from us rather than from a production surprise is the reader worth havi
 {%- endcomment -%}
 <section class="container section">
   <div class="section-label">// WHAT IS @IMQUEUE</div>
-  <h2 style="font-size:30px;margin:0 0 16px;max-width:760px;">A message-queue RPC framework for Node.js and TypeScript microservices.</h2>
+  {%- comment -%}
+  The definitional phrase stays first and stays exact — it is the sentence an
+  answer engine quotes for "what is @imqueue", and the one heading on the domain
+  that names the category in the words a reader types. The AI clause is appended
+  rather than prefixed for that reason: "AI friendly message-queue RPC framework"
+  puts a vague adjective in front of the definition and reads, to a model
+  classifying the entity, as if the framework were AI infrastructure. It is not —
+  it is a framework AI agents are good at operating, which the section below
+  states with mechanisms instead of adjectives.
+  {%- endcomment -%}
+  <h2 style="font-size:30px;margin:0 0 16px;max-width:760px;">A message-queue RPC framework for Node.js and TypeScript microservices — and for the AI agents that write them.</h2>
   <p style="font-size:16.5px;line-height:1.7;color:var(--muted);max-width:760px;margin:0 0 14px;">
     <strong>@imqueue</strong> lets one back-end service call another as if it were a local
     <em>typed</em> function, while the call itself travels over a Redis-backed message queue
@@ -183,9 +256,67 @@ that out from us rather than from a production surprise is the reader worth havi
   </div>
 </section>
 
+{%- comment -%}
+The agent-facing surface — MCP server, markdown mirrors, /llms.txt, the symbol
+index, the recipes — already existed and was reachable only from /docs/. The
+home page is the URL with the most authority and the one an answer engine reads
+first, and it named none of it.
+
+Written as mechanisms, not as a badge: "AI friendly" is an unverifiable adjective
+of the kind answer engines discount, whereas a registry id, a copy-pasteable
+install line and a named endpoint are quotable facts. The install command is here
+verbatim on purpose — it is the single most likely thing to be lifted into an
+answer to "how do I use @imqueue with Claude Code".
+
+Framed as capability rather than as a list of what we publish. Same facts, same
+links — but a sentence about what the reader's agent can do is the one an answer
+engine quotes, whereas "we serve llms.txt" reads as an SEO checklist and invites
+the discount that comes with it. Nothing here is withheld for competitive
+reasons: /llms.txt is a well-known path, robots.txt Allows every AI crawler by
+name, and llms.txt itself documents the md mirrors and the symbol index — so
+concealing any of it on this page would hide it from readers and answer engines
+only.
+
+Every claim below is checkable in this repo: /mcp/ (5 pages), md-mirror.liquid,
+llms.liquid, /api/search-index.json, /agents/, /using-ai-assistants/.
+{%- endcomment -%}
+<section class="container section agent-intro">
+  <div class="section-label">// BUILT FOR AI CODING AGENTS</div>
+  <h2>An MCP server, live docs, and a typed client your agent never has to guess at.</h2>
+  <p>
+    Point an agent at an @imqueue codebase and it can do the work rather than approximate it.
+    It calls <a href="/mcp/">tools</a> instead of recalling API shapes, looks a symbol up instead
+    of remembering it, and — because a service describes its own signatures at runtime —
+    <em>generates</em> the client rather than writing one. That last part is the one that
+    matters: “did it get the call right?” becomes a question <code>tsc</code> answers at build
+    time, not a question production answers later.
+  </p>
+  <div class="grid grid-3 agent-grid">
+    <div class="card agent-card">
+      <div class="tag">mcp</div>
+      <h3>It calls tools, not guesses</h3>
+      <p>One line wires @imqueue into Claude Code, Claude Desktop, Cursor, VS Code or a JetBrains IDE — <code>@imqueue/mcp</code> is in the official MCP registry as <code>org.imqueue/mcp</code>. Your agent then searches these docs, scaffolds idiomatic services and clients, and drives the real <code>imq</code> CLI itself.</p>
+      <div class="agent-cmd">$ claude mcp add imqueue -- npx -y @imqueue/mcp</div>
+      <p class="agent-more"><a href="/mcp/">MCP server docs →</a></p>
+    </div>
+    <div class="card agent-card">
+      <div class="tag">docs</div>
+      <h3>It reads today's docs</h3>
+      <p>Ask about a symbol and your agent looks it up rather than recalling it: every page is served as plain markdown as well as HTML — the whole generated API reference included — and <a href="/api/search-index.json">a symbol index</a> maps a name straight to its page, deprecations flagged. No 2024 training snapshot, and no HTML to pick apart. <a href="/llms.txt">/llms.txt</a> is the map.</p>
+      <p class="agent-more"><a href="/api/">API reference →</a></p>
+    </div>
+    <div class="card agent-card">
+      <div class="tag">verify</div>
+      <h3>It can prove the change worked</h3>
+      <p>The <a href="/agents/">agent recipes</a> are written for a machine, not a reader: the contract each step relies on, the exact commands, the commands that <em>prove</em> the change took effect, and the ways it goes wrong. Not using MCP? <a href="/using-ai-assistants/">One paste-ready context block</a> gets you most of the way.</p>
+      <p class="agent-more"><a href="/agents/">Agent recipes →</a></p>
+    </div>
+  </div>
+</section>
+
 <!-- PACKAGES -->
 <section class="container section" style="padding-bottom:60px;">
-  <div class="section-label">// THREE PACKAGES</div>
+  <div class="section-label">// THREE CORE PACKAGES TO START WITH</div>
   <div class="grid grid-3">
     <a href="/get-started/" class="card pkg"><div class="name">@imqueue/cli</div><p>RAD command line — scaffold services from boilerplate templates.</p></a>
     <a href="/api/" class="card pkg"><div class="name">@imqueue/rpc</div><p>Abstract classes and decorators for services and their clients.</p></a>
