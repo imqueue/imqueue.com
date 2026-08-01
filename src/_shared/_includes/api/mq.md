@@ -11,31 +11,46 @@ injection and profiling.
 
 The [IMQ](/api/core/latest/core.imq/) factory constructs
 message-queue instances. Currently IMQ ships with a Redis adapter out of the box.
-Prefer creating instances through the factory rather than directly — this lets
-functionality be extended later, on your side or the framework's.
+Prefer creating instances through the factory rather than constructing a queue
+class yourself: it picks the right implementation for the options you pass —
+supplying [cluster](/api/core/latest/core.imqoptions.cluster/) or
+[clusterManagers](/api/core/latest/core.imqoptions.clustermanagers/) gets you a
+[ClusteredRedisQueue](/api/core/latest/core.clusteredredisqueue/) instead of a
+[RedisQueue](/api/core/latest/core.redisqueue/), with no change at the call site.
+
+`IMQ` is the **default** export of `@imqueue/core`, so import it without braces.
+Note that `export *` never forwards a default: it is the one part of the core
+surface `@imqueue/rpc` does not re-export, so import it from `@imqueue/core`
+directly.
 
 Example:
 
 ~~~typescript
-import { IMQ } from '@imqueue/core';
+import IMQ from '@imqueue/core';
 
 const mq = IMQ.create('MyMQ', { vendor: 'Redis' });
 ~~~
 
-You don't need to specify the Redis vendor — it's the default — but you can
-inject your own adapter implementation like this:
+You don't need to specify the vendor —
+[`'Redis'`](/api/core/latest/core.imqoptions.vendor/) is the default, and
+currently the only supported value; [IMQ.create()](/api/core/latest/core.imq.create/)
+throws a `TypeError` for anything else. The factory builds only the adapters the
+framework ships with, so a queue of your own is instantiated directly rather than
+through it:
 
 ~~~typescript
-import { MyMQAdapter } from './path/to/MyMQAdapter';
-import { IMQ } from '@imqueue/core';
+import { MyMQAdapter } from './path/to/MyMQAdapter.js';
 
-const mq = IMQ.create('MyMQ', { vendor: MyMQAdapter });
+const mq = new MyMQAdapter('MyMQ');
 ~~~
 
-Any adapter built by the IMQ factory must implement the
+Any such adapter must implement the
 [IMessageQueue](/api/core/latest/core.imessagequeue/)
 interface, extending `EventEmitter` and emitting `'message'` and `'error'`
 events.
+
+The factory performs no I/O, so the queue it returns is not connected — call
+`start()` on it, or `send()`, which starts the queue implicitly.
 
 ### Redis Queue
 

@@ -7,7 +7,7 @@ any system.
 method execution: the `@profile()` decorator. Apply it to the parts of the system
 you most need to keep an eye on.
 
-Profiled timing is accurate to **microseconds** by default.
+Profiled timing is reported in **microseconds** by default.
 
 Usage:
 
@@ -29,17 +29,17 @@ class MonitoredService extends IMQService {
         }
     }
 
-    @profile(true)
+    @profile({ enableDebugTime: true })
     private forcedTimeProfiling(...args: any[]) {
 
     }
 
-    @profile(undefined, true)
+    @profile({ enableDebugArgs: true })
     private forcedArgsProfiling(...args: any[]) {
 
     }
 
-    @profile(true, true)
+    @profile({ enableDebugTime: true, enableDebugArgs: true })
     private forcedFullProfiling(...args: any[]) {
 
     }
@@ -47,8 +47,14 @@ class MonitoredService extends IMQService {
 ~~~
 
 Called with no arguments, `@profile()` follows the environment configuration,
-which can turn profiling on or off. Calls that pass arguments override the
-environment and force time and/or argument profiling explicitly.
+which can turn profiling on or off. A
+[ProfileDecoratorOptions](/api/core/latest/core.profiledecoratoroptions/) object
+overrides the environment and forces time and/or argument profiling explicitly —
+but only for fields passed as real booleans; any other value is ignored and the
+environment default applies.
+
+Whether timing and argument logging are enabled is resolved **once, when the
+class is defined**, so changing `process.env` later has no effect.
 
 We recommend managing profiling state through `.env` files (per service) or by
 setting the variables globally (for the whole environment). Those variables are:
@@ -60,13 +66,22 @@ setting the variables globally (for the whole environment). Those variables are:
 - `IMQ_LOG_TIME_FORMAT="microseconds"|"milliseconds"|"seconds"` — sets the time
   format in the debug output. Empty is treated as `"microseconds"`, the default.
 
-`@profile()` uses @imqueue's configured logger, so it needs no extra setup. It
-also works on any class method, not just service classes:
+`@profile()` writes through the `logger` property of **the instance it decorates**
+— any [ILogger](/api/core/latest/core.ilogger/). Inside a service class that
+property is already there, so the decorator needs no extra setup. It also works on
+any class method, not just service classes, but then the logger is yours to
+provide: an instance with no `logger` profiles the method and produces no output
+at all, with no warning. Static methods are never logged, because the logger is
+looked up on instances only.
 
 ~~~typescript
 import { profile } from '@imqueue/core';
 
 class SomeClass {
+    // the decorator logs through this property only;
+    // without a logger nothing is ever written
+    public logger = console;
+
     @profile()
     protected someProtectedMethod() {
     }
