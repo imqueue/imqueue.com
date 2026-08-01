@@ -30,6 +30,13 @@
 //               are hand-written and the owner decided that block stays as it is.
 //   blurb       One line on /api/. Seeded from the package's own npm description
 //               so it starts out true; revise it when the package's wave ships.
+//   note        Optional. Guidance about CHOOSING the package rather than about what
+//               it does — "locked to an upstream that has stalled, prefer X for new
+//               work" is the case it exists for. Rendered under the blurb on /api/
+//               and carried into llms.txt, because an agent recommending a package
+//               needs it more than a human browsing does. Keep it to one or two
+//               sentences and keep it about the choice: anything describing behaviour
+//               belongs in the blurb or in the package's own documentation.
 //   cliId       Matching id in the CLI's package catalog, or null when the package
 //               has no catalog entry. `catalog.json` ships with the CLI and is
 //               mirrored in the templates repo — it does NOT live in this repo, so
@@ -154,7 +161,12 @@ const PACKAGES = [
     tier: 2,
     group: 'Data & events',
     tags: ['ORM'],
-    blurb: 'Turns GraphQL input — filters, paging, ordering and the selected field set — into efficient Sequelize queries, with database views as models.',
+    blurb: 'Turns a query described as data — filters, paging, ordering and the '
+      + 'requested fields — into one efficient Sequelize statement, with database '
+      + 'views as models.',
+    note: 'Locked to Sequelize v6, which upstream has left in v7-alpha for years. '
+      + 'Maintained and still evolving for services already on it; new development '
+      + 'should start with @imqueue/pg-prisma.',
     cliId: 'sequelize',
     latestOnly: true,
     status: 'planned',
