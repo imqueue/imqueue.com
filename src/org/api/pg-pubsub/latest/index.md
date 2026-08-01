@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/pg-pubsub 3.0.4 · API reference"
+title: "@imqueue/pg-pubsub 3.0.5 · API reference"
 description: "Reliable PostgreSQL LISTEN/NOTIFY for Node.js — with an inter-process lock so a horizontally scaled service handles each notification once."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-pubsub","url":"/api/pg-pubsub/latest/"}]
 ---
@@ -328,7 +328,7 @@ Extends `pg.Client` with additional properties
 
 </td><td>
 
-Options accepted as option argument of PgPubSub constructor. It extends `pg.ClientConfig` options, mostly because it is used to construct PostgreSQL database connection, adding more properties required to configure PgBubSub objects behavior.
+Options accepted as option argument of PgPubSub constructor. It extends `pg.ClientConfig` options, mostly because it is used to construct PostgreSQL database connection, adding more properties required to configure PgPubSub objects behavior.
 
 
 </td></tr>
