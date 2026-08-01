@@ -45,9 +45,10 @@
 //
 // This lever only works where api-documenter honours overloadIndex, which is
 // ApiParameterListMixin — methods, functions, constructors and signatures. A
-// TypeAlias colliding with a Variable (@imqueue/pg-prisma's AuditAction) has NO
-// filename lever at all, so it is reported and left for api-pages.js to fail on:
-// the remedy there is a source change or an @internal, and pretending otherwise
+// TypeAlias colliding with a Variable has NO filename lever at all. Where the two
+// are one thing declared twice, (4) folds them; where they are genuinely unrelated
+// there is nothing to be done here, so it is reported and left for api-pages.js to
+// fail on: the remedy is a source change or an @internal, and pretending otherwise
 // would ship a lost page.
 //
 // --- 3. ambient-collision renames (`Response_2`) ----------------------------
@@ -80,6 +81,43 @@
 // api-documenter resolves signature links through those references, so changing
 // `name` alone turns a working cross-reference into plain text with no link and
 // no warning.
+//
+// --- 4. const object + its derived union type (`AuditAction`) ----------------
+//
+// The standard TypeScript way to get an enum without `enum` is to declare a frozen
+// object and derive a union from its values:
+//
+//   export const AuditAction = { INSERT: 'INSERT', … } as const;
+//   export type  AuditAction = (typeof AuditAction)[keyof typeof AuditAction];
+//
+// That is ONE concept the language requires you to declare twice, once in value
+// space and once in type space — which is why both declarations are public and why
+// neither can be renamed or marked @internal without breaking consumers.
+// @imqueue/pg-prisma does this at src/audit.ts:27+32 and it is the last thing
+// standing between that package and a published reference.
+//
+// It reaches api-documenter as a TypeAlias and a Variable of the same name, both
+// wanting pg-prisma.auditaction.md, and (2) has no lever for either kind. So this
+// folds them onto one page instead: the Variable survives and the alias's
+// declaration is appended to its signature, giving a page that shows both lines
+// exactly as the source writes them.
+//
+// The discriminator is exact rather than a guess — the alias must carry a Reference
+// token pointing at the variable's own canonicalReference, which is what
+// `typeof AuditAction` compiles to in the model. A TypeAlias and a Variable that
+// merely happen to share a name are two different things and are NOT folded; they
+// keep the (2) report and the api-pages.js failure, because putting two unrelated
+// symbols on one page would be a worse lie than failing.
+//
+// The Variable is the survivor, not the alias, for a mechanical reason: the alias's
+// excerpt reads `export type X = (typeof X)[keyof typeof X];`, a complete statement
+// that appends cleanly, whereas the variable's reads `X: { … }`, which is not. It
+// also keeps the alias's Reference tokens resolvable — they point at the variable,
+// which is now the page itself.
+//
+// One cost, stated because it is invisible in the output: the package page lists
+// the symbol under "Variables" only, since the row under "Type Aliases" came from
+// the node that was folded away. The page it links to documents both declarations.
 
 'use strict';
 
@@ -178,6 +216,101 @@ function mergeDeclarationMerges(model, notes) {
         `merged declaration-merged interface ${name} into class ${name} ` +
         `(+${moved.length} member(s) — TypeScript merges these into one type, ` +
         `api-documenter would have dropped the class page)`,
+      );
+    }
+  }
+}
+
+// Is this TypeAlias derived from that Variable? True only when the alias names the
+// variable itself, which is what `typeof <name>` leaves in the model — so a
+// same-named pair that has nothing to do with each other is not matched.
+function aliasDerivesFrom(alias, variable) {
+  return (alias.excerptTokens || []).some(
+    token => token.kind === 'Reference'
+      && token.canonicalReference === variable.canonicalReference,
+  );
+}
+
+// Point every canonicalReference at `toRef` that currently names `fromRef`,
+// including references to its members (`…!X:type#member`). Used when a node is
+// folded away: a reference left naming the removed node resolves to nothing, and
+// api-documenter renders that as unlinked plain text without warning.
+function retargetReferences(node, fromRef, toRef) {
+  let rewritten = 0;
+
+  const visit = (item) => {
+    if (Array.isArray(item)) {
+      item.forEach(visit);
+
+      return;
+    }
+    if (!item || typeof item !== 'object') return;
+
+    const ref = item.canonicalReference;
+
+    if (typeof ref === 'string' && (ref === fromRef || ref.startsWith(`${fromRef}#`))) {
+      item.canonicalReference = toRef + ref.slice(fromRef.length);
+      rewritten++;
+    }
+    for (const value of Object.values(item)) {
+      if (value && typeof value === 'object') visit(value);
+    }
+  };
+
+  visit(node);
+
+  return rewritten;
+}
+
+// Fold `type X = (typeof X)[keyof typeof X]` into `const X`, so the pair the
+// language forces you to declare twice occupies one page instead of losing one.
+function foldDerivedUnionTypes(model, notes) {
+  for (const parent of [...containers(model)]) {
+    const byName = new Map();
+
+    for (const member of parent.members) {
+      if (member.name === undefined) continue;
+      if (!['TypeAlias', 'Variable'].includes(member.kind)) continue;
+      if (!byName.has(member.name)) byName.set(member.name, []);
+      byName.get(member.name).push(member);
+    }
+
+    for (const [name, decls] of byName) {
+      if (decls.length !== 2) continue;
+
+      const alias = decls.find(d => d.kind === 'TypeAlias');
+      const variable = decls.find(d => d.kind === 'Variable');
+
+      if (!alias || !variable) continue;
+      if (!aliasDerivesFrom(alias, variable)) {
+        continue; // same name, unrelated declarations — not ours to merge
+      }
+
+      // Append the alias's own tokens rather than a reconstructed type: the page
+      // then shows the two declarations the source actually has, references and all.
+      variable.excerptTokens = [
+        ...(variable.excerptTokens || []),
+        { kind: 'Content', text: '\n\n' },
+        ...(alias.excerptTokens || []).map(token => ({ ...token })),
+      ];
+
+      // Same rule as (1): keep the survivor's prose, inherit the folded node's only
+      // when the survivor has none, so a documented alias is not thrown away.
+      if (!String(variable.docComment || '').trim() && String(alias.docComment || '').trim()) {
+        variable.docComment = alias.docComment;
+      }
+
+      parent.members = parent.members.filter(m => m !== alias);
+
+      const refs = retargetReferences(
+        model, alias.canonicalReference, variable.canonicalReference,
+      );
+
+      notes.push(
+        `folded type ${name} into const ${name} and retargeted ${refs} canonical ` +
+        'reference(s): the alias is derived from the const, so the two are one ' +
+        'concept TypeScript makes you declare twice — both declarations are now on ' +
+        `the ${safeName(name)} page, which the package page lists under Variables`,
       );
     }
   }
@@ -357,6 +490,8 @@ function normalizeModel(model) {
   const renames = [];
 
   mergeDeclarationMerges(model, notes);
+  // Before (2), so a pair this fixes never also draws (2)'s "no lever here" report.
+  foldDerivedUnionTypes(model, notes);
   disambiguateSiblings(model, notes);
   // After (2), so a suffix this run assigned via overloadIndex is never mistaken
   // for one api-extractor baked into a name.
