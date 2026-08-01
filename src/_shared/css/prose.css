@@ -76,7 +76,12 @@
 .prose .api-ref-desc { font-size: 16px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
 .prose .api-ref-desc code { background: none; padding: 0; color: var(--accent); }
 .prose .api-ref-cta { font-family: var(--font-mono); font-size: 14.5px; color: var(--accent); font-weight: 600; margin-top: auto; }
-.prose .api-older { margin: 0 0 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface2); }
+/* Same accent-border hover as .api-ref-card, .api-pkg-link, .post-card and
+   a.card — same token, same transition. It sits directly under the package cards
+   on /api/<pkg>/ and is the same kind of box, so not reacting made it look inert
+   rather than deliberately quieter. */
+.prose .api-older { margin: 0 0 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface2); transition: border-color .15s ease; }
+.prose .api-older:hover { border-color: var(--accent); }
 .prose .api-older summary { cursor: pointer; padding: 13px 18px; font-family: var(--font-mono); font-size: 14.5px; color: var(--ink); list-style: none; }
 .prose .api-older summary::-webkit-details-marker { display: none; }
 .prose .api-older summary::before { content: "▸"; color: var(--muted); margin-right: 8px; display: inline-block; }
