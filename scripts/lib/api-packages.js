@@ -77,10 +77,9 @@ const TAGS = {
   'ORM & migrations': { exclusive: true },
   'tracing & APM': { exclusive: true },
   logging: { exclusive: false },
-  'schema-first GraphQL': { exclusive: false },
-  'code-first GraphQL': { exclusive: false },
+  GraphQL: { exclusive: false },
   'IP & CIDR': { exclusive: false },
-  'rate limiting & bans': { exclusive: false },
+  'DDoS protection': { exclusive: false },
   'input validation': { exclusive: false },
   'jobs & scheduling': { exclusive: false },
 };
@@ -218,7 +217,7 @@ const PACKAGES = [
     name: 'graphql-dependency',
     tier: 2,
     group: 'API composition',
-    tags: ['schema-first GraphQL'],
+    tags: ['GraphQL'],
     blurb:
       'Declarative cross-service dependency loading for GraphQL — nested data in bulk instead of one call per resolved object.',
     cliId: 'graphql-dependency',
@@ -230,7 +229,7 @@ const PACKAGES = [
     name: 'type-graphql-dependency',
     tier: 2,
     group: 'API composition',
-    tags: ['code-first GraphQL'],
+    tags: ['GraphQL'],
     blurb:
       'The same dependency loading for type-graphql — declared on your decorated classes rather than on raw GraphQL types.',
     cliId: 'type-graphql-dependency',
@@ -256,7 +255,7 @@ const PACKAGES = [
     name: 'http-protect',
     tier: 2,
     group: 'Hardening & validation',
-    tags: ['rate limiting & bans'],
+    tags: ['DDoS protection'],
     blurb: 'Per-IP rate limiting and banning for express-like servers, backed by '
       + 'Redis so every process sees one view of a client.',
     cliId: 'http-protect',
