@@ -45,11 +45,11 @@
   },
   "src/org/cli/clients-and-versioning.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-08-01T13:33:45Z"
+    "modified": "2026-08-01T20:27:49+02:00"
   },
   "src/org/cli/configuration.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-08-01T13:33:45Z"
+    "modified": "2026-08-01T20:27:49+02:00"
   },
   "src/org/cli/creating-services.md": {
     "published": "2026-07-21T23:38:34+02:00",
@@ -57,7 +57,7 @@
   },
   "src/org/cli/custom-templates.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-08-01T13:33:45Z"
+    "modified": "2026-08-01T20:27:49+02:00"
   },
   "src/org/cli/extensibility.md": {
     "published": "2026-07-21T23:38:34+02:00",
@@ -69,7 +69,7 @@
   },
   "src/org/cli/installation.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-08-01T13:33:45Z"
+    "modified": "2026-08-01T20:27:49+02:00"
   },
   "src/org/cli/managing-local-services.md": {
     "published": "2026-07-21T23:38:34+02:00",
@@ -77,7 +77,7 @@
   },
   "src/org/cli/package-catalog.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-08-01T15:49:35+02:00"
+    "modified": "2026-08-01T20:27:49+02:00"
   },
   "src/org/cli/providers.md": {
     "published": "2026-07-21T23:38:34+02:00",
@@ -129,7 +129,7 @@
   },
   "src/org/mcp/tools.md": {
     "published": "2026-07-22T20:03:58+02:00",
-    "modified": "2026-07-29T12:58:23+02:00"
+    "modified": "2026-08-01T20:27:25+02:00"
   },
   "src/org/mcp/workflows.md": {
     "published": "2026-07-22T20:03:58+02:00",
