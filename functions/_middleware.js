@@ -24,6 +24,16 @@
 //
 // 2. It must call context.next() for everything else, so the existing functions
 //    (api/contact, api/core, api/rpc) and each edition's _redirects still run.
+//
+// It also carries the server-side analytics for agent traffic — see
+// lib/agent-analytics.js for what is sent and why. This is the only place in the
+// stack that sees requests for /llms.txt and the .md mirrors, because those run no
+// JavaScript and GA4's tag therefore never fires for them. It is inert unless
+// GA4_MP_MEASUREMENT_ID and GA4_MP_API_SECRET are set on the Pages project, adds no
+// latency (the send is handed to waitUntil after the response is on its way), and
+// is wrapped so that constraint 1 still holds: measurement cannot break the site.
+
+import { trackRequest } from "../lib/agent-analytics.js";
 
 const REDIRECT_HOSTS = new Set(["imqueue.net", "www.imqueue.net"]);
 
@@ -54,5 +64,29 @@ export async function onRequest(context) {
     // bug here degrades to "no redirect", never to "site down".
   }
 
-  return context.next();
+  const response = await context.next();
+
+  // Awaiting next() above costs nothing — it is the same promise this function used
+  // to return — and it buys the response STATUS, which is the most useful field in
+  // the dataset: a crawler 404ing on a mirror that should exist is precisely the
+  // class of defect this exists to surface.
+  try {
+    const url = new URL(context.request.url);
+    const edition = url.hostname.endsWith("imqueue.com") ? "com" : "org";
+    const send = trackRequest({
+      request: context.request,
+      env: context.env,
+      url,
+      status: response.status,
+      edition,
+    });
+
+    // waitUntil, so the response is already on its way to the client while this
+    // runs. Nothing downstream waits for Google.
+    if (send) context.waitUntil(send);
+  } catch {
+    // Same reasoning as above, and more so: analytics must never cost a page view.
+  }
+
+  return response;
 }
