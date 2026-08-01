@@ -86,9 +86,46 @@
 .prose .api-older summary::-webkit-details-marker { display: none; }
 .prose .api-older summary::before { content: "▸"; color: var(--muted); margin-right: 8px; display: inline-block; }
 .prose .api-older[open] summary::before { content: "▾"; }
+/* See the note on .api-pkg-group: `open` is held for the length of a roll-up, so the
+   marker is flipped from the roll state instead of from `open`. */
+.prose .api-older[data-rolling="close"] summary::before { content: "▸"; }
 .prose .api-older-body { padding: 0 18px 16px; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-mono); font-size: 14.5px; }
 .prose .api-older-body a { color: var(--accent); margin-right: 10px; }
 .prose .api-older-pkg { color: var(--muted); margin-right: 10px; }
+
+/* Each Tier 2 group is collapsible, open by default, state remembered per visitor.
+   Deliberately NOT boxed like .api-older: the group heading is a structural heading
+   in the page outline, and giving it a surface and a border would make four sections
+   read as four cards and flatten the hierarchy the headings exist to create. So the
+   only affordances are the marker, the pointer and the accent on hover — the same
+   accent token as everything else here.
+
+   NOT `.api-group`: that name is already taken, by the symbol-kind labels in the API
+   reference sidebar ("Classes", "Enumerations") a few rules below. Reusing it made
+   every heading, name and blurb inside these groups inherit that rule's uppercase,
+   letter-spacing and muted 12.5px. Hence `.api-pkg-group`, matching the
+   .api-pkg-list / .api-pkg-link family it belongs to. */
+.prose .api-pkg-group { margin: 0; }
+/* The h3's own `margin: 30px 0 10px` moves to the summary, so the vertical rhythm
+   is byte-for-byte what it was before these became <details> — a flex row would not
+   collapse the heading's block margins with its neighbours, and zeroing them without
+   restating them here would jam each group against the list above it. */
+.prose .api-pkg-group > summary { cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: 8px; margin: 30px 0 10px; }
+.prose .api-pkg-group > summary::-webkit-details-marker { display: none; }
+.prose .api-pkg-group > summary::before { content: "▸"; color: var(--muted); font-family: var(--font-mono); font-size: 14px; transition: color .15s ease; }
+.prose .api-pkg-group[open] > summary::before { content: "▾"; }
+/* `open` stays set for the length of a roll-up so the list has something to animate
+   out, which would otherwise hold the marker at ▾ until the movement finished. This
+   flips it on the first frame instead, where the click expects it. */
+.prose .api-pkg-group[data-rolling="close"] > summary::before { content: "▸"; }
+.prose .api-pkg-group > summary h3 { margin: 0; }
+.prose .api-pkg-group > summary:hover h3, .prose .api-pkg-group > summary:hover::before { color: var(--accent); }
+/* No rule is needed to hide the list while the group is closed. A closed <details>
+   skips painting and hit-testing its non-summary children even when they carry an
+   explicit `display` — checked by forcing `display: flex !important` on a closed
+   group, where the list still did not paint and elementFromPoint still returned the
+   container behind it. It does keep a layout box, so getBoundingClientRect reports a
+   height for it; that measurement is what makes it look visible when it is not. */
 
 /* Tier 2 groups on /api/ — one flat list per group, tags as chips on the entry.
    Deliberately lighter than .api-ref-card: the two spine cards stay the visual

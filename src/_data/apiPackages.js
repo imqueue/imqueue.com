@@ -16,10 +16,18 @@ const { shippedGroups, TAGS } = require('../../scripts/lib/api-packages');
 // and is the real repository, so do not "correct" this to follow npm.
 const repoOf = (name) => `https://github.com/imqueue/${name}`;
 
+// Stable key for remembering a group's collapsed state in localStorage, derived
+// from the name rather than configured so a new group needs nothing extra. Renaming
+// a group changes its id and so resets that group to open, which is the right
+// default for what is effectively a new section.
+const idOf = (group) =>
+  group.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
 module.exports = () => ({
-  // [{ group, packages: [{ name, scoped, url, repo, blurb, tags: [{ label, exclusive }] }] }]
+  // [{ group, id, packages: [{ name, scoped, url, repo, blurb, tags: [{ label, exclusive }] }] }]
   groups: shippedGroups().map(({ group, packages }) => ({
     group,
+    id: idOf(group),
     packages: packages.map(p => ({
       name: p.name,
       scoped: `@imqueue/${p.name}`,
