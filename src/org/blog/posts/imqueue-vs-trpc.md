@@ -148,7 +148,7 @@ Equally honest, and worth knowing before you adopt it:
 They coexist cleanly, and in most systems that's the right answer: tRPC (or plain HTTP, or GraphQL) at the edge for your client apps, `@imqueue` between the services behind it.
 
 ```
-browser ──tRPC/HTTP──▶ API gateway ──@imqueue/queue──▶ user, billing, search…
+browser ──tRPC/HTTP──▶ API gateway ──@imqueue/rpc──▶ user, billing, search…
 ```
 
 The gateway is the only process that speaks both. Everything behind it gets queue semantics — competing consumers, no service discovery, no load balancer — and everything in front of it gets the browser-friendly transport it needs. The [tutorial](/tutorial/) builds exactly this shape with a GraphQL gateway, and swaps in a REST one later.
