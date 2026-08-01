@@ -4,12 +4,15 @@
 #
 #   1. Cloudflare redirect checks — the dynamic-rule budget (Pages silently drops
 #      _redirects rules past the 100th) and the /api/ version mapping.
-#   2. Page dates — every page still has a recorded publication date, and none of
+#   2. Agent analytics — lib/agent-analytics.js and the root _middleware that
+#      carries it. Every invariant there fails silently (a bot-filtered dataset, a
+#      duplicated property) except one, which fails loudly for both whole sites.
+#   3. Page dates — every page still has a recorded publication date, and none of
 #      them drifted.
-#   3. Rebuild both editions and crawl for broken links. Blocks the commit if any
+#   4. Rebuild both editions and crawl for broken links. Blocks the commit if any
 #      internal link (page, asset, cross-site .org<->.com, or #anchor) fails.
-#   4. Sitemap — no duplicate, unbuilt, noindex or missing URLs across the index
-#      and its children.
+#   5. Sitemap — no duplicate, unbuilt, noindex or missing URLs across the index
+#      and its children, and the markdown mirror /agents/ promises for every page.
 #
 # These must stay in the same order as `npm test`, which is what CI runs
 # (.github/workflows/checks.yml). Steps 2 and 4 were missing here for a while, so
@@ -34,6 +37,16 @@ echo "→ pre-commit: checking Cloudflare redirects…"
 if ! npm run --silent check:redirects; then
   echo "" >&2
   echo "✗ Redirect checks failed — commit aborted." >&2
+  echo "  Bypass in an emergency with: git commit --no-verify" >&2
+  exit 1
+fi
+
+echo "→ pre-commit: checking the agent-analytics middleware…"
+if ! npm run --silent check:agent-analytics; then
+  echo "" >&2
+  echo "✗ Agent-analytics checks failed — commit aborted." >&2
+  echo "  This guards functions/_middleware.js, which runs in front of EVERY" >&2
+  echo "  request to both sites. Read the failure before bypassing." >&2
   echo "  Bypass in an emergency with: git commit --no-verify" >&2
   exit 1
 fi
