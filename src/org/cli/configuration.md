@@ -197,6 +197,12 @@ enterprise / self-hosted deployments without any code change. See
 [Providers](/cli/providers/#enterprise--self-hosted) and
 [Extensibility](/cli/extensibility/).
 
+Every variable above is read by **`imq` itself**. A service the CLI generates
+reads its own, separate set at runtime — `SERVICE_NAME`, the `IMQ_*` queue
+settings in its `src/config.ts`, and whatever the addons you selected require.
+For the tracing ones see
+[Package Catalog](/cli/package-catalog/#the-name-a-traced-service-reports).
+
 ### Cloud-registry credentials (read at create time)
 
 When a service is dockerized against a cloud registry, `imq service create`

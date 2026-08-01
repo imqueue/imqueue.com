@@ -32,7 +32,7 @@ export IMQ_TEMPLATES_REPO=git@github.com:my-org/templates.git
 imq config set templatesRef main
 ```
 
-## Template versions (v1 vs v2)
+## Template versions (v1 vs v2) {#template-versions-v1-vs-v2}
 
 A template is **v2** when it contains an `imq-template.json` manifest;
 otherwise it is treated as legacy **v1**. New templates should be v2.
@@ -55,7 +55,7 @@ otherwise it is treated as legacy **v1**. New templates should be v2.
 
 An absent or unreadable manifest → the template is compiled as v1.
 
-## Token substitution
+## Token substitution {#token-substitution}
 
 Every file under the template is compiled: `%TOKEN` placeholders are replaced.
 The base tokens available to template files:
