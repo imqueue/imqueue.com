@@ -72,10 +72,12 @@ const CARDS = [
   { repo: "pg-pubsub", name: "@imqueue/pg-pubsub", tagline: "Reliable PostgreSQL LISTEN/NOTIFY", tagline2: "with inter-process lock support", cmd: "npm i @imqueue/pg-pubsub" },
   { repo: "net", name: "@imqueue/net", tagline: "Fast, reliable binary address checker", tagline2: "for Node — IPv4 & IPv6 support", cmd: "npm i @imqueue/net" },
   { repo: "http-protect", name: "@imqueue/http-protect", tagline: "HTTP DDoS protection middleware", cmd: "npm i @imqueue/http-protect" },
-  { repo: "sequelize", name: "@imqueue/sequelize", tagline: "GraphQL input to efficient SQL", tagline2: "for Sequelize-backed services", cmd: "npm i @imqueue/sequelize" },
+  { repo: "pg-sequelize", name: "@imqueue/pg-sequelize", tagline: "GraphQL input to efficient SQL", tagline2: "for Sequelize-backed services", cmd: "npm i @imqueue/pg-sequelize" },
   { repo: "mcp", name: "@imqueue/mcp", tagline: "Docs search & service scaffolding", tagline2: "for AI coding agents (MCP)", cmd: "npx -y @imqueue/mcp" },
   { repo: "pg-prisma", name: "@imqueue/pg-prisma", tagline: "Prisma & Postgres toolkit for services", tagline2: "extensions, archiving, typed models", cmd: "npm i @imqueue/pg-prisma" },
   { repo: "validation", name: "@imqueue/validation", tagline: "Zod-backed field & method validation", tagline2: "via native TC39 decorators", cmd: "npm i @imqueue/validation" },
+  { repo: "opentelemetry", name: "@imqueue/opentelemetry", tagline: "OpenTelemetry tracing for every RPC", tagline2: "one registration, no code changes", cmd: "npm i @imqueue/opentelemetry" },
+  { repo: "datadog", name: "@imqueue/datadog", tagline: "Datadog APM tracing for every RPC", tagline2: "a drop-in dd-trace replacement", cmd: "npm i @imqueue/datadog" },
   // Not npm packages (UDP nodes that announce new Redis broker instances so the
   // message bus scales out horizontally) — no install command, so they show a
   // context tag instead of a `$ npm i` line. Promoter broadcasts (where allowed);
