@@ -38,20 +38,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-{ debugTime, debugArgs, className, args, methodName, start, logger, logLevel, }
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
 input
 
 

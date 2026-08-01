@@ -118,6 +118,34 @@
 // One cost, stated because it is invisible in the output: the package page lists
 // the symbol under "Variables" only, since the row under "Type Aliases" came from
 // the node that was folded away. The page it links to documents both declarations.
+//
+// --- 5. phantom parameters from a destructured argument ---------------------
+//
+// `export function f({ a, b }: Options)` produces TWO parameters in the model, not
+// one:
+//
+//   { parameterName: '{ a, b }', parameterTypeTokenRange: { start: 0, end: 0 } }
+//   { parameterName: 'input',    parameterTypeTokenRange: { start: 1, end: 2 } }
+//
+// The first is the binding pattern carrying no type; the second is api-extractor's
+// own normalisation of it, and the one the signature excerpt shows. api-documenter
+// renders both, so the page gets a parameter row the function does not have, typed
+// "(not declared)".
+//
+// Already published on two archived core pages (core.logdebuginfo at 1.15.0 and
+// 2.0.26), and @imqueue/pg-prisma destructures in four exported functions, so it
+// would have shipped four more. No `@param` can document the phantom either: its
+// name is not an identifier, so a tag naming it is dropped with no warning.
+//
+// Dropping it is safe precisely because the real entry is always alongside. The
+// discriminator needs BOTH a binding-pattern name (`{` or `[`) and an empty type
+// range, and the parameter is left alone unless a typed sibling exists to take its
+// place — so a model shaped some other way is never silently reduced. Nothing is
+// renamed, so no URL moves.
+//
+// One consequence for whoever writes the doc-blocks: the parameter's documentable
+// name is `input`, not the source's binding pattern. That is api-extractor's
+// placeholder and it matches the signature the page renders.
 
 'use strict';
 
@@ -316,6 +344,53 @@ function foldDerivedUnionTypes(model, notes) {
   }
 }
 
+const BINDING_PATTERN = /^[{[]/;
+
+// Is this a binding-pattern parameter entry with no type — i.e. the phantom half
+// of a destructured argument rather than a parameter the function really has?
+function isPhantomParameter(parameter) {
+  const range = parameter.parameterTypeTokenRange;
+
+  return BINDING_PATTERN.test(parameter.parameterName || '')
+    && (!range || range.startIndex === range.endIndex);
+}
+
+// Drop the phantom parameter api-extractor emits beside a destructured argument.
+function dropPhantomParameters(model, notes) {
+  const visit = (item) => {
+    if (Array.isArray(item)) {
+      item.forEach(visit);
+
+      return;
+    }
+    if (!item || typeof item !== 'object') return;
+
+    if (Array.isArray(item.parameters) && item.parameters.length > 1) {
+      const phantoms = item.parameters.filter(isPhantomParameter);
+      const real = item.parameters.filter(p => !isPhantomParameter(p));
+
+      // Only when something typed survives — never reduce a signature to nothing.
+      if (phantoms.length && real.length) {
+        item.parameters = real;
+        for (const phantom of phantoms) {
+          notes.push(
+            `dropped phantom parameter "${phantom.parameterName}" from ` +
+            `${item.kind} ${item.name ?? '(constructor)'}: api-extractor emits the ` +
+            'binding pattern of a destructured argument as an untyped parameter ' +
+            `beside the real one (now "${real.map(p => p.parameterName).join(', ')}"), ` +
+            'and api-documenter would render it as a row typed "(not declared)"',
+          );
+        }
+      }
+    }
+    for (const value of Object.values(item)) {
+      if (value && typeof value === 'object') visit(value);
+    }
+  };
+
+  visit(model);
+}
+
 // Give same-filename siblings distinct overloadIndex values where the filename
 // derivation honours them.
 function disambiguateSiblings(model, notes) {
@@ -492,6 +567,7 @@ function normalizeModel(model) {
   mergeDeclarationMerges(model, notes);
   // Before (2), so a pair this fixes never also draws (2)'s "no lever here" report.
   foldDerivedUnionTypes(model, notes);
+  dropPhantomParameters(model, notes);
   disambiguateSiblings(model, notes);
   // After (2), so a suffix this run assigned via overloadIndex is never mistaken
   // for one api-extractor baked into a name.
