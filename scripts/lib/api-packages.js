@@ -20,8 +20,14 @@
 //               2 = a service capability you opt into
 //   group       Tier 2 section heading on /api/. Ignored for tier 1, which keeps
 //               its own hand-written card block.
-//   tags        Sub-group signal, rendered as chips on the package entry. Never a
+//   tags        Sub-category, rendered as chips on the package entry. Never a
 //               heading — two levels (group, then packages) is the limit.
+//               REQUIRED on every tier 2 package, asserted below: a list where
+//               some entries carry a chip and some do not reads as missing data
+//               rather than as a distinction, which is why the original
+//               "only where it distinguishes something" rule was dropped
+//               (owner decision, 2026-08-01). Tier 1 stays untagged — its cards
+//               are hand-written and the owner decided that block stays as it is.
 //   blurb       One line on /api/. Seeded from the package's own npm description
 //               so it starts out true; revise it when the package's wave ships.
 //   cliId       Matching id in the CLI's package catalog, or null when the package
@@ -58,11 +64,25 @@ const GROUP_ORDER = [
 
 // The CLI marks ORM/database and Tracing/APM as pick-at-most-one. That rule is a
 // property of a SET of packages, so it lives on the tag rather than becoming a
-// navigation level for a constraint no doc reader cares about.
+// navigation level for a constraint no doc reader cares about. `exclusive` is the
+// only behaviour a tag carries — it adds a title attribute to the chip; every other
+// tag is a plain label.
+//
+// A tag shared by several packages names what they have in common; a tag held by
+// one names what that package is. Both are useful to a reader scanning the list,
+// and every tier 2 package must have one.
 const TAGS = {
-  'events & caching': { exclusive: false },
+  events: { exclusive: false },
+  caching: { exclusive: false },
   'ORM & migrations': { exclusive: true },
   'tracing & APM': { exclusive: true },
+  logging: { exclusive: false },
+  'schema-first GraphQL': { exclusive: false },
+  'code-first GraphQL': { exclusive: false },
+  'IP & CIDR': { exclusive: false },
+  'rate limiting & bans': { exclusive: false },
+  'input validation': { exclusive: false },
+  'jobs & scheduling': { exclusive: false },
 };
 
 const PACKAGES = [
@@ -101,7 +121,7 @@ const PACKAGES = [
     name: 'pg-pubsub',
     tier: 2,
     group: 'Data & events',
-    tags: ['events & caching'],
+    tags: ['events'],
     blurb: 'Reliable PostgreSQL LISTEN/NOTIFY with inter-process lock support.',
     cliId: 'pg-pubsub',
     latestOnly: true,
@@ -112,7 +132,7 @@ const PACKAGES = [
     name: 'pg-cache',
     tier: 2,
     group: 'Data & events',
-    tags: ['events & caching'],
+    tags: ['caching'],
     blurb: 'PostgreSQL-managed cache on Redis for @imqueue service methods.',
     cliId: 'pg-cache',
     latestOnly: true,
@@ -123,7 +143,7 @@ const PACKAGES = [
     name: 'tag-cache',
     tier: 2,
     group: 'Data & events',
-    tags: ['events & caching'],
+    tags: ['caching'],
     blurb: 'Tagged cache implementation over Redis.',
     cliId: 'tag-cache',
     latestOnly: true,
@@ -158,9 +178,9 @@ const PACKAGES = [
     name: 'async-logger',
     tier: 2,
     group: 'Observability',
-    // Untagged on purpose: not part of the CLI's exclusive tracing pair, and a
-    // service can run it alongside either tracer.
-    tags: [],
+    // Deliberately NOT `tracing & APM`: it is not part of the CLI's exclusive
+    // tracing pair, and a service can run it alongside either tracer.
+    tags: ['logging'],
     blurb: 'Non-blocking logger over winston, with file and HTTP transports '
       + 'configured from the environment.',
     cliId: null,
@@ -198,7 +218,7 @@ const PACKAGES = [
     name: 'graphql-dependency',
     tier: 2,
     group: 'API composition',
-    tags: [],
+    tags: ['schema-first GraphQL'],
     blurb:
       'Declarative cross-service dependency loading for GraphQL — nested data in bulk instead of one call per resolved object.',
     cliId: 'graphql-dependency',
@@ -210,7 +230,7 @@ const PACKAGES = [
     name: 'type-graphql-dependency',
     tier: 2,
     group: 'API composition',
-    tags: [],
+    tags: ['code-first GraphQL'],
     blurb:
       'The same dependency loading for type-graphql — declared on your decorated classes rather than on raw GraphQL types.',
     cliId: 'type-graphql-dependency',
@@ -224,7 +244,7 @@ const PACKAGES = [
     name: 'net',
     tier: 2,
     group: 'Hardening & validation',
-    tags: [],
+    tags: ['IP & CIDR'],
     blurb: 'CIDR membership testing for IPv4 and IPv6 — sorted binary ranges '
       + 'searched in O(log n) rather than one comparison per network.',
     cliId: 'net',
@@ -236,7 +256,7 @@ const PACKAGES = [
     name: 'http-protect',
     tier: 2,
     group: 'Hardening & validation',
-    tags: [],
+    tags: ['rate limiting & bans'],
     blurb: 'Per-IP rate limiting and banning for express-like servers, backed by '
       + 'Redis so every process sees one view of a client.',
     cliId: 'http-protect',
@@ -248,7 +268,7 @@ const PACKAGES = [
     name: 'validation',
     tier: 2,
     group: 'Hardening & validation',
-    tags: [],
+    tags: ['input validation'],
     blurb: 'Zod-backed field- and method-level validation via native (TC39) decorators.',
     cliId: null,
     latestOnly: true,
@@ -261,7 +281,7 @@ const PACKAGES = [
     name: 'job',
     tier: 2,
     group: 'Background work',
-    tags: [],
+    tags: ['jobs & scheduling'],
     blurb: 'Safe-by-default Redis job queue — delayed and scheduled jobs, '
       + 'at-least-once delivery, and retries driven by the handler.',
     cliId: 'job',
@@ -290,6 +310,15 @@ const PACKAGES = [
     }
     for (const t of p.tags) {
       if (!TAGS[t]) throw new Error(`api-packages: ${p.name} has unknown tag "${t}"`);
+    }
+    // Every tier 2 entry renders a chip, so a missing tag shows up as a package
+    // that looks less classified than the ones around it rather than as a
+    // deliberate omission. Asserted so adding a package cannot reintroduce that.
+    if (p.tier === 2 && !p.tags.length) {
+      throw new Error(
+        `api-packages: tier 2 ${p.name} has no tag — every tier 2 package needs ` +
+        'one, add it to TAGS if the sub-category is new',
+      );
     }
     if (!['shipped', 'planned'].includes(p.status)) {
       throw new Error(`api-packages: ${p.name} has unknown status "${p.status}"`);
