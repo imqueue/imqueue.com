@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/sequelize 4.1.2 · API reference"
+title: "@imqueue/sequelize 4.1.3 · API reference"
 description: "Sequelize and sequelize-typescript, refined for @imqueue services."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/sequelize","url":"/api/sequelize/latest/"}]
 ---
