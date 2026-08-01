@@ -45,6 +45,19 @@ npm test            # check:redirects + check:dates + check:links + check:sitema
 - **`check:links`** builds both editions and validates internal links.
 - **`check:sitemap`** validates the sitemap index and its children.
 
+`npm test` is offline. One check sits outside it for that reason:
+
+```bash
+npm run check:api-versions   # is /api/<pkg>/latest/ behind npm? (needs the registry)
+```
+
+It compares `src/_data/apiVersions.json` against every documented package's highest
+published release and names the stale ones. It is not in `npm test` because the gate
+also runs at pre-commit and on pull requests: 16 registry lookups there would let an
+unreachable npm block an unrelated commit, and would go red the moment a package is
+published — precisely when someone is mid-release. Staleness is a scheduled question,
+and `.github/workflows/refresh-api-docs.yml` is what schedules it.
+
 ## Deployment
 
 Two **Cloudflare Pages** projects build from `master`, one per edition, differing
@@ -96,7 +109,13 @@ Which packages are documented, their group, tags and blurb all live in
 `/api/`; flipping it to `'shipped'` and re-running is what lands a rollout wave.
 
 It reads the **published npm packages**, so it needs network access and can be run
-from anywhere. Re-run it after every release. Two guards run as part of it: a
+from anywhere — publish first, generate second. Re-running it after a release is
+**automated**: `.github/workflows/refresh-api-docs.yml` compares the site against npm
+daily, rebuilds only the packages that moved, runs `npm test` and commits. A package
+repo can also ping it (`repository_dispatch: package-released`) to skip the wait. Doing
+it by hand still works and is the same three commands as §Checks above; naming a
+package rebuilds just that one in ~4s, because a partial build merges into the shared
+outputs instead of rewriting them. Two guards run as part of it: a
 page-name collision assertion (api-documenter builds filenames from lowercased
 symbol names and silently overwrites on a clash) and a `prose%` report per package
 against a floor — warn-only unless `--strict-prose`.
