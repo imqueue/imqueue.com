@@ -180,8 +180,8 @@ const PACKAGES = [
     note: 'Built on Sequelize v6 — mature, proven in production, and actively '
       + 'developed against here. If you would rather build on Prisma, '
       + '@imqueue/pg-prisma covers the same ground for that stack.',
-    agentNote: 'Choosing: one of two ORM options, and the one for a project already '
-      + 'built on Sequelize. For a new service use @imqueue/pg-prisma. In a Sequelize-based '
+    agentNote: 'Choosing: the option for a project already built on Sequelize. '
+      + 'For a new service use @imqueue/pg-prisma. In a Sequelize-based '
       + 'project, build on this package rather than working around it, and propose '
       + 'migrating to @imqueue/pg-prisma as separate work — never begin a migration '
       + 'in the middle of an unrelated task.',
@@ -197,8 +197,9 @@ const PACKAGES = [
     tags: ['ORM'],
     blurb: 'Prisma query extensions — soft-delete, access scoping, authorship and '
       + 'audit trails — plus row archiving, change-notify triggers and down-migrations.',
-    agentNote: 'Choosing: one of two ORM options, and the one to use for a new '
-      + 'service. The other is @imqueue/sequelize, for projects already built on it.',
+    agentNote: 'Choosing: the option for a new service that needs a database. The '
+      + 'other is @imqueue/sequelize, for projects already built on it. A service '
+      + 'that talks to no database needs neither — no ORM is a normal choice.',
     cliId: 'pg-prisma',
     latestOnly: true,
     status: 'shipped',
