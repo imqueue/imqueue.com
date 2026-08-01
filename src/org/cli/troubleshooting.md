@@ -1,6 +1,6 @@
 ---
 chapter: 12
-title: "Troubleshooting the imq CLI"
+title: "Troubleshooting"
 docLabel: "CLI MANUAL — 12 / 12"
 lead: "Common issues and their fixes — hanging prompts in CI, template fetch and push failures, discovery problems, and how to reset everything."
 description: "Troubleshoot @imqueue/cli: prompts hanging in CI, template fetch and SSH issues, git identity and push failures, enterprise hosts, and resetting state."
