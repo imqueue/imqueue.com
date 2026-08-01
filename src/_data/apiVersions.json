@@ -45,6 +45,18 @@
     "latest": "3.0.3",
     "archives": []
   },
+  "net": {
+    "latest": "3.0.2",
+    "archives": []
+  },
+  "http-protect": {
+    "latest": "3.0.1",
+    "archives": []
+  },
+  "validation": {
+    "latest": "1.1.0",
+    "archives": []
+  },
   "job": {
     "latest": "3.0.3",
     "archives": []

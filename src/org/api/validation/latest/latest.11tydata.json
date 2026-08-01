@@ -1,0 +1,45 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "validation",
+  "apiVersion": "1.1.0",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-08-01T05:43:04.528Z",
+  "apiNav": [
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "schemaOf(target)",
+          "url": "/api/validation/latest/validation.schemaof/"
+        },
+        {
+          "name": "validatable()",
+          "url": "/api/validation/latest/validation.validatable/"
+        },
+        {
+          "name": "validate(validator)",
+          "url": "/api/validation/latest/validation.validate/"
+        },
+        {
+          "name": "validated(validators)",
+          "url": "/api/validation/latest/validation.validated/"
+        }
+      ]
+    },
+    {
+      "group": "Type Aliases",
+      "items": [
+        {
+          "name": "Ctor",
+          "url": "/api/validation/latest/validation.ctor/"
+        },
+        {
+          "name": "Validator",
+          "url": "/api/validation/latest/validation.validator/"
+        }
+      ]
+    }
+  ]
+}

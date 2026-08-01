@@ -1,0 +1,172 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "net",
+  "apiVersion": "3.0.2",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-08-01T06:44:41.755Z",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "NetworkList",
+          "url": "/api/net/latest/net.networklist/"
+        },
+        {
+          "name": "Networks",
+          "url": "/api/net/latest/net.networks/"
+        }
+      ]
+    },
+    {
+      "group": "Enumerations",
+      "items": [
+        {
+          "name": "NetworkType",
+          "url": "/api/net/latest/net.networktype/"
+        }
+      ]
+    },
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "binToDec(binStr)",
+          "url": "/api/net/latest/net.bintodec/"
+        },
+        {
+          "name": "cidrToRange(cidr, type, canonical)",
+          "url": "/api/net/latest/net.cidrtorange/"
+        },
+        {
+          "name": "cidrToRangeInt(cidr, type)",
+          "url": "/api/net/latest/net.cidrtorangeint/"
+        },
+        {
+          "name": "getType(ip, type)",
+          "url": "/api/net/latest/net.gettype/"
+        },
+        {
+          "name": "intRangeToCidr(start, end, type, canonical)",
+          "url": "/api/net/latest/net.intrangetocidr/"
+        },
+        {
+          "name": "intToIp(intIp, type, canonical)",
+          "url": "/api/net/latest/net.inttoip/"
+        },
+        {
+          "name": "ipToInt(ip, type)",
+          "url": "/api/net/latest/net.iptoint/"
+        },
+        {
+          "name": "ipv6Pack(ip)",
+          "url": "/api/net/latest/net.ipv6pack/"
+        },
+        {
+          "name": "ipv6Unpack(ip)",
+          "url": "/api/net/latest/net.ipv6unpack/"
+        },
+        {
+          "name": "isValid(ip)",
+          "url": "/api/net/latest/net.isvalid/"
+        },
+        {
+          "name": "isValid4(ip)",
+          "url": "/api/net/latest/net.isvalid4/"
+        },
+        {
+          "name": "isValid6(ip)",
+          "url": "/api/net/latest/net.isvalid6/"
+        },
+        {
+          "name": "masksOf(type)",
+          "url": "/api/net/latest/net.masksof/"
+        },
+        {
+          "name": "rangeToCidr(start, end, type, canonical)",
+          "url": "/api/net/latest/net.rangetocidr/"
+        },
+        {
+          "name": "sizeOf(type)",
+          "url": "/api/net/latest/net.sizeof/"
+        },
+        {
+          "name": "toBigIntLE(buf)",
+          "url": "/api/net/latest/net.tobigintle/"
+        },
+        {
+          "name": "toBinaryList(networks, type)",
+          "url": "/api/net/latest/net.tobinarylist/"
+        },
+        {
+          "name": "toBufferLE(value, size)",
+          "url": "/api/net/latest/net.tobufferle/"
+        },
+        {
+          "name": "toIntArray(list, type)",
+          "url": "/api/net/latest/net.tointarray/"
+        },
+        {
+          "name": "toStringArray(list, type, canonical)",
+          "url": "/api/net/latest/net.tostringarray/"
+        },
+        {
+          "name": "validate(ip)",
+          "url": "/api/net/latest/net.validate/"
+        },
+        {
+          "name": "validate4(ip)",
+          "url": "/api/net/latest/net.validate4/"
+        },
+        {
+          "name": "validate6(ip)",
+          "url": "/api/net/latest/net.validate6/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "NetworksIntRanges",
+          "url": "/api/net/latest/net.networksintranges/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "IPV4_INT_SIZE",
+          "url": "/api/net/latest/net.ipv4_int_size/"
+        },
+        {
+          "name": "IPV4_MASKS",
+          "url": "/api/net/latest/net.ipv4_masks/"
+        },
+        {
+          "name": "IPv4_MAX_STR_LEN",
+          "url": "/api/net/latest/net.ipv4_max_str_len/"
+        },
+        {
+          "name": "IPV6_INT_SIZE",
+          "url": "/api/net/latest/net.ipv6_int_size/"
+        },
+        {
+          "name": "IPV6_MASKS",
+          "url": "/api/net/latest/net.ipv6_masks/"
+        },
+        {
+          "name": "IPV6_MAX_STR_LEN",
+          "url": "/api/net/latest/net.ipv6_max_str_len/"
+        },
+        {
+          "name": "NETWORK_TYPE_ENUM",
+          "url": "/api/net/latest/net.network_type_enum/"
+        }
+      ]
+    }
+  ]
+}
