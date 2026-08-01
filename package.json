@@ -31,6 +31,7 @@
     "check:redirects": "node scripts/check-redirects.js",
     "check:dates": "node scripts/gen-page-dates.js --check",
     "check:sitemap": "node scripts/check-sitemap.js",
+    "check:api-versions": "node scripts/check-api-versions.js",
     "check:links": "npm run build:all && node scripts/check-links.js",
     "check:links:external": "npm run build:all && node scripts/check-links.js --external",
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
