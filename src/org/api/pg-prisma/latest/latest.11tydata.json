@@ -1,0 +1,171 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "pg-prisma",
+  "apiVersion": "1.0.1",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-08-01T08:29:44.766Z",
+  "apiNav": [
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "accessScope(input)",
+          "url": "/api/pg-prisma/latest/pg-prisma.accessscope/"
+        },
+        {
+          "name": "accessWhere(where, config, resolvers)",
+          "url": "/api/pg-prisma/latest/pg-prisma.accesswhere/"
+        },
+        {
+          "name": "audit(input)",
+          "url": "/api/pg-prisma/latest/pg-prisma.audit/"
+        },
+        {
+          "name": "authorship(input)",
+          "url": "/api/pg-prisma/latest/pg-prisma.authorship/"
+        },
+        {
+          "name": "installArchiving(options)",
+          "url": "/api/pg-prisma/latest/pg-prisma.installarchiving/"
+        },
+        {
+          "name": "installChangeTriggers(client, input)",
+          "url": "/api/pg-prisma/latest/pg-prisma.installchangetriggers/"
+        },
+        {
+          "name": "isoDates()",
+          "url": "/api/pg-prisma/latest/pg-prisma.isodates/"
+        },
+        {
+          "name": "isSqlLogSuppressed()",
+          "url": "/api/pg-prisma/latest/pg-prisma.issqllogsuppressed/"
+        },
+        {
+          "name": "migrateDown(options)",
+          "url": "/api/pg-prisma/latest/pg-prisma.migratedown/"
+        },
+        {
+          "name": "prettifySql(sql)",
+          "url": "/api/pg-prisma/latest/pg-prisma.prettifysql/"
+        },
+        {
+          "name": "silently(fn)",
+          "url": "/api/pg-prisma/latest/pg-prisma.silently/"
+        },
+        {
+          "name": "softDelete(input)",
+          "url": "/api/pg-prisma/latest/pg-prisma.softdelete/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "AccessScopeOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.accessscopeoptions/"
+        },
+        {
+          "name": "ArchivableModel",
+          "url": "/api/pg-prisma/latest/pg-prisma.archivablemodel/"
+        },
+        {
+          "name": "ArchiveClient",
+          "url": "/api/pg-prisma/latest/pg-prisma.archiveclient/"
+        },
+        {
+          "name": "AuditColumns",
+          "url": "/api/pg-prisma/latest/pg-prisma.auditcolumns/"
+        },
+        {
+          "name": "AuditConfig",
+          "url": "/api/pg-prisma/latest/pg-prisma.auditconfig/"
+        },
+        {
+          "name": "AuditOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.auditoptions/"
+        },
+        {
+          "name": "AuthorshipColumns",
+          "url": "/api/pg-prisma/latest/pg-prisma.authorshipcolumns/"
+        },
+        {
+          "name": "AuthorshipOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.authorshipoptions/"
+        },
+        {
+          "name": "ChangeTriggerConfig",
+          "url": "/api/pg-prisma/latest/pg-prisma.changetriggerconfig/"
+        },
+        {
+          "name": "InstallArchiveOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.installarchiveoptions/"
+        },
+        {
+          "name": "MigrateDownOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.migratedownoptions/"
+        },
+        {
+          "name": "MigrateDownResult",
+          "url": "/api/pg-prisma/latest/pg-prisma.migratedownresult/"
+        },
+        {
+          "name": "RawClient",
+          "url": "/api/pg-prisma/latest/pg-prisma.rawclient/"
+        },
+        {
+          "name": "RawExecutor",
+          "url": "/api/pg-prisma/latest/pg-prisma.rawexecutor/"
+        },
+        {
+          "name": "SoftDeleteOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.softdeleteoptions/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "AuditAction",
+          "url": "/api/pg-prisma/latest/pg-prisma.auditaction/"
+        },
+        {
+          "name": "CHANGE_NOTIFY_CHANNEL",
+          "url": "/api/pg-prisma/latest/pg-prisma.change_notify_channel/"
+        },
+        {
+          "name": "CHANGE_NOTIFY_FUNCTION_NAME",
+          "url": "/api/pg-prisma/latest/pg-prisma.change_notify_function_name/"
+        },
+        {
+          "name": "CHANGE_NOTIFY_TRIGGER_NAME",
+          "url": "/api/pg-prisma/latest/pg-prisma.change_notify_trigger_name/"
+        }
+      ]
+    },
+    {
+      "group": "Type Aliases",
+      "items": [
+        {
+          "name": "AccessScopeModels",
+          "url": "/api/pg-prisma/latest/pg-prisma.accessscopemodels/"
+        },
+        {
+          "name": "AccessScopeResolver",
+          "url": "/api/pg-prisma/latest/pg-prisma.accessscoperesolver/"
+        },
+        {
+          "name": "AuthorshipModels",
+          "url": "/api/pg-prisma/latest/pg-prisma.authorshipmodels/"
+        },
+        {
+          "name": "SoftDeleteModels",
+          "url": "/api/pg-prisma/latest/pg-prisma.softdeletemodels/"
+        }
+      ]
+    }
+  ]
+}
