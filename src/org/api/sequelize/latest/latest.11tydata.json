@@ -1,0 +1,303 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "sequelize",
+  "apiVersion": "4.1.0",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-08-01T13:32:38.853Z",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "DateRange",
+          "url": "/api/sequelize/latest/sequelize.daterange/"
+        },
+        {
+          "name": "FieldsInput",
+          "url": "/api/sequelize/latest/sequelize.fieldsinput/"
+        },
+        {
+          "name": "FilterInput",
+          "url": "/api/sequelize/latest/sequelize.filterinput/"
+        },
+        {
+          "name": "Graph",
+          "url": "/api/sequelize/latest/sequelize.graph/"
+        },
+        {
+          "name": "JsonObject",
+          "url": "/api/sequelize/latest/sequelize.jsonobject/"
+        },
+        {
+          "name": "NumericRange",
+          "url": "/api/sequelize/latest/sequelize.numericrange/"
+        },
+        {
+          "name": "OrderByInput",
+          "url": "/api/sequelize/latest/sequelize.orderbyinput/"
+        },
+        {
+          "name": "PaginationInput",
+          "url": "/api/sequelize/latest/sequelize.paginationinput/"
+        },
+        {
+          "name": "Sequelize",
+          "url": "/api/sequelize/latest/sequelize.sequelize/"
+        }
+      ]
+    },
+    {
+      "group": "Abstract Classes",
+      "items": [
+        {
+          "name": "BaseModel",
+          "url": "/api/sequelize/latest/sequelize.basemodel/"
+        }
+      ]
+    },
+    {
+      "group": "Enumerations",
+      "items": [
+        {
+          "name": "IndexMethod",
+          "url": "/api/sequelize/latest/sequelize.indexmethod/"
+        },
+        {
+          "name": "OrderDirection",
+          "url": "/api/sequelize/latest/sequelize.orderdirection/"
+        },
+        {
+          "name": "SortOrder",
+          "url": "/api/sequelize/latest/sequelize.sortorder/"
+        }
+      ]
+    },
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "AssociatedWith(cb)",
+          "url": "/api/sequelize/latest/sequelize.associatedwith/"
+        },
+        {
+          "name": "ColumnIndex(options)",
+          "url": "/api/sequelize/latest/sequelize.columnindex/"
+        },
+        {
+          "name": "ColumnIndex(target, propertyName, propertyDescriptor)",
+          "url": "/api/sequelize/latest/sequelize.columnindex_1/"
+        },
+        {
+          "name": "CreatedBy(target, propertyName)",
+          "url": "/api/sequelize/latest/sequelize.createdby/"
+        },
+        {
+          "name": "database(options)",
+          "url": "/api/sequelize/latest/sequelize.database/"
+        },
+        {
+          "name": "DeletedBy(target, propertyName)",
+          "url": "/api/sequelize/latest/sequelize.deletedby/"
+        },
+        {
+          "name": "DynamicView(options)",
+          "url": "/api/sequelize/latest/sequelize.dynamicview/"
+        },
+        {
+          "name": "Emittable(_target)",
+          "url": "/api/sequelize/latest/sequelize.emittable/"
+        },
+        {
+          "name": "formatSql(sql)",
+          "url": "/api/sequelize/latest/sequelize.formatsql/"
+        },
+        {
+          "name": "NullableIndex(options)",
+          "url": "/api/sequelize/latest/sequelize.nullableindex/"
+        },
+        {
+          "name": "NullableIndex(target, propertyName, propertyDescriptor)",
+          "url": "/api/sequelize/latest/sequelize.nullableindex_1/"
+        },
+        {
+          "name": "UpdatedBy(target, propertyName)",
+          "url": "/api/sequelize/latest/sequelize.updatedby/"
+        },
+        {
+          "name": "View(options)",
+          "url": "/api/sequelize/latest/sequelize.view/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "ColumnIndexOptions",
+          "url": "/api/sequelize/latest/sequelize.columnindexoptions/"
+        },
+        {
+          "name": "DataPage",
+          "url": "/api/sequelize/latest/sequelize.datapage/"
+        },
+        {
+          "name": "FindOptions",
+          "url": "/api/sequelize/latest/sequelize.findoptions/"
+        },
+        {
+          "name": "IAssociated",
+          "url": "/api/sequelize/latest/sequelize.iassociated/"
+        },
+        {
+          "name": "IDynamicViewDefineOptions",
+          "url": "/api/sequelize/latest/sequelize.idynamicviewdefineoptions/"
+        },
+        {
+          "name": "IMQORMOptions",
+          "url": "/api/sequelize/latest/sequelize.imqormoptions/"
+        },
+        {
+          "name": "InitOptions",
+          "url": "/api/sequelize/latest/sequelize.initoptions/"
+        },
+        {
+          "name": "IRange",
+          "url": "/api/sequelize/latest/sequelize.irange/"
+        },
+        {
+          "name": "IViewDefineOptions",
+          "url": "/api/sequelize/latest/sequelize.iviewdefineoptions/"
+        },
+        {
+          "name": "QueryInterface",
+          "url": "/api/sequelize/latest/sequelize.queryinterface/"
+        },
+        {
+          "name": "ReturningOptions",
+          "url": "/api/sequelize/latest/sequelize.returningoptions/"
+        },
+        {
+          "name": "SyncOptions",
+          "url": "/api/sequelize/latest/sequelize.syncoptions/"
+        },
+        {
+          "name": "ViewParams",
+          "url": "/api/sequelize/latest/sequelize.viewparams/"
+        },
+        {
+          "name": "WithIncludeMap",
+          "url": "/api/sequelize/latest/sequelize.withincludemap/"
+        }
+      ]
+    },
+    {
+      "group": "Namespaces",
+      "items": [
+        {
+          "name": "query",
+          "url": "/api/sequelize/latest/sequelize.query/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "DB_CONN_STR",
+          "url": "/api/sequelize/latest/sequelize.db_conn_str/"
+        },
+        {
+          "name": "ENUM_ORDER_DIRECTION",
+          "url": "/api/sequelize/latest/sequelize.enum_order_direction/"
+        },
+        {
+          "name": "FILTER_OPS",
+          "url": "/api/sequelize/latest/sequelize.filter_ops/"
+        },
+        {
+          "name": "MATCHER",
+          "url": "/api/sequelize/latest/sequelize.matcher/"
+        },
+        {
+          "name": "RX_MATCHER",
+          "url": "/api/sequelize/latest/sequelize.rx_matcher/"
+        },
+        {
+          "name": "RX_NAME_MATCHER",
+          "url": "/api/sequelize/latest/sequelize.rx_name_matcher/"
+        },
+        {
+          "name": "SQL_COLORIZE",
+          "url": "/api/sequelize/latest/sequelize.sql_colorize/"
+        },
+        {
+          "name": "SQL_PRETTIFY",
+          "url": "/api/sequelize/latest/sequelize.sql_prettify/"
+        }
+      ]
+    },
+    {
+      "group": "Type Aliases",
+      "items": [
+        {
+          "name": "BuildOptions",
+          "url": "/api/sequelize/latest/sequelize.buildoptions/"
+        },
+        {
+          "name": "BulkCreateOptions",
+          "url": "/api/sequelize/latest/sequelize.bulkcreateoptions/"
+        },
+        {
+          "name": "CreateOptions",
+          "url": "/api/sequelize/latest/sequelize.createoptions/"
+        },
+        {
+          "name": "FunctionType",
+          "url": "/api/sequelize/latest/sequelize.functiontype/"
+        },
+        {
+          "name": "GraphForeachCallback",
+          "url": "/api/sequelize/latest/sequelize.graphforeachcallback/"
+        },
+        {
+          "name": "GraphMap",
+          "url": "/api/sequelize/latest/sequelize.graphmap/"
+        },
+        {
+          "name": "IModelClass",
+          "url": "/api/sequelize/latest/sequelize.imodelclass/"
+        },
+        {
+          "name": "Modify",
+          "url": "/api/sequelize/latest/sequelize.modify/"
+        },
+        {
+          "name": "NullableColumnIndexOptions",
+          "url": "/api/sequelize/latest/sequelize.nullablecolumnindexoptions/"
+        },
+        {
+          "name": "QueryOptions",
+          "url": "/api/sequelize/latest/sequelize.queryoptions/"
+        },
+        {
+          "name": "SaveOptions",
+          "url": "/api/sequelize/latest/sequelize.saveoptions/"
+        },
+        {
+          "name": "SqlLoggingFunction",
+          "url": "/api/sequelize/latest/sequelize.sqlloggingfunction/"
+        },
+        {
+          "name": "UpdateOptions",
+          "url": "/api/sequelize/latest/sequelize.updateoptions/"
+        },
+        {
+          "name": "UpsertOptions",
+          "url": "/api/sequelize/latest/sequelize.upsertoptions/"
+        }
+      ]
+    }
+  ]
+}

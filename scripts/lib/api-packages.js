@@ -188,7 +188,7 @@ const PACKAGES = [
       + '— never begin a migration in the middle of an unrelated task.',
     cliId: 'sequelize',
     latestOnly: true,
-    status: 'planned',
+    status: 'shipped',
     wave: 6,
   },
   {
