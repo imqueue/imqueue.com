@@ -57,7 +57,7 @@
           "url": "/api/core/2.0.26/core.intrand/"
         },
         {
-          "name": "logDebugInfo({ debugTime, debugArgs, className, args, methodName, start, logger, logLevel, }, input)",
+          "name": "logDebugInfo(input)",
           "url": "/api/core/2.0.26/core.logdebuginfo/"
         },
         {

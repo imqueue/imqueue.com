@@ -148,7 +148,7 @@ Returns random integer between given min and max
 </td></tr>
 <tr><td>
 
-[logDebugInfo({ debugTime, debugArgs, className, args, methodName, start, logger, logLevel, }, input)](/api/core/2.0.26/core.logdebuginfo/)
+[logDebugInfo(input)](/api/core/2.0.26/core.logdebuginfo/)
 
 
 </td><td>
