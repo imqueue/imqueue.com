@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "pg-pubsub",
-  "apiVersion": "3.0.4",
+  "apiVersion": "3.0.5",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-07-31T16:48:45.340Z",
+  "apiReleased": "2026-08-01T18:39:02.915Z",
   "apiNav": [
     {
       "group": "Classes",
