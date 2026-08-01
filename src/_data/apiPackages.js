@@ -24,7 +24,7 @@ const idOf = (group) =>
   group.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
 module.exports = () => ({
-  // [{ group, id, packages: [{ name, scoped, url, repo, blurb, tags: [{ label, exclusive }] }] }]
+  // [{ group, id, packages: [{ name, scoped, url, repo, blurb, note, tags: [{ label, exclusive }] }] }]
   groups: shippedGroups().map(({ group, packages }) => ({
     group,
     id: idOf(group),
@@ -34,6 +34,9 @@ module.exports = () => ({
       url: `/api/${p.name}/latest/`,
       repo: repoOf(p.name),
       blurb: p.blurb,
+      // Absent on almost every package, so `|| null` rather than undefined —
+      // Liquid treats both as falsy, but null survives a JSON dump readably.
+      note: p.note || null,
       tags: p.tags.map(label => ({ label, exclusive: TAGS[label].exclusive })),
     })),
   })),

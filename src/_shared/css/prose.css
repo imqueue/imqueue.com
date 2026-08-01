@@ -149,6 +149,11 @@
    no "Older versions" list to sit beside it. */
 .prose .api-pkg-ver { margin-left: auto; }
 .prose .api-pkg-blurb { flex: 1 1 100%; font-size: 15px; color: var(--muted); line-height: 1.6; }
+/* Choosing guidance, not behaviour — "prefer this other package for new work". Set
+   apart by a rule rather than by colour so it still reads as an aside when the card
+   is the accent-tinted hover state, and kept smaller than the blurb because it is
+   about the decision rather than about what the package does. */
+.prose .api-pkg-note { flex: 1 1 100%; font-size: 14px; color: var(--muted); line-height: 1.55; padding-left: 10px; border-left: 2px solid var(--line); }
 @media (max-width: 620px) { .prose .api-ref-cards { grid-template-columns: 1fr; } }
 
 /* FAQ accordion */

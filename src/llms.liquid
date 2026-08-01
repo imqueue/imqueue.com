@@ -84,7 +84,7 @@ generate. A group with nothing shipped yet emits no heading.
 
 ### Reference — {{ group.group }}
 {%- for pkg in group.packages %}
-- [{{ pkg.scoped }} API reference]({{ siteUrl }}{{ pkg.url }}): Every exported symbol of {{ pkg.scoped }}, generated from {{ apiVersions[pkg.name].latest }} — this URL always serves the current major. {{ pkg.blurb }}{% if pkg.tags.size > 0 %} Tagged {% for tag in pkg.tags %}`{{ tag.label }}`{% unless forloop.last %}, {% endunless %}{% endfor %}{% for tag in pkg.tags %}{% if tag.exclusive %} (pick at most one package with this tag){% endif %}{% endfor %}.{% endif %} — [markdown]({{ siteUrl }}{{ pkg.url }}index.md)
+- [{{ pkg.scoped }} API reference]({{ siteUrl }}{{ pkg.url }}): Every exported symbol of {{ pkg.scoped }}, generated from {{ apiVersions[pkg.name].latest }} — this URL always serves the current major. {{ pkg.blurb }}{% if pkg.note %} {{ pkg.note }}{% endif %}{% if pkg.tags.size > 0 %} Tagged {% for tag in pkg.tags %}`{{ tag.label }}`{% unless forloop.last %}, {% endunless %}{% endfor %}{% for tag in pkg.tags %}{% if tag.exclusive %} (pick at most one package with this tag){% endif %}{% endfor %}.{% endif %} — [markdown]({{ siteUrl }}{{ pkg.url }}index.md)
 {%- endfor %}
 {%- endfor %}
 
