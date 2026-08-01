@@ -163,6 +163,7 @@ async function checkLegacyApiRules() {
 
   await checkDupePackagePages();
   await checkCoreReexports();
+  await checkRenamedPages();
 }
 
 // --- 2b. the retired duplicate package page 301s onto the package root -------
@@ -263,6 +264,65 @@ async function checkCoreReexports() {
     }
   }
   pass('real rpc symbol pages are not claimed by the re-export salvage');
+}
+
+// --- 4. de-suffixed pages keep their old URL resolving -----------------------
+// Same risk as (3) — a 301 into another 404 — plus one of its own: the salvage
+// must not claim pg-pubsub's `on_1`…`on_9`, which are genuine overload pages and
+// have to keep serving a 200.
+async function checkRenamedPages() {
+  const { resolveRenamedApiPage } = await import('../lib/api-redirects.js');
+  const { RENAMED_API_PAGES } = await import('../lib/api-renames.js');
+  const pageFor = (slug) => path.join(ROOT, 'src', 'org', 'api', `${slug}.md`);
+  let broken = 0;
+
+  for (const [from, to] of RENAMED_API_PAGES) {
+    const target = resolveRenamedApiPage(`/api/${from}/`);
+
+    if (target !== `/api/${to}/`) {
+      fail(`${from} does not resolve to its new URL (got ${target})`);
+      broken++;
+      continue;
+    }
+    if (!fs.existsSync(pageFor(to))) {
+      fail(`${from} would 301 to a page that does not exist: ${target}`);
+      broken++;
+    }
+    // The whole point of the rename: the suffixed page must be gone, or the
+    // redirect would be shadowing a live page rather than salvaging a dead URL.
+    if (fs.existsSync(pageFor(from))) {
+      fail(`${from} still exists on disk but is listed as renamed`);
+      broken++;
+    }
+  }
+
+  if (!broken) {
+    pass(
+      `${RENAMED_API_PAGES.size} de-suffixed page(s) 301 onto a page that ` +
+      'exists, and none shadow a live page',
+    );
+  }
+
+  // Genuine overload pages share the `_N` shape and must never be salvaged.
+  let claimed = 0;
+
+  for (const dir of fs.existsSync(path.join(ROOT, 'src', 'org', 'api'))
+    ? fs.readdirSync(path.join(ROOT, 'src', 'org', 'api'), { recursive: true })
+    : []) {
+    const file = String(dir);
+
+    if (!file.endsWith('.md') || !/_\d+\.md$/.test(file)) continue;
+
+    const slug = file.replace(/\.md$/, '').split(path.sep).join('/');
+
+    if (resolveRenamedApiPage(`/api/${slug}/`) !== null) {
+      fail(`${slug} is a live page but the rename salvage claims it`);
+      claimed++;
+    }
+  }
+  if (!claimed) {
+    pass('live overload pages (on_1 … on_9) are not claimed by the rename salvage');
+  }
 }
 
 (async () => {

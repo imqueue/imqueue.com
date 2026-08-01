@@ -139,12 +139,12 @@
           "url": "/api/pg-cache/latest/pg-cache.channelpayloadfilter/"
         },
         {
-          "name": "ClassDecorator_2",
-          "url": "/api/pg-cache/latest/pg-cache.classdecorator_2/"
+          "name": "ClassDecorator",
+          "url": "/api/pg-cache/latest/pg-cache.classdecorator/"
         },
         {
-          "name": "MethodDecorator_2",
-          "url": "/api/pg-cache/latest/pg-cache.methoddecorator_2/"
+          "name": "MethodDecorator",
+          "url": "/api/pg-cache/latest/pg-cache.methoddecorator/"
         },
         {
           "name": "PgCacheChannel",

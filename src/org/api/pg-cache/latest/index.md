@@ -448,7 +448,7 @@ Returning `true` invalidates. Unlike the array form of [ChannelFilter](/api/pg-c
 </td></tr>
 <tr><td>
 
-[ClassDecorator\_2](/api/pg-cache/latest/pg-cache.classdecorator_2/)
+[ClassDecorator](/api/pg-cache/latest/pg-cache.classdecorator/)
 
 
 </td><td>
@@ -461,7 +461,7 @@ Supporting both is what lets this package decorate `@imqueue` services compiled 
 </td></tr>
 <tr><td>
 
-[MethodDecorator\_2](/api/pg-cache/latest/pg-cache.methoddecorator_2/)
+[MethodDecorator](/api/pg-cache/latest/pg-cache.methoddecorator/)
 
 
 </td><td>

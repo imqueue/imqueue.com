@@ -54,5 +54,5 @@ which channels invalidate the result, its TTL and cache tag
 
 **Returns:**
 
-[MethodDecorator](/api/pg-cache/latest/pg-cache.methoddecorator_2/)
+[MethodDecorator](/api/pg-cache/latest/pg-cache.methoddecorator/)
 

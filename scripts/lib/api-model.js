@@ -49,6 +49,37 @@
 // filename lever at all, so it is reported and left for api-pages.js to fail on:
 // the remedy there is a source change or an @internal, and pretending otherwise
 // would ship a lost page.
+//
+// --- 3. ambient-collision renames (`Response_2`) ----------------------------
+//
+// Do not confuse this with (2). There the NAME stays clean and api-documenter
+// appends `_N` to the FILENAME from overloadIndex. Here api-extractor has put the
+// suffix into the symbol's own `name`, because the name collided with a
+// declaration outside the package — so it reaches the page title, the URL and
+// every cross-reference, and readers see a symbol the package does not export.
+//
+// @imqueue/http-protect exports `interface Response`, which collides with the
+// global `Response` from @types/node/web-globals/fetch.d.ts; @imqueue/pg-cache
+// exports `ClassDecorator`, which collides with TypeScript's own global. The
+// second is already published as pg-cache.classdecorator_2, titled
+// `ClassDecorator_2 type`.
+//
+// The two families are told apart by whether a sibling holds the base name:
+//
+//   overload / sibling suffix   `on_1` … `on_9`   `on` IS present   -> keep
+//   ambient collision           `Response_2`      `Response` is NOT -> strip
+//
+// So a `_N` name whose base is unclaimed is an artifact of a collision with
+// something that is not in this package, and stripping it restores the name the
+// package actually exports. Where the base IS claimed — including by another
+// `_N` sibling that would strip to the same base — nothing is touched, because
+// then the suffix is carrying real information.
+//
+// Renaming means rewriting canonicalReference too, in four places: the item's
+// own, each of its members', and every excerptTokens entry that points at it.
+// api-documenter resolves signature links through those references, so changing
+// `name` alone turns a working cross-reference into plain text with no link and
+// no warning.
 
 'use strict';
 
@@ -215,18 +246,121 @@ function disambiguateSiblings(model, notes) {
   }
 }
 
+const SUFFIXED_NAME = /^(.+)_(\d+)$/;
+
+// Rewrite every canonicalReference that names `from` so it names `to`. The
+// delimiter lookahead is what keeps `Response_2` from also matching a distinct
+// `Response_20`, and what stops a package whose name happens to end in the same
+// text being rewritten.
+function renameInReferences(node, from, to) {
+  const pattern = new RegExp(
+    `(!)${from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=[:#])`,
+    'g',
+  );
+  let rewritten = 0;
+
+  const visit = (item) => {
+    if (Array.isArray(item)) {
+      item.forEach(visit);
+
+      return;
+    }
+    if (!item || typeof item !== 'object') return;
+
+    if (typeof item.canonicalReference === 'string') {
+      const next = item.canonicalReference.replace(pattern, `$1${to}`);
+
+      if (next !== item.canonicalReference) {
+        item.canonicalReference = next;
+        rewritten++;
+      }
+    }
+    for (const value of Object.values(item)) {
+      if (value && typeof value === 'object') visit(value);
+    }
+  };
+
+  visit(node);
+
+  return rewritten;
+}
+
+// Strip api-extractor's `_N` suffix where it records a collision with something
+// outside the package rather than a second declaration inside it.
+function stripAmbientCollisionSuffixes(model, notes, renames) {
+  for (const parent of containers(model)) {
+    const taken = new Set(
+      parent.members.map(m => m.name).filter(n => n !== undefined),
+    );
+
+    // How many siblings would strip to each base name? More than one means the
+    // suffix is load-bearing and none of them may be touched.
+    const wantedBase = new Map();
+
+    for (const member of parent.members) {
+      const match = SUFFIXED_NAME.exec(member.name ?? '');
+
+      if (!match) continue;
+      wantedBase.set(match[1], (wantedBase.get(match[1]) || 0) + 1);
+    }
+
+    for (const member of parent.members) {
+      const match = SUFFIXED_NAME.exec(member.name ?? '');
+
+      if (!match) continue;
+
+      const [, base] = match;
+
+      if (taken.has(base)) {
+        continue; // a real sibling owns the base name — this is family 1
+      }
+      if (wantedBase.get(base) > 1) {
+        notes.push(
+          `KEPT the suffix on ${member.name} (${member.kind}): ` +
+          `${wantedBase.get(base)} siblings would all become ${base}, so the ` +
+          'suffix is distinguishing real declarations, not an artifact.',
+        );
+        continue;
+      }
+
+      const suffixed = member.name;
+
+      member.name = base;
+      taken.delete(suffixed);
+      taken.add(base);
+
+      const refs = renameInReferences(model, suffixed, base);
+
+      renames.push({ from: suffixed, to: base, kind: member.kind });
+      notes.push(
+        `renamed ${suffixed} -> ${base} (${member.kind}) and rewrote ${refs} ` +
+        'canonical reference(s): the suffix recorded a collision with a ' +
+        `declaration outside this package, and no sibling claims ${base}, so ` +
+        'it was naming a symbol the package does not export',
+      );
+    }
+  }
+}
+
 /**
  * Rewrite a doc model in place so api-documenter emits one page per symbol.
  *
  * @param {object} model Parsed <pkg>.api.json.
- * @returns {string[]} Human-readable notes on every change made, plus any
- *   collision it could not fix. Empty when the model needed nothing.
+ * @returns {{notes: string[], renames: Array<{from: string, to: string, kind: string}>}}
+ *   `notes` is a human-readable line per change made, plus any collision it could
+ *   not fix; empty when the model needed nothing. `renames` is the subset that
+ *   moved a symbol's name, which the caller needs in order to 301 the URL the
+ *   old name published under.
  */
 function normalizeModel(model) {
   const notes = [];
+  const renames = [];
 
   mergeDeclarationMerges(model, notes);
   disambiguateSiblings(model, notes);
+  // After (2), so a suffix this run assigned via overloadIndex is never mistaken
+  // for one api-extractor baked into a name.
+  stripAmbientCollisionSuffixes(model, notes, renames);
 
   // Report anything still colliding, so the caller can log it next to the notes
   // rather than only hitting the assertion later with no context.
@@ -234,7 +368,7 @@ function normalizeModel(model) {
     notes.push(`UNRESOLVED ${file} <- ${claimants.join(' | ')}`);
   }
 
-  return notes;
+  return { notes, renames };
 }
 
 module.exports = { normalizeModel };
