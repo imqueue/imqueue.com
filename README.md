@@ -107,9 +107,7 @@ Control shows the same traffic but keeps 24 hours and reports per crawler brand.
 Setup, all free:
 
 1. **Create a second GA4 property** — *not* the one in `head.html`. Crawler hits in
-   the main property would wreck the metrics that describe humans, and GA4 has no
-   selective delete, so it is permanent. `G-EQTNPY721G` is therefore **refused at
-   runtime**: point the variable at it and the module logs why and sends nothing.
+   the main property would wreck the metrics that describe humans.
 2. Add a web data stream, copy its **Measurement ID** (`G-…`), then
    **Measurement Protocol API secrets → Create** and copy the secret.
 3. On **both** Pages projects → Settings → Environment variables, set

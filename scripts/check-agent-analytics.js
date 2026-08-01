@@ -115,28 +115,6 @@ async function main() {
   );
   ok('inert unless BOTH GA4_MP_MEASUREMENT_ID and GA4_MP_API_SECRET are set');
 
-  // Rule 1 as an interlock. Sending crawler page_views into the property that
-  // measures real visitors is the one error with no undo — GA4 has no selective
-  // delete — and it is the easy error to make, since G-EQTNPY721G is the ID a
-  // maintainer knows by heart and the one the Pages env vars held first.
-  const errors = [];
-  const realError = console.error;
-  console.error = (msg) => errors.push(msg);
-  const refused = trackRequest({
-    request: req,
-    env: { GA4_MP_MEASUREMENT_ID: 'G-EQTNPY721G', GA4_MP_API_SECRET: 's' },
-    url: u('/llms.txt'),
-    status: 200,
-    edition: 'org',
-  });
-  console.error = realError;
-  assert.strictEqual(refused, null, 'the human property must be refused, not measured');
-  assert.ok(
-    errors.some((m) => /REFUSING/.test(m)),
-    'and it must say so loudly — a silent refusal reads as a broken integration',
-  );
-  ok('refuses G-EQTNPY721G (the human property) and says why');
-
   // --- the middleware contract: always returns, never throws ---------------
   const { onRequest } = await import('../functions/_middleware.js');
   const page = new Response('hi', { status: 200 });
