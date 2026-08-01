@@ -138,14 +138,43 @@ async function main() {
   // Constraint 1 in functions/_middleware.js: this file runs in front of every
   // request to BOTH sites, so a throw here is an outage. A context missing
   // waitUntil is the cheapest way to simulate the runtime not behaving as expected.
-  const broken = await onRequest({
-    request: new Request('https://imqueue.org/llms.txt'),
-    env: { GA4_MP_MEASUREMENT_ID: 'G-X', GA4_MP_API_SECRET: 's' },
-    next: async () => page,
-    // no waitUntil at all
-  });
+  //
+  // This is the ONLY assertion that reaches the send path, and global fetch is
+  // stubbed for it. Not tidiness: trackRequest starts the fetch BEFORE the caller
+  // touches waitUntil, so without the stub this suite POSTs to Google on every
+  // `npm test`, every pre-commit and every CI run — which contradicts the "offline
+  // pure logic" claim at the top of this file and litters a stranger's property with
+  // junk hits. Stubbing also makes the assertion stronger: the endpoint gets checked
+  // without anyone being contacted.
+  const realFetch = globalThis.fetch;
+  const sends = [];
+  globalThis.fetch = (target) => {
+    sends.push(String(target));
+
+    return Promise.resolve(new Response('{}'));
+  };
+
+  let broken;
+  try {
+    broken = await onRequest({
+      request: new Request('https://imqueue.org/llms.txt'),
+      env: { GA4_MP_MEASUREMENT_ID: 'G-X', GA4_MP_API_SECRET: 's' },
+      next: async () => page,
+      // no waitUntil at all
+    });
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+
   assert.strictEqual(broken, page, 'a broken analytics path must still serve the page');
   ok('analytics failure degrades to "no measurement", never to "no page"');
+
+  assert.strictEqual(sends.length, 1, 'exactly one send per tracked request');
+  assert.ok(
+    sends[0].startsWith('https://www.google-analytics.com/mp/collect?'),
+    `the send must go to GA4's collect endpoint, got: ${sends[0].split('?')[0]}`,
+  );
+  ok('one send, to GA4\'s collect endpoint (verified without a network call)');
 
   console.log(`\nAll ${checks} agent-analytics checks passed.`);
 }
