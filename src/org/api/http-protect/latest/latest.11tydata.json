@@ -1,0 +1,50 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "http-protect",
+  "apiVersion": "3.0.1",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-08-01T06:21:48.365Z",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "HttpProtect",
+          "url": "/api/http-protect/latest/http-protect.httpprotect/"
+        }
+      ]
+    },
+    {
+      "group": "Enumerations",
+      "items": [
+        {
+          "name": "VerificationStatus",
+          "url": "/api/http-protect/latest/http-protect.verificationstatus/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "HttpProtectOptions",
+          "url": "/api/http-protect/latest/http-protect.httpprotectoptions/"
+        },
+        {
+          "name": "NextFunction",
+          "url": "/api/http-protect/latest/http-protect.nextfunction/"
+        },
+        {
+          "name": "Response",
+          "url": "/api/http-protect/latest/http-protect.response/"
+        },
+        {
+          "name": "VerificationResponse",
+          "url": "/api/http-protect/latest/http-protect.verificationresponse/"
+        }
+      ]
+    }
+  ]
+}
