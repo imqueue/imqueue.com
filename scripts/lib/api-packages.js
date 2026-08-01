@@ -154,7 +154,7 @@ const PACKAGES = [
     tier: 2,
     group: 'Data & events',
     tags: ['ORM'],
-    blurb: 'Sequelize ORM refinements for @imqueue services.',
+    blurb: 'Turns GraphQL input — filters, paging, ordering and the selected field set — into efficient Sequelize queries, with database views as models.',
     cliId: 'sequelize',
     latestOnly: true,
     status: 'planned',
