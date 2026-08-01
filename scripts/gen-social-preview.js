@@ -72,7 +72,7 @@ const CARDS = [
   { repo: "pg-pubsub", name: "@imqueue/pg-pubsub", tagline: "Reliable PostgreSQL LISTEN/NOTIFY", tagline2: "with inter-process lock support", cmd: "npm i @imqueue/pg-pubsub" },
   { repo: "net", name: "@imqueue/net", tagline: "Fast, reliable binary address checker", tagline2: "for Node — IPv4 & IPv6 support", cmd: "npm i @imqueue/net" },
   { repo: "http-protect", name: "@imqueue/http-protect", tagline: "HTTP DDoS protection middleware", cmd: "npm i @imqueue/http-protect" },
-  { repo: "sequelize", name: "@imqueue/sequelize", tagline: "Sequelize ORM refinements", tagline2: "for the @imqueue ecosystem", cmd: "npm i @imqueue/sequelize" },
+  { repo: "sequelize", name: "@imqueue/sequelize", tagline: "GraphQL input to efficient SQL", tagline2: "for Sequelize-backed services", cmd: "npm i @imqueue/sequelize" },
   { repo: "mcp", name: "@imqueue/mcp", tagline: "Docs search & service scaffolding", tagline2: "for AI coding agents (MCP)", cmd: "npx -y @imqueue/mcp" },
   { repo: "pg-prisma", name: "@imqueue/pg-prisma", tagline: "Prisma & Postgres toolkit for services", tagline2: "extensions, archiving, typed models", cmd: "npm i @imqueue/pg-prisma" },
   { repo: "validation", name: "@imqueue/validation", tagline: "Zod-backed field & method validation", tagline2: "via native TC39 decorators", cmd: "npm i @imqueue/validation" },
