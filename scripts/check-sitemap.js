@@ -173,6 +173,48 @@ for (const [edition, origin] of Object.entries(EDITIONS)) {
     pass('every indexable page is submitted (API member pages excluded by design)');
   }
 
+  // Markdown-mirror coverage. src/org/agents/index.md promises agents that "every
+  // page has a plain-markdown mirror at `<page-url>index.md`", using-ai-assistants.md
+  // repeats it for "any docs page", and the MCP server's `get_doc` fetches exactly
+  // that URL for whatever page it is handed.
+  //
+  // Until 2026-08-01 the site broke that on 19 pages — the home page, /docs/,
+  // /intro/, /blog/, 12 topic hubs and 3 author pages — because src/md-mirror.liquid
+  // only mirrors pages with a MARKDOWN source (`contentMd` requires
+  // inputPath.endsWith('.md')) and those are HTML/Liquid templates. Nothing failed;
+  // agents following the documented convention just got 404s on the entry-point
+  // pages they try first, and `get_doc` could not return the docs home at all.
+  // src/org/mirrors/ closes it, and this assertion stops the next HTML-templated
+  // page reopening it.
+  //
+  // Only .org makes the promise — imqueue.com's llms.txt does not mention mirrors,
+  // and its four pages have none.
+  if (edition === 'org') {
+    const unmirrored = [...pages.entries()]
+      .filter(([, p]) => !p.noindex)
+      // Archived API majors are noindex (already filtered) and deliberately
+      // unmirrored; /latest/ trees, including member pages, are mirrored. Keep
+      // this in step with API_MIRRORED in eleventy.config.js.
+      .filter(([url]) => !url.startsWith('/api/') || /^\/api\/$|^\/api\/[^/]+\/latest\//.test(url))
+      // Paginated /blog/page/N/ has no mirror on purpose: /blog/index.md lists
+      // every article, which is what an agent wants — one fetch, whole index.
+      .filter(([url]) => !/\/page\/\d+\/$/.test(url))
+      .map(([url]) => url)
+      .filter((url) => !fs.existsSync(path.join(dir, url.slice(1), 'index.md')));
+
+    if (unmirrored.length) {
+      for (const u of unmirrored.slice(0, 10)) {
+        fail(`${u} has no ${u}index.md — /agents/ promises one for every page`);
+      }
+      if (unmirrored.length > 10) {
+        console.error(`  FAIL  …and ${unmirrored.length - 10} more pages with no markdown mirror`);
+      }
+      console.error('        Add a template under src/org/mirrors/ — see its README.txt.');
+    } else {
+      pass('every indexable page has the markdown mirror agents are promised');
+    }
+  }
+
   for (const [name, urls] of buckets) {
     console.log(`        ${name}: ${urls.length} URLs`);
   }
