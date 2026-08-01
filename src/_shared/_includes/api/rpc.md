@@ -245,6 +245,13 @@ Here's what you need to know about writing doc-blocks for @imqueue services:
   as optional on the generated client.
 * Use TypeScript type notation in doc-blocks for arguments and return values;
   it's carried through into the generated client code.
+* The documented `@param` list is also what the service's argument-count check
+  validates, so it **must** match the method's real arity — a mismatch rejects
+  calls with `IMQ_RPC_INVALID_ARGS_COUNT`. An undocumented type falls back to
+  `any` rather than failing.
+* Compile the service project with **`removeComments: false`**. The doc-blocks
+  are read from the emitted sources, so stripping comments leaves the generator
+  nothing to work from.
 
 ### Complex types
 
@@ -258,11 +265,21 @@ whereas an interface exists only in TypeScript and is gone at runtime. There's a
 second wrinkle: JavaScript classes don't support bare properties (only getters
 and setters), so while TypeScript is happy with a plain property definition,
 @imqueue needs extra metadata to see it at the JavaScript level. That metadata is
-supplied by the `@property()` decorator:
+supplied by the [`@property()`](/api/rpc/latest/rpc.property/) decorator:
 
 ~~~typescript
-function property(typeName: string, isOptional: boolean = false): () => {}
+function property(type: string | Thunk | any, isOptional?: boolean): any
 ~~~
+
+The type is normally a type-definition string, as in the examples below
+(`'string'`, `'Address'`, `'Address[]'`). It can also be a constructor, whose
+`name` is used, or an anonymous [Thunk](/api/rpc/latest/rpc.thunk/) returning
+either — which is what a self- or forward-referencing type needs, since a thunk
+isn't invoked until the description is first read. The thunk must be anonymous:
+a *named* function is taken for a constructor and resolves to its own name.
+
+Note that `isOptional` is **not** inferred from TypeScript's `?` modifier — pass
+`true` explicitly, as the examples below do.
 
 Since v3.x, each complex-type class **must** also be annotated with the
 `@classType()` class decorator. @imqueue v3 uses standard (TC39) decorators, under
@@ -271,8 +288,14 @@ then finalizes and registers that metadata as a named type, so that both the
 service and the generated client recognise it:
 
 ~~~typescript
-function classType(): (value: Function, context: ClassDecoratorContext) => void
+function classType(): any
 ~~~
+
+Omitting it produces no error — the type is simply missing from the RPC type
+description, and generated clients then reference an undeclared type.
+[`@indexed()`](/api/rpc/latest/rpc.indexed/) performs the same flush in addition
+to recording an index signature, so a class carrying `@indexed()` does not also
+need `@classType()`.
 
 Putting it together:
 
