@@ -148,7 +148,7 @@ function majorOf(v) { return parseVer(v)[0]; }
 //
 // `latestOnly` (api-packages.js) suppresses the archive derivation entirely.
 // Without it every new package would silently generate 2–4 extra copies of
-// itself: most have several past majors (pg-cache has 4, sequelize 3), and this
+// itself: most have several past majors (pg-cache has 4, pg-sequelize 3), and this
 // derivation is unconditional. Two knock-on effects are deliberate:
 //
 //   * a past-major URL 301s to /latest/ rather than 404ing, via the archive
@@ -396,13 +396,13 @@ function generate({ pkg, version, seg, latestFiles, released }) {
   // exactly one in-scope package (`job`). Six others depend on an @imqueue
   // package that is NOT core and so got nothing installed and nothing stripped:
   //
-  //   sequelize, tag-cache, dd-trace       -> @imqueue/rpc
+  //   pg-sequelize, tag-cache, datadog       -> @imqueue/rpc
   //   pg-cache    -> @imqueue/pg-pubsub, @imqueue/rpc, @imqueue/tag-cache
   //   http-protect            -> @imqueue/net
   //   type-graphql-dependency -> @imqueue/graphql-dependency
   //
   // Worth being precise about what that cost, because it is easy to overstate:
-  // those packages still EXTRACT without this (measured — sequelize and dd-trace
+  // those packages still EXTRACT without this (measured — pg-sequelize and datadog
   // both produce complete models). What they lose is resolved cross-package types
   // in signatures, and de-duplication: every symbol re-exported from a dependency
   // ships a second page under this package's name, competing with the page the

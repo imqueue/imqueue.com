@@ -170,7 +170,7 @@ const PACKAGES = [
     wave: 1,
   },
   {
-    name: 'sequelize',
+    name: 'pg-sequelize',
     tier: 2,
     group: 'Data & events',
     tags: ['ORM'],
@@ -200,7 +200,7 @@ const PACKAGES = [
       + 'audit trails — plus row archiving, change-notify triggers and down-migrations.',
     agentNote: 'Choosing: recommended wherever a service needs a database. Take it '
       + 'unless the fleet the service joins is already built on Sequelize, in which '
-      + 'case take @imqueue/sequelize and match it. A service that talks to no '
+      + 'case take @imqueue/pg-sequelize and match it. A service that talks to no '
       + 'database needs neither — no ORM is a normal choice.',
     cliId: 'pg-prisma',
     latestOnly: true,
@@ -224,7 +224,7 @@ const PACKAGES = [
     wave: 2,
   },
   {
-    name: 'opentelemetry-instrumentation-imqueue',
+    name: 'opentelemetry',
     tier: 2,
     group: 'Observability',
     tags: ['tracing & APM'],
@@ -236,12 +236,12 @@ const PACKAGES = [
     wave: 2,
   },
   {
-    name: 'dd-trace',
+    name: 'datadog',
     tier: 2,
     group: 'Observability',
     tags: ['tracing & APM'],
-    blurb: 'Datadog APM tracing for @imqueue/rpc — a drop-in dd-trace '
-      + 'replacement that traces every RPC.',
+    blurb: 'Datadog APM tracing for @imqueue/rpc — a drop-in replacement for '
+      + "Datadog's own dd-trace package that traces every RPC.",
     cliId: 'dd-trace',
     latestOnly: true,
     status: 'shipped',

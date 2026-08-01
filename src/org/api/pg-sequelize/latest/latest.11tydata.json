@@ -1,0 +1,303 @@
+{
+  "layout": "apiref.html",
+  "section": "api",
+  "bareTitle": true,
+  "apiPkg": "pg-sequelize",
+  "apiVersion": "4.2.0",
+  "apiVersionPath": "latest",
+  "apiReleased": "2026-08-01T16:25:36.841Z",
+  "apiNav": [
+    {
+      "group": "Classes",
+      "items": [
+        {
+          "name": "DateRange",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.daterange/"
+        },
+        {
+          "name": "FieldsInput",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.fieldsinput/"
+        },
+        {
+          "name": "FilterInput",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.filterinput/"
+        },
+        {
+          "name": "Graph",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.graph/"
+        },
+        {
+          "name": "JsonObject",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.jsonobject/"
+        },
+        {
+          "name": "NumericRange",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.numericrange/"
+        },
+        {
+          "name": "OrderByInput",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.orderbyinput/"
+        },
+        {
+          "name": "PaginationInput",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.paginationinput/"
+        },
+        {
+          "name": "Sequelize",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.sequelize/"
+        }
+      ]
+    },
+    {
+      "group": "Abstract Classes",
+      "items": [
+        {
+          "name": "BaseModel",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.basemodel/"
+        }
+      ]
+    },
+    {
+      "group": "Enumerations",
+      "items": [
+        {
+          "name": "IndexMethod",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.indexmethod/"
+        },
+        {
+          "name": "OrderDirection",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.orderdirection/"
+        },
+        {
+          "name": "SortOrder",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.sortorder/"
+        }
+      ]
+    },
+    {
+      "group": "Functions",
+      "items": [
+        {
+          "name": "AssociatedWith(cb)",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.associatedwith/"
+        },
+        {
+          "name": "ColumnIndex(options)",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.columnindex/"
+        },
+        {
+          "name": "ColumnIndex(target, propertyName, propertyDescriptor)",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.columnindex_1/"
+        },
+        {
+          "name": "CreatedBy(target, propertyName)",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.createdby/"
+        },
+        {
+          "name": "database(options)",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.database/"
+        },
+        {
+          "name": "DeletedBy(target, propertyName)",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.deletedby/"
+        },
+        {
+          "name": "DynamicView(options)",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.dynamicview/"
+        },
+        {
+          "name": "Emittable(_target)",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.emittable/"
+        },
+        {
+          "name": "formatSql(sql)",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.formatsql/"
+        },
+        {
+          "name": "NullableIndex(options)",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.nullableindex/"
+        },
+        {
+          "name": "NullableIndex(target, propertyName, propertyDescriptor)",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.nullableindex_1/"
+        },
+        {
+          "name": "UpdatedBy(target, propertyName)",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.updatedby/"
+        },
+        {
+          "name": "View(options)",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.view/"
+        }
+      ]
+    },
+    {
+      "group": "Interfaces",
+      "items": [
+        {
+          "name": "ColumnIndexOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.columnindexoptions/"
+        },
+        {
+          "name": "DataPage",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.datapage/"
+        },
+        {
+          "name": "FindOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.findoptions/"
+        },
+        {
+          "name": "IAssociated",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.iassociated/"
+        },
+        {
+          "name": "IDynamicViewDefineOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.idynamicviewdefineoptions/"
+        },
+        {
+          "name": "IMQORMOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.imqormoptions/"
+        },
+        {
+          "name": "InitOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.initoptions/"
+        },
+        {
+          "name": "IRange",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.irange/"
+        },
+        {
+          "name": "IViewDefineOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.iviewdefineoptions/"
+        },
+        {
+          "name": "QueryInterface",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.queryinterface/"
+        },
+        {
+          "name": "ReturningOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.returningoptions/"
+        },
+        {
+          "name": "SyncOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.syncoptions/"
+        },
+        {
+          "name": "ViewParams",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.viewparams/"
+        },
+        {
+          "name": "WithIncludeMap",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.withincludemap/"
+        }
+      ]
+    },
+    {
+      "group": "Namespaces",
+      "items": [
+        {
+          "name": "query",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.query/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "DB_CONN_STR",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.db_conn_str/"
+        },
+        {
+          "name": "ENUM_ORDER_DIRECTION",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.enum_order_direction/"
+        },
+        {
+          "name": "FILTER_OPS",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.filter_ops/"
+        },
+        {
+          "name": "MATCHER",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.matcher/"
+        },
+        {
+          "name": "RX_MATCHER",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.rx_matcher/"
+        },
+        {
+          "name": "RX_NAME_MATCHER",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.rx_name_matcher/"
+        },
+        {
+          "name": "SQL_COLORIZE",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.sql_colorize/"
+        },
+        {
+          "name": "SQL_PRETTIFY",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.sql_prettify/"
+        }
+      ]
+    },
+    {
+      "group": "Type Aliases",
+      "items": [
+        {
+          "name": "BuildOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.buildoptions/"
+        },
+        {
+          "name": "BulkCreateOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.bulkcreateoptions/"
+        },
+        {
+          "name": "CreateOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.createoptions/"
+        },
+        {
+          "name": "FunctionType",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.functiontype/"
+        },
+        {
+          "name": "GraphForeachCallback",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.graphforeachcallback/"
+        },
+        {
+          "name": "GraphMap",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.graphmap/"
+        },
+        {
+          "name": "IModelClass",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.imodelclass/"
+        },
+        {
+          "name": "Modify",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.modify/"
+        },
+        {
+          "name": "NullableColumnIndexOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.nullablecolumnindexoptions/"
+        },
+        {
+          "name": "QueryOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.queryoptions/"
+        },
+        {
+          "name": "SaveOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.saveoptions/"
+        },
+        {
+          "name": "SqlLoggingFunction",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.sqlloggingfunction/"
+        },
+        {
+          "name": "UpdateOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.updateoptions/"
+        },
+        {
+          "name": "UpsertOptions",
+          "url": "/api/pg-sequelize/latest/pg-sequelize.upsertoptions/"
+        }
+      ]
+    }
+  ]
+}
