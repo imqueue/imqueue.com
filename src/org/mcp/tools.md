@@ -130,6 +130,22 @@ Work with logs of services started by `imq ctl`.
 - **Safety:** `dump` reads the current combined logs and exits — it **never follows/streams**, and output is capped so it can't flood the agent; `clean` deletes collected logs.
 - **Example prompt:** *"Show me the recent logs for the auth service."*
 
+## Hosted endpoint only
+
+### `install_locally`
+Registered **only on the hosted server** ([`mcp.imqueue.org`](/mcp/#hosted-endpoint)),
+where it is how an agent discovers that the CLI-bridge tools need a local install.
+The local server does not expose it — there is nothing left to install.
+
+- **Input:** none.
+- **Returns:** the exact steps to install the full MCP server on your machine.
+- **Side effects:** none — it returns instructions, it does not install anything.
+- **Example prompt:** *"Why can't you start my fleet?"*
+
+On the hosted server the CLI-bridge tools above are still listed, but calling one
+returns the same install guidance instead of running `imq` — see
+[Safety & troubleshooting](/mcp/security/).
+
 ## Read-only vs state-changing
 
 A quick map of what is safe to let an agent call freely versus what changes your
