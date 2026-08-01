@@ -79,6 +79,9 @@ Per-edition `_redirects` and `_headers` are generated into each build
   `next()`, degrading to "no redirect" rather than "site down". A Cloudflare Redirect
   Rule is the better mechanism and should replace it — see the header comment.
 - `functions/api/contact.js` — the commercial lead form (imqueue.com `/pricing/`).
+- The root middleware also carries **agent analytics** (`lib/agent-analytics.js`) —
+  see below. It is the only place in the stack that sees requests for `/llms.txt` and
+  the `.md` mirrors, because those run no JavaScript.
 - `functions/api/<pkg>/[[path]].js` — **generated**, one per documented package
   (see `scripts/lib/api-packages.js`); resolves retired API version URLs onto the
   version trees that are actually published, using `lib/api-redirects.js`. Mounted
@@ -87,6 +90,48 @@ Per-edition `_redirects` and `_headers` are generated into each build
   segment, so a dynamic segment directly under `/api/` would sit on top of
   `/api/contact`. On imqueue.com it 301s `/api/` traffic to imqueue.org, because
   Functions run ahead of `_redirects`.
+
+## Agent analytics (server-side GA4)
+
+GA4's tag is JavaScript, so it never fires for `/llms.txt`, `/llms-full.txt`, the
+`<page-url>index.md` mirrors or `/api/search-index.json` — and crawlers run no JS
+even on the HTML pages. Measured 2026-08-01: Cloudflare's edge saw **4.77k requests
+in 24h** while GA4 reported **347 sessions in 28 days**. The audience this site is
+built for was the one not being measured.
+
+`lib/agent-analytics.js`, called from the root middleware, sends those requests to
+GA4 over the Measurement Protocol, so the reporting already exists for them: which
+sections agents read, which crawler, which status, over time. Cloudflare's AI Crawl
+Control shows the same traffic but keeps 24 hours and reports per crawler brand.
+
+Setup, all free:
+
+1. **Create a second GA4 property** — *not* the one in `head.html`. Crawler hits in
+   the main property would wreck the metrics that describe humans.
+2. Add a web data stream, copy its **Measurement ID** (`G-…`), then
+   **Measurement Protocol API secrets → Create** and copy the secret.
+3. On **both** Pages projects → Settings → Environment variables, set
+   `GA4_MP_MEASUREMENT_ID` and `GA4_MP_API_SECRET` (encrypt the secret). With either
+   missing the module does nothing at all, which is also what keeps forks and preview
+   deploys silent.
+4. **Verify once** by also setting `GA4_MP_DEBUG=1`: hits go to GA4's validation
+   endpoint and the result is logged to the project's function logs, where an empty
+   `validationMessages` means the payload is good. **Then unset it** — the validation
+   endpoint reports but records nothing.
+5. Optional, for slicing: Admin → Custom definitions → register `crawler`,
+   `operator`, `surface`, `status` and `edition` as **event-scoped custom
+   dimensions**. Events are sent as `page_view` with `page_location`, so the built-in
+   Pages reports work without registering anything.
+
+Three invariants, all guarded by `npm run check:agent-analytics`:
+
+- **The crawler's user-agent is never forwarded.** GA4 discards traffic it identifies
+  as a bot, and the Measurement Protocol only knows the UA if you send it — doing so
+  would silently discard the whole dataset. The crawler travels as a parameter.
+- **Requests gtag already measures are skipped**, so the second property does not
+  become a worse copy of the first.
+- **`client_id` is derived from the crawler family**, never from an IP or
+  fingerprint. A "user" there means a crawler.
 
 ## Generated content
 
