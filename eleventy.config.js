@@ -65,19 +65,44 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addGlobalData("themeColor", isCom ? "#0c0a17" : "#0a0e0d");
   eleventyConfig.addGlobalData("twitterHandle", "@imqueue");
 
-  // ---- analytics (per edition) --------------------------------------------
-  // Both editions currently report into one GA4 property and one Clarity
-  // project, so imqueue.org and imqueue.com traffic is merged and .org organic
-  // performance cannot be read straight off it. Two things help:
-  //   * GA4's built-in "Hostname" dimension already separates them, and every
-  //     page_view now also carries an `edition` parameter as a cross-check.
-  //   * To split them properly, create a second GA4 property / Clarity project
-  //     and put its id in the org entry below. Nothing else has to change.
+  // ---- analytics (per edition, from the environment) -----------------------
+  // These ids used to be hardcoded here, both editions sharing one GA4 property,
+  // and the pair was wrong: the id in this file belongs to the property named
+  // imqueue.com, so imqueue.org's traffic was recorded there while the property
+  // named imqueue.org received nothing from the page. A repo cannot tell you which
+  // property owns an id, which is exactly why they do not belong in a repo.
+  //
+  // Each Pages project now supplies its own, so the deployment is the single source
+  // of truth and the two sites cannot silently share a property again:
+  //
+  //   GA4_MEASUREMENT_ID     G-… for THIS edition's property
+  //   CLARITY_PROJECT_ID     Clarity project id for this edition
+  //
+  // Suffixed forms win when present (GA4_MEASUREMENT_ID_ORG / _COM), which is what
+  // makes a local `npm run build:all` able to give each edition its own id in one
+  // process. Unset means the tag is not emitted at all — so a local build, a fork
+  // and a preview deploy send nothing to production analytics. That is a feature:
+  // the previous arrangement had every `npm run serve:org` reporting as real traffic.
+  // null, never "" — Liquid treats an empty string as TRUTHY, so `{% if analytics.ga4 %}`
+  // in head.html would happily emit a tag with no id. Only nil and false are falsy there.
+  const envId = (name) =>
+    process.env[`${name}_${EDITION.toUpperCase()}`] || process.env[name] || null;
+
   const ANALYTICS = {
-    org: { ga4: "G-EQTNPY721G", clarity: "josp89y34k" },
-    com: { ga4: "G-EQTNPY721G", clarity: "josp89y34k" },
+    ga4: envId("GA4_MEASUREMENT_ID"),
+    clarity: envId("CLARITY_PROJECT_ID"),
   };
-  eleventyConfig.addGlobalData("analytics", ANALYTICS[EDITION]);
+
+  for (const [key, value] of Object.entries(ANALYTICS)) {
+    if (!value) {
+      console.log(
+        `[analytics] ${key} tag not emitted for ${EDITION} — `
+        + `${key === "ga4" ? "GA4_MEASUREMENT_ID" : "CLARITY_PROJECT_ID"} is unset`,
+      );
+    }
+  }
+
+  eleventyConfig.addGlobalData("analytics", ANALYTICS);
 
   // Full ISO 8601 for structured data and OG article timestamps. Schema.org and
   // Open Graph both want an unambiguous instant; the date-only "%Y-%m-%d" that
