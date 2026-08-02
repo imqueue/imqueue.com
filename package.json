@@ -43,6 +43,7 @@
     "serve:org": "EDITION=org eleventy --serve --port=${PORT:-8080}",
     "serve:com": "EDITION=com eleventy --serve --port=${PORT:-8081}",
     "build": "npm run build:all",
+    "gen-brand-badges": "node scripts/gen-brand-badges.mjs",
     "gen-favicons": "node scripts/gen-favicons.mjs",
     "gen-og": "node scripts/gen-og-images.js",
     "gen-og-blog": "node scripts/gen-og-blog.js",

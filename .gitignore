@@ -45,9 +45,19 @@ legal/
 promotion/
 
 # Internal planning notes. The first two were tracked and were purged from
-# history on 2026-07-31; local only from now on, for the same reason as
-# promotion/ above.
+# history on 2026-07-31; CUTOVER.md and docs/superpowers/ were untracked on
+# 2026-08-02. Local only from now on, for the same reason as promotion/ above:
+# this repo is public and carries the site, its tooling and its assets — not the
+# working context of whoever built them.
+#
+# The patterns come last so a new plan or report is ignored by default rather
+# than by someone remembering to add it here.
 BLOG-BACKLOG.md
 REBRAND-PLAN.md
 API-DOCS-PLAN.md
 PROOFREAD-REPORT.md
+CUTOVER.md
+*-PLAN.md
+*-NOTES.md
+*-REPORT.md
+*-HANDOVER.md
