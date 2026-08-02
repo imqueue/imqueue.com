@@ -535,6 +535,63 @@ async function checkLegacyTypedoc() {
     );
   }
 
+  // The case the loop above CANNOT see, and which shipped a 301-into-404 until the
+  // generated map existed: a legacy URL for a symbol that tree never documented.
+  // /api/rpc/2.1.0/interfaces/IMQOptions.html is real — IMQOptions is core's symbol,
+  // not rpc's — and it must land on the version index, not on rpc.imqoptions.
+  const { ARCHIVED_PAGES } = await import('../lib/api-legacy-pages.js');
+  let invented = 0;
+
+  for (const [pkg, seg] of [['rpc', '2.1.0'], ['core', '1.15.0']]) {
+    if (!fs.existsSync(path.join(ROOT, 'src', 'org', 'api', pkg, seg))) continue;
+
+    for (const ghost of ['NoSuchSymbol', 'IMQOptions', 'Totally_Made_Up']) {
+      if (ARCHIVED_PAGES.has(`${pkg}/${seg}/${pkg}.${ghost.toLowerCase()}`)) continue;
+
+      const got = resolveLegacyTypedoc(`/api/${pkg}/${seg}/interfaces/${ghost}.html`);
+
+      if (got !== `/api/${pkg}/${seg}/`) {
+        fail(`${pkg}/${seg} has no page for ${ghost}, so it must land on the version index, got ${got}`);
+        invented++;
+      }
+    }
+  }
+
+  if (!invented) {
+    pass('a symbol the tree never documented lands on the version index, not a 404');
+  }
+
+  // The map is generated from the tree, so drift means someone edited one of them.
+  const onDisk = new Set();
+
+  for (const pkg of fs.readdirSync(path.join(ROOT, 'src', 'org', 'api'))) {
+    const pkgDir = path.join(ROOT, 'src', 'org', 'api', pkg);
+
+    if (!fs.statSync(pkgDir).isDirectory()) continue;
+
+    for (const seg of fs.readdirSync(pkgDir)) {
+      const dir = path.join(pkgDir, seg);
+
+      if (!/^\d+\.\d+\.\d+$/.test(seg) || !fs.statSync(dir).isDirectory()) continue;
+
+      for (const f of fs.readdirSync(dir)) {
+        if (f.endsWith('.md') && f !== 'index.md') onDisk.add(`${pkg}/${seg}/${f.slice(0, -3)}`);
+      }
+    }
+  }
+
+  const missing = [...onDisk].filter((p) => !ARCHIVED_PAGES.has(p));
+  const stale = [...ARCHIVED_PAGES].filter((p) => !onDisk.has(p));
+
+  if (missing.length || stale.length) {
+    fail(
+      `lib/api-legacy-pages.js is out of step with the tree: ${missing.length} page(s) `
+      + `missing, ${stale.length} stale. Re-run \`npm run build-docs\`.`,
+    );
+  } else {
+    pass(`lib/api-legacy-pages.js matches the tree (${ARCHIVED_PAGES.size} archived pages)`);
+  }
+
   // It must claim nothing that is live or that belongs to another handler.
   for (const live of [
     '/api/', '/api/contact', '/api/core/latest/', '/api/rpc/latest/rpc.imq/',
@@ -546,6 +603,7 @@ async function checkLegacyTypedoc() {
   }
   pass('live URLs and /api/contact are not claimed by the TypeDoc salvage');
 }
+
 
 (async () => {
   console.log('Cloudflare redirect checks');
