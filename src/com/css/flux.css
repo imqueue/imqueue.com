@@ -16,7 +16,7 @@
 .fx-card, .fx-form-card, .fx-stat, .fx-acc { position: relative; }
 
 /* ---- shared gradient helpers ---- */
-.fx-grad { background: linear-gradient(100deg, var(--accent), var(--accent2));
+.fx-grad { background: linear-gradient(100deg, var(--accent-fill, var(--accent)), var(--accent2));
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
 /* ---- layout wrappers (Flux uses a tighter measure than .container) ---- */
@@ -92,7 +92,7 @@ select.fx-in option { background: var(--field-bg); color: var(--ink); }
 .fx-seg { display: flex; gap: 10px; }
 .fx-seg-btn { flex: 1; cursor: pointer; font-family: var(--font-body); font-size: 14px; font-weight: 600;
   padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
-.fx-seg-btn.active { border-color: transparent; background: linear-gradient(100deg, var(--accent), var(--accent2)); background-origin: border-box; color: #fff; }
+.fx-seg-btn.active { border-color: transparent; background: linear-gradient(100deg, var(--accent-fill, var(--accent)), var(--accent2)); background-origin: border-box; color: #fff; }
 .fx-emp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .fx-emp { cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 600; padding: 11px 6px;
   border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
@@ -104,7 +104,7 @@ select.fx-in option { background: var(--field-bg); color: var(--ink); }
 .fx-note a { color: var(--accent); font-weight: 600; }
 
 /* submit + honeypot + error */
-.fx-submit { margin-top: 6px; background: linear-gradient(100deg, var(--accent), var(--accent2)); color: #fff;
+.fx-submit { margin-top: 6px; background: linear-gradient(100deg, var(--accent-fill, var(--accent)), var(--accent2)); color: #fff;
   border: none; padding: 15px 24px; border-radius: 12px; font-weight: 600; font-size: 15px;
   font-family: var(--font-body); cursor: pointer; }
 .fx-submit:disabled { opacity: .6; cursor: default; }
@@ -113,7 +113,7 @@ select.fx-in option { background: var(--field-bg); color: var(--ink); }
 
 /* success pane */
 .fx-thanks { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 48px 32px; text-align: center; }
-.fx-thanks-check { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(100deg, var(--accent), var(--accent2));
+.fx-thanks-check { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(100deg, var(--accent-fill, var(--accent)), var(--accent2));
   display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; }
 .fx-thanks h2 { font-family: var(--font-display); font-weight: 700; font-size: 26px; margin: 0 0 8px; }
 .fx-thanks p { font-size: 15px; color: var(--muted); margin: 0 0 22px; }

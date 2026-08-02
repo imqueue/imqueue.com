@@ -44,7 +44,9 @@ h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -.02em; line-
 }
 .muted { color: var(--muted); }
 .accent { color: var(--accent); }
-code { color: var(--accent); }
+/* --code, not --accent: the accent is tuned for links and fails 1.4.3 as body-size
+   code on some themes, and --code exists precisely for this (10.5:1 both skins). */
+code { color: var(--code); }
 
 /* ---- buttons ---- */
 .btn {
@@ -53,14 +55,20 @@ code { color: var(--accent); }
   border: 1px solid transparent; cursor: pointer; white-space: nowrap;
   transition: filter .15s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease, color .15s ease;
 }
-.btn-primary { background: var(--accent); color: var(--on-accent); }
-.btn-gradient { background: linear-gradient(100deg, var(--accent), var(--accent2)); background-origin: border-box; color: #fff; }
+.btn-primary { background: var(--accent-fill, var(--accent)); color: var(--on-accent-fill, var(--on-accent)); }
+/* Two fixes here. --on-grad, not #fff: white over the terminal palette's green->cyan
+   gradient is 1.78:1, so each theme states the colour its own gradient can carry.
+   And --accent-fill for the first stop, not --accent: the accent is tuned to be
+   legible AS text on the page background, which on flux means lightening it — the
+   opposite of what a stop carrying white text needs. Fill tokens are the ones sized
+   for text sitting on top. */
+.btn-gradient { background: linear-gradient(100deg, var(--accent-fill, var(--accent)), var(--accent2)); background-origin: border-box; color: var(--on-grad, #fff); }
 .btn-ghost { border-color: var(--line); color: var(--ink); background: none; }
 /* Hover: subtle in-place feedback — no translate, so buttons don't jump.
    Each variant re-asserts its own text color; the global `a:hover` (reset.css)
    would otherwise recolor the label to --accent and tank contrast. */
-.btn-primary:hover { color: var(--on-accent); filter: brightness(1.06); }
-.btn-gradient:hover { color: #fff; filter: brightness(1.08); }
+.btn-primary:hover { color: var(--on-accent-fill, var(--on-accent)); filter: brightness(1.06); }
+.btn-gradient:hover { color: var(--on-grad, #fff); filter: brightness(1.08); }
 .btn-ghost:hover { color: var(--ink); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .btn-sm { padding: 9px 16px; font-size: 14.5px; border-radius: 8px; }
 
@@ -125,7 +133,7 @@ code { color: var(--accent); }
   display: inline-flex; align-items: center; justify-content: center;
   width: 30px; height: 30px; border-radius: 6px; color: var(--muted);
 }
-.theme-toggle button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.theme-toggle button[aria-pressed="true"] { background: var(--accent-fill, var(--accent)); color: var(--on-accent-fill, var(--on-accent)); }
 
 /* ---- cards ---- */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 28px 24px; }
@@ -172,11 +180,11 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
 .tut-side .lbl { color: var(--muted); letter-spacing: .12em; text-transform: uppercase; font-size: 13.5px; margin-bottom: 14px; }
 .tut-ch { display: block; padding: 10px 12px; border-radius: 8px; color: var(--muted); margin-bottom: 2px; }
 .tut-ch:hover { color: var(--accent); }
-.tut-ch.active { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.tut-ch.active { background: var(--accent-fill, var(--accent)); color: var(--on-accent-fill, var(--on-accent)); font-weight: 600; }
 .tut-nav { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); margin-top: 36px; padding-top: 22px; }
 .tut-nav a { font-family: var(--font-mono); font-size: 14.5px; border: 1px solid var(--line); padding: 10px 16px; border-radius: 8px; color: var(--ink); }
 .tut-nav a:hover { border-color: var(--accent); color: var(--accent); }
-.tut-nav .next { background: var(--accent); color: var(--on-accent); border-color: transparent; font-weight: 600; }
+.tut-nav .next { background: var(--accent-fill, var(--accent)); color: var(--on-accent-fill, var(--on-accent)); border-color: transparent; font-weight: 600; }
 .tut-nav .next:hover { color: var(--on-accent); }
 @media (max-width: 860px) {
   .tut-layout { grid-template-columns: minmax(0, 1fr); }
@@ -305,7 +313,7 @@ html.lightbox-open { overflow: hidden; }
 .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 34px; font-family: var(--font-mono); font-size: 16px; flex-wrap: wrap; }
 .pagination a, .pagination span { display: inline-flex; min-width: 38px; height: 38px; align-items: center; justify-content: center; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; text-decoration: none; color: var(--ink); }
 .pagination a:hover { border-color: var(--accent); color: var(--accent); }
-.pagination .current { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+.pagination .current { background: var(--accent-fill, var(--accent)); color: var(--on-accent-fill, var(--on-accent)); border-color: transparent; }
 .pagination .disabled { opacity: .4; pointer-events: none; }
 
 .post-layout { display: grid; grid-template-columns: minmax(0,1fr) 280px; gap: 44px; align-items: start; }
@@ -355,53 +363,88 @@ a.topic-chip:hover { border-color: var(--accent); color: var(--accent); }
 .archive-list .meta { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-left: auto; white-space: nowrap; }
 
 /* ---- cookie-consent bar (_includes/consent.html, js/consent.js) ----
-   Fixed to the bottom on purpose: the choice has to stay reachable however far
-   the page is scrolled, and a bar cannot be scrolled past the way an in-flow
-   notice can. z-index sits above the sticky nav (60/61) so it is never covered.
-   `.cc-open` pads the page so the bar cannot hide the footer's own links —
-   including the one that brings it back.
+   Fixed to the bottom: the choice has to stay reachable however far the page is
+   scrolled, and a bar cannot be scrolled past the way an in-flow notice can. z-index
+   sits above the sticky nav (60/61). `.cc-open` pads the page so the bar cannot hide
+   the footer's own links — including the one that brings it back — which is also what
+   keeps WCAG 2.2's 2.4.11 (focus not obscured) satisfied when tabbing to something at
+   the very bottom of a page.
+
+   ONE ROW at rest. Two purposes' worth of checkboxes in the resting state made this
+   ~150px tall, a sixth of a laptop viewport, for a notice most people dismiss in a
+   second. The granular controls moved into .cc-panel, which opens on demand, so the
+   default is a sentence and three buttons at ~64px.
    Only tokens both themes define are used, so terminal and flux each theme it. */
 .cc {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
-  /* --navbg, not --surface: this bar floats over scrolling content, which is the
-     nav's problem exactly, and the nav is the component that already solved it.
-     --surface is a 4.5%-white glass fill on the flux skin — legible in a card that
-     sits on the page background, see-through as a fixed bar with text sliding
-     underneath. Same token and same blur as .nav therefore, so it reads as part of
-     the design rather than a bolted-on widget. */
+  /* --navbg, not --surface: this bar floats over scrolling content, which is the nav's
+     problem exactly, and the nav already solved it. --surface is a 4.5%-white glass
+     fill on the flux skin — fine in a card on the page background, see-through as a
+     fixed bar with text sliding underneath. Same token and blur as .nav therefore. */
   background: var(--navbg); backdrop-filter: blur(12px);
   border-top: 1px solid var(--line);
   box-shadow: var(--shadow);
 }
-/* Without backdrop-filter (older Firefox with it disabled) an 82%-opaque bar over
-   moving text is not good enough for a page asking someone to make a choice. */
+/* Without backdrop-filter an 82%-opaque bar over moving text is not good enough for a
+   page asking someone to make a choice. */
 @supports not (backdrop-filter: blur(12px)) {
   .cc { background: var(--bg); }
 }
 .cc[hidden] { display: none; }
-.cc-inner { display: flex; align-items: center; gap: 22px; padding-top: 13px; padding-bottom: 13px; }
-.cc-copy { margin: 0; font-size: 14px; line-height: 1.55; color: var(--muted); }
+.cc-inner { padding-top: 12px; padding-bottom: 12px; }
+.cc-bar { display: flex; align-items: center; gap: 24px; }
+.cc-copy { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--muted); flex: 1; min-width: 0; }
 .cc-title {
   font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .1em;
-  text-transform: uppercase; color: var(--ink); margin-right: 9px;
+  text-transform: uppercase; color: var(--ink); margin-right: 8px;
 }
-.cc-copy a { color: var(--accent); text-decoration: none; }
-.cc-copy a:hover { text-decoration: underline; }
-.cc-actions { display: flex; gap: 9px; margin-left: auto; flex-shrink: 0; }
+.cc-copy a { color: var(--accent); text-decoration: underline; white-space: nowrap; }
+.cc-copy a:hover { text-decoration: none; }
+
+.cc-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .cc-btn {
   font-family: var(--font-body); font-size: 14px; font-weight: 600; line-height: 1;
-  padding: 10px 18px; border-radius: 8px; cursor: pointer; white-space: nowrap;
+  padding: 10px 16px; border-radius: 8px; cursor: pointer; white-space: nowrap;
   background: transparent; color: var(--ink); border: 1px solid var(--line);
 }
 .cc-btn:hover { border-color: var(--accent); color: var(--accent); }
-.cc-btn-accept { background: var(--accent); color: var(--on-accent); border-color: transparent; }
-.cc-btn-accept:hover { color: var(--on-accent); opacity: .9; }
-.cc-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.cc-open body { padding-bottom: 104px; }
+/* --accent-fill, not --accent: white-on-accent is 4.2:1 on the flux purple, under
+   WCAG 1.4.3's 4.5:1 at this size. The token is a darkened accent defined per theme
+   and falls back to --accent, so a theme without one still renders. */
+.cc-btn-accept { background: var(--accent-fill, var(--accent)); color: var(--on-accent-fill, var(--on-accent)); border-color: transparent; }
+.cc-btn-accept:hover { color: var(--on-accent-fill, var(--on-accent)); opacity: .92; }
+.cc-btn:focus-visible, .cc-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* "Customise" is deliberately lighter than the two decisions: it opens a panel, it is
+   not a third answer, and giving it button weight would dilute the pair that matter. */
+.cc-link {
+  background: none; border: none; cursor: pointer; padding: 6px 2px;
+  font-family: var(--font-body); font-size: 13.5px; color: var(--muted);
+  text-decoration: underline; white-space: nowrap;
+}
+.cc-link:hover { color: var(--ink); }
 
-@media (max-width: 760px) {
-  .cc-inner { flex-direction: column; align-items: stretch; gap: 12px; }
-  .cc-actions { margin-left: 0; }
-  .cc-btn { flex: 1; padding: 11px 14px; }
-  .cc-open body { padding-bottom: 168px; }
+.cc-panel {
+  display: flex; align-items: flex-start; gap: 26px; flex-wrap: wrap;
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line);
+}
+.cc-panel[hidden] { display: none; }
+/* Real labels wrapping real checkboxes: the whole block is a click target and screen
+   readers get the association for free — no aria plumbing to keep in step. */
+.cc-choice { display: flex; align-items: flex-start; gap: 9px; cursor: pointer; max-width: 40ch; }
+.cc-choice input { flex-shrink: 0; width: 17px; height: 17px; margin: 1px 0 0; accent-color: var(--accent-fill, var(--accent)); cursor: pointer; }
+.cc-choice span { display: block; font-size: 12.5px; line-height: 1.45; }
+.cc-choice strong { display: block; color: var(--ink); font-size: 13px; }
+.cc-choice em { display: block; color: var(--muted); font-style: normal; }
+.cc-choice input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cc-panel .cc-btn { margin-left: auto; }
+.cc-open body { padding-bottom: 96px; }
+
+@media (max-width: 900px) {
+  .cc-bar { flex-direction: column; align-items: stretch; gap: 10px; }
+  .cc-actions { width: 100%; }
+  .cc-actions .cc-btn { flex: 1; padding: 11px 12px; }
+  .cc-link { order: 3; text-align: center; }
+  .cc-panel { flex-direction: column; gap: 12px; }
+  .cc-panel .cc-btn { margin-left: 0; width: 100%; }
+  .cc-open body { padding-bottom: 190px; }
 }
