@@ -364,7 +364,42 @@ production numbers.
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', '{{ analytics.ga4 }}', { edition: '{{ edition }}' });
+  // `kind` is what separates these hits from the edge's in reporting: this tag only
+  // ever runs for somebody with a browser, while lib/agent-analytics.js reports the
+  // crawlers and assistants into the SAME property. Without it the two populations
+  // would be one blended number that describes neither.
+  gtag('config', '{{ analytics.ga4 }}', {
+    edition: '{{ edition }}',
+    kind: 'human',
+    send_page_view: false,
+  });
+  // GA4 has no minimum or maximum aggregation anywhere — not in reports, not in
+  // Explorations. The only way to read the extremes of "requests per visit" or
+  // "session duration" is a table with one row per session, and GA4 offers no session
+  // dimension to build one: ga_session_id, and every other ga_-prefixed spelling, is
+  // refused as a custom dimension. So the id gtag already assigned is read back and
+  // resent under a name that is accepted. Nothing new about anyone is collected.
+  //
+  // That is why page_view is sent by hand — the id arrives in a callback, and the
+  // automatic hit would already have gone. The timeout is the important half: if gtag
+  // is blocked, slow or broken, the page_view still goes without visit_id. Losing one
+  // dimension is a bad day; losing every human page_view to a callback that never
+  // fired would be a silent outage in the only measurement humans have here.
+  (function () {
+    var done = false;
+    var send = function (visitId) {
+      if (done) { return; }
+      done = true;
+      gtag('event', 'page_view', {
+        edition: '{{ edition }}',
+        kind: 'human',
+        visit_id: visitId || undefined,
+      });
+    };
+
+    setTimeout(send, 1000);
+    gtag('get', '{{ analytics.ga4 }}', 'session_id', send);
+  })();
 </script>
 {%- endif %}
 {%- if analytics.clarity %}

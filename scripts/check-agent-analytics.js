@@ -14,6 +14,8 @@
 //   1-3. the middleware always returns a response, whatever analytics does
 //   4.   the crawler's user-agent never reaches Google (it would bot-filter the lot)
 //   5.   nothing is sent unless the deployment is configured to send it
+//   6.   the header names the agent surface and nothing else
+//   7.   `kind` never claims a bot is human, and keeps a trainer apart from a browser
 //
 // Nothing here touches the network — verified by running it under a global fetch
 // spy. Delivery is deliberately NOT tested here; it needs a credential and a
@@ -112,6 +114,49 @@ async function main() {
     assert.strictEqual(plain, page, `${p} must be the untouched response object`);
   }
   ok('x-agent-analytics on the agent surface only, response intact, no rebuild elsewhere');
+
+  // --- the audience split ---------------------------------------------------
+  // Every number in the GA4 report is a filter on `kind`, and a wrong value here does
+  // not fail — it produces a confident answer to the wrong question. Two ways it could
+  // go wrong silently, so both are pinned:
+  //
+  //   * 'human' must be unreachable from this module. Only gtag, which runs solely in
+  //     a browser, is allowed to claim it. One crawler labelled human and the human
+  //     audience is fiction.
+  //   * a trainer and a browser from the SAME operator must not merge. If they did,
+  //     `operator` would already have been enough and the dimension would be pointless.
+  const kindOf = (userAgent, path) => buildEvent({
+    url: new URL(`https://imqueue.org${path}`),
+    userAgent,
+    status: 200,
+    edition: 'org',
+  }).events[0].params;
+
+  const cases = [
+    [GPTBOT, '/llms.txt', 'crawler'],
+    ['Mozilla/5.0 (compatible; ChatGPT-User/1.0; +https://openai.com/bot)', '/llms.txt', 'assistant'],
+    ['claude-code/1.0.0', '/docs/index.md', 'assistant'],
+    ['Cursor/0.42.0', '/docs/index.md', 'assistant'],
+    // Unnamed client, agent-only path: assistant on the balance of evidence.
+    ['curl/8.5.0', '/docs/index.md', 'assistant'],
+    // Same unnamed client on a path anyone might fetch: not guessed at either way.
+    ['curl/8.5.0', '/robots.txt', 'unknown'],
+  ];
+
+  for (const [userAgent, path, expected] of cases) {
+    const params = kindOf(userAgent, path);
+
+    assert.strictEqual(params.kind, expected,
+      `${userAgent} on ${path} must be ${expected}, got ${params.kind}`);
+    assert.notStrictEqual(params.kind, 'human',
+      'only gtag may report kind=human');
+    // Sent twice under two names on purpose: session_id sessionises but is not
+    // reportable, visit_id is. If they ever diverge, every min/max reads from rows
+    // that do not line up with GA4's own sessions.
+    assert.strictEqual(params.visit_id, params.session_id,
+      'visit_id must be the session id GA4 is actually using');
+  }
+  ok('kind splits assistant from crawler and never claims human; visit_id tracks the session');
 
   console.log(`\nAll ${checks} agent-analytics checks passed.`);
 }
