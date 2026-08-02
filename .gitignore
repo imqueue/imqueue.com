@@ -44,11 +44,17 @@ legal/
 # Local only: never commit this, the repo is public.
 promotion/
 
-# Internal planning notes. The first two were tracked and were purged from
-# history on 2026-07-31; CUTOVER.md and docs/superpowers/ were untracked on
-# 2026-08-02. Local only from now on, for the same reason as promotion/ above:
+# Internal planning notes. Local only, for the same reason as promotion/ above:
 # this repo is public and carries the site, its tooling and its assets — not the
 # working context of whoever built them.
+#
+# History, corrected on 2026-08-02 after checking GitHub's push record: the note
+# above used to say the first two were "purged from history on 2026-07-31". No
+# purge happened — master's push chain is unbroken, so nothing was ever
+# force-pushed. They are absent from master because rebrand/dual-domain was
+# integrated without becoming an ancestor of it, and they still exist in that
+# branch's orphaned commits, which GitHub serves by SHA. CUTOVER.md and
+# docs/superpowers/ were untracked on 2026-08-02 and are in master's history.
 #
 # The patterns come last so a new plan or report is ignored by default rather
 # than by someone remembering to add it here.
