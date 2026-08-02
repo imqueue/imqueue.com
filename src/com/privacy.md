@@ -29,8 +29,10 @@ them. Questions about this policy, or a request about your data, go to
 - There is **no account, no login, and no payment taken on this website**.
 - We do not sell data, we do not run advertising, and we do not use anything
   collected here to train machine-learning models.
-- The site carries **third-party analytics**, one of which records page
-  interaction. [How to opt out](#cookies-and-how-to-refuse-them).
+- The site offers **third-party analytics**, one of which records page interaction —
+  but **nothing loads until you accept it**. Decline, or ignore the bar, and no
+  analytics script runs and no cookie is set.
+  [How that works](#cookies-and-how-to-refuse-them).
 
 ## The licensing enquiry form
 
@@ -77,7 +79,8 @@ address, user agent, the URL, a timestamp and the response status. That is inher
 to how the web works, and it is used to deliver the page, cache it, and absorb
 abuse. We do not build profiles from it.
 
-The pages also load two analytics services:
+The pages also *offer* two analytics services — neither of which runs unless you
+have accepted them:
 
 - **Google Analytics 4** — aggregate audience measurement: which pages are read,
   which links bring people here, roughly which country and browser.
@@ -87,8 +90,9 @@ The pages also load two analytics services:
   have not turned that off**, so what you enter into the enquiry form is not part of
   a recording. The same Clarity project covers both imqueue.com and imqueue.org.
 
-Both run on every visit and set cookies; neither is needed to read the site or to
-use the form. See [cookies](#cookies-and-how-to-refuse-them) to switch them off.
+Neither is needed to read the site or to use the form, and neither is loaded until
+you say yes — see [cookies](#cookies-and-how-to-refuse-them). **The enquiry form
+works exactly the same whether you accept or decline.**
 
 ## No payments on this site
 
@@ -113,18 +117,38 @@ relies on its own transfer safeguards, described in the policy linked above.
 
 ## Cookies and how to refuse them
 
-We set no cookies of our own. The only cookies on imqueue.com come from the two
-analytics services:
+**Nothing non-essential is set before you agree.** On your first visit a bar at the
+bottom of the page asks, with two equally-weighted buttons:
+
+- **Accept** — the two analytics scripts are loaded, and they set the cookies below.
+- **Decline** — nothing is loaded and nothing is set. The same is true if you ignore
+  the bar, close the tab, or browse with JavaScript disabled: the analytics tags are
+  written into the page in a form the browser will not execute, and only your
+  acceptance converts them into real scripts.
+
+The choice is remembered in your browser's `localStorage` under `imqueue-consent`,
+not in a cookie, so a declining visit leaves this site with **no cookies at all**.
+You are asked once; **"Cookie settings"** in the footer of every page reopens the bar
+whenever you want to change your mind. Withdrawing consent expires the first-party
+analytics cookies immediately and reloads the page so nothing keeps running.
+
+We set no cookies of our own. Everything below belongs to the analytics services and
+appears only after you accept:
 
 | Cookie | Set by | Purpose |
 |---|---|---|
 | `_ga`, `_ga_*` | Google Analytics | Distinguishes visitors and sessions for aggregate counts |
 | `_clck`, `_clsk` | Microsoft Clarity | Ties page interactions together into one recorded session |
 
-To refuse them: block cookies for this site in your browser, install the
+Belt and braces, if you would rather not rely on us: block cookies for this site in
+your browser, install the
 [Google Analytics opt-out add-on](https://tools.google.com/dlpage/gaoptout), block
-`clarity.ms`, or use any tracker blocker — all of which already stop both. The site
-and the enquiry form work normally either way.
+`clarity.ms`, or use any tracker blocker — all of which already stop both. Clarity
+can also set cookies on its own domain, which our withdrawal cleanup cannot reach; a
+browser-side block or clear does.
+
+The site and the enquiry form work identically either way. Declining costs you
+nothing and is never asked again.
 
 ## How long we keep things
 
@@ -149,6 +173,31 @@ To exercise any of these, email
 roughly when you sent it is enough for us to find and delete it. For analytics data
 held by Google or Microsoft, the opt-outs above stop collection at source and their
 own privacy dashboards handle deletion.
+
+**Withdrawing consent** takes one click: **"Cookie settings"** in the footer, then
+Decline. It is as easy to take back as it was to give.
+
+Our legal bases are: **your consent** for the analytics (freely given, withdrawable
+at any time from the footer); **taking the steps you asked for** when you send the
+enquiry form, and our **legitimate interest** in keeping a record of business
+correspondence afterwards; and **legitimate interest** in operating and securing the
+site, which covers the hosting logs.
+
+### If you are in California
+
+We do not sell your personal information, and we do not share it for cross-context
+behavioural advertising — under the CCPA/CPRA definitions of those words, neither
+happens here, so there is no "Do Not Sell or Share My Personal Information" process
+to run. What you send through the enquiry form is used to answer you and for nothing
+else: no advertising, no ad network, no data broker, no profiling, no list.
+
+You still have the right to know what is collected and why (this page), to request
+deletion or correction, to limit the use of sensitive personal information (we
+collect none), and not to be discriminated against for exercising any of it — pricing
+and support are unaffected by whether you accept analytics. Declining the bar, or
+sending a browser Global Privacy Control signal that your tracker blocker enforces,
+achieves the opt-out. For anything else, email
+[support@imqueue.com](mailto:support@imqueue.com).
 
 ## Children
 
