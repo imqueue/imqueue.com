@@ -1,87 +1,115 @@
-/* Cookie consent for both editions.
+/* Cookie consent for both editions, per purpose.
  *
- * GDPR/ePrivacy asks for consent BEFORE non-essential storage happens, not after,
- * so the analytics tags are not merely hidden here — they never run. head.html
- * parks them as `<script type="text/plain" data-consent="analytics">`, which the
- * browser refuses to execute, and this file turns them into real scripts only once
- * someone has said yes. A visitor who ignores the banner, blocks JavaScript, or
- * never returns is therefore never measured, which is the only default that makes
- * "cookies are blocked unless accepted" true rather than aspirational.
+ * GDPR/ePrivacy asks for consent BEFORE non-essential storage happens, not after, so
+ * the tags are not merely hidden here — they never run. head.html parks each one as
+ * `<script type="text/plain" data-consent="<category>">`, which no browser executes,
+ * and this file converts only the categories someone has actually ticked. A visitor
+ * who ignores the bar, blocks JavaScript, or never returns is never measured, which
+ * is the only default that makes "blocked unless accepted" true rather than a claim.
+ *
+ * TWO categories, not one bundle:
+ *   analytics — aggregate page-view counting (Google Analytics)
+ *   replay    — a recording of clicks, scrolling and pointer movement (MS Clarity)
+ * Consent has to be specific to a purpose, and these are two purposes: one counts
+ * visits, the other records behaviour. Ticking the first must not start the second.
  *
  * CCPA/CPRA is opt-out rather than opt-in, and its "do not sell or share" right has
  * nothing to sell against here — no data is sold, shared for cross-context
- * advertising, or used for profiling. The Decline button is the opt-out, the footer
- * link makes it reachable from every page forever, and neither choice changes what
- * the site serves you (no "pay or consent", no nagging, no degradation).
+ * advertising, or profiled. Decline all is the opt-out, the footer link keeps it
+ * reachable from every page forever, and no choice changes what the site serves.
  *
- * The decision lives in localStorage, not in a cookie: writing a cookie to record
- * "no cookies please" is defensible under the strictly-necessary exemption but
- * needlessly ironic, and localStorage keeps the pre-consent page cookie-free.
- * Per-origin, like the theme in site.js — .org and .com each ask once.
+ * The decision is JSON in localStorage, not a cookie: recording "no cookies please"
+ * in a cookie is defensible under the strictly-necessary exemption and still absurd,
+ * and this way a declining visit leaves the site with no cookies at all. Per-origin,
+ * like the theme in site.js — .org and .com each ask once.
  */
 (function () {
   var KEY = 'imqueue-consent';
-  var GRANTED = 'granted';
-  var DENIED = 'denied';
-  var PARKED = 'script[type="text/plain"][data-consent="analytics"]';
+  var CATS = ['analytics', 'replay'];
+
+  /* Which first-party cookies each category is answerable for, so withdrawing one
+     does not clear the other's. Clarity also sets cookies on its own domain, which no
+     script of ours can reach — /privacy/ says so and points at the browser controls
+     that can. */
+  var COOKIES = {
+    analytics: /^(_ga|_gid|_gat)/,
+    replay: /^(_clck|_clsk|CLID|MUID|ANONCHK|SM|SRM_B)/
+  };
 
   var root = document.documentElement;
 
-  function stored() {
-    try { return localStorage.getItem(KEY); } catch (e) { return null; }
-  }
+  /** Stored decision as { analytics: bool, replay: bool }, or null if never asked. */
+  function read() {
+    var raw;
 
-  function remember(value) {
-    try { localStorage.setItem(KEY, value); } catch (e) {}
-  }
+    try { raw = localStorage.getItem(KEY); } catch (e) { return null; }
 
-  /* Replace each parked tag with an executable one, in document order — gtag.js
-     carries `data-src` and must still be requested before the inline snippet that
-     configures it, which is exactly the order they appear in head.html. */
-  function activate() {
-    var parked = document.querySelectorAll(PARKED);
+    if (!raw) { return null; }
 
-    for (var i = 0; i < parked.length; i++) {
-      var old = parked[i];
-      var live = document.createElement('script');
-      var src = old.getAttribute('data-src');
+    // Migrates the single-toggle values this used to store, so an early visitor is
+    // not asked again: one "yes" covered both purposes back then.
+    if (raw === 'granted') { return { analytics: true, replay: true }; }
+    if (raw === 'denied') { return { analytics: false, replay: false }; }
 
-      if (src) {
-        live.async = true;
-        live.src = src;
-      } else {
-        live.text = old.textContent;
-      }
+    try {
+      var parsed = JSON.parse(raw);
 
-      old.parentNode.replaceChild(live, old);
+      if (!parsed || typeof parsed !== 'object') { return null; }
+
+      return { analytics: parsed.analytics === true, replay: parsed.replay === true };
+    } catch (e) {
+      return null; // unparseable: ask again rather than assume anything
     }
   }
 
-  /* Best-effort cleanup when someone declines after having accepted.
-   *
-   * Only first-party cookies can be expired from here: Clarity also sets cookies on
-   * its own domain, which no script of ours can reach — /privacy/ says so and points
-   * at the browser controls that can. Every candidate domain is tried because a
-   * cookie set for ".imqueue.org" is not removable with a host-only Set-Cookie. */
-  function clearAnalyticsCookies() {
+  function write(state) {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  /* Replace the parked tags of the given categories with executable ones, in document
+     order — gtag.js carries `data-src` and must still be requested before the inline
+     snippet that configures it, which is the order they appear in head.html. */
+  function activate(cats) {
+    for (var c = 0; c < cats.length; c++) {
+      var parked = document.querySelectorAll(
+        'script[type="text/plain"][data-consent="' + cats[c] + '"]'
+      );
+
+      for (var i = 0; i < parked.length; i++) {
+        var old = parked[i];
+        var live = document.createElement('script');
+        var src = old.getAttribute('data-src');
+
+        if (src) {
+          live.async = true;
+          live.src = src;
+        } else {
+          live.text = old.textContent;
+        }
+
+        old.parentNode.replaceChild(live, old);
+      }
+    }
+  }
+
+  /** Expire the first-party cookies belonging to one category. Best effort. */
+  function clearCookies(cat) {
+    var pattern = COOKIES[cat];
+
+    if (!pattern) { return; }
+
     var host = location.hostname;
     var domains = ['', host, '.' + host];
     var parts = host.split('.');
 
-    if (parts.length > 2) {
-      domains.push('.' + parts.slice(-2).join('.'));
-    }
+    if (parts.length > 2) { domains.push('.' + parts.slice(-2).join('.')); }
 
     var jar = document.cookie ? document.cookie.split(';') : [];
 
     for (var i = 0; i < jar.length; i++) {
       var name = jar[i].split('=')[0].replace(/^\s+|\s+$/g, '');
 
-      // GA: _ga, _ga_<id>, _gid, _gat*.  Clarity: _clck, _clsk, CLID, plus the
-      // Microsoft-network cookies its tag can set.
-      if (!/^(_ga|_gid|_gat|_clck|_clsk|CLID|MUID|ANONCHK|SM|SRM_B)/.test(name)) {
-        continue;
-      }
+      if (!pattern.test(name)) { continue; }
 
       for (var d = 0; d < domains.length; d++) {
         document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/' +
@@ -90,8 +118,29 @@
     }
   }
 
-  function banner() {
-    return document.querySelector('[data-consent-banner]');
+  function banner() { return document.querySelector('[data-consent-banner]'); }
+
+  function boxes() { return document.querySelectorAll('[data-consent-cat]'); }
+
+  /** Put the stored (or empty) decision into the checkboxes. */
+  function reflect(state) {
+    var all = boxes();
+
+    for (var i = 0; i < all.length; i++) {
+      var cat = all[i].getAttribute('data-consent-cat');
+
+      all[i].checked = !!(state && state[cat]);
+    }
+  }
+
+  function panel() { return document.getElementById('cc-panel'); }
+
+  function expand(open) {
+    var p = panel();
+    var toggle = document.querySelector('[data-consent-toggle]');
+
+    if (p) { p.hidden = !open; }
+    if (toggle) { toggle.setAttribute('aria-expanded', String(!!open)); }
   }
 
   function show(moveFocus) {
@@ -99,13 +148,27 @@
 
     if (!el) { return; }
 
+    var state = read();
+
+    reflect(state);
+
+    // Open the granular panel unprompted only when the stored decision is a MIX: the
+    // one-line summary row can say "allowed" or "declined", but it cannot show that
+    // one purpose is on and the other off, and hiding that from someone who came back
+    // to check would misrepresent what is running.
+    var mixed = !!state && CATS.length > 1 &&
+      CATS.some(function (c) { return state[c]; }) &&
+      CATS.some(function (c) { return !state[c]; });
+
+    expand(mixed);
+
     el.hidden = false;
     root.classList.add('cc-open');
 
-    // Only when the visitor asked for it from the footer. Stealing focus from
-    // someone who just opened a page to read it would be its own annoyance.
+    // Only when the visitor asked for it from the footer. Stealing focus from someone
+    // who just opened a page to read it would be its own annoyance.
     if (moveFocus) {
-      var first = el.querySelector('[data-consent-set]');
+      var first = el.querySelector(mixed ? '[data-consent-cat]' : '[data-consent-action]');
 
       if (first) { first.focus(); }
     }
@@ -119,35 +182,82 @@
     root.classList.remove('cc-open');
   }
 
-  function decide(value) {
-    var previous = stored();
+  /** Read the checkboxes into a decision object. */
+  function fromBoxes() {
+    var state = {};
+    var all = boxes();
 
-    remember(value);
+    for (var i = 0; i < all.length; i++) {
+      state[all[i].getAttribute('data-consent-cat')] = all[i].checked;
+    }
+
+    // Any category with no checkbox on the page (an edition without that vendor
+    // configured) counts as not granted rather than undefined.
+    for (var c = 0; c < CATS.length; c++) {
+      if (state[CATS[c]] !== true) { state[CATS[c]] = false; }
+    }
+
+    return state;
+  }
+
+  function apply(next) {
+    var previous = read() || { analytics: false, replay: false };
+
+    write(next);
     hide();
 
-    if (value === GRANTED) {
-      // Nothing was ever executed under a previous DENIED, so the parked tags are
-      // still parked and this is all it takes — no reload.
-      activate();
+    var grant = [];
+    var withdrawn = false;
+
+    for (var i = 0; i < CATS.length; i++) {
+      var cat = CATS[i];
+
+      if (next[cat] && !previous[cat]) {
+        grant.push(cat); // still parked, so this is all it takes
+      } else if (!next[cat]) {
+        clearCookies(cat);
+
+        // Withdrawing a consent that was already acted on is the one case needing a
+        // reload: the vendor's script is live in this document and neither of them
+        // offers a reliable way to unload itself.
+        if (previous[cat]) { withdrawn = true; }
+      }
+    }
+
+    if (withdrawn) {
+      location.reload();
       return;
     }
 
-    clearAnalyticsCookies();
-
-    // Withdrawing a consent that was already acted on is the one case needing a
-    // reload: gtag and Clarity are live in this document and neither offers a
-    // reliable way to unload itself.
-    if (previous === GRANTED) { location.reload(); }
+    if (grant.length) { activate(grant); }
   }
 
   document.addEventListener('click', function (e) {
     if (!e.target || !e.target.closest) { return; }
 
-    var choice = e.target.closest('[data-consent-set]');
+    var toggle = e.target.closest('[data-consent-toggle]');
 
-    if (choice) {
+    if (toggle) {
       e.preventDefault();
-      decide(choice.getAttribute('data-consent-set') === GRANTED ? GRANTED : DENIED);
+      expand(toggle.getAttribute('aria-expanded') !== 'true');
+      return;
+    }
+
+    var action = e.target.closest('[data-consent-action]');
+
+    if (action) {
+      e.preventDefault();
+
+      var which = action.getAttribute('data-consent-action');
+
+      if (which === 'accept') {
+        apply({ analytics: true, replay: true });
+      } else if (which === 'decline') {
+        apply({ analytics: false, replay: false });
+      } else {
+        apply(fromBoxes());
+      }
+
       return;
     }
 
@@ -161,11 +271,17 @@
     }
   });
 
-  var decision = stored();
+  var stored = read();
 
-  if (decision === GRANTED) {
-    activate();
-  } else if (decision !== DENIED) {
+  if (!stored) {
     show(false);
+  } else {
+    var granted = [];
+
+    for (var i = 0; i < CATS.length; i++) {
+      if (stored[CATS[i]]) { granted.push(CATS[i]); }
+    }
+
+    if (granted.length) { activate(granted); }
   }
 })();
