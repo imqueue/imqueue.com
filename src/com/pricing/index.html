@@ -14,7 +14,9 @@ keywords: "@imqueue pricing, imqueue commercial license price, buy imqueue licen
   </div>
 
   <!-- LEAD FORM -->
-  <div class="fx-form-card" data-license-form>
+  <!-- id=contact is a linkable target for the footer's Contact link; scroll-margin
+       keeps it clear of the sticky nav, as on the other in-page anchors here. -->
+  <div class="fx-form-card" id="contact" data-license-form style="scroll-margin-top:130px;">
     <form class="fx-form" action="/api/contact" method="POST" novalidate>
       <!-- honeypot: bots fill it, humans never see it -->
       <input class="fx-hp" type="text" name="company_url" tabindex="-1" autocomplete="off" aria-hidden="true">
