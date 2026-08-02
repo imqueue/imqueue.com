@@ -88,40 +88,38 @@ module.exports = function (eleventyConfig) {
   const envId = (name) =>
     process.env[`${name}_${EDITION.toUpperCase()}`] || process.env[name] || null;
 
-  const ANALYTICS = {
-    ga4: envId("GA4_MEASUREMENT_ID"),
-    clarity: envId("CLARITY_PROJECT_ID"),
+  // Correct per-edition ids, READ OUT OF GA4 ADMIN on 2026-08-02 (Admin → Data streams
+  // → the stream → Measurement ID) rather than copied from the previous value here,
+  // which was wrong: G-EQTNPY721G belongs to the property named imqueue.com, so
+  // imqueue.org's traffic was recorded there and the property named imqueue.org got
+  // none of it.
+  //
+  // These are the FALLBACK. An env var always wins, and the deployment should own
+  // these values — but a Cloudflare Pages build was not receiving GA4_MEASUREMENT_ID
+  // even when set as plaintext (both sites shipped with no tag at all), and an
+  // env-only design means the site silently stops being measured whenever that
+  // happens. These ids are public — they ship in every page's source — so the only
+  // thing keeping them out of the repo was tidiness, and tidiness lost to a day of
+  // lost analytics.
+  const ANALYTICS_DEFAULTS = {
+    org: { ga4: "G-CZ1JYCB5TK", clarity: "josp89y34k" },
+    com: { ga4: "G-EQTNPY721G", clarity: "josp89y34k" },
   };
 
-  const ANALYTICS_ENV = { ga4: "GA4_MEASUREMENT_ID", clarity: "CLARITY_PROJECT_ID" };
-  const missing = Object.keys(ANALYTICS).filter((k) => !ANALYTICS[k]);
+  // ...except under `npm run serve:*` / watch, where emitting the tag would report
+  // local browsing as production traffic. That used to happen on every dev run, and
+  // is part of why the org property reads 88.8% Direct. An explicit env var still
+  // wins here, so measuring a local build stays possible on purpose.
+  const isDevServer = ["serve", "watch"].includes(process.env.ELEVENTY_RUN_MODE);
+  const fallback = isDevServer ? { ga4: null, clarity: null } : ANALYTICS_DEFAULTS[EDITION];
 
-  // On Cloudflare (CF_PAGES=1) a missing id is a FAILED DEPLOY, not a warning. Losing
-  // analytics silently is what this whole change is about: the ids were wrong for
-  // weeks, and then present-but-unreadable, and in both cases the site served happily
-  // while collecting nothing. A build that stops is noticed in minutes.
-  //
-  // The most likely cause is worth stating in the log, because the dashboard makes it
-  // look configured: an ENCRYPTED Pages variable is not available at build time. Per
-  // Cloudflare's docs, plaintext variables are exposed "at runtime and build-time"
-  // while secrets are only readable "programmatically on context.env" — so an
-  // encrypted id can never reach this file. These ids are public (they ship in page
-  // source); store them as plaintext. Also check the scope is Production, not Preview.
-  if (missing.length && process.env.CF_PAGES) {
-    throw new Error(
-      `[analytics] ${missing.map((k) => ANALYTICS_ENV[k]).join(" and ")} not readable `
-      + `during the ${EDITION} build.\n`
-      + "  * Encrypted Pages variables are runtime-only — store these as PLAINTEXT.\n"
-      + "  * Check the scope is Production, and that they are on the right project.\n"
-      + "  * Suffixed forms also work: "
-      + missing.map((k) => `${ANALYTICS_ENV[k]}_${EDITION.toUpperCase()}`).join(", "),
-    );
-  }
+  const ANALYTICS = {
+    ga4: envId("GA4_MEASUREMENT_ID") || fallback.ga4,
+    clarity: envId("CLARITY_PROJECT_ID") || fallback.clarity,
+  };
 
-  for (const key of missing) {
-    console.log(
-      `[analytics] ${key} tag not emitted for ${EDITION} — ${ANALYTICS_ENV[key]} is unset`,
-    );
+  for (const [key, value] of Object.entries(ANALYTICS)) {
+    console.log(`[analytics] ${EDITION} ${key}: ${value || "not emitted"}`);
   }
 
   eleventyConfig.addGlobalData("analytics", ANALYTICS);
