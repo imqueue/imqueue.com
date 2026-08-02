@@ -68,12 +68,16 @@ https://mcp.imqueue.org/mcp
 }
 ~~~
 
-The hosted endpoint serves the **documentation** and **scaffolding** tools
-(`search_docs`, `get_doc`, `list_packages`, `scaffold_service`, `scaffold_client`)
-over Streamable HTTP — instant, no Node, no npm, no account. The **CLI-bridge**
-tools (`create_service`, `generate_client`, `fleet`, …) act on *your* project and
-running services, so they only work with the **local** install above; called on
-the hosted server they simply return the one-liner to install locally.
+The hosted endpoint serves six tools over Streamable HTTP — instant, no Node, no npm,
+no account — and every one of them is read-only: the **documentation** and
+**scaffolding** tools (`search_docs`, `get_doc`, `list_packages`, `scaffold_service`,
+`scaffold_client`) plus `local_install_guide`, which returns the setup steps for the
+full install.
+
+The **CLI-bridge** tools (`create_service`, `generate_client`, `fleet`, …) act on
+*your* project and running services, so a hosted server cannot reach them — and does
+not offer them. They are **not in its tool list at all**: it advertises only what it
+can actually do. For those, use the **local** install above.
 
 **Rule of thumb: hosted to explore and scaffold, local to build.**
 
@@ -111,7 +115,7 @@ You are wiring an autonomous agent to a tool that can read your docs and, with t
 CLI, touch your filesystem. The server is designed for that:
 
 - **Local & private (the `npx` install)** — runs on your machine over stdio; nothing is sent anywhere except doc fetches to imqueue.org.
-- **The hosted endpoint is sandboxed** — `mcp.imqueue.org` never touches your filesystem or CLI: it serves only the stateless docs & scaffolding tools, processes each request independently, and hands everything else off to a local install.
+- **The hosted endpoint cannot touch your machine, and does not pretend it can** — `mcp.imqueue.org` serves six read-only tools and does not register the CLI-bridge tools at all, so there is no tool on it that could reach your filesystem or your `imq` config. Each request is handled statelessly, with no sessions and nothing stored.
 - **Host-locked** — `get_doc` will only ever fetch `imqueue.org`.
 - **Safe by default** — `create_service` runs as a **dry-run** unless you explicitly opt in; read-only tools (`search_docs`, `cli_status`, `config get`, `fleet status`) are clearly separated from ones that change state.
 - **No telemetry, no keys** — nothing to sign up for.
@@ -125,7 +129,8 @@ CLI, touch your filesystem. The server is designed for that:
 | **Package** | [`@imqueue/mcp`](https://www.npmjs.com/package/@imqueue/mcp) on npm |
 | **Registry ID** | `org.imqueue/mcp` (official MCP registry) |
 | **Transport** | stdio (local) · Streamable HTTP (hosted) |
-| **Hosted endpoint** | [`https://mcp.imqueue.org/mcp`](https://mcp.imqueue.org/mcp) — docs + scaffolding |
+| **Hosted endpoint** | [`https://mcp.imqueue.org/mcp`](https://mcp.imqueue.org/mcp) — 6 read-only tools (docs + scaffolding) |
+| **Local install** | 13 tools — the 5 above plus the 8 CLI-bridge tools |
 | **Runtime** | Node.js ≥ 18 (local install) |
 | **Source** | [github.com/imqueue/mcp](https://github.com/imqueue/mcp) |
 | **License** | GPL-3.0 |

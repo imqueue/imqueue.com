@@ -44,9 +44,10 @@ Jump to your tool: [Claude Code](#claude-code) · [Claude Desktop](#claude-deskt
   services, generates live-introspected clients and manages your fleet. All the
   per-client sections below cover this.
 - **Hosted (zero-install, for exploring)** — point an HTTP-capable client at
-  **`https://mcp.imqueue.org/mcp`**. No Node, no npm, no account; it serves the
-  documentation and scaffolding tools. The CLI-bridge tools hand off to a local
-  install.
+  **`https://mcp.imqueue.org/mcp`**. No Node, no npm, no account; it serves six
+  read-only tools — the documentation and scaffolding ones plus
+  `local_install_guide`. The CLI-bridge tools are **not offered there**, because a
+  hosted server cannot reach your machine.
 
 ### Connect to the hosted endpoint
 

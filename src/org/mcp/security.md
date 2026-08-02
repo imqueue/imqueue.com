@@ -15,7 +15,8 @@ the CLI, can touch your machine. Here is exactly what the server can and cannot
 do.
 
 - **The `npx` install runs locally over stdio.** The server is a subprocess your client launches, with no account — your prompts and code never leave your machine except for documentation fetches.
-- **The hosted endpoint is sandboxed and optional.** `mcp.imqueue.org` runs on Cloudflare and **cannot reach your filesystem or CLI**. It serves only the stateless read/scaffold tools (`search_docs`, `get_doc`, `list_packages`, `scaffold_service`, `scaffold_client`), processes each request independently (no sessions, no stored state), and the CLI-bridge tools there just return instructions to install locally. Use it to explore; use the local install to build.
+- **The hosted endpoint offers only tools it can run.** `mcp.imqueue.org` runs on Cloudflare and **cannot reach your filesystem or CLI**, so it does not register the CLI-bridge tools at all — they are absent from its tool list rather than present-but-inert. What it serves is six read-only tools: `search_docs`, `get_doc`, `list_packages`, `scaffold_service`, `scaffold_client` and `local_install_guide`. Each request is handled independently (no sessions, no stored state). Use it to explore; use the local install to build.
+- **Every tool declares its own blast radius.** All of them carry the MCP `readOnlyHint`, `destructiveHint` and `openWorldHint` annotations, so your client can decide what to run unattended instead of inferring it from a name. A tool that accepts several operations is marked by its **worst** one — `fleet` is destructive because `stop` is, `config` because `set` overwrites, `logs` because `clean` deletes.
 - **Network access is host-locked.** The only network calls are to `imqueue.org` (for `search_docs` / `get_doc` / the docs cache). `get_doc` explicitly refuses any other host, so it can't be steered into fetching arbitrary URLs.
 - **Read-only and state-changing tools are separated.** See the table below — the agent (and you) can tell at a glance which tools only read.
 - **`create_service` is a dry-run by default.** It writes nothing unless called with `apply: true`. Creating repos, configuring CI or pushing to a remote never happens silently.
@@ -40,19 +41,20 @@ and offline scaffolding tools are active.
 
 ## Local or hosted — which should you use?
 
-Both connect the same catalog of tools; the difference is *where the server runs*.
-The [hosted endpoint](/mcp/#hosted-endpoint)
-(`mcp.imqueue.org`) is a great zero-install way to explore the docs and scaffold
-snippets. But for real development work, **the local `npx` install is the better
-choice** — here's why.
+They are not the same tool set, and the difference is not just *where the server
+runs*. The [hosted endpoint](/mcp/#hosted-endpoint) (`mcp.imqueue.org`) is a great
+zero-install way to explore the docs and scaffold snippets, with six read-only tools.
+The local install has all thirteen. For real development work, **the local `npx`
+install is the better choice** — here's why.
 
 ### Why run the MCP server locally instead of using the hosted endpoint?
 The local install is the full product. Because it runs on your machine over stdio,
 it can do the things that actually matter while building: scaffold provider-wired
 services **straight into your repo**, generate a typed client by introspecting
 your **running** service, and start/inspect your **local fleet** — none of which a
-remote server can reach. The hosted endpoint is sandboxed and deliberately can't
-touch your project; it hands those tools off to a local install.
+remote server can reach. The hosted endpoint deliberately can't touch your project,
+and so it does not list those tools at all: if you connect to it and ask your agent
+to start your fleet, there is no `fleet` tool for it to call.
 
 ### Is the local server more private?
 Yes. Everything stays on your machine — the only network traffic is documentation
