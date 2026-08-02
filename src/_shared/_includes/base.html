@@ -16,7 +16,21 @@
     </main>
     {% include _footer %}
   </div>
+  {%- comment -%}
+  Both are conditional on there being something to consent TO. The analytics ids are
+  unset under `npm run serve:*` and on preview deploys (see eleventy.config.js), so
+  head.html emits no parked tags there — and a bar asking permission for nothing,
+  with an Accept button that activates nothing, would be worse than no bar. It also
+  keeps the footer's "Cookie settings" link honest: on those builds there is nothing
+  it could reopen, and nothing is being collected either way.
+  {%- endcomment -%}
+  {%- if analytics.ga4 or analytics.clarity %}
+  {% include "consent.html" %}
+  {%- endif %}
   {%- comment -%} Content-hashed via the `asset` filter — see head.html's note. {%- endcomment -%}
   <script src="{{ '/js/site.js' | asset }}" defer></script>
+  {%- if analytics.ga4 or analytics.clarity %}
+  <script src="{{ '/js/consent.js' | asset }}" defer></script>
+  {%- endif %}
 </body>
 </html>

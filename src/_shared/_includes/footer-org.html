@@ -31,6 +31,12 @@
         <a href="/license/">License</a>
         <a href="/privacy/">Privacy</a>
         <a href="/terms/">Terms</a>
+        {%- comment -%}
+        Reopens the consent bar (js/consent.js). The href is a real destination so
+        that with JavaScript off — where the bar can never appear and no analytics
+        can ever load — the link still explains the situation instead of dead-ending.
+        {%- endcomment -%}
+        <a href="/privacy/#cookies-and-how-to-refuse-them" data-consent-open>Cookie settings</a>
         <a href="{{ otherUrl }}/">Commercial ↗</a>
       </div>
       <div id="donate-button-container" style="margin-top:14px;">
