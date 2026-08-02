@@ -102,6 +102,20 @@ Per-edition `_redirects` and `_headers` are generated into each build
   `next()`, degrading to "no redirect" rather than "site down". A Cloudflare Redirect
   Rule is the better mechanism and should replace it — see the header comment.
 - `functions/api/contact.js` — the commercial lead form (imqueue.com `/pricing/`).
+- `functions/api/message.js` — the general contact form (`/contact/`, **both**
+  editions), with optional attachments. Kept separate from `contact.js` because that
+  one has different fields, a different subject line and no attachments; one endpoint
+  serving both would mean a request shape where half the fields are conditional on the
+  other half.
+
+  Both mail endpoints need **`RESEND_API_KEY`** on the Pages project they run on.
+  Because `functions/` is shared, `/api/message` exists on **both** hostnames, so the
+  key has to be on both projects — `imqueue-org` as well as `imqueue-com`. Without it
+  the endpoint returns 500 and the form shows its "email us directly" fallback, which
+  is the intended failure but is invisible until someone tries to send something.
+  Optional overrides: `CONTACT_TO` (default `support@imqueue.com`) and `CONTACT_FROM`
+  (default `@imqueue <noreply@imqueue.com>`; its domain must be verified in Resend —
+  which is why the org site sends as imqueue.com and needs no second verification).
 - The root middleware also carries **agent analytics** (`lib/agent-analytics.js`) —
   see below. It is the only place in the stack that sees requests for `/llms.txt` and
   the `.md` mirrors, because those run no JavaScript.
