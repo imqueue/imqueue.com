@@ -123,10 +123,11 @@ async function checkLegacyApiRules() {
   }
   pass(`${kept} kept-tree URLs are served, not redirected`);
 
-  // Paths the resolver must keep its hands off. /api/contact is the commercial
-  // Resend endpoint and shares the package-root URL shape, so it is the one that
-  // matters here: it must never be mistaken for a documented package.
-  for (const url of ['/api/', '/api/contact', '/api/contact/', '/api/unknown/1.0.0/', '/api/unknown/']) {
+  // Paths the resolver must keep its hands off. /api/contact (the commercial lead
+  // form) and /api/message (the general contact form, on BOTH editions) are the
+  // Resend endpoints; they share the package-root URL shape, so they are the ones
+  // that matter here — neither may ever be mistaken for a documented package.
+  for (const url of ['/api/', '/api/contact', '/api/contact/', '/api/message', '/api/message/', '/api/unknown/1.0.0/', '/api/unknown/']) {
     if (resolveApiRedirect(url) !== null) {
       fail(`${url} must be left alone, got ${resolveApiRedirect(url)}`);
     }
@@ -594,14 +595,14 @@ async function checkLegacyTypedoc() {
 
   // It must claim nothing that is live or that belongs to another handler.
   for (const live of [
-    '/api/', '/api/contact', '/api/core/latest/', '/api/rpc/latest/rpc.imq/',
+    '/api/', '/api/contact', '/api/message', '/api/core/latest/', '/api/rpc/latest/rpc.imq/',
     '/api/rpc/2.1.0/rpc.imqclient/', '/api/core/1.15.0/',
   ]) {
     if (resolveLegacyTypedoc(live) !== null) {
       fail(`the TypeDoc salvage must not claim ${live}`);
     }
   }
-  pass('live URLs and /api/contact are not claimed by the TypeDoc salvage');
+  pass('live URLs and both mail endpoints are not claimed by the TypeDoc salvage');
 }
 
 

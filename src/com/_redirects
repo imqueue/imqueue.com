@@ -2,8 +2,13 @@
 # content now lives on imqueue.org. 301 the legacy imqueue.com content paths to
 # their new home so inbound links and search rankings carry over.
 #
-# Note: /api/contact is a Pages Function and is handled before _redirects, so
-# the /api/* rule below does not affect the contact form.
+# Note: /api/contact and /api/message are Pages Functions, and Functions are
+# evaluated BEFORE _redirects, so the /api/* rule below does not affect either mail
+# endpoint. That ordering is the only thing keeping them alive on this host — a POST
+# that reached the rule would be answered with a 301 to imqueue.org, and a browser
+# turns a redirected POST into a GET, so the form would fail with no useful error.
+# scripts/check-redirects.js asserts both paths stay unclaimed; add any new
+# /api/<name> function to that list too.
 
 /docs           https://imqueue.org/docs/               301
 /docs/*         https://imqueue.org/docs/:splat         301
