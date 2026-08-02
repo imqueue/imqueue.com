@@ -336,3 +336,55 @@ a.topic-chip:hover { border-color: var(--accent); color: var(--accent); }
 .archive-list a { color: var(--ink); text-decoration: none; font-size: 15.5px; }
 .archive-list a:hover { color: var(--accent); }
 .archive-list .meta { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+
+/* ---- cookie-consent bar (_includes/consent.html, js/consent.js) ----
+   Fixed to the bottom on purpose: the choice has to stay reachable however far
+   the page is scrolled, and a bar cannot be scrolled past the way an in-flow
+   notice can. z-index sits above the sticky nav (60/61) so it is never covered.
+   `.cc-open` pads the page so the bar cannot hide the footer's own links —
+   including the one that brings it back.
+   Only tokens both themes define are used, so terminal and flux each theme it. */
+.cc {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
+  /* --navbg, not --surface: this bar floats over scrolling content, which is the
+     nav's problem exactly, and the nav is the component that already solved it.
+     --surface is a 4.5%-white glass fill on the flux skin — legible in a card that
+     sits on the page background, see-through as a fixed bar with text sliding
+     underneath. Same token and same blur as .nav therefore, so it reads as part of
+     the design rather than a bolted-on widget. */
+  background: var(--navbg); backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+/* Without backdrop-filter (older Firefox with it disabled) an 82%-opaque bar over
+   moving text is not good enough for a page asking someone to make a choice. */
+@supports not (backdrop-filter: blur(12px)) {
+  .cc { background: var(--bg); }
+}
+.cc[hidden] { display: none; }
+.cc-inner { display: flex; align-items: center; gap: 22px; padding-top: 13px; padding-bottom: 13px; }
+.cc-copy { margin: 0; font-size: 14px; line-height: 1.55; color: var(--muted); }
+.cc-title {
+  font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink); margin-right: 9px;
+}
+.cc-copy a { color: var(--accent); text-decoration: none; }
+.cc-copy a:hover { text-decoration: underline; }
+.cc-actions { display: flex; gap: 9px; margin-left: auto; flex-shrink: 0; }
+.cc-btn {
+  font-family: var(--font-body); font-size: 14px; font-weight: 600; line-height: 1;
+  padding: 10px 18px; border-radius: 8px; cursor: pointer; white-space: nowrap;
+  background: transparent; color: var(--ink); border: 1px solid var(--line);
+}
+.cc-btn:hover { border-color: var(--accent); color: var(--accent); }
+.cc-btn-accept { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+.cc-btn-accept:hover { color: var(--on-accent); opacity: .9; }
+.cc-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cc-open body { padding-bottom: 104px; }
+
+@media (max-width: 760px) {
+  .cc-inner { flex-direction: column; align-items: stretch; gap: 12px; }
+  .cc-actions { margin-left: 0; }
+  .cc-btn { flex: 1; padding: 11px 14px; }
+  .cc-open body { padding-bottom: 168px; }
+}

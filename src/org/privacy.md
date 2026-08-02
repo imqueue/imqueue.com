@@ -29,9 +29,10 @@ Questions about this policy, or a request about your data, go to
   mcp.imqueue.org. We never ask you who you are.
 - We do not sell data, we do not run advertising, and we do not use anything
   collected here to train machine-learning models.
-- The website carries **third-party analytics**, one of which records how pages
-  are used, including a replay of interactions on the page. [How to opt
-  out](#cookies-and-how-to-refuse-them).
+- The website offers **third-party analytics**, one of which records how pages are
+  used — but **nothing loads until you accept it**. Decline, or simply ignore the
+  bar, and no analytics script runs and no cookie is set.
+  [How that works](#cookies-and-how-to-refuse-them).
 - The **hosted MCP endpoint stores nothing**. It receives your tool inputs,
   answers, and forgets. Our hosting provider keeps short-lived request logs.
 - The `@imqueue/*` packages you install from npm contain **no analytics or
@@ -47,7 +48,8 @@ inherent to how the web works, and it is used to deliver the page, to cache it,
 and to absorb abuse and denial-of-service traffic. We do not build profiles from
 it and we have no access to a per-visitor log of it.
 
-On top of that the pages load two analytics services:
+On top of that the pages *offer* two analytics services — neither of which runs
+unless you have accepted them:
 
 - **Google Analytics 4** — aggregate audience measurement: which pages are read,
   which links bring people here, roughly which country and which browser.
@@ -56,8 +58,8 @@ On top of that the pages load two analytics services:
   be found and fixed. Clarity masks text input by default, and there are no forms
   on imqueue.org to type into.
 
-Both run on every visit and set cookies; neither is required to read the site.
-See [cookies](#cookies-and-how-to-refuse-them) to switch them off.
+Neither is required to read the site, and neither is loaded until you say yes —
+see [cookies](#cookies-and-how-to-refuse-them).
 
 ### Automated and AI-agent traffic
 
@@ -138,16 +140,31 @@ relies on its own transfer safeguards, described in the policy linked above.
 
 ## Cookies and how to refuse them
 
-We set no cookies of our own — no preference cookie, no session cookie, nothing
-that identifies you between visits. The only cookies on imqueue.org come from the
-two analytics services:
+**Nothing non-essential is set before you agree.** On your first visit a bar at the
+bottom of the page asks, with two equally-weighted buttons:
+
+- **Accept** — the two analytics scripts are loaded, and they set the cookies below.
+- **Decline** — nothing is loaded and nothing is set. That is also what happens if
+  you ignore the bar entirely, close the tab, or browse with JavaScript disabled:
+  the analytics tags are written into the page in a form the browser will not
+  execute, and only your acceptance converts them into real scripts.
+
+The choice is remembered in your browser's `localStorage` under `imqueue-consent`,
+not in a cookie, so a declining visit leaves this site with **no cookies at all**.
+You are asked once; **"Cookie settings"** in the footer of every page reopens the bar
+whenever you want to change your mind. Withdrawing consent expires the first-party
+analytics cookies immediately and reloads the page so nothing keeps running.
+
+We set no cookies of our own — no preference cookie, no session cookie, nothing that
+identifies you between visits. Everything below belongs to the analytics services
+and appears only after you accept:
 
 | Cookie | Set by | Purpose |
 |---|---|---|
 | `_ga`, `_ga_*` | Google Analytics | Distinguishes visitors and sessions for aggregate counts |
 | `_clck`, `_clsk` | Microsoft Clarity | Ties page interactions together into one recorded session |
 
-To refuse them:
+Belt and braces, if you would rather not rely on us:
 
 - **Block them in your browser.** Every current browser can block third-party
   cookies or all cookies for a site; the site works fine without them.
@@ -157,11 +174,13 @@ To refuse them:
 - **Microsoft Clarity** — block `clarity.ms` in your browser or a content blocker,
   and see the
   [Microsoft privacy statement](https://privacy.microsoft.com/privacystatement)
-  for their own controls.
+  for their own controls. Clarity can also set cookies on its own domain, which our
+  withdrawal cleanup cannot reach — a browser-side block or clear does.
 - **Any tracker blocker** (uBlock Origin, Privacy Badger, Brave's shields,
   Safari's protections) already stops both.
 
-Blocking analytics changes nothing about what the site serves you.
+Declining changes nothing about what the site serves you. There is no reduced
+version of these docs, no repeated nagging, and no feature behind a yes.
 
 ## How long we keep things
 
@@ -189,9 +208,32 @@ write to [support@imqueue.com](mailto:support@imqueue.com) and we will act on it
 For analytics data held by Google or Microsoft, the opt-outs above stop collection
 at source, and their own privacy dashboards handle deletion.
 
-Our legal basis for the processing described here is our **legitimate interest** in
-operating, securing and improving a free documentation site and service, and — for
-anything you send us — **your request** that we respond to it.
+**Withdrawing consent** takes one click: **"Cookie settings"** in the footer, then
+Decline. It is as easy to take back as it was to give, and refusing costs you
+nothing.
+
+Our legal bases are: **your consent** for the analytics described above (freely
+given, and withdrawable at any time from the footer); **legitimate interest** in
+operating and securing a free documentation site and service, which covers the
+hosting logs and the crawler-family counters that carry no personal data; and —
+for anything you send us — **your request** that we respond to it.
+
+### If you are in California
+
+We do not sell your personal information, and we do not share it for cross-context
+behavioural advertising — under the CCPA/CPRA definitions of those words, neither
+happens here, so there is no "Do Not Sell or Share My Personal Information" process
+to run. There is no advertising on this site, no ad network, no data broker, and no
+profiling.
+
+You still have the right to know what is collected and why (this page), to request
+deletion or correction, to limit the use of sensitive personal information (we
+collect none), and not to be discriminated against for exercising any of it — the
+site behaves identically whether you accept or decline. Declining the analytics bar,
+or sending a browser Global Privacy Control signal that your tracker blocker
+enforces, achieves the opt-out. To exercise anything else, email
+[support@imqueue.com](mailto:support@imqueue.com); we will verify a request only to
+the extent of matching it to whatever we actually hold, which is usually nothing.
 
 ## Children
 

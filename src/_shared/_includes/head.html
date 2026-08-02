@@ -357,10 +357,19 @@ would load googletagmanager for nowhere and, in Clarity's case, run its loader w
 no project. That is also what keeps `npm run serve:*` and preview deploys out of the
 production numbers.
 {%- endcomment -%}
+{%- comment -%}
+Both tags below are PARKED, not loaded: `type="text/plain"` is not a script type any
+browser executes, so nothing here runs and no cookie is set until js/consent.js
+rebuilds them as real scripts — which it does only for a visitor who pressed Accept.
+That is what makes the consent prior rather than notional, and it is why the
+external gtag URL hides in `data-src` (a real `src` would be fetched regardless of
+type). Keep both attributes on anything added here that measures people; the bar
+in _includes/consent.html finds its work by that exact selector.
+{%- endcomment -%}
 {%- if analytics.ga4 %}
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={{ analytics.ga4 }}"></script>
-<script>
+<!-- Google Analytics — parked until consent -->
+<script type="text/plain" data-consent="analytics" data-src="https://www.googletagmanager.com/gtag/js?id={{ analytics.ga4 }}"></script>
+<script type="text/plain" data-consent="analytics">
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
@@ -403,8 +412,8 @@ production numbers.
 </script>
 {%- endif %}
 {%- if analytics.clarity %}
-<!-- MS Clarity -->
-<script type="text/javascript">
+<!-- MS Clarity — parked until consent -->
+<script type="text/plain" data-consent="analytics">
   (function(c,l,a,r,i,t,y){
       c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
       t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;

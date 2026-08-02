@@ -1,0 +1,33 @@
+{%- comment -%}
+Cookie-consent bar, included on every page of both editions from base.html.
+
+`hidden` is the default and js/consent.js decides: it shows the bar only when
+localStorage holds no decision yet, and the footer's "Cookie settings" link brings
+it back afterwards. So with JavaScript off the bar never appears — and neither does
+any analytics tag, because head.html parks those as `type="text/plain"` and only
+consent.js can turn them into real scripts. No consent, no measurement, in every
+case including the broken ones.
+
+Decline is listed first and given the same size and weight as Accept: refusing has
+to be exactly as easy as agreeing, or the consent is not freely given.
+
+Styles live in _shared/css/base.css (.cc*) and use only tokens both themes define,
+so the bar takes the terminal or flux palette automatically.
+{%- endcomment -%}
+<div class="cc" data-consent-banner hidden role="dialog" aria-labelledby="cc-title" aria-describedby="cc-text">
+  <div class="cc-inner container">
+    <p class="cc-copy">
+      <strong id="cc-title" class="cc-title">Cookies</strong>
+      <span id="cc-text">Google Analytics and Microsoft Clarity help us see which
+      pages work and which confuse — Clarity also records page interaction. They
+      load <em>only</em> if you accept; decline and nothing is set. Details in the
+      <a href="/privacy/">privacy policy</a>, alongside the
+      <a href="/terms/">terms of use</a> and how to reach
+      <a href="/support/">support</a>.</span>
+    </p>
+    <div class="cc-actions">
+      <button type="button" class="cc-btn" data-consent-set="denied">Decline</button>
+      <button type="button" class="cc-btn cc-btn-accept" data-consent-set="granted">Accept</button>
+    </div>
+  </div>
+</div>
