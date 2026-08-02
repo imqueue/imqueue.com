@@ -16,12 +16,26 @@ so the bar takes the terminal or flux palette automatically.
 {%- endcomment -%}
 <div class="cc" data-consent-banner hidden role="dialog" aria-labelledby="cc-title" aria-describedby="cc-text">
   <div class="cc-inner container">
+    {%- comment -%}
+    This copy is load-bearing, not decoration. The EDPB's minimum for informed
+    consent is the purpose, what is collected, who by, and THE RIGHT TO WITHDRAW —
+    that last one is why "change your mind any time via Cookie settings" is in the
+    first layer and not left to the policy. "set cookies" is stated in as many words
+    because ePrivacy is about storage on the device, not about analytics as a
+    concept. "Never sell or share" is the CCPA/CPRA line: it is what makes the
+    absence of a "Do Not Sell or Share My Personal Information" control correct
+    rather than missing. Controller identity, retention and transfer safeguards stay
+    one click away in /privacy/, which is what a layered notice is for.
+    Don't trim these for brevity without reading that back.
+    {%- endcomment -%}
     <p class="cc-copy">
       <strong id="cc-title" class="cc-title">Cookies</strong>
       <span id="cc-text">Google Analytics and Microsoft Clarity help us see which
-      pages work and which confuse — Clarity also records page interaction. They
-      load <em>only</em> if you accept; decline and nothing is set. Details in the
-      <a href="/privacy/">privacy policy</a>, alongside the
+      pages work and which confuse — Clarity also records page interaction. They set
+      cookies and load <em>only</em> if you accept; decline and nothing is set. We
+      never sell or share your data, and you can change your mind any time via
+      <strong>Cookie settings</strong> in the footer. More in the
+      <a href="/privacy/">privacy policy</a>, with the
       <a href="/terms/">terms of use</a> and how to reach
       <a href="/support/">support</a>.</span>
     </p>
