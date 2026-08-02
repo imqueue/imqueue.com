@@ -64,6 +64,29 @@ Two **Cloudflare Pages** projects build from `master`, one per edition, differin
 only in the `EDITION` env var and output directory. There is no deploy workflow in
 this repo; Pages builds on push.
 
+### Analytics ids come from the environment
+
+No measurement id lives in this repo. Each Pages project supplies its own:
+
+| variable | what it is |
+|---|---|
+| `GA4_MEASUREMENT_ID` | `G-…` for **that project's** GA4 property |
+| `CLARITY_PROJECT_ID` | Clarity project id for that edition |
+| `GA4_MP_MEASUREMENT_ID` / `GA4_MP_API_SECRET` | server-side agent analytics — see below |
+
+`GA4_MEASUREMENT_ID_ORG` / `_COM` override the plain names when set, which is how a
+local `npm run build:all` can give each edition its own id in one process.
+
+**Unset means the tag is not emitted at all.** So `npm run serve:*`, forks and preview
+deploys send nothing to production analytics — which the previous arrangement did not
+manage: the ids were hardcoded, so every local build reported as real traffic.
+
+They were hardcoded until 2026-08-02, and the pair was wrong in a way a repo cannot
+detect: the id in `eleventy.config.js` belonged to the property named **imqueue.com**,
+so imqueue.org's traffic was recorded there while the property named imqueue.org
+received none of it. Which property owns an id is knowable only in GA4 — Admin → Data
+streams → the stream → Measurement ID.
+
 Per-edition `_redirects` and `_headers` are generated into each build
 (`src/<edition>/_redirects`, `src/headers.liquid`).
 

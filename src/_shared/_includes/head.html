@@ -350,6 +350,14 @@ page to set it fails loudly at build time instead of silently 404ing.
 {% if skin == "flux" %}<link rel="stylesheet" href="{{ '/css/flux.css' | asset }}">{% endif %}
 {% if pageCss %}<link rel="stylesheet" href="{{ pageCss | asset }}">{% endif %}
 
+{%- comment -%}
+Both ids come from the environment (see eleventy.config.js), so both blocks are
+conditional: an unset id must emit NOTHING rather than a tag with an empty id, which
+would load googletagmanager for nowhere and, in Clarity's case, run its loader with
+no project. That is also what keeps `npm run serve:*` and preview deploys out of the
+production numbers.
+{%- endcomment -%}
+{%- if analytics.ga4 %}
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id={{ analytics.ga4 }}"></script>
 <script>
@@ -358,6 +366,8 @@ page to set it fails loudly at build time instead of silently 404ing.
   gtag('js', new Date());
   gtag('config', '{{ analytics.ga4 }}', { edition: '{{ edition }}' });
 </script>
+{%- endif %}
+{%- if analytics.clarity %}
 <!-- MS Clarity -->
 <script type="text/javascript">
   (function(c,l,a,r,i,t,y){
@@ -366,3 +376,4 @@ page to set it fails loudly at build time instead of silently 404ing.
       y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
   })(window, document, "clarity", "script", "{{ analytics.clarity }}");
 </script>
+{%- endif %}
