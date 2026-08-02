@@ -14,6 +14,13 @@ tools work everywhere with no dependencies. The **CLI bridge** tools require
 it is missing either `cli_install` it or fall back to the offline `scaffold_*`
 tools.
 
+Which of them you get depends on how you connect. The **local** install has all
+thirteen. The **hosted** endpoint has six, all read-only: the documentation and
+scaffolding tools plus `local_install_guide`. The CLI-bridge tools act on your own
+machine — your files, your processes, your CLI config — which a server on
+Cloudflare's edge cannot reach, so it does not offer them at all. They are not in
+its tool list.
+
 You never call these by hand — your agent picks them based on their descriptions.
 This page is so you know what it *can* do, and what is safe.
 
@@ -132,7 +139,7 @@ Work with logs of services started by `imq ctl`.
 
 ## Hosted endpoint only
 
-### `install_locally`
+### `local_install_guide`
 Registered **only on the hosted server** ([`mcp.imqueue.org`](/mcp/#hosted-endpoint)),
 where it is how an agent discovers that the CLI-bridge tools need a local install.
 The local server does not expose it — there is nothing left to install.
@@ -140,11 +147,14 @@ The local server does not expose it — there is nothing left to install.
 - **Input:** none.
 - **Returns:** the exact steps to install the full MCP server on your machine.
 - **Side effects:** none — it returns instructions, it does not install anything.
+  That is also why it is named `local_install_guide` rather than `install_locally`,
+  as it was before 3.0.0: a tool's name has to describe what it actually does.
 - **Example prompt:** *"Why can't you start my fleet?"*
 
-On the hosted server the CLI-bridge tools above are still listed, but calling one
-returns the same install guidance instead of running `imq` — see
-[Safety & troubleshooting](/mcp/security/).
+The CLI-bridge tools above are **absent** from the hosted server's tool list — it
+does not list them and cannot run them. Until 3.0.0 it listed them and answered
+with install guidance instead, which was worse: an agent that picked `fleet` got
+prose rather than a fleet. See [Safety & troubleshooting](/mcp/security/).
 
 ## Read-only vs state-changing
 
@@ -159,6 +169,13 @@ machine:
 | `create_service` (default dry-run) | `fleet start/stop/restart` |
 | `config check/get`, `fleet status` | `config set`, `logs clean` |
 | `logs dump` | |
+
+Every tool declares this in machine-readable form too. Each one carries the MCP
+`readOnlyHint`, `destructiveHint` and `openWorldHint` annotations, so a client can
+decide what to run without asking you rather than guessing from the name. Tools that
+accept a mix of operations own their **worst** case: `fleet` is marked destructive
+because `stop` is, even though `status` is not. Every tool on the hosted endpoint is
+`readOnlyHint: true`.
 
 See [Safety & troubleshooting](/mcp/security/) for the full trust model, and
 [Agent workflows](/mcp/workflows/) for how these tools chain together in practice.
