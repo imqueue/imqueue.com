@@ -112,6 +112,13 @@ We may update these terms; the *Last updated* date above moves when we do, and t
 [commit history](https://github.com/imqueue) shows exactly what changed. Continuing
 to use the site or the endpoint after a change means you accept it.
 
+## Governing law
+
+These terms are governed by the laws of the **Slovak Republic**, where the person who
+runs these sites is resident, and the Slovak courts have jurisdiction over any dispute
+arising from them — without prejudice to any mandatory consumer protections available to
+you where you live, which nothing here can take away.
+
 ## Contact
 
 [support@imqueue.com](mailto:support@imqueue.com).
