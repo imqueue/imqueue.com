@@ -128,22 +128,27 @@ Setup, all free:
    probe refuses to run against the property `eleventy.config.js` reports to, and never
    prints the secret.
 
-5. **Validate the deployment** — set `GA4_MP_DEBUG=1` on the Pages project, redeploy,
-   and every response carries a header saying what the middleware decided:
+5. **Validate the deployment** — nothing to switch on. Every request to the agent
+   surface answers with a header saying what the middleware decided:
 
    ```bash
    curl -sI -A 'GPTBot/1.2' https://imqueue.org/llms.txt | grep -i x-agent-analytics
    # x-agent-analytics: sent crawler=GPTBot surface=llms.txt status=200 edition=org
-   # ... or: skipped reason=gtag-covers-this
-   # ... or: off reason=not-configured   <- variables not reaching the deployment
+   # ... or: off reason=not-configured   <- the variables are not reaching the deployment
    ```
 
    This answers the one question GA4's reports cannot: whether the site is *sending*.
-   "Never sent", "sent and rejected" and "sent to a property you aren't looking at" are
-   indistinguishable in the UI, and this separates the first from the other two.
-   `GA4_MP_DEBUG` also routes sends to GA4's validation endpoint and logs the verdict to
-   the project's function logs. **Unset it once confirmed** — the validation endpoint
-   reports but records nothing, and the header is not meant for production.
+   "Never sent", "sent and rejected" and "sent to a property you aren't looking at" all
+   look identical in the UI, and this separates the first from the other two.
+
+   Only `/llms.txt`, `.md` mirrors and the symbol index carry it. Attaching a header
+   means rebuilding the response, and the middleware fronts every page, stylesheet and
+   image on both sites — those skip it entirely. HTML is also already measured for the
+   people who read it, by gtag.
+
+   `GA4_MP_DEBUG=1` is a separate, temporary thing: it routes sends to GA4's validation
+   endpoint and logs the verdict to the project's function logs. **Unset it once
+   confirmed** — that endpoint reports but records nothing.
 5. Optional, for slicing: Admin → Custom definitions → register `crawler`,
    `operator`, `surface`, `status` and `edition` as **event-scoped custom
    dimensions**. Events are sent as `page_view` with `page_location`, so the built-in

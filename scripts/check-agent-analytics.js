@@ -39,8 +39,11 @@ async function main() {
   });
 
   // --- the middleware contract ---------------------------------------------
+  // An ordinary page: next()'s response object must come back untouched, not a copy.
+  // (/llms.txt is deliberately not used here — the agent surface IS rebuilt, to carry
+  // the x-agent-analytics header, and that is asserted further down.)
   assert.strictEqual(
-    await onRequest(ctx('https://imqueue.org/llms.txt')), page,
+    await onRequest(ctx('https://imqueue.org/tutorial/')), page,
     'the response from next() must be passed through untouched',
   );
   ok('middleware returns next()\'s response unchanged');
@@ -91,22 +94,24 @@ async function main() {
   }
   ok('inert unless BOTH GA4_MP_MEASUREMENT_ID and GA4_MP_API_SECRET are set');
 
-  // The x-agent-analytics header is how the deployment gets validated with one curl,
-  // so it has to actually appear — and rebuilding the response to attach it is the
-  // one place this middleware touches what the visitor receives. Headers on the
-  // Response from next() are immutable, so a naive .set() would throw on every
-  // request with GA4_MP_DEBUG on.
-  const plain = await onRequest(ctx('https://imqueue.org/llms.txt'));
-  assert.strictEqual(plain.headers.get('x-agent-analytics'), null,
-    'no debug header unless GA4_MP_DEBUG is set — production responses stay clean');
+  // x-agent-analytics is how a deployment gets validated with one curl, so it has to
+  // appear on the agent surface — and NOT anywhere else, because attaching it means
+  // rebuilding the response, and this middleware fronts every page, stylesheet and
+  // image on both sites. Rebuilding is also the one point where it touches what a
+  // visitor receives, so status and body are asserted to survive.
+  const tagged = await onRequest(ctx('https://imqueue.org/llms.txt'));
+  assert.strictEqual(tagged.headers.get('x-agent-analytics'), 'off reason=not-configured',
+    'the agent surface always reports, with no variable to set');
+  assert.strictEqual(tagged.status, 200, 'the rebuilt response keeps its status');
+  assert.strictEqual(await tagged.text(), 'hi', 'and its body');
 
-  const debugged = await onRequest(ctx('https://imqueue.org/llms.txt', {
-    env: { GA4_MP_DEBUG: '1' },
-  }));
-  assert.strictEqual(debugged.status, 200, 'the rebuilt response keeps its status');
-  assert.strictEqual(await debugged.text(), 'hi', 'and its body');
-  assert.strictEqual(debugged.headers.get('x-agent-analytics'), 'off reason=not-configured');
-  ok('x-agent-analytics appears only under GA4_MP_DEBUG, without altering the response');
+  for (const p of ['/tutorial/', '/', '/css/base.css']) {
+    const plain = await onRequest(ctx(`https://imqueue.org${p}`));
+    assert.strictEqual(plain.headers.get('x-agent-analytics'), null,
+      `${p} must not be rebuilt — it is not the agent surface`);
+    assert.strictEqual(plain, page, `${p} must be the untouched response object`);
+  }
+  ok('x-agent-analytics on the agent surface only, response intact, no rebuild elsewhere');
 
   console.log(`\nAll ${checks} agent-analytics checks passed.`);
 }

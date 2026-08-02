@@ -33,7 +33,7 @@
 // latency (the send is handed to waitUntil after the response is on its way), and
 // is wrapped so that constraint 1 still holds: measurement cannot break the site.
 
-import { debugNote, trackRequest } from "../lib/agent-analytics.js";
+import { headerNote, trackRequest } from "../lib/agent-analytics.js";
 
 const REDIRECT_HOSTS = new Set(["imqueue.net", "www.imqueue.net"]);
 
@@ -85,30 +85,33 @@ export async function onRequest(context) {
     // runs. Nothing downstream waits for Google.
     if (send) context.waitUntil(send);
 
-    // With GA4_MP_DEBUG set, say in a header what was decided. Validating the
-    // deployment is then one command:
+    // Say in a header what was decided, so validating a deployment is one command:
     //
     //   curl -sI -A 'GPTBot/1.2' https://imqueue.org/llms.txt | grep x-agent-analytics
     //
     // GA4's reports cannot tell "never sent" from "sent and rejected" from "sent to a
-    // property you are not looking at", and this separates the first case from the
-    // other two without a dashboard. Gated on the variable, so production responses
-    // never carry it.
-    if (context.env && context.env.GA4_MP_DEBUG) {
+    // property you are not looking at", and this separates the first from the other
+    // two without a dashboard. Always on: a diagnostic that needs a variable and a
+    // redeploy is missing exactly when it is wanted.
+    //
+    // headerNote() returns null for everything except the agent surface — llms.txt,
+    // the .md mirrors, the symbol index — so pages, CSS, fonts and images, which are
+    // the bulk of the traffic through here, skip the rebuild entirely. HTML is also
+    // already measured for the people who read it, by gtag in the browser.
+    const note = headerNote({
+      request: context.request,
+      env: context.env,
+      url,
+      status: response.status,
+      edition,
+    });
+
+    if (note) {
       // Headers on the Response next() returns are immutable, so it has to be
       // rebuilt. Body is passed through untouched — including null, for HEAD and 304.
       const tagged = new Response(response.body, response);
 
-      tagged.headers.set(
-        "x-agent-analytics",
-        debugNote({
-          request: context.request,
-          env: context.env,
-          url,
-          status: response.status,
-          edition,
-        }),
-      );
+      tagged.headers.set("x-agent-analytics", note);
 
       return tagged;
     }
