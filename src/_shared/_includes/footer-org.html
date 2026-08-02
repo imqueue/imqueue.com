@@ -16,18 +16,23 @@
     </div>
     <div>
       <h4>Packages</h4>
+      {%- comment -%}
+      ↗ on every link that leaves the site, none on the ones that don't — the same rule
+      the Project column below follows. These four all go to npm.
+      {%- endcomment -%}
       <div class="footer-links">
-        <a href="https://npmjs.com/package/@imqueue/cli">@imqueue/cli</a>
-        <a href="https://npmjs.com/package/@imqueue/rpc">@imqueue/rpc</a>
-        <a href="https://npmjs.com/package/@imqueue/core">@imqueue/core</a>
-        <a href="https://npmjs.com/package/@imqueue/mcp">@imqueue/mcp</a>
+        <a href="https://npmjs.com/package/@imqueue/cli">@imqueue/cli ↗</a>
+        <a href="https://npmjs.com/package/@imqueue/rpc">@imqueue/rpc ↗</a>
+        <a href="https://npmjs.com/package/@imqueue/core">@imqueue/core ↗</a>
+        <a href="https://npmjs.com/package/@imqueue/mcp">@imqueue/mcp ↗</a>
         <a href="https://github.com/orgs/imqueue/repositories">Other ↗</a>
       </div>
     </div>
     <div>
       <h4>Project</h4>
       <div class="footer-links">
-        <a href="https://github.com/imqueue">GitHub</a>
+        <a href="https://github.com/imqueue">GitHub ↗</a>
+        <a href="https://github.com/imqueue-sandbox">Sandbox ↗</a>
         <a href="/contributing/">Contributing</a>
         <a href="/license/">License</a>
         <a href="{{ otherUrl }}/">Commercial ↗</a>
@@ -64,6 +69,6 @@
   </div>
   <div class="footer-bottom container">
     <span>@imqueue open source · GPL-3.0</span>
-    <span>Need a commercial license? <a href="{{ otherUrl }}/pricing/" style="color:var(--accent);font-weight:600;">imqueue.com →</a></span>
+    <span>Need a commercial license? <a href="{{ otherUrl }}/pricing/" style="color:var(--accent);font-weight:600;">imqueue.com ↗</a></span>
   </div>
 </footer>
