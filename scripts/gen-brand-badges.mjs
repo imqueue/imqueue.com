@@ -15,7 +15,9 @@ import { readFile, writeFile, readdir } from "node:fs/promises";
 import { basename, join } from "node:path";
 
 const DIR = "brand";
-const SIZES = [1024, 512, 256];
+// 256 and 48 are what the OpenAI app directory asks for; 1024/512 cover every
+// other upload form and the public URLs under images/.
+const SIZES = [1024, 512, 256, 48];
 
 // density: sharp renders SVG at 72dpi by default, so a 1024px-wide source would be
 // resampled from 1024px and lose nothing — but a badge whose SVG uses a small
