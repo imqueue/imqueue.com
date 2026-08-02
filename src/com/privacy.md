@@ -13,12 +13,15 @@ This policy covers **imqueue.com** — the commercial licensing and support site
 covered separately at
 [imqueue.org/privacy/](https://imqueue.org/privacy/).
 
-Both are run by the @imqueue maintainers —
-**[Mykhailo Stadnyk](https://github.com/Mikhus)**, creator of @imqueue and the
-person responsible for this site and for answering what you send through it,
-with **[Serhiy Morenko](https://github.com/SerhiyGreench)**. "We" below means
-them. Questions about this policy, or a request about your data, go to
-[support@imqueue.com](mailto:support@imqueue.com).
+@imqueue is an open-source project, not a company — there is no legal entity behind
+this site, and so no company name or registration number to give you.
+**[Mykhailo Stadnyk](https://github.com/Mikhus)**, its creator and owner, runs it, is the
+**data controller** for everything described here, and is who answers what you send
+through it. **[Serhiy Morenko](https://github.com/SerhiyGreench)** is the project's most
+active maintainer. "We" below means them.
+
+Questions about this policy, or a request about your data, go to
+[support@imqueue.com](mailto:support@imqueue.com) and reach him directly.
 
 [[toc]]
 

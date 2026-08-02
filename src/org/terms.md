@@ -10,12 +10,11 @@ keywords: "imqueue terms of use, mcp.imqueue.org terms, MCP server acceptable us
 **Last updated: 2 August 2026**
 
 These terms apply to the website **imqueue.org** and the hosted Model Context
-Protocol endpoint **mcp.imqueue.org**, run by the @imqueue maintainers —
-**[Mykhailo Stadnyk](https://github.com/Mikhus)**, creator of @imqueue and the
-person responsible for both, with
-**[Serhiy Morenko](https://github.com/SerhiyGreench)** ("we", "us"). By using
-either, you accept these terms. If you do not, please do not use them — everything here is
-optional and free.
+Protocol endpoint **mcp.imqueue.org**. @imqueue is an open-source project rather than a
+company: both are run by **[Mykhailo Stadnyk](https://github.com/Mikhus)**, its creator
+and owner, with **[Serhiy Morenko](https://github.com/SerhiyGreench)** as its most active
+maintainer ("we", "us"). By using either, you accept these terms. If you do not, please
+do not use them — everything here is optional and free.
 
 [[toc]]
 

@@ -14,12 +14,15 @@ Protocol endpoint **mcp.imqueue.org**. Commercial licensing and support run on a
 separate site with its own policy — see
 [imqueue.com/privacy/](https://imqueue.com/privacy/).
 
-Both are run by the @imqueue maintainers —
-**[Mykhailo Stadnyk](https://github.com/Mikhus)**, creator of @imqueue and the
-person responsible for these sites and the hosted endpoint, with
-**[Serhiy Morenko](https://github.com/SerhiyGreench)**. "We" below means them.
+@imqueue is an open-source project, not a company — there is no legal entity behind
+these sites, and so no company name or registration number to give you.
+**[Mykhailo Stadnyk](https://github.com/Mikhus)**, its creator and owner, runs them and
+is the **data controller** for everything described here; he is the person to ask about
+any of it. **[Serhiy Morenko](https://github.com/SerhiyGreench)** is the project's most
+active maintainer. "We" below means them.
+
 Questions about this policy, or a request about your data, go to
-[support@imqueue.com](mailto:support@imqueue.com).
+[support@imqueue.com](mailto:support@imqueue.com) and reach him directly.
 
 [[toc]]
 
