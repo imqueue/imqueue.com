@@ -126,9 +126,24 @@ Setup, all free:
    a pass means the module, the credential and the property agree. GA4 answers 204 to
    valid and invalid hits alike, so the proof is **Realtime**, not the exit code. The
    probe refuses to run against the property `eleventy.config.js` reports to, and never
-   prints the secret. On Pages, `GA4_MP_DEBUG=1` does the same validation server-side
-   and logs the verdict to the project's function logs; **unset it afterwards**, since
-   the validation endpoint reports but records nothing.
+   prints the secret.
+
+5. **Validate the deployment** — set `GA4_MP_DEBUG=1` on the Pages project, redeploy,
+   and every response carries a header saying what the middleware decided:
+
+   ```bash
+   curl -sI -A 'GPTBot/1.2' https://imqueue.org/llms.txt | grep -i x-agent-analytics
+   # x-agent-analytics: sent crawler=GPTBot surface=llms.txt status=200 edition=org
+   # ... or: skipped reason=gtag-covers-this
+   # ... or: off reason=not-configured   <- variables not reaching the deployment
+   ```
+
+   This answers the one question GA4's reports cannot: whether the site is *sending*.
+   "Never sent", "sent and rejected" and "sent to a property you aren't looking at" are
+   indistinguishable in the UI, and this separates the first from the other two.
+   `GA4_MP_DEBUG` also routes sends to GA4's validation endpoint and logs the verdict to
+   the project's function logs. **Unset it once confirmed** — the validation endpoint
+   reports but records nothing, and the header is not meant for production.
 5. Optional, for slicing: Admin → Custom definitions → register `crawler`,
    `operator`, `surface`, `status` and `edition` as **event-scoped custom
    dimensions**. Events are sent as `page_view` with `page_location`, so the built-in
