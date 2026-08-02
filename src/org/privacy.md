@@ -54,9 +54,10 @@ unless you have accepted them:
 - **Google Analytics 4** — aggregate audience measurement: which pages are read,
   which links bring people here, roughly which country and which browser.
 - **Microsoft Clarity** — usage analytics with heatmaps and **session replay**: it
-  records clicks, scrolling and mouse movement so a page that confuses readers can
-  be found and fixed. Clarity masks text input by default, and there are no forms
-  on imqueue.org to type into.
+  records clicks, scrolling and mouse movement so a page that confuses readers can be
+  found and fixed. Clarity **masks text typed into form fields by default and we have
+  not turned that off**, so what you write in the [contact form](#the-contact-form) is
+  not part of a recording — and it never loads at all unless you tick session replay.
 
 Neither is required to read the site, and neither is loaded until you say yes —
 see [cookies](#cookies-and-how-to-refuse-them).
@@ -112,10 +113,42 @@ npm itself records package downloads; that is npm's processing under
 [their privacy policy](https://docs.npmjs.com/policies/privacy), not ours, and we
 only ever see the aggregate counters they publish.
 
-### Contacting us
+### The contact form
 
-If you email [support@imqueue.com](mailto:support@imqueue.com), or open a GitHub
-issue, we process what you send in order to answer it. GitHub issues are
+The form on [/contact/](/contact/) is the one place on imqueue.org where you type
+anything about yourself. When you submit it we receive:
+
+| Field | Required |
+|---|---|
+| Your name | yes |
+| Your email address | yes |
+| Subject | yes |
+| Message | yes |
+| Attachments — up to 3 files, 5 MB total | optional |
+| The page you submitted from | added automatically |
+
+It also carries one hidden field you never see. It is a spam trap: automated
+submissions fill it in, humans do not, and anything that fills it is silently
+discarded.
+
+**What happens to it.** The message is emailed to
+[support@imqueue.com](mailto:support@imqueue.com) through our email provider
+(Resend), with your address as the reply-to so we can answer you. Attachments travel
+with it. We store it in **no database** — there is no ticketing system, no CRM and no
+mailing list behind this form. It lives in our mailbox for as long as answering you,
+and any follow-up, needs.
+
+**Why we may process it.** Because you asked us to answer you. Nothing you send here
+is used for anything else, and you will never be added to a list.
+
+Please don't paste credentials, connection strings or customer data into it — the same
+advice as for tool inputs above, for the same reason. Attachments are limited to
+images, text files and PDFs.
+
+### Emailing us or opening an issue
+
+If you email [support@imqueue.com](mailto:support@imqueue.com) directly, or open a
+GitHub issue, we process what you send in order to answer it. GitHub issues are
 **public** — anything you paste into one is visible to everyone, so send anything
 sensitive by email instead. Security reports have [their own private
 channel](https://github.com/imqueue/mcp/security/policy).
@@ -132,8 +165,9 @@ advertising networks, no resale of any kind.
 | Provider | What they do | What they see |
 |---|---|---|
 | [Cloudflare](https://www.cloudflare.com/privacypolicy/) | Hosting, CDN and edge functions | Request metadata — IP address, user agent, URL, timestamp, response status |
-| [Google Analytics 4](https://policies.google.com/privacy) | Aggregate audience measurement | Page views, referrer, approximate location, device and browser, cookie id |
-| [Microsoft Clarity](https://privacy.microsoft.com/privacystatement) | Usage analytics, heatmaps and session replay | Clicks, scrolls, mouse movement and a recording of page interaction |
+| [Resend](https://resend.com/legal/privacy-policy) | Delivers the contact form to our mailbox | Everything you type into it, any attachments, and your address as reply-to |
+| [Google Analytics 4](https://policies.google.com/privacy) | Aggregate audience measurement — **only if you allow it** | Page views, referrer, approximate location, device and browser, cookie id |
+| [Microsoft Clarity](https://privacy.microsoft.com/privacystatement) | Session replay and heatmaps — **only if you allow it** | Clicks, scrolls, pointer movement and a recording of page interaction |
 
 All of them are US-headquartered and may process data outside your country; each
 relies on its own transfer safeguards, described in the policy linked above.
@@ -143,11 +177,20 @@ relies on its own transfer safeguards, described in the policy linked above.
 **Nothing non-essential is set before you agree.** On your first visit a bar at the
 bottom of the page asks, with two equally-weighted buttons:
 
-- **Accept** — the two analytics scripts are loaded, and they set the cookies below.
-- **Decline** — nothing is loaded and nothing is set. That is also what happens if
-  you ignore the bar entirely, close the tab, or browse with JavaScript disabled:
-  the analytics tags are written into the page in a form the browser will not
-  execute, and only your acceptance converts them into real scripts.
+- **Allow all** — both scripts load and set the cookies below.
+- **Decline all** — nothing loads and nothing is set. That is also what happens if you
+  ignore the bar entirely, close the tab, or browse with JavaScript disabled: the tags
+  are written into the page in a form the browser will not execute, and only your
+  acceptance converts them into real scripts.
+- **Customise** — the two are separate consents and you can allow either on its own:
+
+  | Choice | What it turns on |
+  |---|---|
+  | Usage analytics | Google Analytics — which pages get read, counted in aggregate |
+  | Session replay | Microsoft Clarity — a recording of your clicks, scrolling and pointer movement |
+
+  Ticking usage analytics does **not** start session replay. Each has its own tag and
+  its own cookies, and withdrawing one leaves the other alone.
 
 The choice is remembered in your browser's `localStorage` under `imqueue-consent`,
 not in a cookie, so a declining visit leaves this site with **no cookies at all**.
@@ -190,6 +233,8 @@ version of these docs, no repeated nagging, and no feature behind a yes.
 | Google Analytics data | Per the property's retention setting, aggregated thereafter |
 | Microsoft Clarity recordings | Per Clarity's own retention (a small number of months) |
 | Agent-traffic events | Indefinitely, but they identify a crawler family — never a person |
+| Contact-form messages and attachments | As long as answering you and any follow-up needs |
+| Resend delivery logs | Per Resend's own retention |
 | Emails you send us | As long as needed to answer, then as ordinary business correspondence |
 | MCP tool inputs | Not retained |
 

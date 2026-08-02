@@ -72,6 +72,18 @@ You can skip the form entirely and email
 [support@imqueue.com](mailto:support@imqueue.com) instead — same mailbox, same
 handling.
 
+## The contact form
+
+There is a second, simpler form at [/contact/](/contact/) for anything that is not a
+licensing quote. It takes your **name**, **email**, a **subject**, the **message**, and
+optionally up to **3 attachments totalling 5 MB** (images, text files or PDFs), plus the
+page you sent it from. It carries the same hidden spam-trap field.
+
+It goes to the same place by the same route — emailed to
+[support@imqueue.com](mailto:support@imqueue.com) through Resend, with your address as
+the reply-to, stored in no database. Attachments travel with the mail. Please don't
+paste credentials or customer data into it.
+
 ## Visiting the site
 
 Serving a page means our hosting provider (Cloudflare) sees the request: your IP
@@ -120,11 +132,20 @@ relies on its own transfer safeguards, described in the policy linked above.
 **Nothing non-essential is set before you agree.** On your first visit a bar at the
 bottom of the page asks, with two equally-weighted buttons:
 
-- **Accept** — the two analytics scripts are loaded, and they set the cookies below.
-- **Decline** — nothing is loaded and nothing is set. The same is true if you ignore
-  the bar, close the tab, or browse with JavaScript disabled: the analytics tags are
-  written into the page in a form the browser will not execute, and only your
-  acceptance converts them into real scripts.
+- **Allow all** — both scripts load and set the cookies below.
+- **Decline all** — nothing loads and nothing is set. The same is true if you ignore the
+  bar, close the tab, or browse with JavaScript disabled: the tags are written into the
+  page in a form the browser will not execute, and only your acceptance converts them
+  into real scripts.
+- **Customise** — the two are separate consents and you can allow either on its own:
+
+  | Choice | What it turns on |
+  |---|---|
+  | Usage analytics | Google Analytics — which pages get read, counted in aggregate |
+  | Session replay | Microsoft Clarity — a recording of your clicks, scrolling and pointer movement |
+
+  Ticking usage analytics does **not** start session replay. Each has its own tag and
+  its own cookies, and withdrawing one leaves the other alone.
 
 The choice is remembered in your browser's `localStorage` under `imqueue-consent`,
 not in a cookie, so a declining visit leaves this site with **no cookies at all**.
