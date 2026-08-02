@@ -10,7 +10,13 @@
         <a href="/pricing/">Pricing</a>
         <a href="/license/">License</a>
         <a href="/support/">Support</a>
-        <a href="mailto:support@imqueue.com">Contact</a>
+        {%- comment -%}
+        Was mailto:support@imqueue.com, which does nothing at all for anyone without
+        a desktop mail client configured — the commonest case now, and it looked like
+        a broken link. The enquiry form is the route that actually works, and it
+        still offers "prefer email?" underneath for people who want that instead.
+        {%- endcomment -%}
+        <a href="/pricing/#contact">Contact</a>
       </div>
     </div>
     <div>
