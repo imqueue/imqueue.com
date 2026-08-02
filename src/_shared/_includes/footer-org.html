@@ -12,7 +12,6 @@
         <a href="/tutorial/">Tutorial</a>
         <a href="/cli/">CLI tool</a>
         <a href="/api/">API</a>
-        <a href="/support/">Support</a>
       </div>
     </div>
     <div>
@@ -29,14 +28,6 @@
         <a href="https://github.com/imqueue">GitHub</a>
         <a href="/contributing/">Contributing</a>
         <a href="/license/">License</a>
-        <a href="/privacy/">Privacy</a>
-        <a href="/terms/">Terms</a>
-        {%- comment -%}
-        Reopens the consent bar (js/consent.js). The href is a real destination so
-        that with JavaScript off — where the bar can never appear and no analytics
-        can ever load — the link still explains the situation instead of dead-ending.
-        {%- endcomment -%}
-        <a href="/privacy/#cookies-and-how-to-refuse-them" data-consent-open>Cookie settings</a>
         <a href="{{ otherUrl }}/">Commercial ↗</a>
       </div>
       <div id="donate-button-container" style="margin-top:14px;">
@@ -45,6 +36,26 @@
         <a href="https://www.paypal.com/donate/?hosted_button_id=A5X7U5W9D3SRE"
            target="_blank" rel="noopener nofollow sponsored" class="nav-outline"
            style="display:inline-flex;align-items:center;height:28px;padding:0 12px;background:var(--accent);color:var(--on-accent);border-color:transparent;font-weight:600;font-size:13px;line-height:1;">$ donate</a>
+      </div>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <div class="footer-links">
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms Of Use</a>
+        {%- comment -%}
+        Support sits with the policies rather than under Docs: privacy, terms and a
+        support route are the trio both app directories ask a publisher to expose,
+        and keeping them adjacent is what makes that set findable. Documents first,
+        then the interactive control below.
+        {%- endcomment -%}
+        <a href="/support/">Support</a>
+        {%- comment -%}
+        Reopens the consent bar (js/consent.js). The href is a real destination so
+        that with JavaScript off — where the bar can never appear and no analytics
+        can ever load — the link still explains the situation instead of dead-ending.
+        {%- endcomment -%}
+        <a href="/privacy/#cookies-and-how-to-refuse-them" data-consent-open>Cookie settings</a>
       </div>
     </div>
   </div>

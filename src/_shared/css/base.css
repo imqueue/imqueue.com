@@ -152,7 +152,14 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
 
 /* ---- footer ---- */
 .footer { border-top: 1px solid var(--line); background: var(--surface2); margin-top: 40px; }
-.footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; padding-top: 48px; padding-bottom: 30px; }
+/* Five columns since Legal (privacy / terms / cookie settings) became its own,
+   rather than a tail on Project and Commercial. The count is explicit, not
+   auto-fit: a hardcoded `1.4fr 1fr 1fr 1fr` silently wrapped the fifth child onto
+   a second row at the brand column's width. `repeat(4, minmax(0, 1fr))` keeps the
+   four link columns equal and lets them shrink — plain `1fr` has a min-content
+   floor, so "@imqueue/core" and "Cookie settings" would push the grid wider than
+   the container instead of wrapping. Gap trimmed to 28px to pay for the column. */
+.footer-grid { display: grid; grid-template-columns: 1.4fr repeat(4, minmax(0, 1fr)); gap: 28px; padding-top: 48px; padding-bottom: 30px; }
 .footer h4 { font-family: var(--font-mono); color: var(--muted); letter-spacing: .1em; font-size: 13.5px; margin-bottom: 12px; font-weight: 600; text-transform: uppercase; }
 .footer-links { display: flex; flex-direction: column; gap: 9px; font-size: 15px; }
 .footer-links a:hover { color: var(--accent); }
@@ -187,6 +194,16 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
 @media (max-width: 1000px) {
   [data-skin="terminal"] .nav-links, [data-skin="terminal"] .nav-actions { display: none; }
   [data-skin="terminal"] .burger { display: inline-flex; }
+}
+/* Five footer columns need ~1000px. Below that they squeeze past the point the
+   longest link survives: measured at 768px, five columns are 108px each and
+   "@imqueue/core" clips — minmax(0, 1fr) lets a column go under its content's
+   min-width, which is what stops the grid overflowing the container but also means
+   nothing stops the text. Three columns is the honest intermediate; it must sit
+   ABOVE the ≤760px rule below, or it would win there too and undo the 2-column
+   mobile footer. */
+@media (max-width: 1000px) {
+  .footer-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 /* ≤760px = content mobile layout */
 @media (max-width: 760px) {
