@@ -88,6 +88,25 @@ policies govern your use of them, not these.
 We may update these terms; the *Last updated* date above moves when we do.
 Continuing to use the site after a change means you accept it.
 
+## Governing law
+
+These terms are governed by the laws of the **Slovak Republic**, where the person who
+runs this site is resident, and the Slovak courts have jurisdiction over any dispute
+arising from them — without prejudice to any mandatory consumer protections available to
+you where you live, which nothing here can take away.
+
+A signed commercial agreement may specify a different governing law, and where it does,
+that agreement controls for anything within its scope.
+
+## Who you are contracting with
+
+@imqueue has no company behind it, so a commercial licence is granted by
+**Mykhailo Stadnyk** as an individual, resident in the Slovak Republic. His full
+contact details, including a postal address, form part of the licence agreement itself
+and are provided during that conversation rather than published here — email
+[support@imqueue.com](mailto:support@imqueue.com) if you need them sooner, for example to
+raise a purchase order.
+
 ## Contact
 
 [support@imqueue.com](mailto:support@imqueue.com).

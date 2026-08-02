@@ -128,6 +128,30 @@ Per-edition `_redirects` and `_headers` are generated into each build
   `/api/contact`. On imqueue.com it 301s `/api/` traffic to imqueue.org, because
   Functions run ahead of `_redirects`.
 
+## Legal pages
+
+`/privacy/`, `/terms/` and `/support/` on .org, `/privacy/` and `/terms/` on .com. They
+exist because both AI-assistant app directories require public privacy, terms and support
+URLs matching the publisher, and Anthropic treats a missing or incomplete privacy policy
+as an immediate rejection.
+
+Written per edition rather than shared, because the data flows differ — .com has the
+licensing lead form, .org has the hosted MCP endpoint and the agent-traffic counters — and
+a policy describing a form its site does not have is the exact inaccuracy a reviewer
+looks for. Plain markdown with **no Liquid**: `src/md-mirror.liquid` publishes each page's
+raw source as the agent-facing `.md` mirror, so template syntax would ship verbatim.
+
+**Four pages name the data controller** — `src/{org,com}/privacy.md` and
+`src/{org,com}/terms.md`. Today that is Mykhailo Stadnyk as a natural person, resident in
+the Slovak Republic, and they say in as many words that no legal entity is behind the
+sites. **If @imqueue is ever transferred to a company, all four need updating together**:
+the controller's identity, the "not a company" statement, the governing-law clause and
+`/terms/`'s "Who you are contracting with". Nothing enforces that, which is why it is
+written down here.
+
+No postal address is published: without a company it would be a private home address.
+The .com terms say it forms part of the licence agreement and is available on request.
+
 ## Agent analytics (server-side GA4)
 
 GA4's tag is JavaScript, so it never fires for `/llms.txt`, `/llms-full.txt`, the

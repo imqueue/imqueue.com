@@ -22,7 +22,9 @@ any of it. **[Serhiy Morenko](https://github.com/SerhiyGreench)** is the project
 active maintainer. "We" below means them.
 
 Questions about this policy, or a request about your data, go to
-[support@imqueue.com](mailto:support@imqueue.com) and reach him directly.
+[support@imqueue.com](mailto:support@imqueue.com) and reach him directly. He is resident
+in the **Slovak Republic**; a postal address is available on request but is not published
+here, because without a company it would be a private home address.
 
 [[toc]]
 
@@ -247,7 +249,10 @@ If you are in the UK, EU/EEA or another region with comparable law, you have the
 right to **access** the personal data we hold about you, to have it **corrected**
 or **erased**, to **restrict** or **object to** its processing, to
 **portability**, and to **withdraw consent** where processing relies on it. You
-can also **complain to your data-protection supervisory authority**.
+can also **complain to a data-protection supervisory authority** — either the one for
+where you live, or ours: the Slovak
+[Úrad na ochranu osobných údajov](https://dataprotection.gov.sk/), since the controller
+is resident in the Slovak Republic.
 
 In practice there is usually very little to act on: without accounts we hold no
 profile of you, and the honest answer to a deletion request will often be that we
