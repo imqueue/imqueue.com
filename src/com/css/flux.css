@@ -174,3 +174,21 @@ select.fx-in option { background: var(--field-bg); color: var(--ink); }
 /* Same reasoning for the consent bar's label: mono-uppercase is right, but it
    should be the pill's mono-uppercase. */
 .cc-title { font-size: 12px; letter-spacing: .14em; color: var(--eyebrow); }
+
+/* ---- contact form on the flux skin ----
+   Same markup as .org (_includes/contact-form.html); this gives it the rounder, glassier
+   look of the licensing form next door, so /contact/ does not read as a transplant.
+   Mirrors .fx-form-card / .fx-in / .fx-submit rather than duplicating them, because the
+   two forms sit one click apart and any difference between them looks like a mistake. */
+.cf-card, .cf-thanks { border-radius: 20px; padding: 32px; }
+.cf-form { gap: 20px; }
+.cf-field > label { font-size: 13px; }
+.cf-in { background: var(--field-bg); border-radius: 12px; font-size: 14px; padding: 12px 14px; }
+.cf-in:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
+.cf-file::file-selector-button { border-radius: 8px; background: var(--surface); }
+.cf-submit {
+  background: linear-gradient(100deg, var(--accent-fill, var(--accent)), var(--accent2));
+  color: var(--on-grad, #fff); border: none; border-radius: 12px; padding: 15px 26px;
+}
+.cf-thanks-again { border-radius: 999px; background: var(--surface); }
+@media (max-width: 620px) { .cf-card, .cf-thanks { padding: 24px; } }

@@ -448,3 +448,67 @@ a.topic-chip:hover { border-color: var(--accent); color: var(--accent); }
   .cc-panel .cc-btn { margin-left: 0; width: 100%; }
   .cc-open body { padding-bottom: 190px; }
 }
+
+/* ---- contact form (_includes/contact-form.html, js/site.js) ----
+   One markup source for both editions, so the fields and validation cannot drift
+   between two copies of a form that posts to the same endpoint. Appearance is not
+   shared: these are the terminal-skin defaults, built from tokens, and com/css/flux.css
+   restyles the same classes to match its own forms. --field-bg does not exist on the
+   terminal skin, so inputs sit on --surface here. */
+.cf-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 28px; max-width: 720px; }
+.cf-form { display: flex; flex-direction: column; gap: 18px; }
+.cf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cf-field > label { display: block; font-size: 13.5px; font-weight: 600; margin-bottom: 8px; color: var(--ink); }
+.cf-opt { color: var(--muted); font-weight: 400; }
+.cf-in {
+  width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  color: var(--ink); font-family: var(--font-body); font-size: 15px; padding: 11px 13px; outline: none;
+}
+.cf-in::placeholder { color: var(--muted); }
+.cf-in:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent); }
+.cf-textarea { resize: vertical; min-height: 150px; line-height: 1.6; }
+.cf-file { padding: 9px 11px; font-size: 14px; cursor: pointer; }
+.cf-file::file-selector-button {
+  font-family: var(--font-body); font-size: 13.5px; font-weight: 600; cursor: pointer;
+  margin-right: 12px; padding: 7px 13px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.cf-hint { font-size: 12.5px; color: var(--muted); margin: 7px 0 0; }
+.cf-filelist { list-style: none; margin: 9px 0 0; padding: 0; font-size: 13px; color: var(--muted); }
+.cf-filelist li { display: flex; gap: 9px; padding: 3px 0; }
+.cf-filelist .cf-size { margin-left: auto; font-family: var(--font-mono); font-size: 12px; }
+.cf-filelist[hidden] { display: none; }
+/* Errors are announced, not just coloured: colour alone would fail 1.4.1, and a
+   screen reader has to hear a rejected submission. --danger falls back to the accent
+   for a theme that has not defined one. */
+.cf-error { font-size: 13.5px; color: var(--danger, var(--accent)); margin: 0; font-weight: 600; }
+.cf-error[hidden] { display: none; }
+.cf-submit {
+  align-self: flex-start; background: var(--accent-fill, var(--accent)); color: var(--on-accent-fill, var(--on-accent));
+  border: 1px solid transparent; padding: 13px 24px; border-radius: 8px;
+  font-weight: 600; font-size: 15px; font-family: var(--font-body); cursor: pointer;
+}
+.cf-submit:hover { filter: brightness(1.06); }
+.cf-submit:disabled { opacity: .6; cursor: default; }
+.cf-submit:focus-visible, .cf-in:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cf-note { font-size: 13.5px; color: var(--muted); margin: 16px 0 0; }
+.cf-note a { color: var(--accent); }
+
+.cf-thanks { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 40px 28px; max-width: 720px; }
+.cf-thanks[hidden] { display: none; }
+.cf-thanks h2 { font-size: 22px; margin: 0 0 8px; }
+.cf-thanks p { font-size: 15.5px; color: var(--muted); margin: 0 0 20px; }
+.cf-thanks-again {
+  background: transparent; border: 1px solid var(--line); color: var(--ink);
+  padding: 10px 20px; border-radius: 8px; font-size: 14.5px; cursor: pointer; font-family: var(--font-body);
+}
+.cf-thanks-again:hover { border-color: var(--accent); color: var(--accent); }
+/* The honeypot has to be reachable by a bot filling every input and invisible to a
+   person — off-canvas rather than display:none, which some bots skip. */
+.cf-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+@media (max-width: 620px) {
+  .cf-row { grid-template-columns: 1fr; }
+  .cf-card, .cf-thanks { padding: 22px 18px; }
+  .cf-submit { align-self: stretch; text-align: center; }
+}

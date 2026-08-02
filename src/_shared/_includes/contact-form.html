@@ -1,0 +1,60 @@
+{%- comment -%}
+The contact form, shared by /contact/ on both editions.
+
+One markup source rather than one per skin: the fields, the validation, the honeypot
+and the attachment rules are identical on both sites, and two copies of a form that
+posts to the same endpoint is two places for a validation rule to drift. The look is
+not shared — `cf-*` is styled from theme tokens in base.css and re-tuned for flux in
+com/css/flux.css, the same way the docs sidebar is, so each site renders it in its
+own design while the behaviour stays one implementation (site.js, [data-contact-form]).
+
+Posts JSON to /api/message (functions/api/message.js). Works only with JavaScript:
+attachments have to be read and base64-encoded client-side, and a no-JS fallback that
+silently dropped them would be worse than the mailto link the page also offers.
+{%- endcomment -%}
+<div class="cf-card" data-contact-form>
+  <form class="cf-form" action="/api/message" method="POST" novalidate>
+    <!-- honeypot: bots fill it, humans never see it -->
+    <input class="cf-hp" type="text" name="company_url" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+    <div class="cf-row">
+      <div class="cf-field">
+        <label for="cf-name">Your name</label>
+        <input class="cf-in" id="cf-name" type="text" name="name" placeholder="Jane Doe" autocomplete="name" required>
+      </div>
+      <div class="cf-field">
+        <label for="cf-email">Your email</label>
+        <input class="cf-in" id="cf-email" type="email" name="email" placeholder="jane@example.com" autocomplete="email" required>
+      </div>
+    </div>
+
+    <div class="cf-field">
+      <label for="cf-subject">Subject</label>
+      <input class="cf-in" id="cf-subject" type="text" name="subject" placeholder="What is this about?" required>
+    </div>
+
+    <div class="cf-field">
+      <label for="cf-message">Message</label>
+      <textarea class="cf-in cf-textarea" id="cf-message" name="message" rows="7" placeholder="Tell us what you need." required></textarea>
+    </div>
+
+    <div class="cf-field">
+      <label for="cf-files">Attach <span class="cf-opt">— optional, up to 3 files, 5 MB total</span></label>
+      <input class="cf-in cf-file" id="cf-files" type="file" name="files" multiple
+             accept=".png,.jpg,.jpeg,.gif,.webp,.txt,.md,.log,.csv,.json,.pdf,image/*,text/plain,application/pdf">
+      <p class="cf-hint">Images, text files or PDFs.</p>
+      <ul class="cf-filelist" data-cf-files hidden></ul>
+    </div>
+
+    <p class="cf-error" data-form-error hidden></p>
+    <button type="submit" class="cf-submit">Send message →</button>
+  </form>
+  <p class="cf-note">Prefer your own mail client? Write to
+    <a href="mailto:support@imqueue.com">support@imqueue.com</a>.</p>
+</div>
+
+<div class="cf-thanks" data-thanks hidden>
+  <h2>Thanks — your message is on its way.</h2>
+  <p>We read everything that arrives here and will reply to the address you gave us.</p>
+  <button type="button" class="cf-thanks-again" data-send-another>Send another →</button>
+</div>
