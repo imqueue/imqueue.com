@@ -165,6 +165,7 @@ async function checkLegacyApiRules() {
   await checkCoreReexports();
   await checkRenamedPages();
   await checkRenamedPackages();
+  await checkLegacyTypedoc();
 }
 
 // --- 2e. a renamed package's old URLs reach the new ones, in one hop ----------
@@ -459,6 +460,91 @@ async function checkRenamedPages() {
   if (!claimed) {
     pass('live overload pages (on_1 … on_9) are not claimed by the rename salvage');
   }
+}
+
+// --- 5. TypeDoc-era URLs land on a page that exists -------------------------
+// From when the reference was published on imqueue.com as
+// <version>/classes/<Name>.html. GSC reports them as 404s on the .com property and
+// GA4 shows crawlers still fetching them, so they are live inbound links, not
+// history. Like the other salvages these only fire after a 404, so the risk is
+// redirecting into a second 404 — which is worse for crawling than the first one.
+//
+// Asserted against the pages actually on disk, and only within the SAME version:
+// an archived tree contains its own era's symbols, which is what makes the mapping
+// safe where retargeting at /latest/ would not be.
+async function checkLegacyTypedoc() {
+  const { resolveLegacyTypedoc } = await import('../lib/api-redirects.js');
+  const apiRoot = path.join(ROOT, 'src', 'org', 'api');
+  let checked = 0;
+  let broken = 0;
+  let trees = 0;
+
+  for (const pkg of fs.readdirSync(apiRoot)) {
+    const pkgDir = path.join(apiRoot, pkg);
+
+    if (!fs.statSync(pkgDir).isDirectory()) {
+      continue;
+    }
+
+    for (const seg of fs.readdirSync(pkgDir)) {
+      const dir = path.join(pkgDir, seg);
+
+      if (!/^\d+\.\d+\.\d+$/.test(seg) || !fs.statSync(dir).isDirectory()) {
+        continue; // archived version trees only — /latest/ never had TypeDoc URLs
+      }
+      trees++;
+
+      // Top-level symbol pages only: a member page (core.ilogger.info) had no
+      // TypeDoc equivalent, and neither did index.md.
+      const symbols = fs.readdirSync(dir)
+        .filter((f) => f.endsWith('.md') && f.startsWith(`${pkg}.`))
+        .map((f) => f.slice(pkg.length + 1, -3))
+        .filter((s) => !s.includes('.'));
+
+      for (const sym of symbols) {
+        for (const kind of ['classes', 'interfaces', 'enums']) {
+          const target = resolveLegacyTypedoc(`/api/${pkg}/${seg}/${kind}/${sym}.html`);
+          const want = `/api/${pkg}/${seg}/${pkg}.${sym}/`;
+
+          checked++;
+
+          if (target !== want) {
+            fail(`/api/${pkg}/${seg}/${kind}/${sym}.html resolved to ${target}, want ${want}`);
+            broken++;
+          } else if (!fs.existsSync(path.join(dir, `${pkg}.${sym}.md`))) {
+            fail(`${target} does not exist — the salvage would 301 into a 404`);
+            broken++;
+          }
+        }
+      }
+
+      // TypeDoc navigation has no symbol equivalent; both land on the version index.
+      for (const nav of ['globals.html', 'modules.html', 'modules/_index_.html']) {
+        if (resolveLegacyTypedoc(`/api/${pkg}/${seg}/${nav}`) !== `/api/${pkg}/${seg}/`) {
+          fail(`/api/${pkg}/${seg}/${nav} must land on the version index`);
+          broken++;
+        }
+      }
+    }
+  }
+
+  if (!broken) {
+    pass(
+      `${checked} TypeDoc-era URLs across ${trees} archived trees 301 onto a page `
+      + 'that exists, in the same version',
+    );
+  }
+
+  // It must claim nothing that is live or that belongs to another handler.
+  for (const live of [
+    '/api/', '/api/contact', '/api/core/latest/', '/api/rpc/latest/rpc.imq/',
+    '/api/rpc/2.1.0/rpc.imqclient/', '/api/core/1.15.0/',
+  ]) {
+    if (resolveLegacyTypedoc(live) !== null) {
+      fail(`the TypeDoc salvage must not claim ${live}`);
+    }
+  }
+  pass('live URLs and /api/contact are not claimed by the TypeDoc salvage');
 }
 
 (async () => {
