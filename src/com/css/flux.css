@@ -150,3 +150,27 @@ select.fx-in option { background: var(--field-bg); color: var(--ink); }
   .fx-cta-banner { padding: 32px 26px; }
   .fx-form-card { padding: 24px; }
 }
+
+/* ---- long-form document chrome on the flux skin ----
+   /privacy/ and /terms/ are the first .com pages to use the docs layout, and it
+   was built for the terminal skin: prose.css sets the table of contents in
+   --font-mono, and base.css does the same for breadcrumbs. That is the .org
+   voice. Flux reaches for mono in exactly two places — tiny uppercase eyebrow
+   labels (.fx-pill, .fx-step-n) and code — never for a column of prose links, so
+   on .com the sidebar read as a transplant from the other site.
+
+   Only the reading text is switched to the body face. The "ON THIS PAGE" heading
+   above it stays mono-uppercase and is retuned to .fx-pill's own size, tracking
+   and --eyebrow colour, so it matches the section pills already on every .com
+   page rather than becoming an unlabelled list. */
+.doc-toc-title {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em;
+  color: var(--eyebrow);
+}
+.doc-toc .table-of-contents { font-family: var(--font-body); font-size: 15px; }
+.doc-toc .table-of-contents ul ul a { font-size: 14.5px; }
+.crumbs { font-family: var(--font-body); font-size: 13.5px; }
+
+/* Same reasoning for the consent bar's label: mono-uppercase is right, but it
+   should be the pill's mono-uppercase. */
+.cc-title { font-size: 12px; letter-spacing: .14em; color: var(--eyebrow); }
