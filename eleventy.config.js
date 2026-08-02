@@ -93,13 +93,35 @@ module.exports = function (eleventyConfig) {
     clarity: envId("CLARITY_PROJECT_ID"),
   };
 
-  for (const [key, value] of Object.entries(ANALYTICS)) {
-    if (!value) {
-      console.log(
-        `[analytics] ${key} tag not emitted for ${EDITION} — `
-        + `${key === "ga4" ? "GA4_MEASUREMENT_ID" : "CLARITY_PROJECT_ID"} is unset`,
-      );
-    }
+  const ANALYTICS_ENV = { ga4: "GA4_MEASUREMENT_ID", clarity: "CLARITY_PROJECT_ID" };
+  const missing = Object.keys(ANALYTICS).filter((k) => !ANALYTICS[k]);
+
+  // On Cloudflare (CF_PAGES=1) a missing id is a FAILED DEPLOY, not a warning. Losing
+  // analytics silently is what this whole change is about: the ids were wrong for
+  // weeks, and then present-but-unreadable, and in both cases the site served happily
+  // while collecting nothing. A build that stops is noticed in minutes.
+  //
+  // The most likely cause is worth stating in the log, because the dashboard makes it
+  // look configured: an ENCRYPTED Pages variable is not available at build time. Per
+  // Cloudflare's docs, plaintext variables are exposed "at runtime and build-time"
+  // while secrets are only readable "programmatically on context.env" — so an
+  // encrypted id can never reach this file. These ids are public (they ship in page
+  // source); store them as plaintext. Also check the scope is Production, not Preview.
+  if (missing.length && process.env.CF_PAGES) {
+    throw new Error(
+      `[analytics] ${missing.map((k) => ANALYTICS_ENV[k]).join(" and ")} not readable `
+      + `during the ${EDITION} build.\n`
+      + "  * Encrypted Pages variables are runtime-only — store these as PLAINTEXT.\n"
+      + "  * Check the scope is Production, and that they are on the right project.\n"
+      + "  * Suffixed forms also work: "
+      + missing.map((k) => `${ANALYTICS_ENV[k]}_${EDITION.toUpperCase()}`).join(", "),
+    );
+  }
+
+  for (const key of missing) {
+    console.log(
+      `[analytics] ${key} tag not emitted for ${EDITION} — ${ANALYTICS_ENV[key]} is unset`,
+    );
   }
 
   eleventyConfig.addGlobalData("analytics", ANALYTICS);
