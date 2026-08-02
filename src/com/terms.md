@@ -8,11 +8,11 @@ keywords: "imqueue.com terms of use, imqueue commercial licence terms, imqueue w
 
 **Last updated: 2 August 2026**
 
-These terms apply to the website **imqueue.com**, run by the @imqueue
-maintainers — **[Mykhailo Stadnyk](https://github.com/Mikhus)**, creator of
-@imqueue and the person responsible for this site, with
-**[Serhiy Morenko](https://github.com/SerhiyGreench)** ("we", "us"). By using
-the site you accept these terms.
+These terms apply to the website **imqueue.com**. @imqueue is an open-source project
+rather than a company: the site is run by
+**[Mykhailo Stadnyk](https://github.com/Mikhus)**, its creator and owner, with
+**[Serhiy Morenko](https://github.com/SerhiyGreench)** as its most active maintainer
+("we", "us"). By using the site you accept these terms.
 
 The open-source documentation site has
 [its own terms](https://imqueue.org/terms/).
