@@ -33,7 +33,7 @@
 // latency (the send is handed to waitUntil after the response is on its way), and
 // is wrapped so that constraint 1 still holds: measurement cannot break the site.
 
-import { trackRequest } from "../lib/agent-analytics.js";
+import { debugNote, trackRequest } from "../lib/agent-analytics.js";
 
 const REDIRECT_HOSTS = new Set(["imqueue.net", "www.imqueue.net"]);
 
@@ -84,8 +84,38 @@ export async function onRequest(context) {
     // waitUntil, so the response is already on its way to the client while this
     // runs. Nothing downstream waits for Google.
     if (send) context.waitUntil(send);
+
+    // With GA4_MP_DEBUG set, say in a header what was decided. Validating the
+    // deployment is then one command:
+    //
+    //   curl -sI -A 'GPTBot/1.2' https://imqueue.org/llms.txt | grep x-agent-analytics
+    //
+    // GA4's reports cannot tell "never sent" from "sent and rejected" from "sent to a
+    // property you are not looking at", and this separates the first case from the
+    // other two without a dashboard. Gated on the variable, so production responses
+    // never carry it.
+    if (context.env && context.env.GA4_MP_DEBUG) {
+      // Headers on the Response next() returns are immutable, so it has to be
+      // rebuilt. Body is passed through untouched — including null, for HEAD and 304.
+      const tagged = new Response(response.body, response);
+
+      tagged.headers.set(
+        "x-agent-analytics",
+        debugNote({
+          request: context.request,
+          env: context.env,
+          url,
+          status: response.status,
+          edition,
+        }),
+      );
+
+      return tagged;
+    }
   } catch {
     // Same reasoning as above, and more so: analytics must never cost a page view.
+    // That covers the header too — a failed rebuild falls through to the original
+    // response rather than costing the request.
   }
 
   return response;

@@ -91,6 +91,23 @@ async function main() {
   }
   ok('inert unless BOTH GA4_MP_MEASUREMENT_ID and GA4_MP_API_SECRET are set');
 
+  // The x-agent-analytics header is how the deployment gets validated with one curl,
+  // so it has to actually appear — and rebuilding the response to attach it is the
+  // one place this middleware touches what the visitor receives. Headers on the
+  // Response from next() are immutable, so a naive .set() would throw on every
+  // request with GA4_MP_DEBUG on.
+  const plain = await onRequest(ctx('https://imqueue.org/llms.txt'));
+  assert.strictEqual(plain.headers.get('x-agent-analytics'), null,
+    'no debug header unless GA4_MP_DEBUG is set — production responses stay clean');
+
+  const debugged = await onRequest(ctx('https://imqueue.org/llms.txt', {
+    env: { GA4_MP_DEBUG: '1' },
+  }));
+  assert.strictEqual(debugged.status, 200, 'the rebuilt response keeps its status');
+  assert.strictEqual(await debugged.text(), 'hi', 'and its body');
+  assert.strictEqual(debugged.headers.get('x-agent-analytics'), 'off reason=not-configured');
+  ok('x-agent-analytics appears only under GA4_MP_DEBUG, without altering the response');
+
   console.log(`\nAll ${checks} agent-analytics checks passed.`);
 }
 
