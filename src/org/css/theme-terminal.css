@@ -20,6 +20,9 @@
   --line: rgba(255,255,255,.12);
   --code: #c4cfc9;
   --on-accent: #06120c;
+  /* .btn-gradient hardcoded color:#fff, which over this palette's green->cyan is
+     1.78:1 — illegible. The gradient now takes its text colour from here. */
+  --on-grad: #06120c;
   --shadow: rgba(0,0,0,.45);
   --eyebrow: #63e6a0;
 }
@@ -32,8 +35,8 @@
   --surface2: #f5f8f6;
   --ink: #0d1512;
   --muted: #5a6b63;
-  --accent: #0f9d52;
-  --accent2: #0b8a99;
+  --accent: #0c7e42;   /* was #0f9d52: 3.12:1 as text on --bg, under WCAG 1.4.3's 4.5. Now 4.56, and white on it as a fill is 5.15 */
+  --accent2: #0a8290;  /* was #0b8a99: white on it in .btn-gradient was 4.11. Now 4.56 */
   --line: rgba(13,21,18,.13);
   --code: #2b3a33;
   --on-accent: #ffffff;
@@ -49,8 +52,8 @@
     --surface2: #f5f8f6;
     --ink: #0d1512;
     --muted: #5a6b63;
-    --accent: #0f9d52;
-    --accent2: #0b8a99;
+    --accent: #0c7e42;   /* see the [data-theme="light"] block above */
+    --accent2: #0a8290;
     --line: rgba(13,21,18,.13);
     --code: #2b3a33;
     --on-accent: #ffffff;

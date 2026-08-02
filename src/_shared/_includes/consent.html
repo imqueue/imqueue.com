@@ -2,46 +2,62 @@
 Cookie-consent bar, included on every page of both editions from base.html.
 
 `hidden` is the default and js/consent.js decides: it shows the bar only when
-localStorage holds no decision yet, and the footer's "Cookie settings" link brings
-it back afterwards. So with JavaScript off the bar never appears — and neither does
-any analytics tag, because head.html parks those as `type="text/plain"` and only
-consent.js can turn them into real scripts. No consent, no measurement, in every
-case including the broken ones.
+localStorage holds no decision yet, and the footer's "Cookie settings" link brings it
+back afterwards. With JavaScript off the bar never appears — and neither does any
+analytics tag, because head.html parks those as `type="text/plain"` and only
+consent.js can turn them into real scripts. No consent, no measurement, in every case
+including the broken ones.
 
-Decline is listed first and given the same size and weight as Accept: refusing has
-to be exactly as easy as agreeing, or the consent is not freely given.
+TWO LAYERS, so granularity does not cost height. At rest this is one row: a sentence
+and three buttons. The per-purpose checkboxes live in a panel that opens only if
+someone asks for it — which is the pattern the EDPB's guidance actually requires:
+accept and reject equally easy at the top level, granular choice available rather than
+unavoidable. consent.js opens the panel by itself when the stored decision is a MIX,
+because that is the one case where the summary row cannot show what is already on.
 
-Styles live in _shared/css/base.css (.cc*) and use only tokens both themes define,
-so the bar takes the terminal or flux palette automatically.
+TWO PURPOSES, not one bundle. Counting page views is aggregate; recording clicks,
+scrolling and pointer movement is a recording of behaviour. Bundling them would make
+the consent for the intrusive half no more specific than for the harmless one. Each
+checkbox gates its own vendor through its own `data-consent` tag in head.html.
+
+Both start UNTICKED — a pre-ticked box is not consent. "Decline all" and "Allow all"
+are the same size and weight, because refusing has to be exactly as easy as agreeing.
+
+Copy is load-bearing: purpose, the fact nothing runs without a yes, the right to
+withdraw and where, and the no-sale line CCPA/CPRA needs. Controller identity,
+retention and transfers stay one click away in /privacy/ — that is what a layered
+notice is for. Styles: _shared/css/base.css (.cc*), tokens only, so each skin themes it.
 {%- endcomment -%}
 <div class="cc" data-consent-banner hidden role="dialog" aria-labelledby="cc-title" aria-describedby="cc-text">
   <div class="cc-inner container">
-    {%- comment -%}
-    This copy is load-bearing, not decoration. The EDPB's minimum for informed
-    consent is the purpose, what is collected, who by, and THE RIGHT TO WITHDRAW —
-    that last one is why "change your mind any time via Cookie settings" is in the
-    first layer and not left to the policy. "set cookies" is stated in as many words
-    because ePrivacy is about storage on the device, not about analytics as a
-    concept. "Never sell or share" is the CCPA/CPRA line: it is what makes the
-    absence of a "Do Not Sell or Share My Personal Information" control correct
-    rather than missing. Controller identity, retention and transfer safeguards stay
-    one click away in /privacy/, which is what a layered notice is for.
-    Don't trim these for brevity without reading that back.
-    {%- endcomment -%}
-    <p class="cc-copy">
-      <strong id="cc-title" class="cc-title">Cookies</strong>
-      <span id="cc-text">Google Analytics and Microsoft Clarity help us see which
-      pages work and which confuse — Clarity also records page interaction. They set
-      cookies and load <em>only</em> if you accept; decline and nothing is set. We
-      never sell or share your data, and you can change your mind any time via
-      <strong>Cookie settings</strong> in the footer. More in the
-      <a href="/privacy/">privacy policy</a>, with the
-      <a href="/terms/">terms of use</a> and how to reach
-      <a href="/support/">support</a>.</span>
-    </p>
-    <div class="cc-actions">
-      <button type="button" class="cc-btn" data-consent-set="denied">Decline</button>
-      <button type="button" class="cc-btn cc-btn-accept" data-consent-set="granted">Accept</button>
+    <div class="cc-bar">
+      <p class="cc-copy">
+        <strong id="cc-title" class="cc-title">Cookies</strong>
+        <span id="cc-text">We'd like to measure how these docs are used. Nothing runs
+        and nothing is stored unless you allow it, you can change your mind any time,
+        and we never sell or share your data.
+        <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> ·
+        <a href="/support/">Support</a></span>
+      </p>
+      <div class="cc-actions">
+        <button type="button" class="cc-link" data-consent-toggle aria-expanded="false" aria-controls="cc-panel">Customise</button>
+        <button type="button" class="cc-btn" data-consent-action="decline">Decline all</button>
+        <button type="button" class="cc-btn cc-btn-accept" data-consent-action="accept">Allow all</button>
+      </div>
+    </div>
+
+    <div class="cc-panel" id="cc-panel" hidden>
+      <label class="cc-choice">
+        <input type="checkbox" data-consent-cat="analytics">
+        <span><strong>Usage analytics</strong><em>Which pages get read and what brought
+        you here, counted in aggregate. Google Analytics.</em></span>
+      </label>
+      <label class="cc-choice">
+        <input type="checkbox" data-consent-cat="replay">
+        <span><strong>Session replay</strong><em>Records your clicks, scrolling and
+        pointer movement on the page. Microsoft Clarity.</em></span>
+      </label>
+      <button type="button" class="cc-btn" data-consent-action="save">Save choices</button>
     </div>
   </div>
 </div>

@@ -15,8 +15,11 @@
   --surface2: rgba(255,255,255,.03);
   --ink: #f2eeff;
   --muted: #9a92c0;
-  --accent: #7b61ff;
-  --accent2: #ff5db1;
+  --accent: #7e64ff;      /* was #7b61ff: 4.43:1 as text on the ribbon's --surface2, just under 4.5. Now 4.57 */
+  --accent2: #c24787;     /* was #ff5db1: white text on it in .btn-gradient was 2.82:1. Now 4.62 */
+  --accent-fill: #6852d8; /* accent as a BACKGROUND under white text: #7e64ff gives 4.1, this gives 5.55 */
+  --on-accent-fill: #ffffff;
+  --on-grad: #ffffff;
   --line: rgba(255,255,255,.12);
   --code: #d6cffb;
   --code-bg: rgba(255,255,255,.04);
@@ -34,8 +37,11 @@
   --surface2: #ffffff;
   --ink: #171226;
   --muted: #6b6486;
-  --accent: #6d4bff;
-  --accent2: #e0468f;
+  --accent: #6d4bff;      /* 4.89:1 as text on light --bg — already passes */
+  --accent2: #ca3f81;     /* was #e0468f: white on it was 3.86:1. Now 4.63 */
+  --accent-fill: #6d4bff; /* white on it is 5.12 — no darkening needed in light mode */
+  --on-accent-fill: #ffffff;
+  --on-grad: #ffffff;
   --line: rgba(23,18,38,.12);
   --code: #3a2f66;
   --code-bg: #f3f1fb;
@@ -55,7 +61,10 @@
     --ink: #171226;
     --muted: #6b6486;
     --accent: #6d4bff;
-    --accent2: #e0468f;
+    --accent2: #ca3f81;
+    --accent-fill: #6d4bff;
+    --on-accent-fill: #ffffff;
+    --on-grad: #ffffff;
     --line: rgba(23,18,38,.12);
     --code: #3a2f66;
     --code-bg: #f3f1fb;

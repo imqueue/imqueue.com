@@ -412,8 +412,13 @@ in _includes/consent.html finds its work by that exact selector.
 </script>
 {%- endif %}
 {%- if analytics.clarity %}
+{%- comment -%}
+Tagged "replay", not "analytics": Clarity records what a visitor does on the page,
+which is a different purpose from counting page views and is consented separately.
+Ticking usage analytics must not switch this on. See _includes/consent.html.
+{%- endcomment -%}
 <!-- MS Clarity — parked until consent -->
-<script type="text/plain" data-consent="analytics">
+<script type="text/plain" data-consent="replay">
   (function(c,l,a,r,i,t,y){
       c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
       t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;

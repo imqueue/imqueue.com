@@ -20,10 +20,14 @@
 .prose blockquote { margin: 20px 0; padding: 2px 18px; border-left: 3px solid var(--accent); color: var(--muted); }
 
 /* inline code + code blocks */
+/* --code for the text, --accent only for the tint behind it. The accent is tuned to
+   be a link colour; as .88em body text on its own 12% wash it measured 3.48:1 against
+   WCAG 1.4.3's 4.5, and inline code carries the identifiers people came to read.
+   --code exists for exactly this and is 10.5:1 on both skins. */
 .prose :not(pre) > code {
   font-family: var(--font-mono); font-size: .88em;
   background: color-mix(in srgb, var(--accent) 12%, transparent);
-  color: var(--accent); padding: .15em .4em; border-radius: 5px;
+  color: var(--code); padding: .15em .4em; border-radius: 5px;
   overflow-wrap: anywhere;
 }
 .prose pre {
@@ -59,7 +63,7 @@
 .doc-toc .table-of-contents a { display: block; padding: 8px 12px; border-radius: 8px; color: var(--muted); }
 .doc-toc .table-of-contents a:hover { color: var(--accent); text-decoration: none; }
 .doc-toc .table-of-contents ul ul a { padding-left: 24px; font-size: 14px; }
-.doc-toc .table-of-contents a.active { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.doc-toc .table-of-contents a.active { background: var(--accent-fill, var(--accent)); color: var(--on-accent-fill, var(--on-accent)); font-weight: 600; }
 .doc-toc .table-of-contents a.active:hover { color: var(--on-accent); }
 @media (max-width: 900px) {
   .doc-layout.has-toc { grid-template-columns: minmax(0, 1fr); gap: 0; }
@@ -178,7 +182,7 @@
 .api-group { color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-size: 12.5px; margin: 16px 0 6px; }
 .api-sym { display: block; padding: 5px 10px; border-radius: 7px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .api-sym:hover { color: var(--accent); }
-.api-sym.active { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.api-sym.active { background: var(--accent-fill, var(--accent)); color: var(--on-accent-fill, var(--on-accent)); font-weight: 600; }
 .api-prose { min-width: 0; }
 .api-prose table { display: block; overflow-x: auto; }
 .api-archived-banner {
