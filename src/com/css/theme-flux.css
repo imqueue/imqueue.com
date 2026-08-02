@@ -15,7 +15,10 @@
   --surface2: rgba(255,255,255,.03);
   --ink: #f2eeff;
   --muted: #9a92c0;
-  --accent: #7e64ff;      /* was #7b61ff: 4.43:1 as text on the ribbon's --surface2, just under 4.5. Now 4.57 */
+  --accent: #8674ff;      /* was #7b61ff. As TEXT it has to clear 4.5 on the darkest thing it lands on,
+                             which is not --bg (4.66 at the old value) but --surface and --surface2 —
+                             cards, the ribbon, the form notes — where it measured 4.43. Now 5.56 on
+                             --bg, 5.20 on --surface. Fills use --accent-fill and are unaffected. */
   --accent2: #c24787;     /* was #ff5db1: white text on it in .btn-gradient was 2.82:1. Now 4.62 */
   --accent-fill: #6852d8; /* accent as a BACKGROUND under white text: #7e64ff gives 4.1, this gives 5.55 */
   --on-accent-fill: #ffffff;

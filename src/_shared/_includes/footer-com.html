@@ -11,12 +11,13 @@
         <a href="/license/">License</a>
         <a href="/support/">Support</a>
         {%- comment -%}
-        Was mailto:support@imqueue.com, which does nothing at all for anyone without
-        a desktop mail client configured — the commonest case now, and it looked like
-        a broken link. The enquiry form is the route that actually works, and it
-        still offers "prefer email?" underneath for people who want that instead.
+        "Talk to sales", not "Contact": this is the licensing enquiry form, and Legal
+        below now carries a general Contact page. Two links both called Contact,
+        pointing at two different forms, is the kind of footer nobody trusts. The label
+        matches the nav's own CTA. (It was mailto:support@imqueue.com, which does
+        nothing for anyone without a desktop mail client — the common case now.)
         {%- endcomment -%}
-        <a href="/pricing/#contact">Contact</a>
+        <a href="/pricing/#contact">Talk to sales</a>
       </div>
     </div>
     <div>
@@ -30,13 +31,20 @@
         <a href="{{ otherUrl }}/get-started/">Get started ↗</a>
         <a href="{{ otherUrl }}/tutorial/">Tutorial ↗</a>
         <a href="{{ otherUrl }}/api/">API ↗</a>
+        <a href="{{ otherUrl }}/mcp/">MCP server ↗</a>
       </div>
     </div>
     <div>
       <h4>Project</h4>
+      {%- comment -%}
+      Every link in this column leaves imqueue.com, so every one carries ↗ — the
+      footer's existing signal for that (→ is used for in-site movement). GitHub and
+      npm were the two that did not, next to an "Open source ↗" that did.
+      {%- endcomment -%}
       <div class="footer-links">
-        <a href="https://github.com/imqueue">GitHub</a>
-        <a href="https://npmjs.com/package/@imqueue/core">npm packages</a>
+        <a href="https://github.com/imqueue">GitHub ↗</a>
+        <a href="https://github.com/imqueue-sandbox">Sandbox ↗</a>
+        <a href="https://npmjs.com/package/@imqueue/core">npm packages ↗</a>
         <a href="{{ otherUrl }}/">Open source ↗</a>
       </div>
     </div>
@@ -45,6 +53,7 @@
       <div class="footer-links">
         <a href="/privacy/">Privacy Policy</a>
         <a href="/terms/">Terms Of Use</a>
+        <a href="/contact/">Contact</a>
         {%- comment -%} Reopens the consent bar — see footer-org.html on the href. {%- endcomment -%}
         <a href="/privacy/#cookies-and-how-to-refuse-them" data-consent-open>Cookie settings</a>
       </div>
