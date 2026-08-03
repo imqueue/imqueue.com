@@ -12,8 +12,8 @@ relatedTopics: [architecture, rpc, queue]
 
 [[toc]]
 
-Every project accumulates words it stops explaining. This page collects
-`@imqueue`'s, so a term you meet halfway through the tutorial or in a method
+Every project accumulates words it stops explaining. This page collects the ones
+`@imqueue` uses, so a term you meet halfway through the tutorial or in a method
 signature has one short answer and one authoritative link.
 
 ## The framework
