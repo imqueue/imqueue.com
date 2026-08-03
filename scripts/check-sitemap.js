@@ -194,7 +194,11 @@ for (const [edition, origin] of Object.entries(EDITIONS)) {
       .filter(([, p]) => !p.noindex)
       // Archived API majors are noindex (already filtered) and deliberately
       // unmirrored; /latest/ trees, including member pages, are mirrored. Keep
-      // this in step with API_MIRRORED in eleventy.config.js.
+      // this in step with API_MIRRORED in eleventy.config.js — which covers only
+      // the /latest/ trees, because the /api/ landing page is mirrored by hand
+      // from src/org/mirrors/api.liquid rather than from its template source.
+      // `^\/api\/$` stays HERE: the landing page must still have a mirror, and
+      // this is the assertion that catches it if that template goes away.
       .filter(([url]) => !url.startsWith('/api/') || /^\/api\/$|^\/api\/[^/]+\/latest\//.test(url))
       // Paginated /blog/page/N/ has no mirror on purpose: /blog/index.md lists
       // every article, which is what an agent wants — one fetch, whole index.
