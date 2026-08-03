@@ -158,7 +158,13 @@ section: blog
   {%- endcomment %}
   {% if date %}"datePublished": "{{ date | isoDate }}",
   "dateModified": "{{ dateModified | default: date | isoDate }}",{% endif %}
-  "author": { "@type": "Person", "name": {{ a.name | default: "@imqueue" | json }}{% if a %}, "url": "{{ siteUrl }}/blog/authors/{{ a.slug }}/"{% if a.github %}, "sameAs": ["{{ a.github }}"]{% endif %}{% endif %} },
+  {%- comment -%}
+  `@id` is the author's profile URL + #person — the same key authors.html and the
+  blog listing use, so all three Person shapes reconcile to one node instead of
+  leaving 56 anonymous ones. Emitted only when the author resolves; the "@imqueue"
+  fallback is not a person and must not be given a person's identity.
+  {%- endcomment %}
+  "author": { "@type": "Person"{% if a %}, "@id": "{{ siteUrl }}/blog/authors/{{ a.slug }}/#person"{% endif %}, "name": {{ a.name | default: "@imqueue" | json }}{% if a %}, "url": "{{ siteUrl }}/blog/authors/{{ a.slug }}/"{% if a.github %}, "sameAs": ["{{ a.github }}"]{% endif %}{% endif %} },
   "publisher": { "@id": "{{ siteUrl }}/#org" },
   "mainEntityOfPage": { "@type": "WebPage", "@id": "{{ siteUrl }}{{ page.url }}" }
 }
