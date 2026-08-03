@@ -462,12 +462,19 @@ and 2.1.0 on another. /api/ itself defines all 16 (src/org/api/index.md).
       which requires a Demo Recording URL that the submitter controls and can keep
       alive for as long as the listing exists — which is why it is self-hosted
       rather than on a video host, and why it must NOT be deleted for looking
-      unreferenced. It genuinely was unreferenced until now: 3 MB deployed to both
-      zones, linked from nothing, described nowhere.
+      unreferenced.
 
-      Every value below comes from the recording itself or from the commit that
-      added it (e9dc727) — duration probed with ffprobe, contents quoted from that
-      commit message. Nothing here is inferred from the filename.
+      Re-recorded against 3.3.0 for the re-submission, and replaced in place so the
+      already-crawled contentUrl keeps working. Every value below was probed from
+      the file with ffprobe — nothing is inferred from the filename, and `npm test`
+      does not check them, so re-probe on every replacement:
+
+        ffprobe -v error -select_streams v:0 \
+          -show_entries stream=width,height:format=duration,size \
+          -of default=noprint_wrappers=1 images/mcp-demo.mp4
+
+      `duration` floors the probed seconds (152.53 → PT2M32S), matching the
+      figcaption. The source capture ran 5:05; it is played at 2x.
 
       `contentUrl` and no `embedUrl`: the file is served from this origin and
       played by the <video> element on the page, not embedded from a player.
@@ -476,13 +483,13 @@ and 2.1.0 on another. /api/ itself defines all 16 (src/org/api/index.md).
       "@type": "VideoObject",
       "@id": "{{ siteUrl }}/mcp/#demo",
       "name": "The hosted @imqueue MCP server answering in ChatGPT",
-      "description": "A 3:04 screen recording of the hosted @imqueue MCP server (mcp.imqueue.org) being used from ChatGPT: one call per available tool, ending with get_doc refusing an off-site URL.",
+      "description": "A 2:32 screen recording, at 2x speed and without audio, of the hosted @imqueue MCP server (mcp.imqueue.org) being used from ChatGPT: every tool it offers, including the choice between two mutually exclusive packages, and get_doc refusing an off-site URL at the end.",
       "contentUrl": "{{ siteUrl }}/images/mcp-demo.mp4",
       "encodingFormat": "video/mp4",
-      "duration": "PT3M4S",
-      "width": 1570,
+      "duration": "PT2M32S",
+      "width": 1614,
       "height": 1396,
-      "uploadDate": "2026-08-02",
+      "uploadDate": "2026-08-04",
       "inLanguage": "en",
       "about": { "@id": "{{ siteUrl }}/#mcp" },
       "publisher": { "@id": "{{ siteUrl }}/#org" }
