@@ -422,6 +422,57 @@ module.exports = function (eleventyConfig) {
     return pairs.filter((p) => p.q.endsWith("?"));
   });
 
+  // ---- llms.txt section ordering -------------------------------------------
+  // The Tutorial and CLI Guide sections of /llms.txt listed their pages in
+  // `collections.all` order, which is neither authored nor alphabetical — the
+  // tutorial read chapter 5, 3, 7, 8, 2, 1, 6, 4. Both trees already carry a
+  // `chapter:` in front matter, which is what the sidebars sort by, so the index
+  // an agent reads was the one surface presenting a numbered course out of order.
+  //
+  // A model given a shuffled list of steps either follows it or reorders it by
+  // guessing; neither is what a chapter number is for.
+  //
+  // Sorted by `chapter` where present, then by url so a page that has none is
+  // still deterministic rather than build-order dependent.
+  eleventyConfig.addFilter("bySection", (items, prefix) =>
+    (items || [])
+      .filter((item) => (item.url || "").includes(prefix))
+      .sort((a, b) => {
+        const ca = a.data.chapter;
+        const cb = b.data.chapter;
+
+        if (typeof ca === "number" && typeof cb === "number") return ca - cb;
+        if (typeof ca === "number") return -1;
+        if (typeof cb === "number") return 1;
+
+        return (a.url || "").localeCompare(b.url || "");
+      })
+  );
+
+  // The most recent editorial change anywhere on the site, as YYYY-MM-DD.
+  //
+  // /llms.txt and /llms-full.txt are the two files this site asks agents to
+  // ingest, and neither said when it was generated. A cached copy of an index is
+  // indistinguishable from a current one, so there was no way for a consumer to
+  // decide whether to refetch.
+  //
+  // Deliberately NOT the build timestamp: Cloudflare Pages rebuilds on every
+  // deploy, so a build date moves when nothing changed, which is exactly the
+  // discardable freshness signal pageDates.json exists to avoid. This is the
+  // maximum of the real committed dates — the same values the sitemap's per-bucket
+  // lastmod maxima come from.
+  eleventyConfig.addFilter("latestModified", (posts) => {
+    const stamps = Object.values(require("./src/_data/pageDates.json"))
+      .flatMap((entry) => [entry.modified, entry.published])
+      .concat((posts || []).map((p) => p.data.dateModified || p.date))
+      .map((value) => (value ? new Date(value).getTime() : NaN))
+      .filter((t) => !Number.isNaN(t));
+
+    return stamps.length
+      ? new Date(Math.max(...stamps)).toISOString().slice(0, 10)
+      : "";
+  });
+
   // Posts written by a given author slug (newest first).
   eleventyConfig.addFilter("byAuthor", (posts, slug) =>
     (posts || []).filter((p) => p.data.author === slug)
