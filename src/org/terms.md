@@ -103,8 +103,8 @@ be excluded.
 
 ## Third-party links and services
 
-We link to GitHub, npm, PayPal and other services we do not control. Their terms
-and privacy policies govern your use of them, not these.
+We link to GitHub, npm and other services we do not control. Their terms and
+privacy policies govern your use of them, not these.
 
 ## Changes
 
