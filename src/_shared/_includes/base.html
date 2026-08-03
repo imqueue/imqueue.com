@@ -6,10 +6,33 @@
 <body>
   {% if edition == "com" %}<div class="fx-blobs" aria-hidden="true"><span class="fx-blob fx-blob1"></span><span class="fx-blob fx-blob2"></span></div>{% endif %}
   <div class="page">
-    {%- assign _ribbon = "ribbon-" | append: edition | append: ".html" -%}
     {%- assign _nav = "nav-" | append: edition | append: ".html" -%}
     {%- assign _footer = "footer-" | append: edition | append: ".html" -%}
-    {% include _ribbon %}
+    {%- comment -%}
+    The ribbon is imqueue.com's home page ONLY, and there is no longer an org one.
+
+    It used to be sitewide on both editions, built from `"ribbon-" | append: edition`.
+    Two different reasons for dropping it, not one:
+
+    On imqueue.org it was the weakest of FOUR copies of the same cross-link — the nav
+    carries `commercial ↗` in a sticky header, the footer has a Commercial column, and
+    footer-bottom repeats it. A strip that scrolls away is the worst of those
+    placements, and it made "need a commercial license?" the first sentence on an
+    open-source project's docs, ahead of what the project is. The GPL-3.0 half of that
+    line already lives in footer-bottom, /license/ and the README.
+
+    On imqueue.com the line does a different job worth keeping — it says this is the
+    commercial arm of an open-source project, not somebody reselling it, which is a
+    legitimacy signal on a site where trust is the bottleneck. But sitewide it also put
+    an exit to the free version above the fold on /pricing/, before the pitch. Home
+    page only keeps the signal and stops paying for it on the page that converts.
+
+    `section` is set in each home page's front matter and nowhere else; head.html tests
+    it the same way.
+    {%- endcomment -%}
+    {%- if edition == "com" and section == "home" %}
+    {% include "ribbon-com.html" %}
+    {%- endif %}
     {% include _nav %}
     <main>
       {{ content }}
