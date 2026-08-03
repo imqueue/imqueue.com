@@ -15,6 +15,14 @@ module.exports = {
   layout: "mcp.html",
   section: "docs",
   mcpChapters: chapters,
+
+  // Emit the `#mcp` SoftwareApplication node on EVERY page of this section, not
+  // just the overview. /mcp/tools/ and /mcp/installation/ carried no #mcp node at
+  // all, so the two pages an agent is most likely to land on for tool names and
+  // setup declared themselves `about` the RPC framework and said nothing about the
+  // server they document.
+  mcpApp: true,
+
   // Reverse mesh: blog topics these pages are about (drives "From the blog").
   relatedTopics: ["dx", "tooling", "clients"],
   eleventyComputed: {

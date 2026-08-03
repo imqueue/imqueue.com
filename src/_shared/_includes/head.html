@@ -143,6 +143,33 @@ in the first place rather than just the Offer.
 {%- if section == "home" -%}{%- assign homeSoftware = true -%}{%- endif -%}
 {%- assign articleSoftware = false -%}
 {%- if isArticle and edition == "org" -%}{%- assign articleSoftware = true -%}{%- endif -%}
+
+{%- comment -%}
+Which package an /api/ page is about. All 1,794 APIReference nodes used to be
+`about` the one generic `#software` node — one distinct target, 1,794 times — so
+rpc.imqservice, pg-cache.fetcherror and datadog.imqclientplugin all declared
+themselves about "the @imqueue framework" and the graph knew nothing about which
+library the symbol belongs to. Coarse rather than false: the package, version and
+repository are all in the visible text, the breadcrumb and the mirror. It was only
+the graph that was impoverished.
+
+`apiPkg` and `apiVersion` come from each tree's <version>.11tydata.json, so this
+needs no new data — it was derived and unused.
+
+Defined here rather than next to the JSON-LD because the SoftwareSourceCode node
+and the APIReference's `about` edge have to agree, and they are 60 lines apart.
+
+Only /latest/ trees DEFINE the package node. An archived major page is genuinely
+about the same package, so it still points at it, but it must not redefine the node
+with an archived softwareVersion — that would make /api/#rpc mean 3.5.2 on one page
+and 2.1.0 on another. /api/ itself defines all 16 (src/org/api/index.md).
+{%- endcomment -%}
+{%- assign apiPkgId = "" -%}
+{%- assign apiPkgDefine = false -%}
+{%- if apiPkg -%}
+{%- capture apiPkgId -%}{{ siteUrl }}/api/#{{ apiPkg }}{%- endcapture -%}
+{%- if apiVersionPath == "latest" and page.url != "/api/" -%}{%- assign apiPkgDefine = true -%}{%- endif -%}
+{%- endif -%}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -270,6 +297,12 @@ in the first place rather than just the Offer.
       {%- else %}
       "isPartOf": { "@id": "https://imqueue.org/#website" },
       {%- endif %}
+      {%- comment -%}
+        `license` was on the compact copy of this node and not here, which made
+        `https://imqueue.org/#software` two different entities depending on the page.
+        check-jsonld.js now fails on any such divergence.
+      {%- endcomment -%}
+      "license": "https://www.gnu.org/licenses/gpl-3.0.html",
       "usageInfo": "https://imqueue.com/license/",
       "publisher": { "@id": "{{ siteUrl }}/#org" }
     },
@@ -294,17 +327,67 @@ in the first place rather than just the Offer.
       "author": { "@id": "{{ siteUrl }}/#org" },
       "isPartOf": { "@id": "https://imqueue.org/#website" }
     }{% endif %}{% if articleSoftware %},
+    {%- comment -%}
+      The compact `#software` node, on the 1,829 pages that are not the home page.
+      Same @id as the home page's, so it must not contradict it: one `@id` carrying
+      two different sets of facts is worse than one carrying fewer.
+
+      softwareVersion, license, usageInfo and the Offer were all present on the home
+      page's copy and absent here, which meant `https://imqueue.org/#software`
+      answered "is it free?" and "what version?" differently depending on which page
+      an engine had fetched. Added here rather than removed there.
+
+      `offers` is safe without an edition test: articleSoftware is already org-only
+      (see its assignment above), which is what keeps the commercial site from
+      claiming the product is free. check-jsonld.js asserts that per edition.
+    {%- endcomment -%}
     {
       "@type": "SoftwareApplication",
       "@id": "{{ siteUrl }}/#software",
       "name": "@imqueue",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Node.js",
+      "softwareVersion": "{{ apiVersions.rpc.latest }}",
       "url": "{{ siteUrl }}/",
       "description": {{ site.definition | json }},
       "alternateName": {{ site.aliases | json }},
       "programmingLanguage": ["TypeScript", "JavaScript"],
+      "sameAs": ["https://github.com/imqueue", "https://www.npmjs.com/org/imqueue"],
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+      "usageInfo": "https://imqueue.com/license/",
+      "isPartOf": { "@id": "{{ siteUrl }}/#website" },
       "publisher": { "@id": "{{ siteUrl }}/#org" }
+    }{% endif %}{% if apiPkgDefine %},
+    {%- comment -%}
+      The package this reference page documents, as its own entity. The @id is the
+      /api/ page's fragment because that is where the node canonically lives (all 16
+      are defined there); every page under the package's /latest/ tree repeats the
+      same facts for the same @id, which is consistent linked data rather than a
+      fork. Archived majors reference it without redefining it — see the
+      apiPkgDefine assignment.
+
+      `identifier` is a package-url (purl). It is the one identifier that makes this
+      site machine-linkable to the artifact an agent has just installed, which is the
+      defensible half of adding npm to the graph. The Libraries.io / Snyk `sameAs`
+      edges that were also proposed are not here: `sameAs` is an identity assertion,
+      not an authority conduit, and it transfers nothing.
+    {%- endcomment -%}
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "{{ apiPkgId }}",
+      "name": "@imqueue/{{ apiPkg }}",
+      "url": "{{ siteUrl }}/api/{{ apiPkg }}/latest/",
+      "codeRepository": "https://github.com/imqueue/{{ apiPkg }}",
+      "downloadUrl": "https://www.npmjs.com/package/@imqueue/{{ apiPkg }}",
+      "identifier": "pkg:npm/%40imqueue/{{ apiPkg }}@{{ apiVersion }}",
+      "programmingLanguage": ["TypeScript", "JavaScript"],
+      "runtimePlatform": "Node.js",
+      "softwareVersion": "{{ apiVersion }}",
+      "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+      "usageInfo": "https://imqueue.com/license/",
+      "isPartOf": { "@id": "{{ siteUrl }}/#software" },
+      "author": { "@id": "{{ siteUrl }}/#org" }
     }{% endif %}{% if isArticle %},
     {
       "@type": "{{ articleType }}",
@@ -315,7 +398,16 @@ in the first place rather than just the Offer.
       "url": "{{ metaUrl }}",
       "inLanguage": "en",
       "isPartOf": { "@id": "{{ siteUrl }}/#website" },
-      {%- if articleSoftware %}
+      {%- comment -%}
+        `about` points at the PACKAGE on a reference page and at the framework
+        everywhere else. `version` on a reference page is the package version the
+        page documents — free, since apiVersion is already in scope, and it is the
+        fact most obviously missing from a symbol page's graph.
+      {%- endcomment -%}
+      {%- if apiPkgId != "" %}
+      "about": { "@id": "{{ apiPkgId }}" },
+      "version": "{{ apiVersion }}",
+      {%- elsif articleSoftware %}
       "about": { "@id": "{{ siteUrl }}/#software" },
       {%- endif %}
       {%- if pubDate %}
@@ -328,9 +420,10 @@ in the first place rather than just the Offer.
     {%- comment -%}
       The MCP server is one entity, so its @id and url are absolute rather than
       per-page: emitted from both /mcp/ and the home page, these describe the same
-      node instead of forking it into two. `mcpDesc` lets a page whose own meta
-      description is about something else (the home page) still describe the
-      server correctly; /mcp/'s metaDesc already is that description.
+      node instead of forking it into two. The description comes from
+      site.mcpDefinition for the same reason — it used to fall back to the PAGE's meta
+      description, so the home page had `#mcp` describing the framework while /mcp/
+      had it describing the server. One @id, two entities.
     {%- endcomment -%}
     {
       "@type": "SoftwareApplication",
@@ -340,11 +433,28 @@ in the first place rather than just the Offer.
       "applicationSubCategory": "Model Context Protocol (MCP) server",
       "operatingSystem": "Node.js",
       "url": "{{ siteUrl }}/mcp/",
-      "description": {{ mcpDesc | default: metaDesc | json }},
+      "description": {{ site.mcpDefinition | json }},
       "softwareRequirements": "Node.js >= 18",
       "downloadUrl": "https://www.npmjs.com/package/@imqueue/mcp",
+      {%- comment -%}
+        Identity and membership edges. Before these, /mcp/tools/ and
+        /mcp/installation/ contained no `#mcp` node at all — the page an agent lands
+        on to read tool names declared itself about the RPC framework — and the node
+        that did exist was an island: no purl, no repository, and nothing saying it
+        belongs to @imqueue rather than merely mentioning it.
+
+        `codeRepository` and `identifier` are the same treatment the 16 API packages
+        get; `isPartOf` is the membership claim; `sameAs` names the hosted endpoint,
+        which is the same server reached over HTTP instead of stdio and is otherwise
+        nowhere in the graph.
+      {%- endcomment -%}
+      "codeRepository": "https://github.com/imqueue/mcp",
+      "identifier": "pkg:npm/%40imqueue/mcp",
+      "sameAs": ["https://www.npmjs.com/package/@imqueue/mcp", "https://mcp.imqueue.org/mcp"],
       "programmingLanguage": ["TypeScript", "JavaScript"],
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+      "isPartOf": { "@id": "{{ siteUrl }}/#software" },
       "publisher": { "@id": "{{ siteUrl }}/#org" }
     }{% endif %}{% if demoVideo %},
     {%- comment -%}

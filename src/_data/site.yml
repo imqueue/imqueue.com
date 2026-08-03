@@ -56,6 +56,18 @@ aliases:
 # and it deliberately does not compete with `definition` for any machine-readable
 # field.
 slogan: RPC over an inter-communication messaging queue for Node & TypeScript
+
+# The MCP server's own description, for the `#mcp` SoftwareApplication node.
+#
+# Here rather than in mcp.11tydata.js because the node is emitted from BOTH the /mcp/
+# section and the home page, and those read different data files. head.html used to
+# fall back to the page's meta description when no override was set, so `#mcp`
+# described "the @imqueue framework" on the home page and "the MCP server" on /mcp/ —
+# one @id, two entities. check-jsonld.js now fails on that.
+mcpDefinition: >-
+  @imqueue/mcp is a Model Context Protocol server for @imqueue: it gives an AI coding
+  agent live documentation search, idiomatic service and client scaffolding, and — with
+  @imqueue/cli installed — control of the real imq binary, as tools it calls directly.
 # IndexNow key — proves host ownership so Bing/Yandex/Seznam accept instant-
 # indexing pings. Served at /<key>.txt via src/indexnow.liquid and submitted by
 # scripts/indexnow-ping.js after deploy. Same key works for both hosts.

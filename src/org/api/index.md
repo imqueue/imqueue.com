@@ -22,10 +22,14 @@ relatedTopics: [rpc, queue, types, delivery]
       "description": "Core messaging-queue engine for @imqueue — the Redis-backed transport shared by the RPC and job packages.",
       "url": "{{ siteUrl }}/api/core/latest/",
       "codeRepository": "https://github.com/imqueue/core",
+      "downloadUrl": "https://www.npmjs.com/package/@imqueue/core",
+      "identifier": "pkg:npm/%40imqueue/core@{{ latest_core }}",
       "programmingLanguage": ["TypeScript", "JavaScript"],
       "runtimePlatform": "Node.js",
       "softwareVersion": "{{ latest_core }}",
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+      "usageInfo": "https://imqueue.com/license/",
+      "isPartOf": { "@id": "{{ siteUrl }}/#software" },
       "author": { "@id": "{{ siteUrl }}/#org" }
     },
     {
@@ -35,10 +39,14 @@ relatedTopics: [rpc, queue, types, delivery]
       "description": "Type-safe RPC over a message queue for @imqueue — decorators, clients and services on top of @imqueue/core.",
       "url": "{{ siteUrl }}/api/rpc/latest/",
       "codeRepository": "https://github.com/imqueue/rpc",
+      "downloadUrl": "https://www.npmjs.com/package/@imqueue/rpc",
+      "identifier": "pkg:npm/%40imqueue/rpc@{{ latest_rpc }}",
       "programmingLanguage": ["TypeScript", "JavaScript"],
       "runtimePlatform": "Node.js",
       "softwareVersion": "{{ latest_rpc }}",
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+      "usageInfo": "https://imqueue.com/license/",
+      "isPartOf": { "@id": "{{ siteUrl }}/#software" },
       "author": { "@id": "{{ siteUrl }}/#org" }
     }{%- comment -%}
     One SoftwareSourceCode per SHIPPED Tier 2 package, generated from the same
@@ -59,6 +67,23 @@ relatedTopics: [rpc, queue, types, delivery]
       "description": {{ pkg.blurb | json }},
       "url": "{{ siteUrl }}{{ pkg.url }}",
       "codeRepository": {{ pkg.repo | json }},
+      {%- comment -%}
+      npm and a package-url, for all 16. An ld+json scan over both builds used to
+      yield exactly two npm URLs — the /imqueue org page and @imqueue/mcp's — so
+      nothing tied a documented symbol to the artifact an agent had just installed.
+      `downloadUrl` is the human-facing package page; `identifier` is the purl, which
+      is the machine-readable half and the reason this is worth adding at all.
+
+      Deliberately NOT adding Libraries.io or Snyk `sameAs` edges: `sameAs` asserts
+      identity, not authority, so it transfers nothing, and security.snyk.io no longer
+      serves a package-health grade to point at.
+      {%- endcomment -%}
+      "downloadUrl": "https://www.npmjs.com/package/{{ pkg.scoped }}",
+      {%- if apiVersions[pkg.name].latest %}
+      "identifier": "pkg:npm/%40imqueue/{{ pkg.name }}@{{ apiVersions[pkg.name].latest }}",
+      {%- else %}
+      "identifier": "pkg:npm/%40imqueue/{{ pkg.name }}",
+      {%- endif %}
       "programmingLanguage": ["TypeScript", "JavaScript"],
       "runtimePlatform": "Node.js",
       {%- comment -%}
@@ -71,6 +96,8 @@ relatedTopics: [rpc, queue, types, delivery]
       "softwareVersion": "{{ apiVersions[pkg.name].latest }}",
       {%- endif %}
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+      "usageInfo": "https://imqueue.com/license/",
+      "isPartOf": { "@id": "{{ siteUrl }}/#software" },
       "author": { "@id": "{{ siteUrl }}/#org" }
     }{%- endfor %}{%- endfor %}
   ]

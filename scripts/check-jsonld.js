@@ -116,7 +116,16 @@ for (const [edition, origin] of Object.entries(EDITIONS)) {
     danglingIds: 0, missingDefinition: 0, missingAliases: 0,
     noEmail: 0, forbidden: 0, faqPages: 0, faqQuestions: 0, faqNotOnPage: 0,
     softwareHome: 0, priced: 0, types: new Map(),
+    blogNodes: [], anonPersons: 0, apiAboutWrong: 0, apiNoVersion: 0,
   };
+
+  // One @id must not carry two different sets of facts. `#software` was the case
+  // that motivated this: the home page's copy had softwareVersion, an Offer, a
+  // license and usageInfo; the other 1,829 pages had none of them under the SAME
+  // @id, so "is @imqueue free?" was answered differently depending on which page an
+  // engine had fetched. Keyed by @id -> canonical JSON of the node.
+  const byId = new Map();
+  const contradictions = new Map();
 
   (function walk(d) {
     for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
@@ -218,6 +227,53 @@ for (const [edition, origin] of Object.entries(EDITIONS)) {
           if (rel === '/') stats.softwareHome++;
           if (node.offers) stats.priced++;
         }
+
+        // Contradiction check, for the shared entity nodes only. Article and page
+        // nodes legitimately differ per page; these four are one entity each,
+        // repeated, and repeating them differently is the failure.
+        const SHARED = ['#software', '#sourcecode', '#mcp', '#org', '#website'];
+
+        if (node['@id'] && SHARED.some((f) => node['@id'] === `${origin}/${f}`)) {
+          // A reference (just `{@id}`) is not a definition and must not be compared.
+          if (Object.keys(node).length > 1) {
+            const canon = JSON.stringify(node, Object.keys(node).sort());
+            const seen = byId.get(node['@id']);
+
+            if (seen === undefined) byId.set(node['@id'], { canon, rel });
+            else if (seen.canon !== canon && !contradictions.has(node['@id'])) {
+              contradictions.set(node['@id'], [seen.rel, rel]);
+            }
+          }
+        }
+
+        if (type === 'Blog') stats.blogNodes.push(rel);
+
+        // A Person with a profile url but no @id is the shape that left 56 author
+        // nodes unreconciled — engines fall back to `url` as the identity key, which
+        // works until two shapes disagree about which fields travel with it.
+        if (type === 'Person' && node.url && node.url.includes('/blog/authors/') && !node['@id']) {
+          stats.anonPersons++;
+        }
+
+        // Every reference page must be `about` its own package, not the framework.
+        // 1,794 APIReference nodes pointed at one generic #software node, so the
+        // graph could not say which library a symbol belonged to.
+        if (type === 'APIReference') {
+          const pkg = /^\/api\/([^/]+)\//.exec(rel);
+
+          if (pkg) {
+            const want = `${origin}/api/#${pkg[1]}`;
+            const got = (node.about || {})['@id'];
+
+            if (got !== want) {
+              stats.apiAboutWrong++;
+              if (stats.apiAboutWrong <= 3) {
+                fail(`${rel} APIReference.about is ${got || 'absent'}, not the package node ${want}`);
+              }
+            }
+            if (!node.version) stats.apiNoVersion++;
+          }
+        }
       }
 
       // The definition, the aliases and the address, on every page.
@@ -256,6 +312,36 @@ for (const [edition, origin] of Object.entries(EDITIONS)) {
   if (!stats.missingAliases) pass(`alternateName ${JSON.stringify(ALIASES)} is on all ${stats.pages} pages`);
   if (!stats.noEmail) pass('the contact address survives on every page');
   if (!stats.forbidden) pass('no aggregateRating / review / InteractionCounter anywhere');
+
+  if (contradictions.size) {
+    for (const [id, [a, b]] of contradictions) {
+      fail(`${id} is defined differently on ${a} and ${b} — one @id, two sets of facts`);
+    }
+  } else {
+    pass('every shared entity @id carries identical facts on every page that defines it');
+  }
+
+  // Exactly one page owns the Blog entity. Six pages used to emit it — /blog/ plus
+  // five /blog/page/N/ — each with `url: /blog/` and a different blogPost array.
+  if (edition === 'org') {
+    if (stats.blogNodes.length === 1 && stats.blogNodes[0] === '/blog/') {
+      pass('one Blog node, on /blog/; paginated pages are CollectionPages');
+    } else {
+      fail(`the Blog entity is emitted by ${stats.blogNodes.length} page(s): ${stats.blogNodes.join(', ')} — it must be /blog/ alone`);
+    }
+  }
+
+  if (stats.anonPersons) {
+    fail(`${stats.anonPersons} Person node(s) have an author-profile url but no @id`);
+  } else {
+    pass('every author Person node carries its identity @id');
+  }
+
+  if (!stats.apiAboutWrong && !stats.apiNoVersion) {
+    pass('every APIReference is about its own package node and carries its version');
+  } else if (stats.apiNoVersion) {
+    fail(`${stats.apiNoVersion} APIReference node(s) carry no version`);
+  }
   if (stats.faqPages && !stats.faqNotOnPage) {
     pass(`${stats.faqQuestions} FAQPage answers across ${stats.faqPages} pages, all present in the visible page`);
   }

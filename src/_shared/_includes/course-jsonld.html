@@ -1,0 +1,40 @@
+{%- comment -%}
+The tutorial's chapter order, made machine-readable.
+
+/tutorial/ emitted a TechArticle with `isPartOf: #website` and nothing else: no
+hasPart, no ItemList, no position. The order existed and was ignored — every chapter
+page carries `chapter: N` in front matter and `tutorialChapters` in
+tutorial.11tydata.js holds the canonical list, which is what the sidebar and
+prev/next already read.
+
+Two nodes, because they answer two different questions:
+
+  * On /tutorial/ (chapter 1): an ItemList naming all eight chapters in order, so a
+    model asked "how do I learn @imqueue" can see the course rather than infer it
+    from whichever chapter it happened to retrieve.
+  * On every chapter: `position` plus `isPartOf` pointing at that ItemList, so a
+    chapter retrieved on its own knows where it sits.
+
+An ItemList of URLs rather than a Course: Course wants an offering, a provider and
+an instructor to be worth claiming, and inventing those to dress up a documentation
+section would be the kind of markup that earns a manual action. ItemList says
+exactly what is true — these eight pages, in this order.
+
+Included by tutorial.html, which lays out every page under /tutorial/.
+{%- endcomment -%}
+{%- if tutorialChapters -%}
+{%- assign listId = siteUrl | append: "/tutorial/#chapters" -%}
+{%- if chapter == 1 %}
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ItemList","@id":{{ listId | json }},"name":"The @imqueue tutorial, in order","description":"Eight chapters building the back end of a car-wash booking application with @imqueue, one service at a time.","numberOfItems":{{ tutorialChapters.size }},"itemListOrder":"https://schema.org/ItemListOrderAscending","about":{"@id":"{{ siteUrl }}/#software"},"isPartOf":{"@id":"{{ siteUrl }}/#website"},"itemListElement":[
+{%- for ch in tutorialChapters -%}
+{"@type":"ListItem","position":{{ ch.n }},"name":{{ ch.title | json }},"url":{{ siteUrl | append: ch.url | json }}}{% unless forloop.last %},{% endunless %}
+{%- endfor -%}
+]}
+</script>
+{%- elsif chapter %}
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ListItem","@id":"{{ siteUrl }}{{ page.url }}#chapter","position":{{ chapter }},"name":{{ title | json }},"url":"{{ siteUrl }}{{ page.url }}","isPartOf":{"@id":{{ listId | json }}}}
+</script>
+{%- endif -%}
+{%- endif -%}
