@@ -8,6 +8,12 @@ keywords: "@imqueue service, create Node.js microservice, expose RPC methods, IM
 ogType: article
 ---
 
+**An `@imqueue` service is a TypeScript class extending `IMQService`, whose
+callable methods are marked with `@expose()`; `imq service create <name> <path>`
+scaffolds one with its dependencies installed.** This chapter builds the
+tutorial's first service — `User` — configures its Redis connection through
+`config.ts`, and generates a typed client for it.
+
 We're ready to create our first service. Start by making a project directory to
 hold all of the tutorial's repositories:
 

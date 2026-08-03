@@ -8,9 +8,15 @@ keywords: "@imqueue GraphQL, GraphQL API gateway, GraphQL microservices Node.js,
 ogType: article
 ---
 
-This is one of the most interesting parts of the system. The API service exposes
-an external, HTTP-based interface and orchestrates access to the back-end
-services we've already built.
+**An `@imqueue` fleet has no public front door of its own, so one service takes
+that role: a GraphQL gateway that speaks HTTP outward and typed RPC inward.**
+This chapter builds the tutorial's `API` service — scaffolded with
+`imq service create` like any other, then given `graphql-yoga` over Express — and
+resolves its GraphQL fields by calling the `User`, `Auth`, `Car` and `TimeTable`
+services through their generated clients.
+
+The API service exposes an external, HTTP-based interface and orchestrates access
+to the back-end services we've already built.
 
 GraphQL is an ideal fit for this role — it acts as an orchestrator over the
 underlying services — which is why we've chosen it here.

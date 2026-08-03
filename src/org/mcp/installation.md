@@ -8,6 +8,12 @@ keywords: "add @imqueue mcp to claude, imqueue mcp cursor, imqueue mcp vs code, 
 ogType: article
 ---
 
+**Adding the `@imqueue` MCP server to any client means registering one command —
+`npx -y @imqueue/mcp` — under that client's `mcpServers` config key.** Only the
+config file's location and exact shape differ between Claude Code, Claude
+Desktop, Cursor, VS Code, Visual Studio, JetBrains, Windsurf and Zed; this page
+gives the path and a paste-ready snippet for each.
+
 ## Before you start
 
 The server needs **Node.js ≥ 18** on your `PATH`. Nothing else — it is fetched
