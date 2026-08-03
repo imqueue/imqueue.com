@@ -289,6 +289,14 @@ function classify(raw, fromSite, fromPath) {
     return { kind: "ignore" };
   }
   if (url.protocol !== "http:" && url.protocol !== "https:") return { kind: "ignore" };
+  // localhost is never a link, it is an EXAMPLE. The tutorial tells readers to open
+  // http://localhost:3000/ and http://localhost:8888/, and --external was dutifully
+  // connecting to the machine running the check — reporting ECONNREFUSED as broken
+  // link rot on five pages. Six of the twelve failures on the first working run were
+  // this, which on a weekly schedule is exactly the noise that gets a job muted.
+  if (/^(localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)$/.test(url.hostname)) {
+    return { kind: "ignore" };
+  }
   const host = url.hostname.replace(/^www\./, "");
   const site = siteByHost[host];
   if (site) {
@@ -329,6 +337,34 @@ async function main() {
   const broken = []; // {url, from, reason}
   const brokenSeen = new Set();
   const externals = new Set();
+  // ONE request per unique external URL, not one per OCCURRENCE.
+  //
+  // This memo is load-bearing, not an optimisation, and it is very likely the real
+  // reason nobody ever ran `check:links:external`: the fetch used to sit unmemoised at
+  // the call site below, so a link in the footer or in every mirror's `Source:` line
+  // was re-checked once per page. `https://github.com/imqueue` appears on effectively
+  // all 1,898 crawled pages — at ~500ms each that is 15 minutes for one URL — and the
+  // run buffers its report to the end, so it presented as a hang rather than as
+  // arithmetic. Measured twice at 20+ minutes with zero bytes written, killed by hand.
+  //
+  // 79 unique external links now means at most 79 requests. Progress goes to stderr as
+  // each one resolves, so the run can never look hung again.
+  const externalResults = new Map();
+  const externalVerdict = async (url) => {
+    if (externalResults.has(url)) return externalResults.get(url);
+
+    const r = await request(url, "HEAD").catch(() => ({ status: 0 }));
+    const reason = r.status >= 200 && r.status < 400
+      ? null
+      : `external HTTP ${r.status || r.error || "unreachable"}`;
+
+    externalResults.set(url, reason);
+    if (!QUIET) {
+      process.stderr.write(reason ? `  ext FAIL ${url} - ${reason}\n` : `  ext ok   ${url}\n`);
+    }
+
+    return reason;
+  };
   let pagesCrawled = 0;
 
   function reportBroken(url, from, reason) {
@@ -403,9 +439,9 @@ async function main() {
       if (cls.kind === "external") {
         externals.add(cls.url);
         if (CHECK_EXTERNAL && !externalAllowed(cls.url)) {
-          const r = await request(cls.url, "HEAD").catch(() => ({ status: 0 }));
-          if (!(r.status >= 200 && r.status < 400))
-            reportBroken(cls.url, display, `external HTTP ${r.status || "unreachable"}`);
+          const verdict = await externalVerdict(cls.url);
+
+          if (verdict) reportBroken(cls.url, display, verdict);
         }
         continue;
       }
