@@ -113,6 +113,7 @@ jobs:
         run: npm test
 
       - name: Commit & push if changed
+        id: commit
         if: steps.pkgs.outputs.list != ''
         env:
           PKGS: ${{ steps.pkgs.outputs.list }}
@@ -150,6 +151,32 @@ jobs:
           git commit -m "$msg"
           git push
           echo "Pushed: $msg"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      # Diff-scoped IndexNow, not a whole-sitemap submission.
+      #
+      # This job pinged nothing at all, because `npm run indexnow:org` passes
+      # --exclude=/api/. That exclusion is right for a whole-sitemap ping — 423 URLs of
+      # which two changed is a poor use of a daily quota, and the sitemap's per-page
+      # lastmod already carries the change — but it meant a genuine release reached the
+      # Bing-backed engines only on the next crawl, for the largest body of unique
+      # content on the site.
+      #
+      # scripts/changed-urls.js resolves the commit's diff to URLs and intersects them
+      # with the built sitemap, so a mapping mistake drops the URL and says so instead
+      # of submitting something that does not exist. `|| true` because a failed
+      # submission must never fail a job that has already pushed correct content — the
+      # sitemap remains the reliable path.
+      - name: IndexNow — only the /api/ URLs this commit changed
+        if: steps.commit.outputs.sha != ''
+        run: |
+          urls=$(node scripts/changed-urls.js org "${{ steps.commit.outputs.sha }}^..${{ steps.commit.outputs.sha }}" --prefix=/api/)
+          if [ -z "$urls" ]; then
+            echo "No /api/ page URLs changed — nothing to submit."
+            exit 0
+          fi
+          # Unquoted on purpose: one word per URL.
+          node scripts/indexnow-ping.js org $urls || true
 
 # ---------------------------------------------------------------------------
 # The schedule alone keeps /api/ correct within a day. To make a release show up
@@ -174,7 +201,10 @@ jobs:
 # It is the same credential sync-cli-guide.yml documents, and the only one to create
 # by hand. Without it, the schedule still covers every package.
 #
-# IndexNow is deliberately not pinged from here: scripts/indexnow-ping.js passes
-# --exclude=/api/ (API pages reach search engines through the sitemap only), so the
-# generated reference has nothing to submit. See API-DOCS-PLAN.md §5 decision 2.
+# IndexNow: a WHOLE-SITEMAP ping is still not made from here — indexnow-ping.js's
+# --exclude=/api/ stands, and API pages reach search engines through the sitemap. What
+# this job does now is submit exactly the /api/ URLs its own commit changed, which is
+# usually two and never 423. See the step above; supersedes API-DOCS-PLAN.md §5
+# decision 2, which read the exclusion as "never ping /api/" when the reason for it
+# was only ever the volume.
 # ---------------------------------------------------------------------------

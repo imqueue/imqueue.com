@@ -45,6 +45,46 @@ const SKIP_DESCEND = skipArg
   ? skipArg.split("=")[1].split(",").filter(Boolean)
   : [];
 
+// --allow-external=<file>: hosts (or exact URLs) whose failures are expected and must
+// not fail the run. Only meaningful with --external.
+//
+// Link rot is TIME-driven, so a commit-triggered gate can never catch it — which is
+// why `check:links:external` existed for months with nothing running it. The blocker
+// to scheduling it was noise, not effort: there are only 33 distinct external hosts,
+// dominated by npmjs/github/gnu/nodejs, and no rot today, but a naive run yields ~9
+// false failures — npmjs.com 403s a bot HEAD, gnu.org times out, and one host is a
+// documented placeholder. A weekly job that cries wolf gets muted in a fortnight.
+//
+// One entry per line; `#` comments and blanks ignored. A line matches if the URL's
+// host equals it, ends with "." + it, or the URL starts with it (so an exact URL can
+// be listed without exempting its whole host).
+const allowArg = args.find((a) => a.startsWith("--allow-external="));
+const ALLOW_EXTERNAL = (() => {
+  if (!allowArg) return [];
+
+  const file = allowArg.split("=").slice(1).join("=");
+
+  if (!fs.existsSync(file)) {
+    console.error(`--allow-external: no such file: ${file}`);
+    process.exit(2);
+  }
+
+  return fs.readFileSync(file, "utf8")
+    .split("\n")
+    .map((l) => l.replace(/#.*$/, "").trim())
+    .filter(Boolean);
+})();
+
+const externalAllowed = (url) => ALLOW_EXTERNAL.some((entry) => {
+  if (url.startsWith(entry)) return true;
+  try {
+    const host = new URL(url).hostname;
+    return host === entry || host.endsWith(`.${entry}`);
+  } catch {
+    return false;
+  }
+});
+
 // ---- tiny static server with _redirects ----------------------------------
 const MIME = {
   ".html": "text/html", ".htm": "text/html", ".css": "text/css",
@@ -325,7 +365,7 @@ async function main() {
       if (cls.kind === "ignore") continue;
       if (cls.kind === "external") {
         externals.add(cls.url);
-        if (CHECK_EXTERNAL) {
+        if (CHECK_EXTERNAL && !externalAllowed(cls.url)) {
           const r = await request(cls.url, "HEAD").catch(() => ({ status: 0 }));
           if (!(r.status >= 200 && r.status < 400))
             reportBroken(cls.url, display, `external HTTP ${r.status || "unreachable"}`);

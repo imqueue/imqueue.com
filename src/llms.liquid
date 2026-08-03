@@ -104,10 +104,17 @@ Install: `npm i -g @imqueue/cli` (scaffolding and client generation), then
 Source: https://github.com/imqueue
 Packages: https://www.npmjs.com/org/imqueue
 Symbol index: {{ siteUrl }}/api/search-index.json
+Article index: {{ siteUrl }}/blog/search-index.json (title, summary, topics and
+url for every article — cheaper than fetching the listing pages)
 MCP endpoint: https://mcp.imqueue.org/mcp (Streamable HTTP, no auth, read-only —
 docs search, symbol lookup and scaffolding as tools rather than as pages to parse)
 Licence: GPL-3.0, with a commercial licence for closed-source distribution —
 https://imqueue.com/license/
+
+At a glance (the same rows {{ siteUrl }}/intro/ renders):
+{%- for row in atAGlance %}
+- {{ row.label }}: {{ row.value }}
+{%- endfor %}
 
 ## Getting Started
 {%- comment -%}
@@ -128,7 +135,7 @@ collections.all. The old form was `item.url == "/get-started/" or item.url ==
 Titles and descriptions still come from each page's own front matter, so the
 listing cannot drift from the page. Order is definition -> quickstart -> agents.
 {%- endcomment -%}
-{%- assign startPages = "/,/intro/,/glossary/,/get-started/,/using-ai-assistants/" | split: "," -%}
+{%- assign startPages = "/,/docs/,/intro/,/glossary/,/get-started/,/using-ai-assistants/" | split: "," -%}
 {%- for wanted in startPages -%}
 {%- for item in collections.all -%}
 {%- if item.url == wanted %}
@@ -189,6 +196,13 @@ WHOLE of collections.all — this section listed all 1,868 pages.
 
 ## Reference
 {%- comment -%}
+/docs/ is NOT here any more. It was the fourth item under `## Reference`, after three
+generated-API entries, with a six-word description ("Entry point to all @imqueue
+documentation") and no markdown link — while its own mirror enumerates all eight
+documentation areas with a sentence each. It is the second entry of
+`## Getting Started` now, so it gets the generated treatment: its real front-matter
+description, and its `/docs/index.md` mirror.
+
 The prose that used to sit here — the mirror convention, search-index.json and
 how to read a package index — moved up into the intro block above the first H2.
 See the comment there. The closing `%}` keeps its trailing newline, or the first
@@ -197,7 +211,6 @@ list item lands on the same line as the heading.
 - [API Documentation]({{ siteUrl }}/api/): Full generated API reference for every documented @imqueue package (classes, interfaces, methods, types), grouped by what the package is for. — [markdown]({{ siteUrl }}/api/index.md)
 - [@imqueue/core API reference]({{ siteUrl }}/api/core/latest/): Every exported symbol of @imqueue/core, generated from {{ apiVersions.core.latest }} — this URL always serves the current major. The Redis-backed message queue: IMQ factory, RedisQueue, ClusteredRedisQueue, IMQOptions, the profile decorator and the cluster-manager extension points. — [markdown]({{ siteUrl }}/api/core/latest/index.md)
 - [@imqueue/rpc API reference]({{ siteUrl }}/api/rpc/latest/): Every exported symbol of @imqueue/rpc, generated from {{ apiVersions.rpc.latest }} — this URL always serves the current major. Typed RPC: IMQService, IMQClient, the expose/property/classType/lock/cache/logged decorators, the service Description shape used for client generation, and the cache and lock APIs. — [markdown]({{ siteUrl }}/api/rpc/latest/index.md)
-- [Documentation home]({{ siteUrl }}/docs/): Entry point to all @imqueue documentation.
 {%- comment -%}
 The framework spine above stays hand-written — its two entries name the symbols an
 agent is most likely to be looking for, which a one-line blurb cannot. Below it,

@@ -9,7 +9,12 @@
 // Deliberately small. An earlier version asserted thirteen things, including which
 // regex matches Applebot and that sessions bucket per half hour — pure functions
 // that are correct by inspection, and ceremony to maintain. What survives is only
-// what fails SILENTLY or takes a site down:
+// what fails SILENTLY or takes a site down.
+//
+// Item 13 revisits the half-hour one on purpose, and differs from the version that was
+// deleted: it does not assert the arithmetic, it asserts the OBSERVABLE CONSEQUENCE of
+// a deliberate limitation (two views a minute apart can be two sessions) and says why,
+// so the next reader does not take it for a bug.
 //
 //   1-3. the middleware always returns a response, whatever analytics does
 //   4.   the crawler's user-agent never reaches Google (it would bot-filter the lot)
@@ -20,6 +25,8 @@
 //   9.   the event is never named page_view, which is what stops the double count
 //  10.   no raw address or user-agent reaches the payload, and no salt means no people
 //  11.   an AI citation click is attributed to its brand, and our own navigation is not
+//  12.   the `Link:` header names a mirror that EXISTS, and costs no rebuild elsewhere
+//  13.   sessions are wall-clock buckets — pinned for its SEMANTICS, not its arithmetic
 //
 // Nothing here touches the network — verified by running it under a global fetch
 // spy. Delivery is deliberately NOT tested here; it needs a credential and a
@@ -126,6 +133,41 @@ async function main() {
 
   assert.strictEqual(again.client_id, salted.client_id, 'same visitor, same id');
   assert.notStrictEqual(elsewhere.client_id, salted.client_id, 'different salt, different id');
+
+  // --- sessionisation is a BUCKET, and must keep reading as one --------------
+  // Not arithmetic — `Math.floor(now / 1800000)` needs no test. This pins the
+  // SEMANTICS, which are a known and deliberate limitation that a future reader will
+  // otherwise mistake for a bug (or, worse, "fix" by inventing state the
+  // no-paid-statistics constraint rules out): server-side sessions are wall-clock
+  // half-hour buckets, while gtag's half of the same GA4 property uses the real
+  // 30-minutes-of-inactivity rule.
+  //
+  // The consequence is the thing worth pinning: two views ONE MINUTE apart are two
+  // sessions if they straddle :30, and two views TWENTY-NINE minutes apart are one if
+  // they do not. Anyone reading edge session counts as comparable to gtag's needs to
+  // know that, and check-agent-analytics.js records that a previous half-hour
+  // assertion was deleted as ceremony — this one carries the reason so it is not
+  // deleted again.
+  const at = async (ms) => (await buildEvent({
+    url: new URL('https://imqueue.org/cli/'),
+    userAgent: BROWSER, ip: '203.0.113.9', salt: 'test-salt', isDocument: true,
+    status: 200, edition: 'org', now: ms,
+  })).events[0].params.visit_id;
+
+  // 1970-01-01T00:29:30Z and 00:30:30Z — a minute apart, either side of a boundary.
+  const before = await at(29.5 * 60 * 1000);
+  const after = await at(30.5 * 60 * 1000);
+  // 00:00:30 and 00:29:00 — twenty-eight minutes apart, same bucket.
+  const early = await at(30 * 1000);
+  const late = await at(29 * 60 * 1000);
+
+  assert.notStrictEqual(before, after,
+    'a wall-clock bucket splits two views a minute apart across :30 — this is the '
+    + 'documented limitation, not a defect');
+  assert.strictEqual(early, late,
+    'and merges two views 28 minutes apart inside one bucket');
+  assert.strictEqual(before, early, 'both halves of the hour before :30 are one bucket');
+  ok('sessions are wall-clock half-hour buckets, and the reports say so');
 
   // No salt, no people. Counting them under a weaker identifier would be worse than
   // not counting them, so this must stay a hard drop rather than a fallback.

@@ -75,6 +75,19 @@
 .prose th :not(pre) > code, .prose td :not(pre) > code { overflow-wrap: normal; }
 .prose th { font-family: var(--font-mono); font-size: 13.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 
+/* The "@imqueue at a glance" fact table on /intro/. Not inside .prose — that page is
+   hand-built HTML sections, not rendered markdown — so it needs its own rules rather
+   than inheriting the .prose table ones above.
+   Two columns, the label one sized to its content so the values get the rest, and the
+   whole thing scrollable in its own box on a narrow viewport rather than widening the
+   page (the same reason .prose table does it). */
+.glance { width: 100%; border-collapse: collapse; margin: 0; font-size: 15.5px; display: block; overflow-x: auto; }
+.glance th, .glance td { text-align: left; padding: 9px 14px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.glance th {
+  font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+  color: var(--muted); white-space: nowrap; padding-right: 22px;
+}
+
 /* docs layout: left sticky sidebar nav + content (same pattern as the tutorial).
    The [[toc]] renders at the top of the content, then site.js relocates it into
    the left sidebar slot and adds .has-toc (progressive enhancement). */
