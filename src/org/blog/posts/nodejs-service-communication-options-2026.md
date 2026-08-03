@@ -183,7 +183,7 @@ default, and it is worth choosing on purpose rather than arriving at.
 The full matrix, with every row linked to a detailed comparison, is at
 [/compare/](/compare/).
 
-## What we would actually tell you
+## What we would actually tell you to pick
 
 If you are polyglot, use gRPC for calls and NATS for events, and stop reading
 framework comparisons.
@@ -199,7 +199,7 @@ between them is a way of not working on it. [Splitting a monolith along the righ
 seam](/blog/monolith-to-services-first-extraction/) is usually the higher-value
 work.
 
-## FAQ
+## Frequently asked questions about Node.js service-to-service communication
 
 ### What is the best way for Node.js microservices to communicate in 2026?
 There is no single best. For a polyglot fleet, gRPC for calls and a message bus

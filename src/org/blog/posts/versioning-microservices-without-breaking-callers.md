@@ -16,7 +16,7 @@ ogType: article
 
 **Breaking changes between services are dangerous because they're silent: the caller keeps compiling against its old idea of the contract and fails at runtime instead.** Making them safe is mostly about making them *loud* — early, and at build time. Generated clients get you most of the way by turning a contract change into a compile error, but they don't cover the window where both versions are running at once, and that window is where the actual outages happen.
 
-## Why breakage goes silent
+## Why microservice breakage goes silent
 
 In a typical setup the caller's knowledge of a service is a hand-maintained client, or assumptions baked into request code. When the service changes, nothing forces the caller to notice:
 
@@ -26,7 +26,7 @@ In a typical setup the caller's knowledge of a service is a hand-maintained clie
 
 The root cause is the one behind so much microservice pain: the contract lives in two places and nothing checks that they agree. [Generated clients remove the copy](/blog/stop-hand-writing-microservice-clients/), which is where this gets tractable.
 
-## Make breakage a compile error
+## Make breakage a compile error with generated `@imqueue` clients
 
 Because `@imqueue` clients are generated from the service, the contract has one source of truth, and you can turn a breaking change into a build failure:
 
@@ -48,9 +48,9 @@ Two limits worth stating plainly, because they're easy to over-read:
 - **The error arrives at regeneration, not at deploy.** Nothing detects that a running peer has drifted from a client generated last month. If regeneration isn't wired into the service's release process, you've bought a slower version of the same problem.
 - **It's a compile check, not a runtime one.** A caller that never recompiles keeps calling the old shape. Which brings us to the part most articles skip.
 
-## The mixed-version window
+## The mixed-version window, and why a queue makes it non-optional
 
-This is where real incidents come from, and no amount of type generation removes it.
+The mixed-version window is where real incidents come from, and no amount of type generation removes it.
 
 Between the moment you deploy service B v2 and the moment every caller has been regenerated and redeployed, **both versions of the contract are live**. With a queue in between, that window has a specific shape:
 
@@ -62,7 +62,7 @@ So the rule is not "regenerate and ship". The rule is: **a service must be able 
 
 Practical consequence for deploy order: ship the *service* first, in a backward-compatible form, then the callers. Never the reverse — a caller sending a v2-shaped request to a v1 service has nothing to fall back on.
 
-## Which changes are actually safe
+## Which contract changes are actually safe in `@imqueue`
 
 | Change | Safe? | Notes |
 |---|---|---|
@@ -80,9 +80,9 @@ One `@imqueue` specific: argument **count** is validated at the boundary, and a 
 
 Also remember the `@param` tags in your doc-block *are* the contract. Changing the JSDoc without changing the signature is a contract change, and changing the signature without the JSDoc means the generated client won't reflect what you did.
 
-## Deprecate, don't mutate
+## Deprecate an exposed method, don't mutate it
 
-The pattern that avoids most of this:
+Deprecation is the pattern that avoids most breakage on an `@imqueue` service:
 
 1. Add the new method alongside the old one. Both exposed, both working.
 2. Regenerate clients. Callers migrate at their own pace — nothing breaks, because nothing was removed.
@@ -91,13 +91,13 @@ The pattern that avoids most of this:
 
 Slower than editing in place, and much cheaper than an incident. For a method you can't cleanly duplicate, add an optional options object and branch on it — an optional parameter is backward-compatible, a required one isn't.
 
-## Coordinating a fleet
+## Coordinating a version change across an `@imqueue` fleet
 
 Sometimes a change genuinely has to ripple across many services — a shared type, a cross-cutting dependency bump. Doing that by hand, repo by repo, is where mistakes get made. [`@imqueue/cli`](/cli/) includes a fleet-wide version workflow (`imq service update-version`, with `--bump`) to roll a version change across many services in a coordinated way rather than editing each one individually.
 
 For the mechanics of running several services together while you do it, [isolated imq CLI environments](/blog/isolated-imq-cli-environments/) covers keeping fleets from colliding on one machine.
 
-## A checklist for a contract change
+## A checklist for changing an `@imqueue` service contract
 
 - Is the change additive? If not, can it be expressed additively?
 - Will the service accept the **old** shape for as long as old callers exist?
@@ -106,7 +106,7 @@ For the mechanics of running several services together while you do it, [isolate
 - Is anything already sitting in the queue that the new code will consume?
 - Are the JSDoc annotations updated alongside the signature?
 
-## FAQ
+## Frequently asked questions about versioning @imqueue services
 
 ### Do generated clients eliminate breaking changes?
 No. They make breaking changes *visible* at compile time after regeneration. They don't make an incompatible change compatible, and they don't cover callers that haven't recompiled.
@@ -115,16 +115,16 @@ No. They make breaking changes *visible* at compile time after regeneration. The
 For most changes, neither: add an optional parameter or a new method and deprecate the old one. Reach for a parallel `getV2` only when the shapes genuinely can't coexist in one signature, and treat it as debt to remove.
 
 ### What about messages already in the queue during a deploy?
-They'll be handled by whatever consumes them next, which may be the new code. That's the core reason a new version must still understand the old request shape.
+Messages already queued are handled by whatever consumes them next, which may be the new code. That's the core reason a new version must still understand the old request shape.
 
-### Can I run two versions of the same service at once?
-They'd compete on the same queue, so requests would be split between them unpredictably. If you need genuine version isolation, give the new version its own service name and route at the caller.
+### Can I run two versions of the same @imqueue service at once?
+Two versions under one service name compete on the same queue, so requests are split between them unpredictably. If you need genuine version isolation, give the new version its own service name and route at the caller.
 
 ### How do I know a deprecated method is unused?
 Log calls to it and watch. There's no built-in usage tracking, so instrument the method before you plan its removal.
 
 ### Does @imqueue check the contract at runtime?
-It validates argument count and rejects mismatches with `IMQ_RPC_INVALID_ARGS_COUNT`. It doesn't deep-validate payload shapes — if you need schema validation, add it yourself.
+`@imqueue` validates argument count and rejects mismatches with `IMQ_RPC_INVALID_ARGS_COUNT`. It doesn't deep-validate payload shapes — if you need schema validation, add it yourself.
 
 ---
 

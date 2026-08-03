@@ -24,9 +24,9 @@ When service A calls service B over HTTP, something must decide *which instance*
 - **Addressing and scaling are coupled.** Add an instance of B and the balancer has to learn about it, via discovery, health checks or registration.
 - **It's in the hot path.** Every internal call traverses it, so its latency and availability become yours.
 
-## Why pulling beats pushing
+## Why pulling beats pushing: competing consumers vs a load balancer
 
-This is the part worth understanding, because it's the actual mechanism rather than just "one less component".
+Pull-based distribution is the actual mechanism behind competing consumers, and worth understanding on its own rather than as "one less component".
 
 A load balancer **pushes**. It picks a target using a policy — round-robin, least-connections, random — and hands the request over. The policy is a guess about which instance can best handle the work right now, made by something that isn't that instance. Round-robin will happily hand a request to an instance that's mid-way through something expensive; least-connections is better but still infers load from connection count rather than from actual capacity.
 
@@ -56,9 +56,9 @@ Start three copies and callers keep calling `client.make(...)` exactly as before
 
 It's also not a polling loop. The implementation uses blocking queue operations rather than timers, so an idle worker costs no CPU and a message doesn't wait for the next tick of anything.
 
-## Three ways to add capacity
+## Three ways to add capacity with `@imqueue`
 
-They compose, and they fail differently, so it's worth knowing which you're using.
+`@imqueue` gives you three levers — more service instances, more workers inside one process, and more Redis nodes. They compose, and they fail differently, so it's worth knowing which you're using.
 
 **More service instances.** The plain case above: separate processes, possibly on separate machines, all consuming the same queue. Nothing to configure.
 
@@ -69,9 +69,9 @@ They compose, and they fail differently, so it's worth knowing which you're usin
 
 **More Redis nodes**, via clustering. Here the asymmetry matters: `send()` routes each message to exactly one server using health-aware round-robin that skips instances whose writer connection isn't ready — but every *other* operation (`start`, `stop`, `clear`, `publish`, `subscribe`, `queueLength`) fans out to every server using `Promise.all`. So one failing host fails the whole call, with no partial-failure reporting and no rollback. [Horizontally scalable Redis broker](/blog/horizontally-scalable-redis-broker/) goes through the topology properly.
 
-## What a balancer still does better
+## What a load balancer still does better than competing consumers
 
-Being straight about this matters more than the pitch:
+Competing consumers gives up capabilities a balancer genuinely has, and being straight about them matters more than the pitch:
 
 - **Weighted and policy-based routing.** Canary deploys, traffic splitting, "send 5% to the new version" — competing consumers has no notion of any of it. Every consumer on a queue is equal.
 - **Per-instance health.** A balancer knows which instance is unhealthy and stops sending to it. A queue has no view of your instances at all; an instance that consumes messages and then fails at them will happily keep consuming.
@@ -79,45 +79,45 @@ Being straight about this matters more than the pitch:
 - **Circuit breaking and retry policy.** Not present; some of the need is absorbed by messages waiting rather than failing, but the features aren't there.
 - **Edge traffic.** Browsers can't talk to the queue. You still want an HTTP front door.
 
-## Fairness and head-of-line effects
+## Fairness and head-of-line effects on a shared `@imqueue` queue
 
-Two things to design for once distribution is consumption-driven.
+Once distribution is consumption-driven, two effects of a shared queue are yours to design for.
 
 **Mixed durations on one queue.** If a service has both 5 ms and 5 s methods, a burst of slow calls occupies your consumers and the fast calls queue behind them. The queue does not preempt; nothing interrupts a slow handler or re-queues it for taking too long. Where this bites, split the slow work onto its own service so it gets its own queue and its own scaling curve.
 
 **Duplicates are possible.** Delivery is at-least-once in both modes, so handlers should be idempotent. Safe delivery re-queues a message a dying worker never *started*; it doesn't protect work already in flight, and nothing drains in-flight work on shutdown — see [graceful shutdown and zero-drop deploys](/blog/graceful-shutdown-zero-drop-deploys/) and [what guaranteed delivery costs](/blog/guaranteed-message-delivery-cost/).
 
-## How you know it's working
+## How you know competing consumers is keeping up
 
-You lose a balancer's dashboard, so watch the queue instead. `@imqueue` can expose a `queue_length` metric, and the signal you want is **sustained growth** — that means arrival rate has outrun your consumers and it's time to add some.
+Without a balancer you lose its dashboard, so watch the queue instead. `@imqueue` can expose a `queue_length` metric, and the signal you want is **sustained growth** — that means arrival rate has outrun your consumers and it's time to add some.
 
 Read it with care: `queueLength()` excludes messages not yet due and messages currently leased under safe delivery, so it isn't a measure of outstanding work, and it returns `0` when there's no writer connection — which makes "disconnected" indistinguishable from "empty". Alert on the trend, not the absolute number, and never treat zero as proof of health.
 
-## When this is the right trade
+## When competing consumers is the right trade
 
-Use competing consumers for internal calls when your services are Node.js, you already run Redis or don't mind adding it, your handlers can be idempotent, and you don't need weighted routing or canaries on internal traffic.
+Use competing consumers — over `@imqueue` or any other queue — for internal calls when your services are Node.js, you already run Redis or don't mind adding it, your handlers can be idempotent, and you don't need weighted routing or canaries on internal traffic.
 
 Keep the balancer or mesh when you need traffic policy, per-instance health, mTLS and tracing, fail-fast semantics, or you're routing between languages — [gRPC and a mesh are the better answer there](/blog/grpc-vs-message-queue-rpc/).
 
-## FAQ
+## Frequently asked questions about load balancing without a balancer
 
-### How does the queue decide which instance gets a message?
-It doesn't, in the sense a balancer does. Instances pull when they're ready, so the next free consumer takes the next message. Distribution is a consequence of consumption rather than a routing decision.
+### How does a message queue decide which service instance gets a message?
+A queue does not decide, in the sense a balancer does. Instances pull when they're ready, so the next free consumer takes the next message. Distribution is a consequence of consumption rather than a routing decision.
 
-### Is this the same as round-robin?
+### Are competing consumers the same as round-robin?
 No, and that's the point. Round-robin sends to the next instance in sequence whether or not it's busy. Competing consumers sends to whichever instance asks, which is inherently load-aware.
 
 ### Do I still need a load balancer anywhere?
-Yes — at the edge, for public HTTP traffic. This pattern is about services calling each other.
+Yes — at the edge, for public HTTP traffic. Competing consumers is about services calling each other.
 
-### How do I scale a service?
+### How do I scale an `@imqueue` service?
 Run more instances of it. They join the same queue and start taking work immediately, with no registration step.
 
-### What if one instance is much slower than the others?
-It asks for work less often, so it naturally receives less. That's the main advantage over push-based balancing.
+### What if one service instance is much slower than the others?
+That instance asks for work less often, so it naturally receives less. Self-throttling is the main advantage competing consumers has over push-based balancing.
 
-### Can I do canary deploys this way?
-Not with the queue alone — every consumer on a queue is equal, and there's no weighting. Deploy a canary as a separate service with its own queue, and split traffic at the caller or the gateway.
+### Can I do canary deploys with competing consumers?
+Not with the queue alone — every consumer on an `@imqueue` queue is equal, and there's no weighting. Deploy a canary as a separate service with its own queue, and split traffic at the caller or the gateway.
 
 ---
 

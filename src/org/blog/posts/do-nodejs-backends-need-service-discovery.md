@@ -49,7 +49,7 @@ The caller never knows or cares how many instances of the `User` service exist, 
 
 ## The nice consequence: boot order stops mattering
 
-This is the part people don't expect. Because a call is a message on a queue rather than a connection to a host, a caller can send before the callee exists. The message waits. Services can start in **any order**, and a service that isn't up yet simply accumulates work until a consumer appears.
+Order-independent boot is the part people don't expect. Because an `@imqueue` call is a message on a queue rather than a connection to a host, a caller can send before the callee exists. The message waits. Services can start in **any order**, and a service that isn't up yet simply accumulates work until a consumer appears.
 
 That removes a whole category of orchestration: no readiness gates between services just so A doesn't crash-loop while B boots, no retry-with-backoff on startup, no dependency ordering in your compose file.
 
@@ -88,7 +88,7 @@ Read that metric carefully, though. `queueLength()` excludes messages that aren'
 - **Non-RPC needs are untouched.** Config distribution, leader election and coordination still need the right tool; a queue doesn't replace them.
 - **Cross-language fleets** may still want a language-neutral discovery story — [gRPC is the better answer there](/blog/grpc-vs-message-queue-rpc/).
 
-## So do you need it?
+## So does your Node.js back-end need service discovery?
 
 A short test. You probably **don't** need a discovery layer if:
 
@@ -104,7 +104,7 @@ You probably **do** still need one if:
 - You need discovery for config, coordination or leader election as well.
 - Fail-fast semantics matter more to you than buffered ones — some systems genuinely want the call to explode immediately rather than wait.
 
-## FAQ
+## Frequently asked questions about service discovery in Node.js
 
 ### Is a message queue a replacement for Consul or etcd?
 For service-to-service *addressing*, largely yes — the queue name is the address. For config distribution, leader election and coordination, no. Those are separate jobs a queue doesn't do.
