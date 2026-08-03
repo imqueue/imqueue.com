@@ -19,6 +19,7 @@
 //   8.   SUBRESOURCES ARE NEVER COUNTED — the one that would flood the property
 //   9.   the event is never named page_view, which is what stops the double count
 //  10.   no raw address or user-agent reaches the payload, and no salt means no people
+//  11.   an AI citation click is attributed to its brand, and our own navigation is not
 //
 // Nothing here touches the network — verified by running it under a global fetch
 // spy. Delivery is deliberately NOT tested here; it needs a credential and a
@@ -270,6 +271,74 @@ async function main() {
     );
   }
   ok('kind separates training / search / AI-search / IDE agent / person; never page_view');
+
+  // --- 11. AI referral attribution ------------------------------------------
+  // A click from an AI answer surface is the outcome the whole programme exists to
+  // produce, and it is the number most easily lost: GA4's own "AI Assistants"
+  // channel omits Perplexity and Claude, so both land in Referral with every
+  // GitHub link. This asserts the pair of dimensions that fixes it, and — more
+  // importantly — that our own navigation never lands in the same bucket.
+  {
+    const refFor = async (referrer, path = '/docs/index.md') => (await buildEvent({
+      url: new URL(`https://imqueue.org${path}`),
+      userAgent: 'curl/8.5.0',
+      ip: '203.0.113.9',
+      salt: 'test-salt',
+      referrer,
+      status: 200,
+      edition: 'org',
+    })).events[0].params;
+
+    const cases = [
+      // the two GA4's default channel group leaves in Referral
+      ['https://www.perplexity.ai/search/imqueue-rpc', 'perplexity.ai', 'perplexity'],
+      ['https://claude.ai/chat/abc-123', 'claude.ai', 'claude'],
+      // ...and the ones it does cover, which must agree rather than double-classify
+      ['https://chatgpt.com/c/abc', 'chatgpt.com', 'chatgpt'],
+      ['https://chat.openai.com/c/abc', 'chat.openai.com', 'chatgpt'],
+      ['https://gemini.google.com/app', 'gemini.google.com', 'gemini'],
+      // www. and deeper subdomains must not create separate sources
+      ['https://www.perplexity.ai/', 'perplexity.ai', 'perplexity'],
+      // OUR OWN navigation. Without its own value this would drown `other` and
+      // make the dimension unreadable; imqueue.com -> imqueue.org is a crossing
+      // the site makes on purpose and is not a citation.
+      ['https://imqueue.org/docs/', 'imqueue.org', 'internal'],
+      ['https://imqueue.com/pricing/', 'imqueue.com', 'internal'],
+      // an ordinary referral stays an ordinary referral
+      ['https://news.ycombinator.com/item?id=1', 'news.ycombinator.com', 'other'],
+      // a bare substring must NOT match: Google's own example regex starts with
+      // `.*ai`, which would file every one of these as an AI assistant.
+      ['https://mail.google.com/mail/u/0', 'mail.google.com', 'other'],
+      ['https://www.chairish.com/x', 'chairish.com', 'other'],
+      // most crawler traffic, and every click from the ChatGPT/Claude desktop apps
+      [null, 'none', 'none'],
+      // a client sending nonsense must not cost the event
+      ['not a url', 'invalid', 'other'],
+    ];
+
+    for (const [referrer, host, source] of cases) {
+      const params = await refFor(referrer);
+
+      assert.strictEqual(params.referrer_host, host,
+        `referrer ${referrer} must give referrer_host=${host}, got ${params.referrer_host}`);
+      assert.strictEqual(params.ai_source, source,
+        `referrer ${referrer} must give ai_source=${source}, got ${params.ai_source}`);
+    }
+
+    // page_referrer is GA4-reserved and drives attribution, so it is sent verbatim
+    // when there is one and OMITTED when there is not — never invented as 'none',
+    // which would be a claim about where a visitor came from.
+    assert.strictEqual(
+      (await refFor('https://claude.ai/chat/abc-123')).page_referrer,
+      'https://claude.ai/chat/abc-123',
+      'page_referrer must be passed through verbatim for GA4 attribution',
+    );
+    assert.ok(
+      !('page_referrer' in await refFor(null)),
+      'page_referrer must be absent, not "none", when the request had no referrer',
+    );
+  }
+  ok('AI referrals are attributed by brand, and our own navigation is not one');
 
   console.log(`\nAll ${checks} agent-analytics checks passed.`);
 }
