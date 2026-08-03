@@ -225,6 +225,25 @@ async function main() {
     [BROWSER, '/docs/', true, 'user'],
     // ...and a named crawler that happens to send Sec-Fetch-Dest must NOT become a user
     [GPTBOT, '/docs/', true, 'ai.training'],
+
+    // THE `user` FLOOD GUARD. Nearly every crawler on the web sends Mozilla/ inside a
+    // `(compatible; Xbot/1.0; +http://…)` UA, on purpose, so old servers serve it. The
+    // browser heuristic was Mozilla/ + a document request and nothing else, so every
+    // bot with no row in CRAWLERS — SEO auditors, scrapers, the next model vendor's
+    // first crawler — was landing in `kind=user`, the one number that is supposed to
+    // mean a person is looking at the page. These are the four announcement shapes.
+    ['Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)', '/docs/', true, 'unknown'],
+    ['Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)', '/docs/', true, 'unknown'],
+    ['Mozilla/5.0 (compatible; SomeCrawler)', '/docs/', true, 'unknown'],
+    ['Mozilla/5.0 (Linux) NewSpider/2.0', '/docs/', true, 'unknown'],
+    // A declared bot on an agent-only surface is NOT assistant.*: every assistant
+    // value means a person is waiting, and nobody is waiting on SemrushBot. The
+    // anonymous-client reading above (curl -> assistant.other) does not transfer.
+    ['Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)', '/docs/index.md', false, 'unknown'],
+    // ...and legacy Internet Explorer must survive all of the above as a HUMAN. Its UA
+    // carries `(compatible;`, which is why that token is deliberately not matched:
+    // a false positive here silently deletes a real reader from the report.
+    ['Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)', '/docs/', true, 'user'],
   ];
 
   for (const [userAgent, path, isDocument, expected] of cases) {
