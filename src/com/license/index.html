@@ -178,3 +178,11 @@ keywords: "imqueue license, imqueue commercial license, GPL-3.0 commercial use, 
   ]
 }
 </script>
+
+{%- comment -%}
+These pages are laid out by base.html directly, so they do not pick up the
+mirror-link include the docs/post/apiref layouts carry. Added per page rather than
+to base.html itself, because those layouts wrap base.html — the include would then
+render twice on every documentation page.
+{%- endcomment -%}
+<div class="container" style="padding-bottom:32px;">{% include "mirror-link.html" %}</div>
