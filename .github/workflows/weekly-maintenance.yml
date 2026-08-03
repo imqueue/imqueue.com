@@ -14,9 +14,12 @@ name: Weekly maintenance
 #
 #   2. External link rot. `check:links:external` existed for months with nothing
 #      running it anywhere — the only hit for it across .github/, .githooks/ and
-#      package.json was its own definition. There are 33 distinct external hosts and
-#      no rot today; the blocker was noise, not effort, which
-#      scripts/external-allowlist.txt now handles.
+#      package.json was its own definition. It was also BROKEN, which is why nobody
+#      missed it: check-links.js dialled every URL over plain http, including https
+#      ones, and had no request timeout at all. Both fixed in the same change as this
+#      file; see the comment above `request()`. scripts/external-allowlist.txt keeps
+#      the expected failures (npmjs 403ing an unattended HEAD, and friends) from
+#      making the job cry wolf.
 #
 # Both are Monday-morning jobs, deliberately separate: one commits, the other opens an
 # issue, and a failure in either must not hide the other.
@@ -36,6 +39,8 @@ jobs:
   dates:
     name: Repair dateModified drift
     runs-on: ubuntu-latest
+    # A scheduled job that hangs burns quota until GitHub's 6-hour default kills it.
+    timeout-minutes: 20
     permissions:
       contents: write
     steps:
@@ -108,6 +113,9 @@ jobs:
   link-rot:
     name: External link rot
     runs-on: ubuntu-latest
+    # Belt to check-links.js's per-request timeout braces: 79 external links at a 10s
+    # worst case is ~13 minutes if every single one times out, which never happens.
+    timeout-minutes: 25
     permissions:
       # To open/update the tracking issue below.
       issues: write

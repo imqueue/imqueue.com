@@ -26,6 +26,7 @@
 "use strict";
 
 const http = require("http");
+const https = require("https");
 const fs = require("fs");
 const path = require("path");
 
@@ -175,11 +176,42 @@ function listen(server) {
 }
 
 // ---- fetch ----------------------------------------------------------------
+// Two things here were wrong, and only the second was visible.
+//
+// 1. `http.request` was used for EVERY url. That is correct for the internal crawl —
+//    it all goes to the local static server on 127.0.0.1 — but `--external` passes
+//    https:// urls through the same function, so it dialled port 80 on hosts that
+//    only answer 443. So `check:links:external` never actually verified an external
+//    link: it measured whatever a plaintext connection did. Which also means the
+//    audit note that "a naive run yields ~9 false positives" was describing a broken
+//    checker, not the state of the links.
+//
+// 2. No timeout, anywhere. A host that completes the TCP handshake and then never
+//    responds hangs the whole run forever with no output — which is exactly what
+//    happened on the first real run: 15 minutes, zero bytes written, two live
+//    processes. A weekly job built on that would hang until GitHub's 6-hour job
+//    timeout killed it, every Monday, and report nothing.
+//
+// The timeout applies to internal requests too, which is free: the local server
+// answers in single-digit milliseconds, so anything reaching 10s there is a bug worth
+// failing on rather than waiting on.
+const REQUEST_TIMEOUT_MS = 10000;
+
 function request(localUrl, method = "GET") {
   return new Promise((resolve) => {
     const u = new URL(localUrl);
-    const r = http.request(
-      { hostname: u.hostname, port: u.port, path: u.pathname + u.search, method },
+    const mod = u.protocol === "https:" ? https : http;
+    const r = mod.request(
+      {
+        hostname: u.hostname,
+        port: u.port,
+        path: u.pathname + u.search,
+        method,
+        timeout: REQUEST_TIMEOUT_MS,
+        // Some hosts 403 or hang on a request with no UA. Naming ourselves is both
+        // more honest and more likely to be served than a bare Node default.
+        headers: { "user-agent": "imqueue-link-check (+https://imqueue.org/)" },
+      },
       (res) => {
         const chunks = [];
         const ct = res.headers["content-type"] || "";
@@ -203,6 +235,11 @@ function request(localUrl, method = "GET") {
       }
     );
     r.on("error", (e) => resolve({ status: 0, error: e.message, headers: {}, body: "", isHtml: false }));
+    // `timeout` above only fires the event; it does not abort the request.
+    r.on("timeout", () => {
+      r.destroy();
+      resolve({ status: 0, error: `timeout after ${REQUEST_TIMEOUT_MS}ms`, headers: {}, body: "", isHtml: false });
+    });
     r.end();
   });
 }
