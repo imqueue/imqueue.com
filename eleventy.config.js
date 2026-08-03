@@ -330,6 +330,22 @@ module.exports = function (eleventyConfig) {
       .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
       .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "");
 
+    // An inline SVG is unreadable as markdown and can run to hundreds of lines.
+    // /tutorial/index.md carried a whole architecture diagram that way. Both
+    // <desc> and <title> are already authored on every SVG here (image alt text is
+    // 80/80 on this site), and the <desc> IS the description a non-visual reader
+    // is meant to get — so keep that and drop the geometry.
+    out = out.replace(/<svg\b[\s\S]*?<\/svg>/gi, (svg) => {
+      const desc = /<desc[^>]*>([\s\S]*?)<\/desc>/i.exec(svg);
+      const title = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(svg);
+      const text = [title && title[1], desc && desc[1]]
+        .filter(Boolean)
+        .map((t) => t.replace(/\s+/g, " ").trim())
+        .join(" — ");
+
+      return text ? `\n*Diagram: ${text}*\n` : "";
+    });
+
     out = out.replace(/<table>[\s\S]*?<\/table>/g, tableToMarkdown);
 
     if (generated) {
@@ -343,6 +359,42 @@ module.exports = function (eleventyConfig) {
         .replace(/&#39;/g, "'")
         .replace(/&amp;/g, "&"); // last, so &amp;gt; does not become >
     }
+
+    // markdown-it-attrs syntax. `## Heading {#explicit-id}` is markup the HTML
+    // build consumes and the mirror ships verbatim — five CLI guide mirrors had
+    // `{#update-version-vs-up}` and friends sitting in their headings, which is
+    // noise at best and a heading a model may quote with the braces attached.
+    // Removed AFTER any table conversion, since a cell can legitimately contain
+    // braces.
+    out = out.replace(/[ \t]*\{#[A-Za-z0-9_-]+\}[ \t]*(?=\r?$)/gm, "");
+
+    // HTML comments are instructions to whoever edits the source. The
+    // api-documenter marker is handled above and is gone by now; what is left is
+    // authoring notes, which a reader should never see.
+    out = out.replace(/<!--[\s\S]*?-->/g, "");
+
+    // Relative links. A mirror is fetched on its own — by get_doc, by a crawler
+    // following /llms.txt, or by an agent that was handed the URL — and 1,224
+    // distinct `](/path/)` targets in the mirrors resolve against nothing in that
+    // situation. Whatever consumed the file has to already know which host it came
+    // from, and the whole point of the mirror is that it travels.
+    //
+    // Only root-relative hrefs, and only in markdown link/image syntax:
+    // `](#anchor)` stays a fragment on the page itself, `](https://…)` is already
+    // absolute, and `](./x)` does not occur here.
+    out = out.replace(/\]\((\/[^)\s]*)\)/g, `](${SITE_URL}$1)`);
+
+    // The mirror templates emit `# {{ title }}` and then the body, and a body that
+    // starts with its own H1 gives the file two — /api/core/latest/index.md had
+    // "# @imqueue/core 3.3.1 · API reference" followed by "# core package". Two H1s
+    // is ambiguous about what the document is, and chunkers split on the first one.
+    // Only a LEADING H1 is dropped, so an H1 used later as a real section divider
+    // survives.
+    //
+    // CRLF matters here and cost a debugging round: api-documenter writes \r\n, and
+    // JavaScript's `.` does not match \r — so `/^\s*#\s+.+\n+/` never fired on the
+    // generated pages, which are exactly the ones with the duplicate H1.
+    out = out.replace(/^\s*#[ \t]+[^\r\n]+(\r?\n)+/, "");
 
     return out.replace(/\n{3,}/g, "\n\n").trim();
   });
