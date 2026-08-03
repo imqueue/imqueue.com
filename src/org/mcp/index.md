@@ -85,16 +85,17 @@ can actually do. For those, use the **local** install above.
 ### See it answering
 
 <figure style="margin:24px 0;">
-  <video controls preload="metadata" playsinline width="785"
+  <video controls preload="metadata" playsinline width="807" height="698"
          style="width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);"
          src="/images/mcp-demo.mp4" type="video/mp4">
     Your browser cannot play embedded video.
-    <a href="/images/mcp-demo.mp4">Download the recording (MP4, 3.0 MB)</a>.
+    <a href="/images/mcp-demo.mp4">Download the recording (MP4, 3.3 MB)</a>.
   </video>
   <figcaption class="muted" style="font-size:14px;margin-top:10px;">
-    3:04, no audio — the hosted <code>@imqueue</code> server answering inside
-    ChatGPT: one call per tool, ending with <code>get_doc</code> refusing an
-    off-site URL.
+    2:32, no audio, 2× speed — the hosted <code>@imqueue</code> server answering
+    inside ChatGPT: every tool it offers, including the choice between two
+    mutually exclusive packages, and <code>get_doc</code> refusing an off-site
+    URL at the end.
   </figcaption>
 </figure>
 
