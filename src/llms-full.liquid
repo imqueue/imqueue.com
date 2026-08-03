@@ -47,7 +47,14 @@ disagree. See src/com/mirrors/README.txt for why .com needed them at all.
 {%- if item.url contains "/api/" -%}{%- assign isMd = false -%}{%- endif -%}
 {%- if item.data.draft -%}{%- assign isMd = false -%}{%- endif -%}
 {%- if isMd -%}
-{%- assign body = item.rawInput | replace: "[[toc]]", "" -%}
+{%- comment -%}
+Through agentMarkdown, like the per-page mirrors. This file was concatenating RAW
+source: HTML tables from api-documenter, `{#explicit-id}` attrs, authoring comments,
+a full inline SVG, and 1,224 root-relative links that resolve against nothing in a
+file meant to be ingested standalone. The mirrors have been passed through it since
+they existed; this one was not.
+{%- endcomment -%}
+{%- assign body = item.rawInput | replace: "[[toc]]", "" | agentMarkdown -%}
 
 ---
 
@@ -71,10 +78,18 @@ Source: {{ siteUrl }}/api/
 The guide below is included from the same source the HTML page renders, as the
 loop above skips everything under /api/ to keep the generated per-symbol
 reference out of this file.
-
+{%- comment -%}
+Captured and filtered, for the same reason src/org/mirrors/api.liquid does it:
+these partials are authored for the HTML page and carry root-relative links, which
+resolve against nothing in a file meant to be ingested standalone.
+{%- endcomment -%}
+{%- capture apiGuide -%}
 {% include "api/intro.md" %}
 {% include "api/rpc.md" %}
 {% include "api/mq.md" %}
 {% include "api/misc.md" %}
 {% include "api/migration.md" %}
+{%- endcapture %}
+
+{{ apiGuide | agentMarkdown }}
 {%- endif -%}
