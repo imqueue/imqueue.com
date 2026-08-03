@@ -1,0 +1,11 @@
+---
+permalink: /license/index.md
+eleventyExcludeFromCollections: true
+---
+{%- comment -%}
+Thin wrapper. The body lives in _shared/_includes/com/license.md so that this mirror
+and the com branch of src/llms-full.liquid render the SAME source — the same
+arrangement /api/ uses for its guide sections. Editing one cannot leave the other
+behind.
+{%- endcomment -%}
+{% include "com/license.md" %}
