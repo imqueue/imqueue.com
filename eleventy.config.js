@@ -139,10 +139,19 @@ module.exports = function (eleventyConfig) {
   // per-page ".md" mirrors, which is what AI agents read: the @imqueue MCP
   // server's get_doc fetches "<page-url>index.md".
   //
-  // The generated API reference is included, but only its /latest/ pages plus
-  // the /api/ landing page. Archived majors are left out deliberately: they are
-  // already noindex, and an agent should never be handed a stale API surface.
-  const API_MIRRORED = /^\/api\/$|^\/api\/[^/]+\/latest\//;
+  // The generated API reference is included, but only its /latest/ pages.
+  // Archived majors are left out deliberately: they are already noindex, and an
+  // agent should never be handed a stale API surface.
+  // The /api/ LANDING page is deliberately absent here even though it has a
+  // markdown source. src/org/api/index.md is a Liquid template, not prose: its
+  // body is a JSON-LD block, two card grids, a state-persistence <script> and
+  // five `{% include %}`s that hold the actual guide. `rawInput` is none of
+  // that, so md-mirror.liquid published the template source — including a
+  // literal `"softwareVersion": "{{ latest_rpc }}"` — as the API reference an
+  // agent reads. src/org/mirrors/api.liquid mirrors it by hand instead, on the
+  // same model as the other authored mirrors, and includes the same guide
+  // partials the HTML page and llms-full.txt do.
+  const API_MIRRORED = /^\/api\/[^/]+\/latest\//;
   eleventyConfig.addCollection("contentMd", (api) =>
     api.getAll().filter((item) => {
       const url = item.url || "";
@@ -241,6 +250,16 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("agentMarkdown", (content) => {
     let out = String(content == null ? "" : content);
     const generated = out.includes(API_DOC_MARKER);
+
+    // Hand-written pages embed <script type="application/ld+json"> for FAQPage
+    // markup and, on one page, a behaviour script. Both are markup for a browser
+    // and neither is content: in the ".md" mirror they arrive as a wall of raw
+    // JSON (or JavaScript) before the prose, and any Liquid inside them is
+    // unrendered, so the mirror asserted things like `"softwareVersion":
+    // "{{ latest_rpc }}"`. The HTML page keeps them; the mirror never wants them.
+    out = out
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+      .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "");
 
     out = out.replace(/<table>[\s\S]*?<\/table>/g, tableToMarkdown);
 
