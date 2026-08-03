@@ -55,9 +55,36 @@ eleventyExcludeFromCollections: true
 # four-hour-old copy of the index is following links to content that may have moved.
 # `must-revalidate` with max-age=0 keeps the edge copy and the ETag — the 304s
 # already work — while making every fetch ask first.
+#
 # One block per path rather than two, so this does not depend on Cloudflare merging
 # rules that match the same URL — the noindex and the Cache-Control belong to the
 # same decision anyway.
+#
+# VERIFIED LIVE 2026-08-03, after deploying this file. It works for llms.txt,
+# llms-full.txt and all 1,234 mirrors — and does NOT work for /robots.txt:
+#
+#   /css/fonts.<hash>.css   max-age=31536000, immutable   <- rule applied
+#   /llms.txt               max-age=0, must-revalidate     <- rule applied
+#   /index.md               max-age=0, must-revalidate     <- rule applied
+#   /sitemap.xml            max-age=0, must-revalidate     <- no rule; XML default
+#   /favicon.svg            max-age=14400, must-revalidate <- no rule; asset default
+#   /robots.txt             max-age=14400, must-revalidate <- RULE IGNORED
+#
+# Ruled out, each by probe: a syntax error (the built file is well-formed, and every
+# neighbouring rule in it works), a stale edge entry (`?cb=` forces
+# cf-cache-status: MISS and still returns 14400), and Cloudflare rewriting the file
+# (the live body is byte-identical to _site-org/robots.txt). What is left is that
+# Cloudflare Pages does not apply _headers to /robots.txt — it appears to own that
+# path the way it owns _headers, _redirects and _routes.json.
+#
+# The rule is KEPT rather than deleted: it is correct, it costs nothing, and it will
+# start working if Pages ever stops special-casing the path. But it does not work
+# today, so the only lever that would is a zone-level Cache Rule (Caching -> Cache
+# Rules, match `http.request.uri.path eq "/robots.txt"`, Browser TTL 1 minute) —
+# a dashboard action, not a repo one. Until then robots.txt takes up to four hours
+# to propagate, which is a known cost rather than a mystery.
+# check-geo-live.js reports it as a WARNING for exactly that reason, while a
+# regression on llms.txt stays a hard failure.
 /robots.txt
   Cache-Control: public, max-age=0, must-revalidate
 
