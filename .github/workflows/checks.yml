@@ -33,7 +33,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # REQUIRED: scripts/gen-page-dates.js --check reads git history
           # (`git log --follow --diff-filter=A`) to verify every page's recorded
@@ -42,7 +42,7 @@ jobs:
           # every run.
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           # Matches the other two workflows. Note .nvmrc says 20 — worth
           # reconciling, but not silently from here.
