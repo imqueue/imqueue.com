@@ -94,23 +94,49 @@ async function checkEdition(edition, origin) {
     }
   }
 
-  // ---- robots.txt must be cheap to change --------------------------------
-  // Cloudflare Pages' default is `max-age=14400`, so a robots.txt correction takes
-  // four hours to reach a crawler. src/headers.liquid overrides it; this is the
-  // assertion that the override is actually in effect at the edge, which is the
-  // only place it can be observed.
+  // ---- the agent surface must be cheap to correct -------------------------
+  // Cloudflare Pages' default for a static asset is max-age=14400, so a correction
+  // takes four hours to reach a crawler. src/headers.liquid overrides it; only the
+  // edge can say whether the override took.
+  //
+  // Two different severities on purpose:
+  //
+  //   llms.txt / mirrors — HARD FAIL. The rule demonstrably works for these, so a
+  //     regression here is a real one.
+  //   robots.txt        — WARNING. Verified 2026-08-03: Cloudflare Pages does not
+  //     apply _headers to /robots.txt at all, and no repo change can make it (see
+  //     the long note in src/headers.liquid for what was ruled out). Failing on it
+  //     every run would train the reader to ignore this whole script; the honest
+  //     report is a standing warning with the one lever that would fix it named.
   {
-    const res = await get(`${origin}/robots.txt`);
-    const cc = res.headers.get('cache-control') || '';
-    const maxAge = /max-age=(\d+)/.exec(cc);
-    const seconds = maxAge ? Number(maxAge[1]) : null;
+    const lifetime = async (path) => {
+      const cc = (await get(origin + path)).headers.get('cache-control') || '';
+      const m = /max-age=(\d+)/.exec(cc);
 
-    if (seconds === null) {
-      warn(`robots.txt has no max-age (cache-control: "${cc}")`);
-    } else if (seconds > 600) {
-      fail(`robots.txt is cached for ${seconds}s — a correction takes that long to reach a crawler`);
+      return { cc, seconds: m ? Number(m[1]) : null };
+    };
+
+    for (const path of ['/llms.txt', '/llms-full.txt', '/index.md']) {
+      const { cc, seconds } = await lifetime(path);
+
+      if (seconds === null) {
+        warn(`${path} has no max-age (cache-control: "${cc}")`);
+      } else if (seconds > 600) {
+        fail(`${path} is cached for ${seconds}s — the ingestion surface is regenerated every deploy`);
+      } else {
+        pass(`${path} max-age=${seconds}`);
+      }
+    }
+
+    const robots = await lifetime('/robots.txt');
+
+    if (robots.seconds !== null && robots.seconds > 600) {
+      warn(
+        `robots.txt is cached for ${robots.seconds}s — Cloudflare Pages ignores _headers for this path. `
+        + 'Only a zone Cache Rule (Browser TTL) can change it; see src/headers.liquid.',
+      );
     } else {
-      pass(`robots.txt max-age=${seconds}`);
+      pass(`robots.txt max-age=${robots.seconds}`);
     }
   }
 
