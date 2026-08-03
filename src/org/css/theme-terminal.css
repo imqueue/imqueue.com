@@ -25,6 +25,19 @@
   --on-grad: #06120c;
   --shadow: rgba(0,0,0,.45);
   --eyebrow: #63e6a0;
+
+  /* --inv-*: the OPPOSITE theme's values, for a surface that has to read as inverted.
+     The cookie-consent bar is the only one — see base.css (.cc), which maps these onto
+     the ordinary tokens inside its own subtree. Pairs are lifted wholesale from the
+     other block below rather than mixed, so the contrast each was measured for holds. */
+  --inv-scheme: light;
+  --inv-bg: #eef2ef;
+  --inv-ink: #0d1512;
+  --inv-muted: #5a6b63;
+  --inv-accent: #0c7e42;
+  --inv-on-accent: #ffffff;
+  --inv-eyebrow: #0b7a40;
+  --inv-line: rgba(13,21,18,.13);
 }
 
 /* light values, reused for system-light and explicit light */
@@ -42,6 +55,16 @@
   --on-accent: #ffffff;
   --shadow: rgba(13,21,18,.10);
   --eyebrow: #0b7a40;
+
+  /* light page, so the consent bar is dark — the :root block's own values */
+  --inv-scheme: dark;
+  --inv-bg: #0a0e0d;
+  --inv-ink: #e8f0ec;
+  --inv-muted: #7f8f89;
+  --inv-accent: #3ddc84;
+  --inv-on-accent: #06120c;
+  --inv-eyebrow: #63e6a0;
+  --inv-line: rgba(255,255,255,.12);
 }
 
 @media (prefers-color-scheme: light) {
@@ -59,5 +82,14 @@
     --on-accent: #ffffff;
     --shadow: rgba(13,21,18,.10);
     --eyebrow: #0b7a40;
+
+    --inv-scheme: dark;   /* see the [data-theme="light"] block above */
+    --inv-bg: #0a0e0d;
+    --inv-ink: #e8f0ec;
+    --inv-muted: #7f8f89;
+    --inv-accent: #3ddc84;
+    --inv-on-accent: #06120c;
+    --inv-eyebrow: #63e6a0;
+    --inv-line: rgba(255,255,255,.12);
   }
 }

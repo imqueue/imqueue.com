@@ -381,23 +381,55 @@ a.topic-chip:hover { border-color: var(--accent); color: var(--accent); }
    second. The granular controls moved into .cc-panel, which opens on demand, so the
    default is a sentence and three buttons at ~64px.
    Only tokens both themes define are used, so terminal and flux each theme it. */
+
+/* INVERTED, so the notice reads as its own surface rather than as more page: a light
+   page gets a dark bar, a dark page a light one. The whole token set flips, not just
+   the fill — the rules below are unchanged and simply resolve against the --inv-*
+   values, and inverting wholesale is what preserves the contrast ratios, because every
+   accent was already measured against the background it now sits on. The skins own the
+   values (theme-terminal.css, theme-flux.css); this file still names only tokens.
+
+   That also makes the bar OPAQUE, which it has to be. Translucency was the old
+   visibility mechanism — a --navbg glass fill and a blur, same as the nav — and it is
+   the enemy of this one: at 86% the content behind bleeds through and pulls the bar
+   back toward the luminance it is trying to stand apart from. The blur went with it.
+
+   --shadow is deliberately NOT inverted. The shadow falls on the page, not on the bar,
+   so it belongs to the page's palette. */
 .cc {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
-  /* --navbg, not --surface: this bar floats over scrolling content, which is the nav's
-     problem exactly, and the nav already solved it. --surface is a 4.5%-white glass
-     fill on the flux skin — fine in a card on the page background, see-through as a
-     fixed bar with text sliding underneath. Same token and blur as .nav therefore. */
-  background: var(--navbg); backdrop-filter: blur(12px);
+  /* Native checkboxes in .cc-panel follow the bar's theme, not the page's, or an
+     unchecked box renders as a light widget on a dark bar. */
+  color-scheme: var(--inv-scheme);
+  --ink: var(--inv-ink);
+  --muted: var(--inv-muted);
+  --accent: var(--inv-accent);
+  /* Terminal defines no fill variants — it has no --accent-fill either, and .cc-btn-accept
+     already falls back. Spelling the fallbacks here keeps that true one level up. */
+  --accent-fill: var(--inv-accent-fill, var(--inv-accent));
+  --on-accent: var(--inv-on-accent);
+  --on-accent-fill: var(--inv-on-accent);
+  /* Every colour token any rule in the bar's subtree can reach has to be in this list,
+     or it keeps the page's value against the flipped background. --eyebrow is here
+     because flux.css re-colours .cc-title with it; missed, the heading rendered at
+     2.01:1. A skin restyling anything under .cc with a token not listed here is the
+     failure mode to look for. */
+  --eyebrow: var(--inv-eyebrow);
+  --line: var(--inv-line);
+  background: var(--inv-bg);
   border-top: 1px solid var(--line);
-  box-shadow: var(--shadow);
-}
-/* Without backdrop-filter an 82%-opaque bar over moving text is not good enough for a
-   page asking someone to make a choice. */
-@supports not (backdrop-filter: blur(12px)) {
-  .cc { background: var(--bg); }
+  /* Was `box-shadow: var(--shadow)`, and --shadow is a bare colour — invalid as a whole
+     box-shadow, so the bar had no shadow at all. Offsets supplied, thrown upward since
+     the bar sits on the bottom edge. */
+  box-shadow: 0 -10px 30px var(--shadow);
 }
 .cc[hidden] { display: none; }
-.cc-inner { padding-top: 12px; padding-bottom: 12px; }
+/* 30px, not 12: the bar carries more weight now that it is a surface of its own rather
+   than a tinted strip, and the extra height is what stops the inverted block reading as
+   a rendering glitch. Any change here has to move .cc-open body's padding by the same
+   amount, or the bar starts covering the footer links — including the one that reopens
+   it. Both values below are measured, not guessed. */
+.cc-inner { padding-top: 30px; padding-bottom: 30px; }
 .cc-bar { display: flex; align-items: center; gap: 24px; }
 .cc-copy { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--muted); flex: 1; min-width: 0; }
 .cc-title {
@@ -443,7 +475,7 @@ a.topic-chip:hover { border-color: var(--accent); color: var(--accent); }
 .cc-choice em { display: block; color: var(--muted); font-style: normal; }
 .cc-choice input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .cc-panel .cc-btn { margin-left: auto; }
-.cc-open body { padding-bottom: 96px; }
+.cc-open body { padding-bottom: 132px; }   /* 102px bar + 30px clear */
 
 @media (max-width: 900px) {
   .cc-bar { flex-direction: column; align-items: stretch; gap: 10px; }
@@ -452,7 +484,7 @@ a.topic-chip:hover { border-color: var(--accent); color: var(--accent); }
   .cc-link { order: 3; text-align: center; }
   .cc-panel { flex-direction: column; gap: 12px; }
   .cc-panel .cc-btn { margin-left: 0; width: 100%; }
-  .cc-open body { padding-bottom: 190px; }
+  .cc-open body { padding-bottom: 240px; }   /* 210px stacked bar + the same 30px clear */
 }
 
 /* ---- contact form (_includes/contact-form.html, js/site.js) ----
