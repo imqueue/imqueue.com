@@ -48,6 +48,13 @@ across releases. Archived majors are HTML-only and are not mirrored:
 {%- endfor %}
 {%- endfor %}
 
+{%- comment -%}
+Captured and piped through agentMarkdown, not included directly. These partials are
+authored for the HTML page, so they carry root-relative links (`](/api/rpc/latest/…)`)
+and markdown-it-attrs ids — 33 relative hrefs reached this mirror, and a mirror is
+fetched standalone, where `/api/...` resolves against nothing.
+{%- endcomment -%}
+{%- capture apiGuide -%}
 {% include "api/intro.md" %}
 
 {% include "api/rpc.md" %}
@@ -57,3 +64,5 @@ across releases. Archived majors are HTML-only and are not mirrored:
 {% include "api/misc.md" %}
 
 {% include "api/migration.md" %}
+{%- endcapture -%}
+{{ apiGuide | agentMarkdown }}
