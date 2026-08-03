@@ -5,9 +5,37 @@ eleventyExcludeFromCollections: true
 {%- if edition == "com" -%}
 # @imqueue — Commercial license & support
 
-> Commercial licensing and paid support for @imqueue. The framework itself is open source (GPL-3.0); the full documentation lives at https://imqueue.org (see https://imqueue.org/llms-full.txt).
+> Commercial licensing and paid support for @imqueue. {{ site.definition }} The framework is open source under GPL-3.0; a commercial license lets you ship it inside a closed-source product without the GPL source-release obligation, and adds SLA-backed support.
 
-A commercial license lets you ship @imqueue inside a closed-source product without the GPL-3.0 obligation to release your product's source, and adds SLA-backed support. Contact and pricing: {{ siteUrl }}/pricing/
+The full framework documentation is on https://imqueue.org — see https://imqueue.org/llms-full.txt for the same treatment of it. This file concatenates everything imqueue.com says about licensing and support, as a single markdown document.
+
+Contact: support@imqueue.com. Enquiries: {{ siteUrl }}/pricing/
+{%- comment -%}
+This used to end at the paragraph above — a 458-byte stub that called itself
+"full documentation" and concatenated nothing. The five bodies below are the same
+includes src/com/mirrors/*.liquid render, so this file and the mirrors cannot
+disagree. See src/com/mirrors/README.txt for why .com needed them at all.
+{%- endcomment -%}
+
+---
+
+{% include "com/home.md" %}
+
+---
+
+{% include "com/license.md" %}
+
+---
+
+{% include "com/pricing.md" %}
+
+---
+
+{% include "com/support.md" %}
+
+---
+
+{% include "com/contact.md" %}
 {%- else -%}
 # @imqueue — Full documentation
 

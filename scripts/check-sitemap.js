@@ -187,9 +187,13 @@ for (const [edition, origin] of Object.entries(EDITIONS)) {
   // src/org/mirrors/ closes it, and this assertion stops the next HTML-templated
   // page reopening it.
   //
-  // Only .org makes the promise — imqueue.com's llms.txt does not mention mirrors,
-  // and its four pages have none.
-  if (edition === 'org') {
+  // BOTH editions now. This used to be `if (edition === 'org')`, with a comment
+  // saying ".com's four pages have none" — there are eight, two of them had mirrors
+  // by accident (terms and privacy have a markdown source, so the generic
+  // md-mirror.liquid picked them up), and the five that carry the commercial
+  // argument had none. src/com/mirrors/ closes that; this is what stops it
+  // reopening. See src/com/mirrors/README.txt.
+  {
     const unmirrored = [...pages.entries()]
       .filter(([, p]) => !p.noindex)
       // Archived API majors are noindex (already filtered) and deliberately
