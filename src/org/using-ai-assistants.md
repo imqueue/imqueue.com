@@ -155,9 +155,14 @@ serve the documentation in machine-friendly form:
   (following the [llmstxt.org](https://llmstxt.org/) convention).
 - **[/llms-full.txt](/llms-full.txt)** — the full documentation concatenated into
   a single markdown file for one-shot ingestion.
-- **Markdown mirror of any docs page** — append `index.md` to a page URL, e.g.
-  [`/get-started/index.md`](/get-started/index.md) or
-  [`/tutorial/user-service/index.md`](/tutorial/user-service/index.md).
+- **Markdown mirror of any docs page**, at either of two URL shapes — append
+  `index.md` to the page URL, or replace its trailing slash with `.md`. Both serve
+  the same bytes: [`/get-started/index.md`](/get-started/index.md) and
+  [`/get-started.md`](/get-started.md) are the same file, as are
+  [`/tutorial/user-service/index.md`](/tutorial/user-service/index.md) and
+  [`/tutorial/user-service.md`](/tutorial/user-service.md). Stripe and Anthropic's
+  docs use the second shape, Cloudflare's the first; rather than pick, this site
+  answers both.
 - **[/api/](/api/)** — the full generated API reference for every documented
   `@imqueue` package, and [`/api/search-index.json`](/api/search-index.json) to
   resolve a symbol name to its page.

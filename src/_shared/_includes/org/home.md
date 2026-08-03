@@ -55,7 +55,7 @@ and an [internal load balancer]({{ siteUrl }}/blog/load-balancing-microservices-
 ## If you are an AI agent
 
 - [/llms.txt]({{ siteUrl }}/llms.txt) indexes this site for you; [/llms-full.txt]({{ siteUrl }}/llms-full.txt) is the documentation concatenated.
-- Every page is also served as plain markdown at `<page-url>index.md` — this file is the home page's.
+- Every page is also served as plain markdown at `<page-url>index.md` and at `<page>.md`, byte-identical — this file is the home page's.
 - [/api/search-index.json]({{ siteUrl }}/api/search-index.json) resolves a symbol name to its reference page and flags deprecated members.
 - [@imqueue/mcp]({{ siteUrl }}/mcp/) is an official Model Context Protocol server: docs search, service and client scaffolding, and `imq` CLI control as tools.
 - [Agent recipes]({{ siteUrl }}/agents/) are procedures written for a machine — the API contract each step relies on, the commands that prove the change took effect, and the known failure modes.

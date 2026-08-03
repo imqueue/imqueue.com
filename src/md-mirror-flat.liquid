@@ -1,0 +1,27 @@
+---
+pagination:
+  data: collections.contentMd
+  size: 1
+  alias: doc
+permalink: "{{ doc.url | remove_last: '/' }}.md"
+eleventyExcludeFromCollections: true
+---
+{%- comment -%}
+<page>.md, alongside the <page>/index.md that md-mirror.liquid emits.
+
+The ecosystem is split on which shape a markdown mirror lives at: Stripe and
+Anthropic docs serve <page>.md, Cloudflare Docs serves <page>/index.md and 404s the
+other. This site served only the second, so /intro.md returned a 404 with a
+16,509-byte HTML body while /intro/index.md returned 3,172 bytes of markdown — and
+`Accept: text/markdown` on the HTML URL returns text/html, so there was no
+negotiation fallback either. Belt and braces, not a lost majority.
+
+`remove_last: '/'` rather than a slice: `{{ doc.url }}` always ends in a slash, and
+this is the only Liquid filter that trims exactly one trailing one. The root page is
+not in `collections.contentMd` (it is an HTML template, mirrored by hand from
+src/org/mirrors/home.liquid), so this never has to produce ".md" from "/".
+
+NOT _redirects — src/org/_redirects documents Cloudflare Pages' 100-rule ceiling,
+and in a static build a second copy of a file is free. 1,234 extra files, ~2 MB.
+{%- endcomment -%}
+{% include "mirror-body.md", doc: doc %}
