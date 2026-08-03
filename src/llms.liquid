@@ -126,7 +126,7 @@ collections.all. The old form was `item.url == "/get-started/" or item.url ==
 Titles and descriptions still come from each page's own front matter, so the
 listing cannot drift from the page. Order is definition -> quickstart -> agents.
 {%- endcomment -%}
-{%- assign startPages = "/,/intro/,/get-started/,/using-ai-assistants/" | split: "," -%}
+{%- assign startPages = "/,/intro/,/glossary/,/get-started/,/using-ai-assistants/" | split: "," -%}
 {%- for wanted in startPages -%}
 {%- for item in collections.all -%}
 {%- if item.url == wanted %}
