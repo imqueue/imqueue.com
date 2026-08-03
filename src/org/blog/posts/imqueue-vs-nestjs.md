@@ -26,9 +26,9 @@ ogType: article
 
 So the honest framing is: NestJS is *how you might build a whole service*; `@imqueue` is *how services call each other*.
 
-## The typing difference, in code
+## The NestJS vs `@imqueue` typing difference, in code
 
-This is the substantive difference, and it's easier to see than to describe.
+Typing across the call boundary is the substantive difference between the two, and it's easier to see than to describe.
 
 With the NestJS microservices module, a caller uses a `ClientProxy` and sends to a message pattern. The pattern is a string or object, and the payload and response types are generics you supply:
 
@@ -151,7 +151,7 @@ The main thing to decide deliberately is which tool *owns* service-to-service ca
 - **Choose @imqueue** if you specifically want typed, low-ceremony RPC between services, on Redis, without a framework dictating your app structure.
 - **Consider both** if you like Nest for building a service and want `@imqueue` as the typed wire between services.
 
-## FAQ
+## Frequently asked questions about @imqueue and NestJS
 
 ### Is @imqueue a NestJS alternative?
 Only for the narrow job of service-to-service RPC. It replaces the microservices module, not the framework — there's no DI container, no HTTP layer and no module system in `@imqueue`.

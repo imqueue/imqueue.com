@@ -74,10 +74,10 @@ usage snippet — it does not fabricate a client that could go stale.
 - **Side effects:** none.
 - **Example prompt:** *"How do I get a typed client for my user service?"*
 
-## CLI bridge
+## CLI bridge tools
 
-These drive the real `imq` binary. Every call runs with **stdin closed and a
-timeout**, so a command that would prompt interactively fails fast with guidance
+The CLI bridge tools drive the real `imq` binary. Every call runs with **stdin
+closed and a timeout**, so a command that would prompt interactively fails fast with guidance
 rather than hanging your agent.
 
 ### `cli_status`
@@ -156,10 +156,10 @@ does not list them and cannot run them. Until 3.0.0 it listed them and answered
 with install guidance instead, which was worse: an agent that picked `fleet` got
 prose rather than a fleet. See [Safety & troubleshooting](/mcp/security/).
 
-## Read-only vs state-changing
+## Read-only vs state-changing `@imqueue` MCP tools
 
-A quick map of what is safe to let an agent call freely versus what changes your
-machine:
+A quick map of which `@imqueue` MCP tools are safe to let an agent call freely,
+and which change your machine:
 
 | Read-only | Changes state |
 |---|---|

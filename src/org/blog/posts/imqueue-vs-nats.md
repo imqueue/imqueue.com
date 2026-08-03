@@ -120,9 +120,9 @@ const user = await client.get('42');  // UserObject | null, checked at compile t
 Rename `name` to `fullName` in the service, regenerate, and the call site fails to
 compile. That is the difference the whole comparison turns on — not throughput.
 
-## Delivery semantics, precisely
+## NATS and `@imqueue` delivery semantics, precisely
 
-This is the part where a loose comparison does real damage, so:
+Delivery semantics is the part where a loose comparison does real damage, so:
 
 - **Core NATS is at-most-once.** No subscriber, no message. That is a feature for
   telemetry and a hazard for a call you needed to happen.
@@ -215,7 +215,7 @@ They are not competitors so much as different amounts of decision-making. NATS
 hands you excellent primitives and trusts you; `@imqueue` hands you a contract and
 constrains you.
 
-## FAQ
+## Frequently asked questions about @imqueue and NATS
 
 ### Is NATS a replacement for @imqueue?
 Not directly — NATS is a transport and `@imqueue` is a framework over one. The

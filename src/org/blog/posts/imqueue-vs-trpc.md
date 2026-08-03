@@ -101,9 +101,9 @@ const found = await client.get('42'); // typed end to end
 
 No `import type` reaching across a project boundary, because the types arrived as generated code.
 
-## What happens when the contract changes
+## What happens in tRPC and `@imqueue` when the contract changes
 
-This is where the two models genuinely diverge, and it's the question worth asking of your own architecture.
+Contract change is where the two models genuinely diverge, and it's the question worth asking of your own architecture.
 
 Change a procedure's input in tRPC and the frontend stops compiling **immediately** — same build, same `tsc` run. That tight loop is tRPC's best feature. It works because both sides are one compilation unit, which is also why it can't help you across a deployment boundary: if the backend ships independently, nothing recompiles the caller at the moment the contract moves.
 
@@ -143,9 +143,9 @@ Equally honest, and worth knowing before you adopt it:
 - **Decorator order matters.** `@expose()` must sit innermost — closest to the method — when combined with `@lock()`, `@cache` or `@logged()`, or argument validation and the generated signature break.
 - **Node and TypeScript only, Redis only.** `@imqueue` is not polyglot and ships one transport. [gRPC is the better answer for a mixed-language fleet](/blog/grpc-vs-message-queue-rpc/).
 
-## Using both
+## Using tRPC and `@imqueue` together
 
-They coexist cleanly, and in most systems that's the right answer: tRPC (or plain HTTP, or GraphQL) at the edge for your client apps, `@imqueue` between the services behind it.
+tRPC and `@imqueue` coexist cleanly, and in most systems that's the right answer: tRPC (or plain HTTP, or GraphQL) at the edge for your client apps, `@imqueue` between the services behind it.
 
 ```
 browser ──tRPC/HTTP──▶ API gateway ──@imqueue/rpc──▶ user, billing, search…
@@ -176,7 +176,7 @@ The one thing to decide deliberately is which tool *owns* service-to-service cal
 - **Use @imqueue** to connect backend services to each other with typed, queue-based RPC when they're deployed and versioned independently.
 - **Use both** in the same architecture — they're solving different halves of the problem.
 
-## FAQ
+## Frequently asked questions about tRPC and @imqueue
 
 ### Is @imqueue a drop-in replacement for tRPC?
 No. tRPC types the client–server boundary and speaks HTTP; `@imqueue` types the service–service boundary and speaks a queue. A browser can't talk to `@imqueue` at all.

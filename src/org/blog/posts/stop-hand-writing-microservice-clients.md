@@ -92,7 +92,7 @@ Two shapes that work well around it:
 
 Either way the client is a build output, not a hand-maintained module.
 
-## What this removes from your week
+## What generated clients remove from your week
 
 - **No SDK to publish and version by hand** for each service.
 - **No duplicated type declarations** to keep in agreement.
@@ -129,7 +129,7 @@ Generated-from-the-service isn't the only way to get typed calls, and it isn't a
 
 The generated approach wins specifically when services are TypeScript, deployed independently, and owned by different people.
 
-## FAQ
+## Frequently asked questions about generated service clients
 
 ### Do I have to commit the generated client?
 No, but it's usually worth it. Committed, the diff on that file is the contract change — visible in review, versioned with the caller.
