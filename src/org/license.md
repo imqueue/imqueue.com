@@ -72,11 +72,11 @@ obligation is not triggered by SaaS/back-end use. You are free to use the
 open-source packages for this. A commercial license is still available if you
 want warranty or support terms.
 
-**Do I owe anything for local development, evaluation or open-source projects?**
+### Do I owe anything for local development, evaluation or open-source projects?
 No. Use the open-source packages freely; if your own project is GPL-compatible,
 you are fully covered by GPL-3.0.
 
-**Which packages does this cover?**
+### Which packages does this cover?
 All of them — the entire @imqueue framework is GPL-3.0, and a single commercial
 license covers your commercial use across the framework.
 

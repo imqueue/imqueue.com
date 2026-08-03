@@ -170,22 +170,22 @@ Those are aggregate figures from a single run on one machine, not per-core numbe
 
 ## FAQ
 
-**Is @imqueue faster than gRPC?**
+### Is @imqueue faster than gRPC?
 Not on wire efficiency — Protobuf over HTTP/2 is hard to beat there. The published `@imqueue` numbers are aggregate round-trips on one rig, not a head-to-head. For most internal services the handler dominates either way.
 
-**Can I use gRPC and @imqueue in the same system?**
+### Can I use gRPC and @imqueue in the same system?
 Yes, and it's a reasonable split: gRPC where you cross a language boundary, queue RPC between your Node services. Decide deliberately which owns a given call path so you don't operate two RPC layers over the same traffic.
 
-**Does queue-based RPC replace a service mesh?**
+### Does queue-based RPC replace a service mesh?
 For addressing and balancing of these calls, largely yes — the queue name is the address and consumers self-balance. It doesn't replace a mesh's other jobs: mTLS, observability, traffic shaping, policy.
 
-**What happens if the target service is down?**
+### What happens if the target service is down?
 The request waits on its queue until a consumer appears, rather than failing immediately. Useful for restarts and ordering-independent boot, but it means "no answer yet" and "nothing will ever answer" look identical to the caller — which is exactly why you set `callTimeout`.
 
-**Do I lose type safety without a .proto?**
+### Do I lose type safety without a .proto?
 No, but the mechanism differs: types come from your TypeScript and JSDoc, and the client is generated from the running service, so mismatches surface as compile errors after a regenerate. You lose the language-neutral, implementation-independent artifact.
 
-**Is at-least-once delivery a problem?**
+### Is at-least-once delivery a problem?
 It's a design constraint, not a defect: make exposed methods idempotent. Most read methods already are; writes need a natural key or a dedupe check.
 
 ---

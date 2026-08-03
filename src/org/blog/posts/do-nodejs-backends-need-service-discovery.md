@@ -106,22 +106,22 @@ You probably **do** still need one if:
 
 ## FAQ
 
-**Is a message queue a replacement for Consul or etcd?**
+### Is a message queue a replacement for Consul or etcd?
 For service-to-service *addressing*, largely yes — the queue name is the address. For config distribution, leader election and coordination, no. Those are separate jobs a queue doesn't do.
 
-**How do I know a service is healthy without a registry?**
+### How do I know a service is healthy without a registry?
 You watch the queue rather than the service. `@imqueue` can expose a `queue_length` metric; sustained growth means a consumer has stopped keeping up. You don't get a registry's per-instance health view, and you should set `callTimeout` so callers fail rather than hang.
 
-**What happens if a service is down when someone calls it?**
+### What happens if a service is down when someone calls it?
 The message waits on its queue until a consumer appears, so the call isn't lost. The risk is the opposite of HTTP's: instead of failing fast, it can wait indefinitely — which is why `callTimeout` matters.
 
-**Does this work across multiple machines?**
+### Does this work across multiple machines?
 Yes. Instances anywhere that can reach the same Redis compete on the same queue, so horizontal scaling needs no addressing changes.
 
-**Do I still need a load balancer?**
+### Do I still need a load balancer?
 Not for internal service-to-service calls; competing consumers handle distribution. You'll still want something in front of your HTTP edge.
 
-**Doesn't this just move the single point of failure to Redis?**
+### Doesn't this just move the single point of failure to Redis?
 It concentrates the dependency, yes — honestly, that's the trade. A registry or mesh is also a critical dependency; the question is which one you'd rather operate, and whether you're already running it.
 
 ---
