@@ -185,9 +185,93 @@ async function main() {
     const plain = await onRequest(ctx(`https://imqueue.org${p}`));
     assert.strictEqual(plain.headers.get('x-agent-analytics'), null,
       `${p} must not be rebuilt — it is not the agent surface`);
+    // Still the untouched object, and note WHY: `page` above is text/plain, so the
+    // Link-header path below declines it. An HTML response at these URLs IS rebuilt,
+    // which the next block asserts deliberately.
     assert.strictEqual(plain, page, `${p} must be the untouched response object`);
   }
   ok('x-agent-analytics on the agent surface only, response intact, no rebuild elsewhere');
+
+  // --- Link: rel=alternate, type=text/markdown ------------------------------
+  // The mirrors were reachable only by knowing the `<url>index.md` convention. This
+  // header states it, head.html states it in the HTML, and mirror-link.html renders
+  // a visible link — all three from hasMarkdownMirror() in lib/markdown-link.js, so
+  // the three surfaces cannot disagree.
+  //
+  // What is worth a gate is not the happy path but the four ways this could produce
+  // a header pointing at a 404, plus the cost: it fronts every request to both
+  // zones, so anything that is not a 200 HTML directory URL must skip the rebuild.
+  {
+    const { hasMarkdownMirror, markdownLink } = await import('../lib/markdown-link.js');
+
+    for (const [path, want, why] of [
+      ['/cli/installation/', true, 'an ordinary docs page'],
+      ['/', true, 'the home page'],
+      ['/blog/', true, 'the blog index — its mirror is hand-written, and an earlier rule missed it'],
+      ['/api/', true, 'the API landing page is mirrored by hand'],
+      ['/api/rpc/latest/', true, 'a current-major API tree is mirrored'],
+      ['/api/rpc/latest/rpc.imqservice/', true, 'including every symbol page in it'],
+      ['/agents/delayed-scheduled-work/', true, 'noindex does not mean unmirrored — this page has a mirror'],
+      ['/blog/page/2/', false, 'paginated listings have none: /blog/index.md is the whole index'],
+      ['/api/rpc/2.1.0/', false, 'archived API majors are unmirrored'],
+      ['/api/rpc/2.1.0/rpc.imqservice/', false, 'and so are their symbol pages'],
+      ['/llms.txt', false, 'not a directory URL — <url>index.md is meaningless'],
+      ['/favicon.svg', false, 'same'],
+    ]) {
+      assert.strictEqual(hasMarkdownMirror(path), want, `${path}: ${why}`);
+    }
+
+    assert.strictEqual(hasMarkdownMirror('/x/', { draft: true }), false,
+      'drafts are excluded — the contentMd collection skips them, so no mirror exists');
+    assert.strictEqual(hasMarkdownMirror('/x/', { mirror: false }), false,
+      '`mirror: false` is the per-page opt-out');
+
+    const html = { headers: new Headers({ 'content-type': 'text/html; charset=utf-8' }) };
+
+    assert.strictEqual(
+      markdownLink({ url: new URL('https://imqueue.org/cli/'), status: 200, response: html }),
+      '<https://imqueue.org/cli/index.md>; rel="alternate"; type="text/markdown"',
+      'the header names an absolute URL on the requested origin',
+    );
+    assert.strictEqual(
+      markdownLink({ url: new URL('https://imqueue.com/license/'), status: 200, response: html }),
+      '<https://imqueue.com/license/index.md>; rel="alternate"; type="text/markdown"',
+      'and follows the host, so .com advertises .com',
+    );
+    assert.strictEqual(
+      markdownLink({ url: new URL('https://imqueue.org/nope/'), status: 404, response: html }),
+      null,
+      'never on a non-200 — a header advertising a mirror on a 404 is worse than none',
+    );
+    assert.strictEqual(
+      markdownLink({ url: new URL('https://imqueue.org/llms.txt'), status: 200, response: page }),
+      null,
+      'never on a non-HTML response',
+    );
+
+    // End to end through the middleware, with an HTML response this time.
+    const htmlPage = new Response('<html></html>', {
+      status: 200,
+      headers: { 'content-type': 'text/html; charset=utf-8' },
+    });
+    const linked = await onRequest(ctx('https://imqueue.org/cli/', { next: async () => htmlPage }));
+
+    assert.strictEqual(
+      linked.headers.get('link'),
+      '<https://imqueue.org/cli/index.md>; rel="alternate"; type="text/markdown"',
+      'the middleware sends it on an HTML page',
+    );
+    assert.strictEqual(linked.status, 200, 'the rebuilt response keeps its status');
+    assert.strictEqual(await linked.text(), '<html></html>', 'and its body');
+
+    const notLinked = await onRequest(ctx('https://imqueue.org/blog/page/2/', { next: async () => htmlPage }));
+
+    assert.strictEqual(notLinked.headers.get('link'), null,
+      'and not on a page with no mirror');
+    assert.strictEqual(notLinked, htmlPage,
+      'which must also mean no rebuild — this fronts every request to both zones');
+  }
+  ok('Link: rel=alternate advertises the markdown mirror, and only where one exists');
 
   // --- the audience split ---------------------------------------------------
   // Every number in the report is a filter on `kind`, and a wrong value here does not

@@ -46,5 +46,12 @@ layout: base.html
     </div>
     {%- endif -%}
     {{ content }}
+    {%- comment -%}
+      No doc-updated.html here — a generated symbol page has no editorial date (see
+      that file's own comment) — but the mirror link belongs on all 1,152 of them.
+      They are the pages an agent is most likely to be handed, and the ones whose
+      HTML-to-markdown ratio is worst.
+    {%- endcomment -%}
+    {% include "mirror-link.html" %}
   </article>
 </div>

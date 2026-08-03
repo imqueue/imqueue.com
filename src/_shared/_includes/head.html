@@ -70,6 +70,14 @@ in JSON-LD — that one search engines do read.
 {%- if pagination.href.next %}<link rel="next" href="{{ siteUrl }}{{ pagination.href.next }}">{% endif %}
 {%- endif %}
 {%- if edition == "org" %}<link rel="alternate" type="application/atom+xml" title="@imqueue blog" href="{{ siteUrl }}/blog/feed.xml">{% endif %}
+{%- comment -%}
+The markdown mirror, declared. `hasMirror` is computed data — see
+lib/markdown-link.js for the rule and for why it is one function rather than one
+copy here and another in the Worker. functions/_middleware.js emits the matching
+`Link:` header from that same function, and mirror-link.html renders the visible
+link, which is the half of this with an actual mechanism behind it.
+{%- endcomment -%}
+{%- if hasMirror %}<link rel="alternate" type="text/markdown" title="This page as plain markdown" href="{{ metaUrl }}index.md">{% endif %}
 <link rel="icon" href="/favicon.svg?v=4" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico?v=4" sizes="any">
 <link rel="apple-touch-icon" href="/favicon.svg?v=4">

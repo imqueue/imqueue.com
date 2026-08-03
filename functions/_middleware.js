@@ -34,6 +34,7 @@
 // is wrapped so that constraint 1 still holds: measurement cannot break the site.
 
 import { headerNote, trackRequest } from "../lib/agent-analytics.js";
+import { markdownLink } from "../lib/markdown-link.js";
 
 const REDIRECT_HOSTS = new Set(["imqueue.net", "www.imqueue.net"]);
 
@@ -109,12 +110,23 @@ export async function onRequest(context) {
       edition,
     });
 
-    if (note) {
+    // The markdown mirror, advertised to header-only clients. Complements the
+    // <link rel="alternate" type="text/markdown"> head.html already emits; see
+    // lib/markdown-link.js for the URL rule and for why it lives in its own module.
+    //
+    // Computed alongside the note rather than in a second block so that a page
+    // needing both still costs exactly ONE Response rebuild. markdownLink returns
+    // null for everything that is not a 200 text/html directory URL, which is what
+    // keeps constraint 1 true: assets, mirrors and redirects skip it entirely.
+    const mdLink = markdownLink({ url, status: response.status, response });
+
+    if (note || mdLink) {
       // Headers on the Response next() returns are immutable, so it has to be
       // rebuilt. Body is passed through untouched — including null, for HEAD and 304.
       const tagged = new Response(response.body, response);
 
-      tagged.headers.set("x-agent-analytics", note);
+      if (note) tagged.headers.set("x-agent-analytics", note);
+      if (mdLink) tagged.headers.append("Link", mdLink);
 
       return tagged;
     }

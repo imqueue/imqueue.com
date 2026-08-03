@@ -335,3 +335,11 @@ llms.liquid, /api/search-index.json, /agents/, /using-ai-assistants/.
     <a href="/api/" class="card pkg"><div class="name">@imqueue/core</div><p>JSON-based messaging queue and the pluggable adapter engine.</p></a>
   </div>
 </section>
+
+{%- comment -%}
+These pages are laid out by base.html directly, so they do not pick up the
+mirror-link include the docs/post/apiref layouts carry. Added per page rather than
+to base.html itself, because those layouts wrap base.html — the include would then
+render twice on every documentation page.
+{%- endcomment -%}
+<div class="container" style="padding-bottom:32px;">{% include "mirror-link.html" %}</div>
