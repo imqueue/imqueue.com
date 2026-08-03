@@ -160,37 +160,58 @@ Still stuck? The server is open source — file an issue at
     {
       "@type": "Question",
       "name": "Is the @imqueue MCP server safe to connect to an AI agent?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. The npx install runs locally over stdio with no account or telemetry; its only network access is to imqueue.org for documentation, and get_doc is host-locked to that domain. A hosted endpoint (mcp.imqueue.org) is also available, but it is sandboxed to the stateless read-only docs and scaffolding tools and cannot touch your machine. State-changing tools are separated from read-only ones, and create_service is a dry-run unless you pass apply: true." }
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Every tool declares its own blast radius. All of them carry the MCP readOnlyHint, destructiveHint and openWorldHint annotations, so your client can decide what to run unattended instead of inferring it from a name. Network access is host-locked: the only network calls are to imqueue.org, and get_doc explicitly refuses any other host, so it can't be steered into fetching arbitrary URLs. No telemetry. The server collects and phones home nothing."
+      }
     },
     {
       "@type": "Question",
       "name": "Will the @imqueue MCP server modify my files or push to git without asking?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. create_service runs as a dry-run by default and writes nothing; a real run requires an explicit apply: true. Fleet start/stop/restart and config set change state and are clearly marked, while search, scaffolding and status tools are read-only." }
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "create_service is a dry-run by default. It writes nothing unless called with apply: true. Creating repos, configuring CI or pushing to a remote never happens silently."
+      }
     },
     {
       "@type": "Question",
       "name": "Why does my MCP client say 'npx not found'?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Desktop apps launched from the OS menu often do not inherit your shell PATH, so a Node installed via nvm is invisible to them. Point the command at the absolute path to npx (from 'which npx'), or use a system-wide Node install." }
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Desktop apps launched from your OS menu often don't inherit your shell's PATH, so if Node is installed via nvm the client can't find npx. Fix it by pointing at the absolute path."
+      }
     },
     {
       "@type": "Question",
       "name": "Do I need the @imqueue CLI to use the MCP server?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. Documentation search and offline scaffolding work without it. Installing @imqueue/cli additionally unlocks the CLI-bridge tools that create real services, generate typed clients and manage a local fleet." }
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "If you want a purely read-only setup — great for exploring the docs — simply don't install @imqueue/cli; the CLI-bridge tools then stay dormant and only the docs and offline scaffolding tools are active."
+      }
     },
     {
       "@type": "Question",
       "name": "Should I use the local @imqueue MCP server or the hosted endpoint?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Use the hosted endpoint (mcp.imqueue.org) for a zero-install way to explore the docs and scaffold snippets. Use the local npx install for real development: it is the full product and can scaffold services into your repo, generate a typed client from your running service, and manage your local fleet — things a sandboxed remote server cannot do." }
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Bottom line: start on the hosted endpoint to explore; switch to the one-line local install the moment you're scaffolding real services or working with running ones."
+      }
     },
     {
       "@type": "Question",
       "name": "Why is the local @imqueue MCP server the better option for developers?",
-      "acceptedAnswer": { "@type": "Answer", "text": "The local server runs on your machine over stdio, so it exposes every tool including the CLI-bridge (create_service, generate_client, fleet, config, logs) that acts on your actual project and running services. It is also more private (only doc fetches leave your machine), faster (in-process, no per-call HTTP hop), works offline for scaffolding, and matches your installed imq CLI version and flags exactly. The hosted endpoint is sandboxed to the read-only docs and scaffolding tools." }
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The local install is the full product. Because it runs on your machine over stdio, it can do the things that actually matter while building: scaffold provider-wired services straight into your repo, generate a typed client by introspecting your running service, and start/inspect your local fleet — none of which a remote server can reach."
+      }
     },
     {
       "@type": "Question",
       "name": "Is the local MCP server more private and faster than the hosted endpoint?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes to both. Privacy: with the local install everything stays on your machine and only documentation fetches go to imqueue.org, whereas the hosted endpoint receives your tool inputs. Speed: local tool calls run in-process over stdio with no per-call network round-trip, while the hosted endpoint adds an HTTP hop to each call." }
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Everything stays on your machine — the only network traffic is documentation fetches to imqueue.org. With the hosted endpoint your tool inputs travel to the server, so for proprietary code and context the local install keeps it local by default. Tool calls run in-process over stdio with no per-call network hop, so the agent gets answers with lower latency."
+      }
     }
   ]
 }

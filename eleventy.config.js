@@ -425,7 +425,13 @@ module.exports = function (eleventyConfig) {
       .replace(/`([^`]+)`/g, "$1")             // code spans
       .replace(/\*\*([^*]+)\*\*/g, "$1")
       .replace(/(^|\s)\*([^*]+)\*/g, "$1$2")
-      .replace(/<[^>]+>/g, "")
+      // NAMED inline tags only. A generic /<[^>]+>/ strip eats the angle-bracket
+      // placeholders that belong to the prose — `imq client generate <name> [path]`
+      // became "imq client generate [path]" in the FAQPage markup while the page
+      // said otherwise, which is exactly the drift this generation exists to
+      // prevent. The `cell()` helper above carries the same warning for the same
+      // reason; this is the second time that lesson has been paid for.
+      .replace(/<\/?(?:a|code|em|strong|b|i|span|br|kbd|sup|sub|small|abbr)\b[^>]*>/gi, "")
       .replace(/\s+/g, " ")
       .trim();
 
