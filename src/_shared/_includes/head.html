@@ -145,7 +145,37 @@ on the page that is actually about the product).
         "https://github.com/imqueue",
         "https://www.npmjs.com/org/imqueue",
         "https://context7.com/imqueue"
-      ]
+      ],
+      {%- comment -%}
+        The contact address, in the one place on the page that survives.
+
+        Cloudflare's Scrape Shield -> Email Obfuscation rewrites every literal
+        address and every `mailto:` href in an HTML response into a
+        `<span class="__cf_email__" data-cfemail="…">` that only JavaScript can
+        decode. Measured 2026-08-03 under a GPTBot User-Agent: two such spans on
+        imqueue.org/support/, one on imqueue.com/pricing/, and ZERO occurrences of
+        the literal string anywhere in the HTML of either zone. So the only
+        published way to reach the maintainers is invisible to every crawler that
+        does not run scripts — which is all of the AI ones.
+
+        Obfuscation rewrites HTML text and attributes, not the contents of a
+        <script> element, so the address here comes through intact; the same is
+        true of the text/plain /llms.txt on both editions, which also carries it
+        now. Both are belt-and-braces: the toggle itself should be OFF (it is a
+        per-zone dashboard setting, not a repo one), and the JSON-LD is where a
+        machine looks for an organisation's contact details anyway.
+
+        No `mailto:` prefix on either value — schema.org's `email` takes a bare
+        address, and a bare string is one less shape for a rewriter to match.
+      {%- endcomment -%}
+      "email": "support@imqueue.com",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "email": "support@imqueue.com",
+        "url": "{{ siteUrl }}/contact/",
+        "availableLanguage": "en"
+      }
     },
     {
       "@type": "WebSite",
