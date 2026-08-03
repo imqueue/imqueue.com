@@ -119,8 +119,20 @@ standalone. The node is now emitted alongside any article node too: same @id, so
 it is the same entity, in a compact form (no offers/softwareVersion — those belong
 on the page that is actually about the product).
 {%- endcomment -%}
+{%- comment -%}
+The software entity is emitted on BOTH home pages now. It used to be .org-only,
+which left imqueue.com — the older domain, the one with the Wayback history, and
+the one a model resolving "imqueue" fetches first — describing an Organization, a
+WebSite and no software whatsoever. A retrieval that landed there produced a
+service-vendor summary with no packages, no repository and no npm scope.
+
+What stays gated is the GPL `price: 0` Offer, and only that. The .com home page
+sells commercial licences and its CTA is "Talk to sales"; asserting the product is
+free there would be actively wrong, and it is the reason the whole pair was gated
+in the first place rather than just the Offer.
+{%- endcomment -%}
 {%- assign homeSoftware = false -%}
-{%- if section == "home" and edition == "org" -%}{%- assign homeSoftware = true -%}{%- endif -%}
+{%- if section == "home" -%}{%- assign homeSoftware = true -%}{%- endif -%}
 {%- assign articleSoftware = false -%}
 {%- if isArticle and edition == "org" -%}{%- assign articleSoftware = true -%}{%- endif -%}
 <script type="application/ld+json">
@@ -156,6 +168,18 @@ on the page that is actually about the product).
         The high-value entry still missing is a Wikidata item (none exists yet).
       {%- endcomment -%}
       "sameAs": [
+        {%- comment -%}
+          `otherUrl` first, and it is the entry that was missing. imqueue.org and
+          imqueue.com are ONE organisation on two hostnames, and neither #org node
+          said so — so an engine reconciling them had two unrelated Organizations
+          with the same name, one of which (the .com) described no software at all.
+          That is the domain a model resolving "imqueue" actually fetches, because
+          it is the older one with the archival history.
+
+          It is a global (eleventy.config.js), so each edition names the other
+          automatically and the pair cannot go one-directional.
+        {%- endcomment -%}
+        "{{ otherUrl }}/",
         "https://github.com/imqueue",
         "https://www.npmjs.com/org/imqueue",
         "https://context7.com/imqueue"
@@ -202,10 +226,13 @@ on the page that is actually about the product).
       "publisher": { "@id": "{{ siteUrl }}/#org" }
     }{% comment %}
     The SoftwareApplication/SoftwareSourceCode pair describes the open-source
-    project: price 0 and a GPL-3.0 license. Correct on imqueue.org, actively
-    wrong on imqueue.com, whose home page sells commercial licences and whose CTA
-    is "Talk to sales" — so it is gated to the .org edition. The commercial home
-    page keeps Organization + WebSite only.
+    project. Both editions emit it: the packages, the repository and the npm scope
+    are the same entity whichever hostname is describing them, and the @id is
+    per-site so each domain describes the software it is about.
+
+    Only the `price: 0` Offer is .org-only — see the note above the homeSoftware
+    assignment. On both editions the pair links out to github.com/imqueue and the
+    npm scope, and `isPartOf` points at imqueue.org, which is where the docs are.
     {% endcomment %}{% if homeSoftware %},
     {
       "@type": "SoftwareApplication",
@@ -223,7 +250,19 @@ on the page that is actually about the product).
       "description": {{ site.definition | json }},
       "alternateName": {{ site.aliases | json }},
       "programmingLanguage": ["TypeScript", "JavaScript"],
+      "sameAs": ["https://github.com/imqueue", "https://www.npmjs.com/org/imqueue"],
+      {%- comment -%}
+      The GPL price-0 Offer is the ONE part of this pair that is .org-only. The
+      commercial home page must not claim the product is free; /pricing/ is where
+      its terms are, so .com points there instead of asserting a price.
+      {%- endcomment -%}
+      {%- if edition == "org" %}
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "isPartOf": { "@id": "{{ siteUrl }}/#website" },
+      {%- else %}
+      "isPartOf": { "@id": "https://imqueue.org/#website" },
+      {%- endif %}
+      "usageInfo": "https://imqueue.com/license/",
       "publisher": { "@id": "{{ siteUrl }}/#org" }
     },
     {
@@ -233,10 +272,19 @@ on the page that is actually about the product).
       "description": {{ site.definition | json }},
       "alternateName": {{ site.aliases | json }},
       "codeRepository": "https://github.com/imqueue",
+      "sameAs": ["https://github.com/imqueue", "https://www.npmjs.com/org/imqueue"],
       "programmingLanguage": ["TypeScript", "JavaScript"],
       "runtimePlatform": "Node.js",
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
-      "author": { "@id": "{{ siteUrl }}/#org" }
+      {%- comment -%}
+      The commercial half of the dual licence, in the field a machine reads. The
+      `license` above is the GPL URL and is true; on its own it is also the reason
+      an LLM asked "can I use @imqueue in a closed-source product?" answers no.
+      `usageInfo` is schema.org's field for the terms of use that sit alongside it.
+      {%- endcomment -%}
+      "usageInfo": "https://imqueue.com/license/",
+      "author": { "@id": "{{ siteUrl }}/#org" },
+      "isPartOf": { "@id": "https://imqueue.org/#website" }
     }{% endif %}{% if articleSoftware %},
     {
       "@type": "SoftwareApplication",
