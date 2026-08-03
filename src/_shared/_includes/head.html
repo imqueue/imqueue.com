@@ -377,9 +377,17 @@ in _includes/consent.html finds its work by that exact selector.
   // ever runs for somebody with a browser, while lib/agent-analytics.js reports the
   // crawlers and assistants into the SAME property. Without it the two populations
   // would be one blended number that describes neither.
+  //
+  // 'user' must stay identical to the value lib/agent-analytics.js uses for a browser —
+  // the two streams describe the same population from different vantage points, and two
+  // spellings would split it into two rows that each look like half the traffic.
+  //
+  // The two streams are told apart by EVENT NAME, not by this: gtag sends page_view,
+  // the edge sends srv_page_view. So `Views` counts consenting browsers only, and Event
+  // count of srv_page_view counts every request the server saw. Never add them.
   gtag('config', '{{ analytics.ga4 }}', {
     edition: '{{ edition }}',
-    kind: 'human',
+    kind: 'user',
     send_page_view: false,
   });
   // GA4 has no minimum or maximum aggregation anywhere — not in reports, not in
@@ -401,7 +409,7 @@ in _includes/consent.html finds its work by that exact selector.
       done = true;
       gtag('event', 'page_view', {
         edition: '{{ edition }}',
-        kind: 'human',
+        kind: 'user',
         visit_id: visitId || undefined,
       });
     };
