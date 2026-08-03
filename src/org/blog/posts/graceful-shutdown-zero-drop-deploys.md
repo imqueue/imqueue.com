@@ -189,7 +189,10 @@ the box, and unset means *wait forever* — so a caller whose service was killed
 mid-request holds that promise for the life of the process.
 
 ~~~typescript
-const orders = new OrderClient({ callTimeout: 30_000 });
+// The generated module exports one namespace, which holds the client class.
+import { orderService } from './clients/OrderService.js';
+
+const orders = new orderService.OrderClient({ callTimeout: 30_000 });
 ~~~
 
 Destroying a client doesn't help the calls it already made: pending requests are

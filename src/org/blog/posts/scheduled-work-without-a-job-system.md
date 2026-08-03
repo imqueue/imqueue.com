@@ -46,9 +46,11 @@ first, then an [`IMQDelay`](/api/rpc/latest/rpc.imqdelay/).
 
 ~~~typescript
 import { IMQDelay, IMQMetadata } from '@imqueue/rpc';
+// The generated module exports one namespace, which holds the client class.
+import { notificationService } from './clients/NotificationService.js';
 
 // callTimeout has no default, and unset means "wait forever"
-const notifications = new NotificationClient({ callTimeout: 30_000 });
+const notifications = new notificationService.NotificationClient({ callTimeout: 30_000 });
 
 await notifications.start();
 

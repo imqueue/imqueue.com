@@ -103,6 +103,28 @@ importantly, to maintain afterwards.
 [IMQClient](/api/rpc/latest/rpc.imqclient/) abstract base classes
 for concrete implementations to extend.
 
+#### What a generated client looks like
+
+Worth knowing before the examples below, because the shape is not the obvious one.
+`imq client generate <ServiceClass> [dir]` writes `<dir>/<ServiceClass>.ts` plus a
+compiled `.js`, and that module exports **exactly one symbol**: a namespace named
+after the service with a lower-case first letter. Inside it sit the service's
+complex types and the client class, whose name is the service's with a trailing
+`Service` replaced by `Client`.
+
+So a service class `UserService` is reached like this — and note that the name
+passed to the CLI is the service's **class** name, because that is its queue name:
+
+~~~typescript
+import { userService } from './clients/UserService.js';
+
+const client = new userService.UserClient({ callTimeout: 5000 });
+const data: userService.UserObject = { /* … */ };
+~~~
+
+There is no top-level export of `UserClient` or `UserObject`, so importing either
+by name will not resolve.
+
 Each service is treated as a package containing at least one service class. A
 complex service may consist of several classes, though in microservice terms
 that's usually best avoided.
@@ -192,8 +214,9 @@ it work correctly:
   }
 
   (async () => {
-    // assuming we have a client for the service:
-    const client = new SomeServiceClient();
+    // assuming we have generated a client for the service — note the namespace,
+    // and that `SomeService` yields `SomeClient`, not `SomeServiceClient`:
+    const client = new someService.SomeClient();
     await client.start();
 
     // we'd like to write this:
@@ -400,7 +423,9 @@ If you ever need to access a service's description metadata, just call
 
 ~~~typescript
 // assuming this runs in an async context:
-const client = new UserClient();
+import { userService } from './clients/UserService.js';
+
+const client = new userService.UserClient();
 await client.start();
 console.log(await client.describe());
 ~~~
@@ -418,10 +443,10 @@ the delay (of type [IMQDelay](/api/rpc/latest/rpc.imqdelay/)):
 
 ~~~typescript
 import { IMQDelay, IMQMetadata } from '@imqueue/rpc';
-import { UserObject, UserClient } from './clients';
+import { userService } from './clients/UserService.js';
 
-const client = new UserClient();
-const data: UserObject = {
+const client = new userService.UserClient();
+const data: userService.UserObject = {
     firstName: 'John',
     lastName: 'Doe',
     email: 'john@doe.com',
