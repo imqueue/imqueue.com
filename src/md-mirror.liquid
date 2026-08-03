@@ -10,6 +10,7 @@ eleventyExcludeFromCollections: true
 # {{ doc.data.title | default: doc.url }}
 
 Source: {{ siteUrl }}{{ doc.url }}
+{%- include "mirror-meta.md", doc: doc %}
 {% if doc.data.lead %}
 {{ doc.data.lead }}
 {% endif %}

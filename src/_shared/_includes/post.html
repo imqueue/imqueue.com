@@ -19,15 +19,30 @@ section: blog
       <header style="margin-bottom:30px;">
         <div class="section-label" style="margin-bottom:14px;">// BLOG</div>
         <h1 style="font-family:var(--font-display);font-size:38px;line-height:1.12;letter-spacing:-.03em;margin:0 0 16px;">{{ title }}</h1>
+        {%- comment -%}
+        A revised post showed only its ORIGINAL publication date. `dateModified` was
+        already in the BlogPosting JSON-LD below, so the markup said one thing and the
+        visible page another — and for a comparison post that gets corrected as the
+        thing it compares against changes, the revision date is the load-bearing one.
+        Rendered as a <time> next to the byline date so a reader and an answer engine
+        both see it, and only when it differs from `date`; identical dates would just
+        be noise on the 20-odd posts that have never been revised.
+        {%- endcomment -%}
+        {%- assign revised = "" -%}
+        {%- if dateModified -%}
+        {%- assign dmDay = dateModified | date: "%Y-%m-%d" -%}
+        {%- assign pubDay = date | date: "%Y-%m-%d" -%}
+        {%- if dmDay != pubDay -%}{%- assign revised = dateModified -%}{%- endif -%}
+        {%- endif -%}
         <div class="post-byline">
           {%- if a -%}
           <a href="/blog/authors/{{ a.slug }}/" aria-label="{{ a.name }}"><img class="avatar-img" src="{{ a.avatar }}" alt="{{ a.name }}" width="42" height="42"></a>
           <div class="who">
             <div><a href="/blog/authors/{{ a.slug }}/">{{ a.name }}</a></div>
-            <div class="role">{{ a.occupation }}{% if date %} · {{ date | date: "%B %-d, %Y" }}{% endif %}</div>
+            <div class="role">{{ a.occupation }}{% if date %} · <time datetime="{{ date | isoDate }}">{{ date | date: "%B %-d, %Y" }}</time>{% endif %}{% if revised != "" %} · updated <time datetime="{{ revised | isoDate }}">{{ revised | date: "%B %-d, %Y" }}</time>{% endif %}</div>
           </div>
           {%- else -%}
-          <div class="role">{% if date %}{{ date | date: "%B %-d, %Y" }}{% endif %}</div>
+          <div class="role">{% if date %}<time datetime="{{ date | isoDate }}">{{ date | date: "%B %-d, %Y" }}</time>{% endif %}{% if revised != "" %} · updated <time datetime="{{ revised | isoDate }}">{{ revised | date: "%B %-d, %Y" }}</time>{% endif %}</div>
           {%- endif -%}
         </div>
         {% if summary %}<p class="muted" style="font-size:18px;line-height:1.6;margin:18px 0 0;">{{ summary }}</p>{% endif %}
