@@ -96,7 +96,7 @@ A quick decision guide:
 
 The honest summary: **BullMQ remains the safe, capable default on Redis.** The alternatives win when a *specific* constraint — your datastore, your appetite for features, your ops budget, or your framework — points elsewhere.
 
-## FAQ
+## Frequently asked questions about BullMQ alternatives
 
 ### Is BullMQ still the best Node.js job queue in 2026?
 For a feature-rich, Redis-backed queue, BullMQ is still the most capable and most widely used option. "Best" depends on your constraints — if you don't run Redis or want a smaller surface, an alternative may fit better.

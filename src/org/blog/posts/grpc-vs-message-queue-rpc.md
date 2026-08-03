@@ -28,15 +28,15 @@ gRPC is a mature, cross-language RPC system built on HTTP/2 and Protocol Buffers
 - **A schema as a contract.** The `.proto` file is an explicit, versioned artifact that isn't tied to any one implementation.
 - **Deadlines and cancellation.** A deadline travels with the call, and a cancelled call actually signals the server. This matters more than it sounds — see below.
 
-## What it costs
+## What gRPC costs you to operate
 
-Those strengths come with structure you have to operate:
+gRPC's strengths come with structure you have to run:
 
 - **A separate schema language.** You author and version `.proto` files and run codegen in every build. That's a second source of truth alongside your implementation, and it can drift from both sides.
 - **Addressing is still your problem.** gRPC calls a host; something has to tell the caller where the service is and balance across instances — DNS, a service mesh, or client-side load balancing. HTTP/2's long-lived connections also interact awkwardly with naive L4 load balancers, which is how you end up with a mesh you didn't plan on.
 - **It's request-shaped, not buffered.** If a callee is down or slow, the caller feels it immediately; retries, backoff and circuit breakers are yours to add.
 
-## What message-queue RPC changes
+## What message-queue RPC changes, in the `@imqueue` model
 
 Routing RPC through a queue removes the addressing and balancing problems and drops the schema language, in exchange for narrowing scope:
 
@@ -44,7 +44,7 @@ Routing RPC through a queue removes the addressing and balancing problems and dr
 - **No discovery or load balancer.** A service reads from its named queue; multiple instances compete on that queue and balance themselves. The queue name is the address.
 - **Natural back-pressure.** If consumers fall behind, the queue absorbs it instead of failing connections.
 
-## The contract, side by side
+## The contract, side by side: `.proto` vs an `@imqueue` service class
 
 With gRPC, the contract is a file in a third language:
 
@@ -96,9 +96,9 @@ const found = await client.get('42');
 
 One source of truth instead of two — and the price is that the contract is only expressible in TypeScript, so a Go service can't consume it.
 
-## Failure and timeouts: the deepest difference
+## Failure and timeouts: where gRPC and queue RPC diverge most
 
-This is the part most comparisons skip, and it's where the two models diverge most sharply in production.
+Failure handling is the part most gRPC comparisons skip, and it is where the two models diverge most sharply in production.
 
 **gRPC is connection-shaped.** A deadline is part of the call and propagates to the server; a cancelled or expired call signals the server so it can stop working. Status codes (`UNAVAILABLE`, `DEADLINE_EXCEEDED`, `RESOURCE_EXHAUSTED`) let a caller tell "the service is down" from "the service said no", which is what makes sensible retry policy possible. If nobody is listening, you find out immediately.
 
@@ -110,9 +110,9 @@ This is the part most comparisons skip, and it's where the two models diverge mo
 
 There's a fourth asymmetry: nothing in the framework drains in-flight work on shutdown. A worker killed mid-handler loses that message either way. [Graceful shutdown and zero-drop deploys](/blog/graceful-shutdown-zero-drop-deploys/) shows what it actually takes to close that gap yourself.
 
-## What you actually operate
+## What you actually operate with gRPC vs with `@imqueue`
 
-Worth comparing honestly, because it's usually the deciding factor:
+The operational surface is usually the deciding factor, so it is worth comparing honestly:
 
 | | gRPC | Queue RPC |
 |---|---|---|
@@ -124,7 +124,7 @@ Worth comparing honestly, because it's usually the deciding factor:
 
 The queue column is shorter, which is the entire pitch — but "Redis" is not nothing. It's a stateful dependency in the request path for every internal call, and its availability becomes your RPC layer's availability.
 
-## Performance, honestly
+## gRPC vs `@imqueue` performance, honestly
 
 Protobuf over HTTP/2 is hard to beat on pure encoding cost, and a JSON-over-queue design isn't trying to. What `@imqueue` measures on one rig — 22 worker processes, ~1 KB messages, round-trip messages/second **summed across all workers** — is roughly 200,000/s with default delivery and about 120,000/s with safe delivery. Enabling gzip cost ~15% of throughput and cut payload size by about 70%.
 
@@ -138,7 +138,7 @@ Those are aggregate figures from a single run on one machine, not per-core numbe
 - **You want a contract independent of any implementation.** A `.proto` can be reviewed and versioned without reference to the code that serves it.
 - **Extreme wire efficiency matters**, or you're already running a mesh and the addressing problem is solved.
 
-## Where queue RPC costs you
+## Where `@imqueue`'s queue RPC costs you
 
 - **Redis only.** `vendor` defaults to `'Redis'` and is currently the only supported value, though `IMessageQueue` is the documented seam for another adapter.
 - **JSDoc is mandatory.** Missing annotations degrade to `any`, `@param` count must match real arity, and consuming projects must compile with `removeComments: false`.
@@ -147,7 +147,7 @@ Those are aggregate figures from a single run on one machine, not per-core numbe
 - **At-least-once**, no cancellation, no drain — as above.
 - **A smaller ecosystem.** No mesh integrations, no interceptor catalogue, far fewer people who have hit your problem before.
 
-## Quick comparison
+## @imqueue vs gRPC at a glance
 
 | | @imqueue (queue RPC) | gRPC |
 |---|---|---|
@@ -163,12 +163,12 @@ Those are aggregate figures from a single run on one machine, not per-core numbe
 | Streaming | Request/response | Full streaming |
 | Wire format | JSON (optional gzip) | Protobuf (binary) |
 
-## How to choose
+## How to choose between gRPC and `@imqueue`
 
 - **Choose gRPC** if your services span multiple languages, you need streaming or real cancellation, or you want an explicit schema contract and don't mind operating discovery and load balancing.
 - **Choose queue-based RPC with @imqueue** if your back-end is Node.js/TypeScript, you'd rather not maintain a `.proto` or a service mesh, and you want typed clients generated straight from your services — accepting at-least-once delivery and Redis in the path.
 
-## FAQ
+## Frequently asked questions about gRPC and @imqueue
 
 ### Is @imqueue faster than gRPC?
 Not on wire efficiency — Protobuf over HTTP/2 is hard to beat there. The published `@imqueue` numbers are aggregate round-trips on one rig, not a head-to-head. For most internal services the handler dominates either way.

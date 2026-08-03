@@ -15,19 +15,19 @@ ogType: article
 
 Redis is often introduced as "a cache with pub/sub," and many teams never look past those two features. But Redis has a set of primitives that make it a genuinely capable message bus — and understanding them helps you reason about what tools like `@imqueue` are doing under the hood. Here's a practical tour.
 
-## Pub/sub: simple, and fire-and-forget
+## Redis pub/sub: simple, and fire-and-forget
 
 Redis pub/sub is the obvious starting point: publishers send to a channel, subscribers receive. It's great for broadcast — invalidate a cache everywhere, notify all instances of a config change.
 
 Its limitation is that it's **fire-and-forget**. If no subscriber is connected when a message is published, that message is gone; there's no buffering and no delivery guarantee. That's fine for broadcasts you can afford to miss, and wrong for work you can't lose.
 
-## Lists as work queues
+## Redis lists as competing-consumer work queues
 
-The more interesting pattern uses Redis **lists** as queues. A producer `LPUSH`es a message; a consumer `RPOP`s it. Run several consumers against the same list and each message goes to exactly one of them — a competing-consumers work queue, with load balancing for free.
+The more interesting Redis pattern uses **lists** as queues. A producer `LPUSH`es a message; a consumer `RPOP`s it. Run several consumers against the same list and each message goes to exactly one of them — a competing-consumers work queue, with load balancing for free.
 
 Naively, consumers would have to poll (`RPOP` in a loop), burning CPU and adding latency. Redis solves that with **blocking** variants: `BRPOP` / `BLMOVE` let a consumer block until a message arrives, so there's no polling and no idle cost. This is the backbone of most Redis-based queues.
 
-## Making delivery reliable
+## Making Redis list delivery reliable
 
 Plain `RPOP` has a gap: if a consumer pops a message and then crashes before finishing, the message is lost. The fix is to move the message to a per-consumer "processing" list atomically as you take it, using `LMOVE` / `BLMOVE` (available in Redis 6.2+). If the consumer dies, the message is still sitting in its processing list and can be rescheduled; only on success do you remove it.
 
@@ -37,9 +37,9 @@ This is exactly the trade-off `@imqueue` exposes as its two delivery modes: a fa
 
 Redis 5 added **Streams**, an append-only log with consumer groups, message IDs, and acknowledgements — closer in spirit to Kafka than to a simple list. Streams are powerful when you need replay, multiple independent consumer groups over the same data, or a durable event log. They're also more to manage. For straightforward work-queue and RPC routing, lists with blocking moves are simpler and lighter; for event-sourcing-style needs, Streams earn their complexity.
 
-## Keyspace notifications
+## Redis keyspace notifications
 
-One more primitive worth knowing: Redis can emit **keyspace notification** events when keys change. This lets a system react to expirations and mutations without polling. It's off or partial by default on some managed Redis offerings (for example, you may need to set `notify-keyspace-events Ex` on AWS ElastiCache). If you build on a library that relies on these events, that's a configuration line to remember.
+One more Redis primitive worth knowing: Redis can emit **keyspace notification** events when keys change. Keyspace events let a system react to expirations and mutations without polling. It's off or partial by default on some managed Redis offerings (for example, you may need to set `notify-keyspace-events Ex` on AWS ElastiCache). If you build on a library that relies on these events, that's a configuration line to remember.
 
 ## Where @imqueue sits
 

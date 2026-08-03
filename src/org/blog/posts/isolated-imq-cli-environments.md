@@ -205,7 +205,7 @@ fleet its own Redis port or database number.
   @imqueue/cli` shared by every environment — which is why the recipes above
   bake in `IMQ_NO_UPDATE_CHECK=1`.
 
-## FAQ
+## Frequently asked questions about isolated imq CLI homes
 
 ### Do I need IMQ_CLI_HOME if I only have one project?
 No. The defaults are exactly right for a single project — reach for isolation when the second project appears, or when you want a scratch environment.

@@ -77,9 +77,9 @@ const found = await client.get('42'); // signature came from the service
 
 The difference isn't decorators versus objects — it's `broker.call('user.get', …)` versus `client.get(…)`. One is a string the compiler can't check; the other is a method whose signature was derived from the service. Rename the action in Moleculer and callers keep compiling until something fails at runtime; rename it in `@imqueue`, regenerate, and every call site breaks the build.
 
-## Typing model
+## Typing model: Moleculer's runtime validation vs `@imqueue`'s generated types
 
-This is the sharpest difference, and worth being precise about. Moleculer is JavaScript-first and ships official typings; action parameters are typically validated at runtime with a schema validator, which gives you real runtime safety and good error messages. What it doesn't give you is a static contract across the call boundary — that's something you assemble.
+The typing model is the sharpest difference between Moleculer and `@imqueue`, and worth being precise about. Moleculer is JavaScript-first and ships official typings; action parameters are typically validated at runtime with a schema validator, which gives you real runtime safety and good error messages. What it doesn't give you is a static contract across the call boundary — that's something you assemble.
 
 `@imqueue` is TypeScript-first by design. The trade is that JSDoc is load-bearing rather than optional: it is the *only* type source the generator reads, so an unannotated parameter silently becomes `any`, the `@param` count must match real arity, and consuming projects must compile with `removeComments: false`. Cheap once you know it; confusing if you don't.
 
@@ -95,9 +95,9 @@ One thing to get right, because it's the easiest wrong assumption to make: **`@i
 
 Similarly, safe delivery is narrower than it sounds: it re-queues a message a dying worker never *started*, and delivery is **at-least-once** in either mode, so exposed methods should be idempotent. Nothing in the framework drains in-flight work on shutdown — see [graceful shutdown and zero-drop deploys](/blog/graceful-shutdown-zero-drop-deploys/) and [what guaranteed delivery costs](/blog/guaranteed-message-delivery-cost/).
 
-## Licensing — often the actual decider
+## Licensing: Moleculer's MIT vs `@imqueue`'s dual GPL/commercial
 
-This deserves more than a footnote, because for a lot of teams it settles the question before any technical comparison.
+Licensing deserves more than a footnote, because for a lot of teams it settles the Moleculer-or-`@imqueue` question before any technical comparison.
 
 **Moleculer is MIT.** Use it in anything, including closed-source commercial products, with no obligations beyond attribution.
 
@@ -147,7 +147,7 @@ Neither model is better; they reflect different funding intentions. But it's the
 
 They're not better or worse — they're aimed at different priorities.
 
-## FAQ
+## Frequently asked questions about @imqueue and Moleculer
 
 ### Is Moleculer still maintained?
 Yes. It's actively developed and widely used; nothing in this comparison depends on it being stale.
