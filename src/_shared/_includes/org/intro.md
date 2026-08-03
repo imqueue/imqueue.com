@@ -15,6 +15,10 @@ TypeScript for service-oriented back-ends (microservices being a special case of
 SOA), works well behind an API layer such as GraphQL, and lets you write only the
 functionality while @imqueue handles the low-level messaging.
 
+## @imqueue at a glance
+
+{% include "at-a-glance.md" %}
+
 ## Key capabilities
 
 - **@imqueue/core** — messaging queue as the base communication protocol between services. [Reference]({{ siteUrl }}/api/core/latest/)

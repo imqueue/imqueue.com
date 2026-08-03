@@ -39,7 +39,7 @@
   "check:geo-live": "node scripts/check-geo-live.js",
     "check:api-versions": "node scripts/check-api-versions.js",
     "check:links": "npm run build:all && node scripts/check-links.js",
-    "check:links:external": "npm run build:all && node scripts/check-links.js --external",
+    "check:links:external": "npm run build:all && node scripts/check-links.js --external --allow-external=scripts/external-allowlist.txt",
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
     "build:org": "EDITION=org eleventy",
     "build:com": "EDITION=com eleventy",

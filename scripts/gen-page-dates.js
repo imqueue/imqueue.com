@@ -151,6 +151,54 @@ if (process.argv.includes('--check')) {
   process.exit(0);
 }
 
+// --fix-modified rewrites ONLY the `modified` values, leaving `published` and the
+// key set exactly as committed.
+//
+// The drift this repairs is real but narrow: it affects the ~50 hand-authored pages
+// only (blog posts use front matter, the 423 API pages use `apiReleased`), and it was
+// last corrected by hand — commit f56a330, "re-date the pages whose source had moved
+// past their dateModified". A human noticing a stale date is not a process.
+//
+// A separate mode rather than folding it into the plain run for one reason: the plain
+// run also ADDS pages and can change `published` for a file whose history changed
+// (a rename, a squash), and the weekly job that consumes this must be able to open a
+// diff that is only dates. If it also introduced a new page, review would be
+// "probably fine" rather than "obviously fine".
+//
+// Deliberately NOT wired into --check as a failure. The comment above --check
+// explains why: `modified` goes stale the moment a page is committed, so gating on it
+// makes every commit block the next one through the pre-commit hook.
+if (process.argv.includes('--fix-modified')) {
+  if (!fs.existsSync(OUT)) {
+    console.error(`${path.relative(ROOT, OUT)} does not exist — run without --fix-modified first.`);
+    process.exit(1);
+  }
+
+  const committed = JSON.parse(fs.readFileSync(OUT, 'utf8'));
+  const moved = [];
+
+  for (const [key, entry] of Object.entries(committed)) {
+    const fresh = dates[key];
+
+    if (!fresh || fresh.modified === entry.modified) continue;
+    moved.push({ key, from: entry.modified, to: fresh.modified });
+    entry.modified = fresh.modified;
+  }
+
+  if (!moved.length) {
+    console.log('no dateModified drift — nothing to fix.');
+    process.exit(0);
+  }
+
+  fs.writeFileSync(OUT, `${JSON.stringify(committed, null, 2)}\n`);
+  for (const m of moved) console.log(`  ${m.key}: ${m.from} -> ${m.to}`);
+  console.log(
+    `\nrewrote ${moved.length} dateModified value(s) in ${path.relative(ROOT, OUT)}. ` +
+    'published dates and the key set are untouched.',
+  );
+  process.exit(0);
+}
+
 fs.writeFileSync(OUT, json);
 console.log(
   `wrote ${path.relative(ROOT, OUT)}: ${Object.keys(dates).length} pages` +
