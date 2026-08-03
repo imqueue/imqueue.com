@@ -101,22 +101,22 @@ Keep the balancer or mesh when you need traffic policy, per-instance health, mTL
 
 ## FAQ
 
-**How does the queue decide which instance gets a message?**
+### How does the queue decide which instance gets a message?
 It doesn't, in the sense a balancer does. Instances pull when they're ready, so the next free consumer takes the next message. Distribution is a consequence of consumption rather than a routing decision.
 
-**Is this the same as round-robin?**
+### Is this the same as round-robin?
 No, and that's the point. Round-robin sends to the next instance in sequence whether or not it's busy. Competing consumers sends to whichever instance asks, which is inherently load-aware.
 
-**Do I still need a load balancer anywhere?**
+### Do I still need a load balancer anywhere?
 Yes — at the edge, for public HTTP traffic. This pattern is about services calling each other.
 
-**How do I scale a service?**
+### How do I scale a service?
 Run more instances of it. They join the same queue and start taking work immediately, with no registration step.
 
-**What if one instance is much slower than the others?**
+### What if one instance is much slower than the others?
 It asks for work less often, so it naturally receives less. That's the main advantage over push-based balancing.
 
-**Can I do canary deploys this way?**
+### Can I do canary deploys this way?
 Not with the queue alone — every consumer on a queue is equal, and there's no weighting. Deploy a canary as a separate service with its own queue, and split traffic at the caller or the gateway.
 
 ---

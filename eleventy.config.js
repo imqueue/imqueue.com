@@ -322,6 +322,81 @@ module.exports = function (eleventyConfig) {
     return out.replace(/\n{3,}/g, "\n\n").trim();
   });
 
+  // ---- FAQPage, generated from the page's own FAQ section ------------------
+  // The Q&A pairs were already written, already visible, and already shaped as
+  // questions — and only two pages in the repo turned them into FAQPage markup,
+  // by hand. Nine blog posts and /license/ had 55 answered questions between them
+  // that no engine could read as questions.
+  //
+  // Generated from the source rather than hand-written for two reasons. Google
+  // requires FAQPage answers to be PRESENT ON THE PAGE, and a hand-copied block
+  // drifts from the prose the moment either is edited — the one that existed had
+  // already normalised "What's" to "What is" and "don't" to "do not", so the
+  // markup and the visible text were not the same strings. And 55 pairs is not
+  // something to transcribe into JSON by hand once, let alone keep in step.
+  //
+  // Scoped deliberately narrowly: only `### `-level questions, only inside a
+  // `## FAQ` / `## Frequently asked…` section, only when the heading ends in a
+  // question mark, and only when the page has at least two of them. The repo has
+  // two other FAQ shapes — <details>/<summary> pairs in one post, and question
+  // headings scattered under ordinary sections in mcp/security.md — which this
+  // deliberately does NOT match, so their existing hand-written blocks stay
+  // correct and nothing is emitted twice.
+  const inlineToText = (s) =>
+    String(s)
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1") // links -> their text
+      .replace(/`([^`]+)`/g, "$1")             // code spans
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .replace(/(^|\s)\*([^*]+)\*/g, "$1$2")
+      .replace(/<[^>]+>/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  eleventyConfig.addFilter("faqPairs", (raw) => {
+    const pairs = [];
+    let inFaq = false;
+    let question = null;
+    let answer = [];
+
+    const flush = () => {
+      if (question && answer.length) {
+        pairs.push({ q: question, a: inlineToText(answer.join(" ")) });
+      }
+      question = null;
+      answer = [];
+    };
+
+    for (const line of String(raw == null ? "" : raw).split("\n")) {
+      // Any H2 ends the previous answer and decides whether we are in the section.
+      if (/^##\s/.test(line) && !/^###/.test(line)) {
+        flush();
+        inFaq = /^##\s+(FAQ|Frequently asked)/i.test(line);
+        continue;
+      }
+      if (!inFaq) continue;
+
+      const heading = line.match(/^###\s+(.+?)\s*$/);
+
+      if (heading) {
+        flush();
+        question = inlineToText(heading[1]);
+        continue;
+      }
+      if (!question) continue;
+      // A blank line closes the answer: only the first paragraph after the
+      // question is the answer, so a follow-up code block or aside is left out
+      // rather than concatenated into one run-on string.
+      if (line.trim() === "") {
+        if (answer.length) flush();
+        continue;
+      }
+      answer.push(line.trim());
+    }
+    flush();
+
+    return pairs.filter((p) => p.q.endsWith("?"));
+  });
+
   // Posts written by a given author slug (newest first).
   eleventyConfig.addFilter("byAuthor", (posts, slug) =>
     (posts || []).filter((p) => p.data.author === slug)

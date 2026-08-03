@@ -108,22 +108,22 @@ For the mechanics of running several services together while you do it, [isolate
 
 ## FAQ
 
-**Do generated clients eliminate breaking changes?**
+### Do generated clients eliminate breaking changes?
 No. They make breaking changes *visible* at compile time after regeneration. They don't make an incompatible change compatible, and they don't cover callers that haven't recompiled.
 
-**How do I version a service — v1/v2 method names, or separate services?**
+### How do I version a service — v1/v2 method names, or separate services?
 For most changes, neither: add an optional parameter or a new method and deprecate the old one. Reach for a parallel `getV2` only when the shapes genuinely can't coexist in one signature, and treat it as debt to remove.
 
-**What about messages already in the queue during a deploy?**
+### What about messages already in the queue during a deploy?
 They'll be handled by whatever consumes them next, which may be the new code. That's the core reason a new version must still understand the old request shape.
 
-**Can I run two versions of the same service at once?**
+### Can I run two versions of the same service at once?
 They'd compete on the same queue, so requests would be split between them unpredictably. If you need genuine version isolation, give the new version its own service name and route at the caller.
 
-**How do I know a deprecated method is unused?**
+### How do I know a deprecated method is unused?
 Log calls to it and watch. There's no built-in usage tracking, so instrument the method before you plan its removal.
 
-**Does @imqueue check the contract at runtime?**
+### Does @imqueue check the contract at runtime?
 It validates argument count and rejects mismatches with `IMQ_RPC_INVALID_ARGS_COUNT`. It doesn't deep-validate payload shapes — if you need schema validation, add it yourself.
 
 ---

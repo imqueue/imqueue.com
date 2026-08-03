@@ -131,22 +131,22 @@ The generated approach wins specifically when services are TypeScript, deployed 
 
 ## FAQ
 
-**Do I have to commit the generated client?**
+### Do I have to commit the generated client?
 No, but it's usually worth it. Committed, the diff on that file is the contract change — visible in review, versioned with the caller.
 
-**Does the service need to be running to generate a client?**
+### Does the service need to be running to generate a client?
 Yes. The client is built from the description the running service reports, so generation requires the service up and Redis reachable.
 
-**What happens if I forget to regenerate?**
+### What happens if I forget to regenerate?
 Your caller keeps compiling against the old shape and can fail at runtime — the same drift as a hand-written client. Generation removes the *copy*, not the need to regenerate on change. Wire it into the service's release process.
 
-**Why is JSDoc required if TypeScript already has types?**
+### Why is JSDoc required if TypeScript already has types?
 The generator reads the doc-block rather than reflecting on types at runtime, which is why the annotations are mandatory and why `removeComments: false` matters. It's the main friction in the model.
 
-**Can I hand-edit the generated client?**
+### Can I hand-edit the generated client?
 Don't. It's a build output and the next generation overwrites it — existing files are replaced silently. Put anything custom in a wrapper around it.
 
-**Does this work across repositories?**
+### Does this work across repositories?
 Yes, and that's the point of generating rather than inferring. The client is an artifact, so callers can live anywhere and regenerate on their own schedule.
 
 ---

@@ -153,22 +153,22 @@ The main thing to decide deliberately is which tool *owns* service-to-service ca
 
 ## FAQ
 
-**Is @imqueue a NestJS alternative?**
+### Is @imqueue a NestJS alternative?
 Only for the narrow job of service-to-service RPC. It replaces the microservices module, not the framework — there's no DI container, no HTTP layer and no module system in `@imqueue`.
 
-**Can I use @imqueue inside a NestJS application?**
+### Can I use @imqueue inside a NestJS application?
 Yes. A generated client is an ordinary TypeScript class, so it can be constructed in a Nest provider and injected like anything else.
 
-**Does NestJS's Redis transporter do the same thing as @imqueue?**
+### Does NestJS's Redis transporter do the same thing as @imqueue?
 They both move messages over Redis, but the contract differs: Nest routes on patterns you design and types the payload with generics you assert; `@imqueue` addresses by service name and generates the client from the service, so the compiler catches drift after a regenerate.
 
-**Which has better type safety between services?**
+### Which has better type safety between services?
 `@imqueue`, for the specific reason that the client is derived from the service rather than declared alongside it. The cost is a generation step and a hard dependency on JSDoc.
 
-**Can @imqueue use Kafka or NATS?**
+### Can @imqueue use Kafka or NATS?
 Not out of the box — Redis is the only supported transport today, though `IMessageQueue` is the documented interface for an adapter. If your transport is already Kafka, NestJS is the pragmatic answer.
 
-**Is NestJS heavier at runtime?**
+### Is NestJS heavier at runtime?
 That's the wrong axis to worry about; the meaningful difference is conceptual surface, not milliseconds. Nest asks you to adopt a framework; `@imqueue` asks you to adopt a transport and a codegen step.
 
 ---
