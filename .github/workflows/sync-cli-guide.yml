@@ -21,6 +21,9 @@ concurrency:
 
 permissions:
   contents: write
+  # For `gh workflow run indexnow.yml` in the last step. contents:write alone
+  # cannot dispatch a workflow.
+  actions: write
 
 jobs:
   sync:
@@ -28,6 +31,13 @@ jobs:
     steps:
       - name: Checkout imqueue.com
         uses: actions/checkout@v4
+        with:
+          # REQUIRED by the verify step. check:dates reads git history
+          # (`git log --follow --diff-filter=A`) for every page's publication
+          # date; the default shallow fetch has one commit, so every file looks
+          # as though that commit added it and the check fails on every run.
+          # Same reason refresh-api-docs.yml sets it.
+          fetch-depth: 0
 
       - name: Resolve cli ref
         id: ref
@@ -47,21 +57,102 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+
+      # The sync script itself needs no dependencies, but everything after it
+      # does — and `npm ci` also runs `prepare`, which points core.hooksPath at
+      # .githooks.
+      - run: npm ci
 
       - name: Regenerate CLI User Guide from the wiki
         run: node scripts/sync-cli-wiki.js --wiki .cli-src/wiki
 
-      - name: Commit & push if changed
+      - name: Anything to do?
+        id: changed
         run: |
-          if [ -z "$(git status --porcelain src/org/cli)" ]; then
+          if [ -z "$(git status --porcelain -- src/org/cli)" ]; then
             echo "No changes — the guide is already in sync."
-            exit 0
+            echo "any=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "any=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Commit the guide
+        if: steps.changed.outputs.any == 'true'
+        env:
+          REF: ${{ steps.ref.outputs.ref }}
+        run: |
           git config user.name "imqueue-bot"
           git config user.email "bot@imqueue.com"
-          git add src/org/cli
-          git commit -m "docs(cli): sync CLI User Guide from @imqueue/cli@${{ steps.ref.outputs.ref }}"
-          git push
+          # An explicit path, not `git add -A`: this working tree also holds
+          # .cli-src/ from the sparse checkout above, plus (on a self-hosted
+          # runner) the untracked local-only promotion/ and *-PLAN.md material.
+          git add -- src/org/cli
+          # --no-verify here and below on purpose: the "Verify" step is the gate,
+          # and it runs on the exact tree that gets pushed. Letting the hook run
+          # would execute the same suite three times for one sync, and on the
+          # first of those runs a BRAND-NEW guide page is staged-but-uncommitted,
+          # so gen-page-dates reports it untracked and check:dates cannot see it
+          # either way.
+          git commit --no-verify -m "docs(cli): sync CLI User Guide from @imqueue/cli@${REF}"
+
+      - name: Record dates for new or changed guide pages
+        if: steps.changed.outputs.any == 'true'
+        # AFTER the commit, never before. gen-page-dates derives `published` from
+        # the commit that ADDED a file (`git log --diff-filter=A`), so a page that
+        # is only staged resolves to null and is omitted from pageDates.json — and
+        # then check:dates fails on the *next* commit with "has no entry — it would
+        # render with no date". Running it here, then amending, is what keeps a
+        # newly synced page from shipping with no datePublished at all.
+        run: |
+          npm run gen-page-dates
+          if [ -n "$(git status --porcelain -- src/_data/pageDates.json)" ]; then
+            git add -- src/_data/pageDates.json
+            git commit --no-verify --amend --no-edit
+            echo "Folded pageDates.json into the sync commit."
+          else
+            echo "pageDates.json unchanged."
+          fi
+
+      - name: Verify — redirects, analytics, dates, links, sitemap
+        if: steps.changed.outputs.any == 'true'
+        # This is the gate, and it has to be here. A push made with GITHUB_TOKEN
+        # does not trigger other workflows, so checks.yml will NOT run for the
+        # commit this job creates — while Cloudflare Pages deploys from the git
+        # push itself. Without this step an unverified guide goes straight to
+        # production. Same reasoning as refresh-api-docs.yml.
+        run: npm test
+
+      - name: Push
+        if: steps.changed.outputs.any == 'true'
+        run: git push
+
+      - name: Announce the new guide to IndexNow
+        if: steps.changed.outputs.any == 'true'
+        # indexnow.yml is triggered by `push: branches: [master]`, which a
+        # GITHUB_TOKEN push does not fire — so a synced guide used to wait for the
+        # next unrelated human push before Bing/Yandex heard about it. /cli/ pages
+        # are submitted (only /api/ is excluded, via --exclude=/api/), so there is
+        # something real to announce.
+        #
+        # Dispatching that workflow rather than calling `npm run indexnow:org`
+        # here: indexnow-ping.js does NOT wait for anything ("Run AFTER a deploy,
+        # once the new content is actually live"), and the ~12-minute
+        # built-vs-live sitemap parity gate that makes it correct lives in
+        # indexnow.yml. Pinging from this job would submit a brand-new guide page
+        # before Cloudflare Pages had deployed it, and IndexNow would fetch a 404.
+        #
+        # workflow_dispatch is one of the two events GitHub explicitly EXEMPTS
+        # from the "GITHUB_TOKEN cannot trigger workflows" rule (the other is
+        # repository_dispatch), so this does start a run — which is the whole
+        # reason it is a dispatch and not a push.
+        #
+        # Non-fatal: the sync itself has already landed and the sitemap covers the
+        # slow path, so a dispatch failure must not fail the sync.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run indexnow.yml --ref master
 
 # ---------------------------------------------------------------------------
 # To fire this automatically on every @imqueue/cli npm publish, add a step to
