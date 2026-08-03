@@ -1,0 +1,31 @@
+{%- comment -%}
+Mirrors src/org/blog/index.html, which paginates `collections.posts` 5 at a time.
+This lists EVERY article instead: pagination exists so a human is not handed 40
+cards at once, and an agent has the opposite preference — one fetch, whole index.
+That is also why /blog/page/N/ has no mirror of its own, which check-sitemap.js
+records as deliberate.
+{%- endcomment -%}
+# Node.js microservice guides and comparisons
+
+Source: {{ siteUrl }}/blog/
+
+Articles on message-queue RPC for Node.js & TypeScript microservices: Redis
+brokers, guaranteed delivery, typed clients, scaling and framework comparisons.
+
+All {{ collections.posts.size }} articles, newest first. Each is also served as
+plain markdown at `<article-url>index.md`.
+
+{% for post in collections.posts -%}
+{%- assign a = authors | authorBySlug: post.data.author -%}
+- [{{ post.data.title }}]({{ siteUrl }}{{ post.url }}) — {{ post.date | date: "%Y-%m-%d" }}{% if a %}, {{ a.name }}{% endif %}{% if post.data.summary %}: {{ post.data.summary | strip_newlines }}{% endif %} — [markdown]({{ siteUrl }}{{ post.url }}index.md)
+{% endfor %}
+## Topics
+
+{% for topic in collections.blogTopics -%}
+- [{{ topic.label }}]({{ siteUrl }}/blog/topics/{{ topic.slug }}/) — {{ topic.description }} ({{ topic.posts.size }} article{% unless topic.posts.size == 1 %}s{% endunless %}) — [markdown]({{ siteUrl }}/blog/topics/{{ topic.slug }}/index.md)
+{% endfor %}
+## Authors
+
+{% for author in authors -%}
+- [{{ author.name }}]({{ siteUrl }}/blog/authors/{{ author.slug }}/) — {{ author.occupation }} — [markdown]({{ siteUrl }}/blog/authors/{{ author.slug }}/index.md)
+{% endfor %}

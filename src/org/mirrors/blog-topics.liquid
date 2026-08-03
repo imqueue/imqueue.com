@@ -7,26 +7,7 @@ permalink: "/blog/topics/{{ topic.slug }}/index.md"
 eleventyExcludeFromCollections: true
 ---
 {%- comment -%}
-Mirrors src/org/blog/topics.html one-for-one — same collection, same pagination,
-same fields — so a new topic hub gets its markdown mirror with no extra work.
+Thin wrapper. Body lives in _shared/_includes/org/blog-topics.md so this mirror, its
+flat <page>.md twin and llms-full.txt all render one source.
 {%- endcomment -%}
-# {{ topic.title }}
-
-Source: {{ siteUrl }}/blog/topics/{{ topic.slug }}/
-
-{{ topic.description }}
-
-{{ topic.posts.size }} article{% unless topic.posts.size == 1 %}s{% endunless %} tagged `{{ topic.slug }}`, newest first.
-
-{% for post in topic.posts -%}
-{%- assign a = authors | authorBySlug: post.data.author -%}
-- [{{ post.data.title }}]({{ siteUrl }}{{ post.url }}) — {{ post.date | date: "%Y-%m-%d" }}{% if a %}, {{ a.name }}{% endif %}{% if post.data.summary %}: {{ post.data.summary | strip_newlines }}{% endif %} — [markdown]({{ siteUrl }}{{ post.url }}index.md)
-{% endfor %}
-## Other topics
-
-{% for other in collections.blogTopics -%}
-{%- unless other.slug == topic.slug -%}
-- [{{ other.label }}]({{ siteUrl }}/blog/topics/{{ other.slug }}/) — {{ other.posts.size }} article{% unless other.posts.size == 1 %}s{% endunless %}
-{% endunless -%}
-{%- endfor %}
-All articles: [{{ siteUrl }}/blog/]({{ siteUrl }}/blog/) — [markdown]({{ siteUrl }}/blog/index.md)
+{% include "org/blog-topics.md" %}

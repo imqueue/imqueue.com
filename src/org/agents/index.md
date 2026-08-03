@@ -65,7 +65,8 @@ narrative versions are the ones written to be read and the ones that rank:
 
 Staying out of the search index does not make the recipes any less available to an
 agent. They are listed in [`/llms.txt`](/llms.txt), every page has a plain-markdown
-mirror at `<page-url>index.md`, and the
+mirror at both `<page-url>index.md` and `<page>.md` (byte-identical — the ecosystem
+is split on which shape it should be, so this site serves both), and the
 [@imqueue MCP server](/mcp/)'s `get_doc` tool fetches them directly.
 
 ## Getting an assistant set up

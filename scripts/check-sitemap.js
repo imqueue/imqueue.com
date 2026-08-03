@@ -223,6 +223,59 @@ for (const [edition, origin] of Object.entries(EDITIONS)) {
     }
   }
 
+  // Both mirror URL shapes, and byte-identical.
+  //
+  // The ecosystem is split: Stripe and Anthropic docs serve <page>.md, Cloudflare
+  // Docs serves <page>/index.md and 404s the other. This site served only the
+  // second, so /intro.md returned a 404 with a 16,509-byte HTML body while
+  // /intro/index.md returned 3,172 bytes of markdown — and `Accept: text/markdown`
+  // on the HTML URL returns text/html, so there was no negotiation fallback either.
+  //
+  // llms.txt, /agents/, /using-ai-assistants/ and the home mirror all now promise
+  // BOTH shapes and promise they are the same bytes. Two templates render each pair
+  // (md-mirror.liquid / md-mirror-flat.liquid, and the -flat.liquid twins under
+  // mirrors/), sharing one body include specifically so they cannot diverge — this
+  // is what proves the sharing actually holds.
+  //
+  // The root is exempt: /index.md IS the flat form for /, and ".md" is not a URL.
+  {
+    const pairs = [];
+    const missing = [];
+    const differing = [];
+
+    (function walk(d) {
+      for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
+        const full = path.join(d, entry.name);
+
+        if (entry.isDirectory()) { walk(full); continue; }
+        if (entry.name !== 'index.md') continue;
+
+        const parent = path.dirname(full);
+
+        if (path.resolve(parent) === path.resolve(dir)) continue;
+
+        const flat = `${parent}.md`;
+
+        pairs.push(flat);
+        if (!fs.existsSync(flat)) missing.push(flat.slice(dir.length));
+        else if (fs.readFileSync(flat, 'utf8') !== fs.readFileSync(full, 'utf8')) {
+          differing.push(flat.slice(dir.length));
+        }
+      }
+    }(dir));
+
+    if (missing.length) {
+      for (const m of missing.slice(0, 8)) fail(`${m} is missing — every mirror is promised at both <page>/index.md and <page>.md`);
+      if (missing.length > 8) console.error(`  FAIL  …and ${missing.length - 8} more`);
+    }
+    if (differing.length) {
+      for (const d2 of differing.slice(0, 8)) fail(`${d2} differs from its <page>/index.md twin — they are documented as the same bytes`);
+    }
+    if (!missing.length && !differing.length) {
+      pass(`${pairs.length} mirrors served at both <page>/index.md and <page>.md, byte-identical`);
+    }
+  }
+
   for (const [name, urls] of buckets) {
     console.log(`        ${name}: ${urls.length} URLs`);
   }

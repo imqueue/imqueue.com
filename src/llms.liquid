@@ -59,7 +59,9 @@ or llms.txt ships `…https://imqueue.comConventions for machine readers`.
 {%- endcomment %}
 
 Conventions for machine readers. Every page listed below is also published as
-plain markdown at `<page-url>index.md` — same content, no HTML, no navigation.
+plain markdown at BOTH `<page-url>index.md` and `<page>.md` — byte-identical, same
+content, no HTML, no navigation. (`/intro/index.md` and `/intro.md` are the same
+file; the ecosystem is split on which shape it should be, so this site serves both.)
 Under `/api/` that holds for every per-symbol page too, but only for the current
 major: archived majors are HTML-only. To look a symbol up by name instead of
 browsing, fetch {{ siteUrl }}/api/search-index.json — every exported symbol of

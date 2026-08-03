@@ -1,0 +1,21 @@
+---
+permalink: "/contact.md"
+eleventyExcludeFromCollections: true
+---
+{%- comment -%}
+The FLAT permalink for this mirror: <page>.md alongside <page>/index.md.
+
+The ecosystem is genuinely split — Stripe and Anthropic docs serve <page>.md,
+Cloudflare Docs serves <page>/index.md and 404s the other — so this site serves both
+rather than betting on one. /intro.md used to return a 404 with a 16,509-byte HTML
+body while /intro/index.md returned 3,172 bytes of markdown, and `Accept:
+text/markdown` on the HTML URL returns text/html, so there was no negotiation
+fallback either.
+
+Not _redirects: src/org/_redirects documents Cloudflare Pages' 100-rule ceiling, and
+this is a static build where a second copy of a file costs nothing.
+
+Body comes from the same include the <page>/index.md twin renders, so the two cannot
+diverge.
+{%- endcomment -%}
+{% include "com/contact.md" %}
