@@ -119,14 +119,16 @@ type source), so the caller doesn't need a hand-written client. You generate the
 real one from the running service:
 
 ~~~bash
-imq client generate UserService
+imq client generate UserService ./src/clients
 ~~~
 
 and call it like a local, fully-typed object — the correlation, reply routing and
 timeouts are handled for you:
 
 ~~~typescript
-const users = new UserClient();
+import { userService } from './clients/UserService.js';
+
+const users = new userService.UserClient();
 await users.start();
 
 const user = await users.get('42'); // typed: User, no client boilerplate

@@ -152,8 +152,10 @@ rather than trying to unschedule it.
 
 ~~~typescript
 import { IMQDelay, IMQMetadata } from '@imqueue/rpc';
+// The generated module exports one namespace, which holds the client class.
+import { notificationService } from './clients/NotificationService.js';
 
-const notifications = new NotificationClient({ callTimeout: 30_000 });
+const notifications = new notificationService.NotificationClient({ callTimeout: 30_000 });
 
 await notifications.start();
 

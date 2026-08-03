@@ -49,7 +49,11 @@ export class PricingService extends IMQService {
 The monolith generates a typed client and calls it like a local function:
 
 ```ts
-const pricing = new PricingServiceClient();
+// `imq client generate PricingService ./src/clients` writes the module below. Its
+// only export is a namespace, and the client class drops the `Service` suffix.
+import { pricingService } from './clients/PricingService.js';
+
+const pricing = new pricingService.PricingClient();
 await pricing.start();
 const { total } = await pricing.quote(cart);
 ```

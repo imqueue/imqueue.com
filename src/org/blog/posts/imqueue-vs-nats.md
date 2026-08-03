@@ -109,9 +109,10 @@ imq client generate UserService ./src/clients
 ~~~
 
 ~~~typescript
-import { UserClient } from './clients/UserService.js';
+// The generated module exports one namespace, which holds the client class.
+import { userService } from './clients/UserService.js';
 
-const client = new UserClient();
+const client = new userService.UserClient();
 
 await client.start();
 const user = await client.get('42');  // UserObject | null, checked at compile time

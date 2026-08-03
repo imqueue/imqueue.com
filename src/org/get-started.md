@@ -197,7 +197,7 @@ generated directly from a running service:
 flowchart LR
     A["UserService.ts with @expose() + JSDoc"] -->|"npm run dev"| B["running service on queue UserService"]
     B -->|"describes itself over the queue"| C["imq client generate UserService ./src/clients"]
-    C --> D["src/clients/UserService.ts exporting UserClient"]
+    C --> D["src/clients/UserService.ts exporting namespace userService"]
     D -->|"tsc"| E["caller: await client.get('42'), fully typed"]
 ~~~
 
@@ -212,17 +212,21 @@ imq client generate UserService ./src/clients
 
 The service must be **up**, with Redis reachable — generation works by asking the
 running service to describe itself, so there is no schema file and no IDL to keep
-in sync. It writes `src/clients/UserService.ts` (and its compiled `.js`),
-exporting a client class named after the service with a trailing `Service`
-replaced by `Client` — so `UserService` gives you `UserClient`.
+in sync. It writes `src/clients/UserService.ts` (and its compiled `.js`).
+
+That file exports exactly one thing: a **namespace** named after the service with
+a lower-case first letter, holding the client class — whose own name is the
+service's with a trailing `Service` replaced by `Client`. So `UserService` gives
+you `userService.UserClient`, and there is no top-level `UserClient` to import on
+its own.
 
 Now call it. This is a complete, runnable consumer:
 
 ~~~typescript
 // consumer.ts — in the service root, next to package.json
-import { UserClient } from './src/clients/UserService.js';
+import { userService } from './src/clients/UserService.js';
 
-const client = new UserClient();
+const client = new userService.UserClient();
 
 await client.start();
 
