@@ -2,14 +2,22 @@
 permalink: /intro/index.md
 eleventyExcludeFromCollections: true
 ---
-# An Inter-Communication Messaging Queue framework for SOA back-ends
+{%- comment -%}
+Kept in step with src/org/intro/index.html BY HAND — this is one of the three
+authored mirrors the README warns about. Both now lead with site.definition, so
+neither can reintroduce the 2018 "An Inter-Communication Messaging Queue framework
+for SOA back-ends." phrasing that used to be the site's most-repeated definition.
+{%- endcomment -%}
+# {{ site.definitionShort }}
 
 Source: {{ siteUrl }}/intro/
 
-@imqueue is built with Node and TypeScript and works best when orchestrated by an
-API layer such as GraphQL. It lets developers create back-end services — or
-microservices as a special case of SOA — fast, focusing only on functionality while
-@imqueue handles the low-level messaging.
+Services describe themselves at runtime, so their typed clients are generated, not
+written. The name is short for **I**nter-Communication **M**essaging **Queue** — @imqueue,
+imqueue and IMQ all refer to this framework. It is built with Node.js and
+TypeScript for service-oriented back-ends (microservices being a special case of
+SOA), works well behind an API layer such as GraphQL, and lets you write only the
+functionality while @imqueue handles the low-level messaging.
 
 ## Key capabilities
 

@@ -134,6 +134,20 @@ on the page that is actually about the product).
       "url": "{{ siteUrl }}/",
       "logo": "{{ siteUrl }}/images/logo.svg",
       {%- comment -%}
+        THE canonical definition and the alias list, from src/_data/site.yml — see
+        the long note there. Both were entirely absent: `alternateName` appeared on
+        0 of 1,890 built pages, and this node had no `description` at all, so the
+        Organization an engine reconciles was a name, a URL and a logo.
+
+        `description` is the same 24 words as WebSite, SoftwareApplication,
+        SoftwareSourceCode and the llms.txt blockquote. That repetition IS the
+        mechanism — an engine pins an entity on a definitional string it finds
+        agreeing across independent surfaces, and rewording per surface is what
+        produced seven variants and no consensus.
+      {%- endcomment -%}
+      "description": {{ site.definition | json }},
+      "alternateName": {{ site.aliases | json }},
+      {%- comment -%}
         sameAs is for entity reconciliation: each entry must be an authoritative
         org-level profile, so an answer engine can tie these identities together.
         Only add a URL after confirming it exists AND has content — hub.docker.com/u/imqueue
@@ -182,7 +196,8 @@ on the page that is actually about the product).
       "@id": "{{ siteUrl }}/#website",
       "name": "@imqueue",
       "url": "{{ siteUrl }}/",
-      "description": {{ site.slogan | json }},
+      "description": {{ site.definition | json }},
+      "alternateName": {{ site.aliases | json }},
       "inLanguage": "en",
       "publisher": { "@id": "{{ siteUrl }}/#org" }
     }{% comment %}
@@ -200,7 +215,13 @@ on the page that is actually about the product).
       "operatingSystem": "Node.js",
       "softwareVersion": "{{ apiVersions.rpc.latest }}",
       "url": "{{ siteUrl }}/",
-      "description": {{ metaDesc | json }},
+      {%- comment -%}
+        site.definition, not metaDesc. This used to borrow the HOME PAGE's meta
+        description, which is written for a search snippet and differs per edition —
+        so the entity's own description changed depending on which page described it.
+      {%- endcomment -%}
+      "description": {{ site.definition | json }},
+      "alternateName": {{ site.aliases | json }},
       "programmingLanguage": ["TypeScript", "JavaScript"],
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
       "publisher": { "@id": "{{ siteUrl }}/#org" }
@@ -209,7 +230,8 @@ on the page that is actually about the product).
       "@type": "SoftwareSourceCode",
       "@id": "{{ siteUrl }}/#sourcecode",
       "name": "@imqueue",
-      "description": {{ metaDesc | json }},
+      "description": {{ site.definition | json }},
+      "alternateName": {{ site.aliases | json }},
       "codeRepository": "https://github.com/imqueue",
       "programmingLanguage": ["TypeScript", "JavaScript"],
       "runtimePlatform": "Node.js",
@@ -223,7 +245,8 @@ on the page that is actually about the product).
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Node.js",
       "url": "{{ siteUrl }}/",
-      "description": {{ site.slogan | json }},
+      "description": {{ site.definition | json }},
+      "alternateName": {{ site.aliases | json }},
       "programmingLanguage": ["TypeScript", "JavaScript"],
       "publisher": { "@id": "{{ siteUrl }}/#org" }
     }{% endif %}{% if isArticle %},

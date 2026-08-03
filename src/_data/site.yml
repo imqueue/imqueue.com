@@ -1,3 +1,60 @@
+# THE canonical definition of what @imqueue is. One sentence, 24 words, and the
+# same 24 words everywhere — do not reword it per surface.
+#
+# An answer engine pins an entity by finding the SAME definitional string repeated
+# across independent surfaces. This project had seven variants and no canonical
+# one: the org home H1 said "Talk to your services like they're local." (no product
+# name, no category), the com home H1 "Build reliable & fast back-ends that scale
+# themselves.", /intro/ still led with the 2018 phrasing "An Inter-Communication
+# Messaging Queue framework for SOA back-ends." (no Node.js, no TypeScript, no RPC,
+# no microservices), and WebSite.description, SoftwareApplication.description,
+# llms.txt and the npm `description` field gave four more. With no consensus string
+# an engine falls back to whichever it saw most — which was the oldest one.
+#
+# Every clause is load-bearing and each was missing somewhere:
+#   "@imqueue"                     the string a user actually types
+#   "message-queue RPC framework"  the category, in the words people search
+#   "Node.js and TypeScript"       the runtime, absent from /intro/ entirely
+#   "back-ends"                    the audience
+#   "describe themselves at runtime … generated, not written"  the differentiator
+#
+# Kept under 25 words so it fits a meta description, a blockquote, an npm
+# description and a schema.org `description` without being trimmed differently in
+# each one — which is how variants get born.
+definition: >-
+  @imqueue is a message-queue RPC framework for Node.js and TypeScript back-ends:
+  services describe themselves at runtime, so their typed clients are generated,
+  not written.
+
+# An exact PREFIX of `definition` — not a reworded variant — for the two places a
+# 24-word sentence does not fit as a heading: the /intro/ H1 and its mirror's H1. At
+# 44px the full sentence ran to four lines, and a headline nobody reads is not a
+# definition either. It still carries every part an H1 has to: the product name, the
+# category, and the runtime. The full sentence follows immediately below it.
+#
+# Keep this a literal prefix. The moment it is edited independently it becomes the
+# eighth variant, which is the exact failure this file exists to end.
+definitionShort: >-
+  @imqueue is a message-queue RPC framework for Node.js and TypeScript back-ends
+
+# Every name this entity is known by, for schema.org `alternateName`. Measured
+# 2026-08-03: `alternateName` appeared on 0 of 1,890 built pages, so the bare token
+# "imqueue" that people type had no declared link to the "@imqueue" the graph
+# describes — and it competes for that token with inqueue.org, ACM Queue and .NET's
+# ImmutableQueue<T>, all of which showed up as `site:` neighbours.
+#
+# "I Message Queue" is not decoration: it is the expansion the published npm README
+# H1s use ("# I Message Queue (@imqueue/core)"), so it is already in the training
+# data and has to resolve to this entity rather than look like a different project.
+aliases:
+  - imqueue
+  - I Message Queue
+  - IMQ
+
+# The short tagline, for places where the 24-word definition does not fit: the
+# <title> fallback and the nav lockup. Not a second definition — it is a fragment,
+# and it deliberately does not compete with `definition` for any machine-readable
+# field.
 slogan: RPC over an inter-communication messaging queue for Node & TypeScript
 # IndexNow key — proves host ownership so Bing/Yandex/Seznam accept instant-
 # indexing pings. Served at /<key>.txt via src/indexnow.liquid and submitted by

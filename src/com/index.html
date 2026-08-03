@@ -8,8 +8,17 @@ keywords: "@imqueue commercial license, imqueue license, GPL-3.0 commercial lice
 <!-- HERO -->
 <section class="fx-hero">
   <div class="fx-pill"><span class="fx-nowrap">Microservices,</span> <span class="fx-nowrap">without the ops tax</span></div>
-  <h1 class="fx-h1">Build reliable &amp; fast <span class="fx-nowrap">back-ends</span> that <span class="fx-nowrap fx-grad">scale themselves</span>.</h1>
-  <p class="fx-lead">RPC over an inter-communication messaging queue for Node &amp; TypeScript. Prototype SOA fast, run it reliably, and grow to any throughput without rewiring — self-describing services generate their own clients.</p>
+  {%- comment -%}
+  Same fix as the .org home page, and it matters more here: imqueue.com is the OLDER
+  domain, the one with archival history, and the one a model resolving "imqueue"
+  actually fetches. Its H1 named no product and no category, so that fetch returned a
+  marketing headline and an Organization node with no software described at all.
+
+  The lead opens with site.definition verbatim — the identical 24 words the .org
+  edition, the JSON-LD and both llms.txt files use — before the commercial framing.
+  {%- endcomment -%}
+  <h1 class="fx-h1">@imqueue — build reliable &amp; fast <span class="fx-nowrap">back-ends</span> that <span class="fx-nowrap fx-grad">scale themselves</span>.</h1>
+  <p class="fx-lead">{{ site.definition }} Prototype SOA fast, run it reliably, and grow to any throughput without rewiring.</p>
   <div class="fx-cta">
     <a href="/pricing/" class="btn btn-gradient">Talk to sales →</a>
     <a href="/#why" class="btn btn-ghost">Why go commercial? →</a>
