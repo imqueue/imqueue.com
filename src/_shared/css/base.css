@@ -173,6 +173,12 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
 .footer-links a:hover { color: var(--accent); }
 .footer-brand-desc { font-size: 15px; color: var(--muted); line-height: 1.6; max-width: 260px; margin-top: 4px; }
 .footer-bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 18px; padding-bottom: 40px; border-top: 1px solid var(--line); font-size: 16.5px; color: var(--muted); }
+/* The anchor is the one thing down here that must not break. On a phone the line
+   wraps at the last opportunity, which is the space before the arrow, and the ↗
+   lands alone on its own line looking like a bullet. Holding the whole link
+   together is enough — the prose in front of it still wraps normally, so nothing
+   overflows. Same treatment, same reason, as `.ribbon a`. */
+.footer-bottom a { white-space: nowrap; }
 
 /* ---- tutorial layout (chapter sidebar + content) ---- */
 .tut-layout { display: grid; grid-template-columns: 240px 1fr; gap: 44px; align-items: start; }
