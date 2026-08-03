@@ -169,7 +169,7 @@ above the first H2, where it now covers every section rather than restating the
 same convention twice. Canonical HTML first, the mirror after each summary.
 {%- endcomment -%}
 {%- for item in collections.all -%}
-{%- if item.url == "/blog/" %}
+{%- if item.url == "/compare/" or item.url == "/blog/" %}
 - [{{ item.data.title }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %} — [markdown]({{ siteUrl }}{{ item.url }}index.md)
 {%- endif -%}
 {%- endfor -%}
