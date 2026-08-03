@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout imqueue.com
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # REQUIRED by the verify step. check:dates reads git history
           # (`git log --follow --diff-filter=A`) for every page's publication
@@ -44,7 +44,7 @@ jobs:
         run: echo "ref=${{ github.event.client_payload.ref || github.event.inputs.ref || 'master' }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout @imqueue/cli wiki source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: imqueue/cli
           ref: ${{ steps.ref.outputs.ref }}
@@ -54,7 +54,7 @@ jobs:
           # token is enough and you can delete this line (and the secret).
           token: ${{ secrets.CLI_SYNC_TOKEN || github.token }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm

@@ -44,7 +44,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # REQUIRED. gen-page-dates.js reads git history for every page
           # (`git log --follow --diff-filter=A`); with the default shallow fetch every
@@ -52,7 +52,7 @@ jobs:
           # and sync-cli-guide.yml set it.
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -121,8 +121,8 @@ jobs:
       # To open/update the tracking issue below.
       issues: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
