@@ -7,6 +7,7 @@ description: "The @imqueue MCP server gives Claude, Cursor, VS Code and JetBrain
 keywords: "@imqueue mcp, imqueue mcp server, model context protocol imqueue, npx @imqueue/mcp, org.imqueue/mcp, ai coding agent microservices, mcp server nodejs typescript"
 ogType: article
 mcpApp: true
+demoVideo: true
 ---
 
 ## What this is
@@ -80,6 +81,22 @@ not offer them. They are **not in its tool list at all**: it advertises only wha
 can actually do. For those, use the **local** install above.
 
 **Rule of thumb: hosted to explore and scaffold, local to build.**
+
+### See it answering
+
+<figure style="margin:24px 0;">
+  <video controls preload="metadata" playsinline width="785"
+         style="width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);"
+         src="/images/mcp-demo.mp4" type="video/mp4">
+    Your browser cannot play embedded video.
+    <a href="/images/mcp-demo.mp4">Download the recording (MP4, 3.0 MB)</a>.
+  </video>
+  <figcaption class="muted" style="font-size:14px;margin-top:10px;">
+    3:04, no audio — the hosted <code>@imqueue</code> server answering inside
+    ChatGPT: one call per tool, ending with <code>get_doc</code> refusing an
+    off-site URL.
+  </figcaption>
+</figure>
 
 ## What your agent can do
 

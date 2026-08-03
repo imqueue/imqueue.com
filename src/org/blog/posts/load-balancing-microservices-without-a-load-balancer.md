@@ -30,6 +30,26 @@ Pull-based distribution is the actual mechanism behind competing consumers, and 
 
 A load balancer **pushes**. It picks a target using a policy — round-robin, least-connections, random — and hands the request over. The policy is a guess about which instance can best handle the work right now, made by something that isn't that instance. Round-robin will happily hand a request to an instance that's mid-way through something expensive; least-connections is better but still infers load from connection count rather than from actual capacity.
 
+~~~mermaid
+flowchart LR
+    subgraph push["Push — a load balancer chooses"]
+        direction LR
+        P1[caller] --> LB[load balancer]
+        LB -->|"round-robin: next in sequence"| B1["instance 1 — busy, 5s handler"]
+        LB --> B2["instance 2 — idle"]
+    end
+    subgraph pull["Pull — @imqueue competing consumers"]
+        direction LR
+        P2[caller] -->|"message"| Q[("queue 'Thumbnail'")]
+        B3["instance 1 — busy, not asking"] -.-> Q
+        B4["instance 2 — idle, asks"] -->|"takes it"| Q
+    end
+~~~
+
+A load balancer hands work to an instance it picked; `@imqueue`'s competing
+consumers hand work to whichever instance asked for it. That is the whole
+difference, and it is why the busy instance in the lower half receives nothing.
+
 Competing consumers **pull**. An instance takes the next message when it's ready for one, so "who is free" isn't estimated — it's expressed by the act of asking. An instance chewing on something slow simply doesn't ask for more work, and the queue hands the next message to one that does. You get load-aware distribution without any load-awareness logic, and without a component that has to be told about capacity.
 
 In `@imqueue` this is the default and there's nothing to configure. Run more instances of a service:

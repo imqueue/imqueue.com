@@ -15,6 +15,27 @@ a recipe states the contract precisely, gives the exact commands, and lists the
 failure modes an agent should expect — so an assistant can apply it to a codebase
 without inferring the parts nobody wrote down.
 
+Every recipe below assumes one mechanism, so it is worth stating once. An
+`@imqueue` RPC call is two messages over Redis — a request onto the callee's
+queue, a reply onto the caller's — and the queue name *is* the service class name:
+
+~~~mermaid
+sequenceDiagram
+    participant C as Caller (generated client)
+    participant Q as Redis (@imqueue transport)
+    participant S as UserService (extends IMQService)
+    C->>Q: request onto queue "UserService"
+    Note over Q: {method:"get", args:["42"], from:"caller-reply-queue"}
+    Q-->>S: whichever instance asks first
+    S->>S: run the @expose()d get(id)
+    S->>Q: reply onto the caller's own queue
+    Q-->>C: resolves await client.get("42")
+~~~
+
+An `@imqueue` call has no host, port or connection: the caller addresses a queue
+name, and if no instance of that service is running the request waits instead of
+failing — forever, unless `callTimeout` is set.
+
 Each recipe follows the same shape:
 
 - **When to apply this recipe** — the trigger, so an agent can rule it out fast.

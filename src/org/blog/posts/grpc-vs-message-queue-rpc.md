@@ -100,6 +100,27 @@ One source of truth instead of two — and the price is that the contract is onl
 
 Failure handling is the part most gRPC comparisons skip, and it is where the two models diverge most sharply in production.
 
+~~~mermaid
+flowchart TB
+    subgraph g["gRPC — connection-shaped"]
+        direction LR
+        GC[caller] -->|"HTTP/2, deadline travels with the call"| R["DNS / mesh picks an instance"]
+        R --> GS["service instance"]
+        GS -.->|"UNAVAILABLE / DEADLINE_EXCEEDED immediately, and the server is signalled"| GC
+    end
+    subgraph i["@imqueue — buffered"]
+        direction LR
+        IC[caller] -->|"request message"| IQ[("queue 'User'")]
+        IQ --> IS["any free instance"]
+        IS -->|"reply message"| IC
+        IQ -.->|"no consumer: the message waits forever, unless callTimeout is set"| IQ
+    end
+~~~
+
+gRPC tells the caller immediately that nobody is listening; `@imqueue` lets the
+request wait until somebody is. The first makes retry policy possible, the second
+makes boot order irrelevant — and neither is free.
+
 **gRPC is connection-shaped.** A deadline is part of the call and propagates to the server; a cancelled or expired call signals the server so it can stop working. Status codes (`UNAVAILABLE`, `DEADLINE_EXCEEDED`, `RESOURCE_EXHAUSTED`) let a caller tell "the service is down" from "the service said no", which is what makes sensible retry policy possible. If nobody is listening, you find out immediately.
 
 **Queue RPC is buffered, and that cuts both ways.** If the callee is down, the request waits in the queue instead of failing — services can even start in any order, because a caller's messages simply wait for a consumer to appear. That's a genuine operational nicety. But it changes three things you must design for:

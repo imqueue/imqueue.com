@@ -346,6 +346,24 @@ module.exports = function (eleventyConfig) {
       return text ? `\n*Diagram: ${text}*\n` : "";
     });
 
+    // A <figure> wrapping a <video> is the same problem as the SVG above: nine
+    // lines of element attributes and inline styles where the reader needs one
+    // sentence and a URL. /mcp/'s demo recording is the only one, and its
+    // <figcaption> already says what it shows. The URL is absolutised by the
+    // siteAbsolute step further down, which only rewrites markdown links — so it
+    // is written as one here rather than as a bare path.
+    out = out.replace(/<figure\b[^>]*>[\s\S]*?<\/figure>/gi, (fig) => {
+      const src = /<video\b[^>]*\bsrc="([^"]+)"/i.exec(fig);
+      const cap = /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i.exec(fig);
+      const text = cap
+        ? cap[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim()
+        : "";
+
+      if (!src) return text ? `\n*${text}*\n` : "";
+
+      return `\n*Video: ${text || "recording"}* — [watch](${src[1]})\n`;
+    });
+
     out = out.replace(/<table>[\s\S]*?<\/table>/g, tableToMarkdown);
 
     if (generated) {
