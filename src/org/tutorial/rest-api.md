@@ -8,6 +8,12 @@ keywords: "@imqueue REST API, REST API gateway, OpenAPI microservices Node.js, S
 ogType: article
 ---
 
+**An `@imqueue` gateway's outward protocol is independent of the fleet behind it,
+because the fleet is reached through typed RPC clients rather than HTTP.** This
+bonus chapter rebuilds the tutorial's gateway as a **REST/OpenAPI** service with
+Swagger UI, reusing the same clients and changing nothing in the back-end
+services.
+
 In [chapter 5](/tutorial/api-service) we put a GraphQL endpoint in front of our
 services and noted, in passing, that the exact technology stack of the API
 layer isn't important. This bonus chapter proves that claim: we rebuild the

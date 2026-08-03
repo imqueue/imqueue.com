@@ -8,6 +8,13 @@ keywords: "@imqueue mcp security, mcp server safe by default, npx not found mcp,
 ogType: article
 ---
 
+**The local `@imqueue` MCP server is a subprocess your own client launches over
+stdio with no account and no telemetry; the hosted `mcp.imqueue.org` endpoint
+cannot reach your filesystem or CLI at all, so it never registers the CLI-bridge
+tools.** This page states that trust model precisely — including what
+`create_service` does before you confirm it — and fixes the setup failures you
+are most likely to hit.
+
 ## Trust model
 
 You are connecting an autonomous agent to a tool that reads your docs and, with
@@ -41,8 +48,8 @@ and offline scaffolding tools are active.
 
 ## Local or hosted — which should you use?
 
-They are not the same tool set, and the difference is not just *where the server
-runs*. The [hosted endpoint](/mcp/#hosted-endpoint) (`mcp.imqueue.org`) is a great
+The local and hosted `@imqueue` MCP servers are not the same tool set, and the
+difference is not just *where the server runs*. The [hosted endpoint](/mcp/#hosted-endpoint) (`mcp.imqueue.org`) is a great
 zero-install way to explore the docs and scaffold snippets, with six read-only tools.
 The local install has all thirteen. For real development work, **the local `npx`
 install is the better choice** — here's why.

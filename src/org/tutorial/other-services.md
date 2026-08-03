@@ -8,9 +8,14 @@ keywords: "@imqueue domain services, car catalog microservice, self-describing s
 ogType: article
 ---
 
-By now it should be clear that building @imqueue services is a straightforward
-process. To make the application fully functional we need two more services:
-`Car` and `TimeTable`.
+**Every `@imqueue` service is built the same way regardless of what backs it —
+an in-memory cache, PostgreSQL, or a remote dataset — because the class and its
+`@expose()`d methods are the whole contract.** This chapter specifies the
+tutorial's last two services: `Car`, an in-memory catalog parsed from the EPA
+fuel-economy dataset, and `TimeTable`, PostgreSQL reservations through
+[`@imqueue/pg-sequelize`](/api/pg-sequelize/latest/).
+
+To make the application fully functional we need those two services.
 
 Building them isn't much different from the `User` and `Auth` services we've
 already covered, so we suggest tackling them as homework. If you'd rather read
