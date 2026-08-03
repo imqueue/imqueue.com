@@ -44,8 +44,10 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          # Matches the other two workflows. Note .nvmrc says 20 — worth
-          # reconciling, but not silently from here.
+          # 22 in all five workflows and in .nvmrc, which is the point: .nvmrc
+          # exists so a local shell runs what CI runs, and it said 20 while every
+          # workflow said 22 — so `nvm use` was arranging to reproduce bugs on a
+          # version nothing tested. Change all six together or not at all.
           node-version: 22
           cache: npm
 
