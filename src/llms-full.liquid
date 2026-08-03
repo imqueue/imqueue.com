@@ -37,24 +37,42 @@ disagree. See src/com/mirrors/README.txt for why .com needed them at all.
 
 {% include "com/contact.md" %}
 {%- else -%}
-# @imqueue — Full documentation
-
-> {{ site.definition }} This file concatenates the framework documentation as a single markdown document for AI ingestion. Canonical HTML: {{ siteUrl }}/. Commercial licensing: https://imqueue.com/. The hand-written API guide is included at the end; the generated per-symbol API reference is not — browse it at {{ siteUrl }}/api/.
-
-{% for item in collections.all -%}
-{%- assign isMd = false -%}
-{%- if item.inputPath contains ".md" -%}{%- assign isMd = true -%}{%- endif -%}
-{%- if item.url contains "/api/" -%}{%- assign isMd = false -%}{%- endif -%}
-{%- if item.data.draft -%}{%- assign isMd = false -%}{%- endif -%}
-{%- if isMd -%}
 {%- comment -%}
-Through agentMarkdown, like the per-page mirrors. This file was concatenating RAW
-source: HTML tables from api-documenter, `{#explicit-id}` attrs, authoring comments,
-a full inline SVG, and 1,224 root-relative links that resolve against nothing in a
-file meant to be ingested standalone. The mirrors have been passed through it since
-they existed; this one was not.
+The whole corpus is captured FIRST, so the header can state the file's real size and
+document count instead of guessing them. Two passes over the same ordered
+collection: one for the table of contents, one for the bodies. `collections.llmsFull`
+holds the order (see eleventy.config.js) rather than the template deciding it, so
+the TOC and the bodies cannot disagree about what is in here or in what sequence.
+
+/, /intro/ and /docs/ come first and come from includes: they are authored as HTML
+templates, so the old `inputPath contains ".md"` loop skipped all three and the
+corpus opened on a hardware benchmark with no orientation at all.
 {%- endcomment -%}
-{%- assign body = item.rawInput | replace: "[[toc]]", "" | agentMarkdown -%}
+{%- comment -%}
+No `# title` / `Source:` header added around these three: unlike a page's rawInput,
+each include already opens with its own H1 and Source line, because the mirror it was
+extracted from needed them. Adding another produced a duplicate H1 and two Source
+lines per document — the exact defect finding 7j describes for the 1,152 API mirrors,
+reintroduced by hand. Caught by counting `^Source: ` in the built file (72) against
+the document count in the header (69).
+{%- endcomment -%}
+{%- capture leadDocs -%}
+
+---
+
+{% include "org/home.md" %}
+
+---
+
+{% include "org/intro.md" %}
+
+---
+
+{% include "org/docs.md" %}
+{%- endcapture -%}
+{%- capture mainDocs -%}
+{%- for item in collections.llmsFull %}
+{%- assign body = item.rawInput | replace: "[[toc]]", "" | agentMarkdown %}
 
 ---
 
@@ -66,8 +84,16 @@ Source: {{ siteUrl }}{{ item.url }}
 {{ item.data.lead }}
 {% endif %}
 {{ body | strip }}
-{% endif -%}
-{%- endfor -%}
+{% endfor -%}
+{%- endcapture -%}
+{%- capture apiGuide -%}
+{% include "api/intro.md" %}
+{% include "api/rpc.md" %}
+{% include "api/mq.md" %}
+{% include "api/misc.md" %}
+{% include "api/migration.md" %}
+{%- endcapture -%}
+{%- capture apiSection -%}
 
 ---
 
@@ -75,23 +101,59 @@ Source: {{ siteUrl }}{{ item.url }}
 
 Source: {{ siteUrl }}/api/
 
-The guide below is included from the same source the HTML page renders, as the
-loop above skips everything under /api/ to keep the generated per-symbol
-reference out of this file.
-{%- comment -%}
-Captured and filtered, for the same reason src/org/mirrors/api.liquid does it:
-these partials are authored for the HTML page and carry root-relative links, which
-resolve against nothing in a file meant to be ingested standalone.
-{%- endcomment -%}
-{%- capture apiGuide -%}
-{% include "api/intro.md" %}
-{% include "api/rpc.md" %}
-{% include "api/mq.md" %}
-{% include "api/misc.md" %}
-{% include "api/migration.md" %}
-{%- endcapture %}
+The guide below is included from the same source the HTML page renders. The
+generated per-symbol reference is not in this file — browse it at {{ siteUrl }}/api/,
+or resolve a symbol name with {{ siteUrl }}/api/search-index.json.
 
 {{ apiGuide | agentMarkdown }}
+{%- endcapture -%}
+{%- capture allDocs -%}{{ leadDocs }}{{ mainDocs }}{{ apiSection }}{%- endcapture -%}
+{%- comment -%}
+Bytes and a token estimate, both derived rather than typed: `size` is Liquid's own
+string length and the divisor is the conventional ~4 bytes per token for English
+prose. Stated because the number is the decision an agent has to make — 499 KB is
+past most context windows, and a consumer that knows the size can fetch a section
+instead. The count is the TOC's own length, so it cannot drift from the list.
+{%- endcomment -%}
+{%- assign fullBytes = allDocs | size -%}
+{%- assign fullKb = fullBytes | divided_by: 1024 | floor -%}
+{%- assign fullTokens = fullBytes | divided_by: 4096 | floor -%}
+{%- assign docCount = collections.llmsFull | size | plus: 4 -%}
+# @imqueue — Full documentation
+
+> {{ site.definition }} This file concatenates the framework documentation as a single markdown document for AI ingestion. Canonical HTML: {{ siteUrl }}/. Commercial licensing: https://imqueue.com/.
+
+Roughly {{ fullKb }} KB / {{ fullTokens }}k tokens across {{ docCount }} documents (the bodies below; this header adds a little).
+If that does not fit, fetch {{ siteUrl }}/llms.txt instead and follow the links —
+every page listed there is also served as plain markdown at `<page-url>index.md`.
+Documents appear below in reading order: orientation, then the tutorial, the CLI
+manual, the MCP server and the agent recipes, then the articles, then the hand-written
+API guide, with legal pages last. Each is separated by `---` and headed by a `#` title
+and a `Source:` line carrying its canonical URL.
+
+{% comment -%}
+The three lead titles are written out because their documents come from includes
+rather than from a page with `title` front matter. They must match the H1 each
+include actually opens with — /intro/'s is site.definitionShort, not its page title,
+which is why entry 2 reads the way it does. Verified by diffing these three lines
+against the leading-hash lines of the built file.
+
+Tag shapes matter here. The opening tag has NO leading dash and the closing tag NO
+trailing one: a leading dash strips the newline ending the paragraph above, which
+shipped "…carrying its canonical URL." glued to the heading below on one line. A
+first attempt to document that quoted the tags literally inside this comment, and
+LiquidJS closed the comment at the quoted end tag and printed the rest of the prose
+into the file — so do not name the tags here.
+{%- endcomment %}## Contents
+
+1. @imqueue — TypeScript RPC over a message queue — {{ siteUrl }}/
+2. {{ site.definitionShort }} — {{ siteUrl }}/intro/
+3. Documentation: guides, tutorial & API reference — {{ siteUrl }}/docs/
+{%- for item in collections.llmsFull %}
+{{ forloop.index | plus: 3 }}. {{ item.data.title | default: item.url }} — {{ siteUrl }}{{ item.url }}
+{%- endfor %}
+{{ docCount }}. API guide — {{ siteUrl }}/api/
+{{ allDocs }}
 {%- comment -%}
 `{% endif %}`, not `{%- endif -%}`: the leading dash strips the newline that ends
 the file, so both editions shipped a text file with no final newline. agentMarkdown
