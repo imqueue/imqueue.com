@@ -2,7 +2,7 @@
 chapter: 3
 title: "Configuration"
 docLabel: "CLI MANUAL — 03 / 12"
-lead: "How the CLI resolves options across config layers, the structured v4 schema, secrets, git transport, and every environment variable."
+lead: "@imqueue/cli (the imq command) resolves every option through four layers — a command-line flag, the project's .imqrc.json, the global config, then a prompt. This page covers that precedence, the structured v4 schema, secrets, git transport, and every IMQ_* environment variable."
 description: "@imqueue/cli configuration: the flag → .imqrc.json → global config → prompt precedence, the v4 schema, secrets handling, and the env var reference."
 keywords: "imq config, imqueue cli configuration, imqrc.json, imq config init, vcs.protocol, IMQ_CLI_HOME, imqueue env variables"
 ogType: article

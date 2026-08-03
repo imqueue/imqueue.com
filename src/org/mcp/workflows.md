@@ -8,6 +8,11 @@ keywords: "@imqueue mcp workflow, ai agent build imqueue service, scaffold servi
 ogType: article
 ---
 
+**You do not script the `@imqueue` MCP server — you ask your agent for an
+outcome, and it picks the tool chain.** Each recipe below pairs a
+natural-language request with the `@imqueue` tools it actually invokes, from
+`search_docs` through `create_service` to `fleet`.
+
 Each recipe below is a natural-language request you make to your agent, followed
 by the tool chain it runs. You don't script these — the agent picks the tools
 from your prompt. Knowing the chain helps you phrase requests and understand what
@@ -43,7 +48,7 @@ agent will tell you to start it first (see the fleet recipe) — it can't and wo
 fabricate a client from guesses. If you only need to *see the shape*,
 **`scaffold_client`** returns an illustrative snippet without a running service.
 
-## Run and inspect a local fleet
+## Run and inspect a local `@imqueue` fleet
 
 > *"Start all my services and show me if anything is failing."*
 
@@ -66,7 +71,7 @@ actually reason about instead of an endless tail.
 This is the everyday use: authoritative answers from the current docs, inline,
 instead of hallucinated APIs from a training snapshot.
 
-## Configure the CLI for a project
+## Configure `@imqueue/cli` for a project
 
 > *"Set this project up to use GitHub Actions for CI."*
 

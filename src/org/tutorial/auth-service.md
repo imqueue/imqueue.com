@@ -8,6 +8,11 @@ keywords: "@imqueue inter-service communication, microservice to microservice ca
 ogType: article
 ---
 
+**One `@imqueue` service calls another by holding that service's client: no HTTP
+address and no discovery, because the queue name is the address.** This chapter
+adds an `Auth` service that logs users in and verifies JWTs by calling the `User`
+service through a client built with `IMQClient.create('User', …)`.
+
 Create a new service named `Auth`, the same way we created the User service in
 the [previous chapter](/tutorial/user-service#creating-the-service).
 
