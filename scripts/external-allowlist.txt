@@ -22,3 +22,19 @@ www.gnu.org
 example.com
 example.org
 cdn.example.com
+
+# Verified by the first working run of `check:links:external` (2026-08-03). Each of
+# these answers a browser and refuses an unattended HEAD, for a reason:
+
+# The hosted MCP endpoint is POST-only by design — a HEAD/GET returning 405 is the
+# server behaving correctly, and Track B's B6 proposes making that stricter still.
+https://mcp.imqueue.org/mcp
+
+# 400 on the bare URL: it is VS Code's MCP install redirect and requires query
+# parameters. The page links it with them; the check strips nothing, but the host
+# rejects a HEAD either way.
+https://vscode.dev/redirect/mcp/install
+
+# Unreachable from an unattended HEAD; loads in a browser. Cited from both privacy
+# policies as Clarity's data-processing statement, so it cannot simply be dropped.
+privacy.microsoft.com
