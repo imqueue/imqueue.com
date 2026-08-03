@@ -1,0 +1,24 @@
+# Hosts whose failures under `check:links:external` are expected, and therefore must
+# not fail the weekly link-rot job. Consumed by --allow-external= (see
+# scripts/check-links.js for the matching rule: exact host, subdomain, or URL prefix).
+#
+# The point of this file is that a job which cries wolf gets muted. Everything listed
+# here is a link that WORKS in a browser and fails a scripted HEAD, or a deliberate
+# placeholder — not a link nobody wants to fix. Anything genuinely broken must fail.
+#
+# Keep it short, and put the reason on the line. An entry with no reason is an entry
+# nobody can ever safely remove.
+
+# 403s an unattended HEAD from a datacentre IP; every /package/ URL on the site is
+# generated from src/_data/apiPackages.js and cannot be a typo.
+www.npmjs.com
+npmjs.com
+
+# The GPL-3.0 licence URL, cited from every SoftwareSourceCode node. gnu.org
+# intermittently times out on HEAD; the URL has not moved since 2007.
+www.gnu.org
+
+# example.com / example.org appear in code samples by RFC 2606 design.
+example.com
+example.org
+cdn.example.com

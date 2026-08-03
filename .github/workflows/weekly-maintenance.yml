@@ -1,0 +1,150 @@
+name: Weekly maintenance
+
+# Two chores that are TIME-driven rather than commit-driven, which is exactly why
+# neither was happening: a pre-commit hook and a push-triggered workflow can only ever
+# catch what a commit introduces.
+#
+#   1. dateModified drift. gen-page-dates.js computes it, prints it, and deliberately
+#      does not gate on it — the reason is in that file: `modified` goes stale the
+#      moment a page is committed, so failing on it would make every commit block the
+#      next one through the pre-commit hook. So drift was repaired by hand, once
+#      (commit f56a330, "re-date the pages whose source had moved past their
+#      dateModified"). A human happening to notice is not a process, and a docs page
+#      advertising a stale dateModified is a freshness signal working against us.
+#
+#   2. External link rot. `check:links:external` existed for months with nothing
+#      running it anywhere — the only hit for it across .github/, .githooks/ and
+#      package.json was its own definition. There are 33 distinct external hosts and
+#      no rot today; the blocker was noise, not effort, which
+#      scripts/external-allowlist.txt now handles.
+#
+# Both are Monday-morning jobs, deliberately separate: one commits, the other opens an
+# issue, and a failure in either must not hide the other.
+
+on:
+  schedule:
+    # 06:20 UTC Monday. Off the hour, because the hour is when everyone else's cron
+    # runs and GitHub queues them.
+    - cron: "20 6 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: weekly-maintenance
+  cancel-in-progress: false
+
+jobs:
+  dates:
+    name: Repair dateModified drift
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # REQUIRED. gen-page-dates.js reads git history for every page
+          # (`git log --follow --diff-filter=A`); with the default shallow fetch every
+          # file looks as though one commit added it. Same reason refresh-api-docs.yml
+          # and sync-cli-guide.yml set it.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Rewrite only the dateModified values
+        id: fix
+        run: |
+          node scripts/gen-page-dates.js --fix-modified | tee /tmp/fix.log
+          if [ -z "$(git status --porcelain -- src/_data/pageDates.json)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # A GITHUB_TOKEN push does not trigger other workflows, so checks.yml will NOT
+      # run for the commit this job creates, and Cloudflare Pages deploys from the push
+      # itself. The gate has to run here or not at all — the same reasoning
+      # refresh-api-docs.yml and sync-cli-guide.yml carry.
+      - name: Verify
+        if: steps.fix.outputs.changed == 'true'
+        run: npm test
+
+      - name: Commit & push
+        id: commit
+        if: steps.fix.outputs.changed == 'true'
+        run: |
+          # An explicit path, not `git add -A`: this repo's working tree also holds
+          # untracked local-only material (promotion/, the *-PLAN.md notes) that must
+          # never be committed by a bot.
+          git config user.name "imqueue-bot"
+          git config user.email "bot@imqueue.com"
+          git add -- src/_data/pageDates.json
+          git commit -m "chore(dates): refresh dateModified for pages whose source moved
+
+          Rewritten by scripts/gen-page-dates.js --fix-modified. Publication dates and
+          the key set are untouched; only \`modified\` values changed.
+
+          $(cat /tmp/fix.log)"
+          git push
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      # The point of repairing the date is that something re-reads it. Diff-scoped, so
+      # this submits the handful of URLs whose lastmod actually moved rather than the
+      # whole sitemap.
+      - name: IndexNow — the URLs whose lastmod moved
+        if: steps.commit.outputs.sha != ''
+        run: |
+          urls=$(node scripts/changed-urls.js org "${{ steps.commit.outputs.sha }}^..${{ steps.commit.outputs.sha }}")
+          if [ -z "$urls" ]; then
+            echo "pageDates.json changed but no page URL did — nothing to submit."
+            exit 0
+          fi
+          # Unquoted on purpose: one word per URL.
+          node scripts/indexnow-ping.js org $urls || true
+
+  link-rot:
+    name: External link rot
+    runs-on: ubuntu-latest
+    permissions:
+      # To open/update the tracking issue below.
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Check external links
+        id: links
+        # Never fails the workflow. Link rot is somebody else's deploy, so a red X here
+        # would be noise on a schedule nobody triggered — the issue below is the
+        # signal, and it is one issue, updated, rather than a new one every Monday.
+        continue-on-error: true
+        run: |
+          set +e
+          npm run check:links:external > /tmp/links.log 2>&1
+          echo "status=$?" >> "$GITHUB_OUTPUT"
+          tail -40 /tmp/links.log
+
+      - name: Open or update the tracking issue
+        if: steps.links.outputs.status != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          body=$(printf 'The weekly external link check found unreachable links.\n\nAllowed failures live in `scripts/external-allowlist.txt` — if one of these is a link that works in a browser and only fails a scripted HEAD, add it there with the reason rather than removing the link.\n\n```\n%s\n```\n\nRun: `%s`\n' \
+            "$(grep -iE 'broken|external HTTP' /tmp/links.log | head -40)" \
+            "npm run check:links:external")
+
+          existing=$(gh issue list --state open --label link-rot --limit 1 --json number --jq '.[0].number')
+
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh label create link-rot --description "Weekly external link check" --color ededed 2>/dev/null || true
+            gh issue create --title "External link rot" --label link-rot --body "$body"
+          fi

@@ -4,6 +4,20 @@
 module.exports = {
   eleventyComputed: {
     permalink: (data) => {
+      // A `draft: true` page must not be reachable in a production build.
+      // src/org/blog/posts/case-study-template.md is `draft: true` and was serving a
+      // 200 at /blog/case-study-template/ with "[COMPANY / PROJECT]" in its H1. The
+      // exclusions around it were thorough — absent from the sitemap, llms.txt,
+      // llms-full.txt and the mirrors, `noindex, follow`, no inbound links — so
+      // exposure was limited to a crawler that ignores meta robots on a guessed URL.
+      // Limited is not zero, and a placeholder page is the one thing on this site that
+      // must never be quoted.
+      //
+      // Still built under `eleventy --serve`/`--watch`, because a draft you cannot
+      // preview is a draft nobody finishes. ELEVENTY_RUN_MODE is "serve", "watch" or
+      // "build"; only the last one is a deploy.
+      if (data.draft && process.env.ELEVENTY_RUN_MODE === "build") return false;
+
       if (data.permalink) return data.permalink;
       let stem = data.page.filePathStem.replace(/^\/(org|com)/, "");
       stem = stem.replace(/\/index$/, "/");

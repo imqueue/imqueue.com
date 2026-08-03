@@ -1,0 +1,15 @@
+{%- comment -%}
+The "@imqueue at a glance" table, HTML rendering. Rows come from
+src/_data/atAGlance.js — see that file for why they live there and not in three
+hand-written tables. The markdown twin is _includes/at-a-glance.md.
+
+Values are plain text by construction — see the note in the data file — so nothing
+here interprets them.
+{%- endcomment -%}
+<table class="glance">
+  <tbody>
+  {%- for row in atAGlance %}
+    <tr><th scope="row">{{ row.label }}</th><td>{{ row.value }}</td></tr>
+  {%- endfor %}
+  </tbody>
+</table>

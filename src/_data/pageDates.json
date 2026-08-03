@@ -1,19 +1,19 @@
 {
   "src/com/contact/index.html": {
     "published": "2026-08-02T15:16:32+02:00",
-    "modified": "2026-08-02T15:16:32+02:00"
+    "modified": "2026-08-03T17:45:20+02:00"
   },
   "src/com/index.html": {
     "published": "2026-07-20T00:02:46+02:00",
-    "modified": "2026-08-03T15:52:12+02:00"
+    "modified": "2026-08-03T17:45:20+02:00"
   },
   "src/com/license/index.html": {
     "published": "2026-07-22T11:49:22+02:00",
-    "modified": "2026-07-30T18:51:38+02:00"
+    "modified": "2026-08-03T17:45:20+02:00"
   },
   "src/com/pricing/index.html": {
     "published": "2026-07-20T00:02:46+02:00",
-    "modified": "2026-08-02T14:35:09+02:00"
+    "modified": "2026-08-03T17:45:20+02:00"
   },
   "src/com/privacy.md": {
     "published": "2026-08-02T13:25:53+02:00",
@@ -21,7 +21,7 @@
   },
   "src/com/support/index.html": {
     "published": "2026-07-22T11:49:22+02:00",
-    "modified": "2026-07-30T18:51:38+02:00"
+    "modified": "2026-08-03T17:45:20+02:00"
   },
   "src/com/terms.md": {
     "published": "2026-08-02T13:25:53+02:00",
@@ -33,7 +33,7 @@
   },
   "src/org/agents/index.md": {
     "published": "2026-07-29T12:58:23+02:00",
-    "modified": "2026-07-29T13:22:16+02:00"
+    "modified": "2026-08-03T18:06:56+02:00"
   },
   "src/org/agents/isolated-imq-environments.md": {
     "published": "2026-07-23T10:18:53+02:00",
@@ -41,15 +41,15 @@
   },
   "src/org/api/index.md": {
     "published": "2026-07-19T22:58:50+02:00",
-    "modified": "2026-08-01T12:25:08+02:00"
+    "modified": "2026-08-03T17:54:25+02:00"
   },
   "src/org/blog/authors.html": {
     "published": "2026-07-22T04:09:43+02:00",
-    "modified": "2026-07-30T18:51:26+02:00"
+    "modified": "2026-08-03T17:54:25+02:00"
   },
   "src/org/blog/index.html": {
     "published": "2026-07-19T22:58:50+02:00",
-    "modified": "2026-07-30T18:51:26+02:00"
+    "modified": "2026-08-03T17:54:25+02:00"
   },
   "src/org/blog/topics.html": {
     "published": "2026-07-29T12:58:23+02:00",
@@ -121,7 +121,7 @@
   },
   "src/org/get-started.md": {
     "published": "2026-07-19T22:58:50+02:00",
-    "modified": "2026-08-03T15:39:10+02:00"
+    "modified": "2026-08-03T17:33:37+02:00"
   },
   "src/org/glossary/index.md": {
     "published": "2026-08-03T17:20:59+02:00",
@@ -129,7 +129,7 @@
   },
   "src/org/index.html": {
     "published": "2026-07-19T21:23:40+02:00",
-    "modified": "2026-08-03T15:52:12+02:00"
+    "modified": "2026-08-03T17:45:20+02:00"
   },
   "src/org/intro/index.html": {
     "published": "2026-07-19T22:58:50+02:00",
@@ -141,7 +141,7 @@
   },
   "src/org/mcp/index.md": {
     "published": "2026-07-22T20:03:58+02:00",
-    "modified": "2026-08-02T18:42:46+02:00"
+    "modified": "2026-08-03T17:33:37+02:00"
   },
   "src/org/mcp/installation.md": {
     "published": "2026-07-22T20:03:58+02:00",
@@ -205,6 +205,6 @@
   },
   "src/org/using-ai-assistants.md": {
     "published": "2026-07-22T03:03:58+02:00",
-    "modified": "2026-08-01T23:33:29+02:00"
+    "modified": "2026-08-03T18:06:56+02:00"
   }
 }

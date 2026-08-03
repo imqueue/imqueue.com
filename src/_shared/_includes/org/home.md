@@ -21,6 +21,30 @@ messages. That removes two moving parts most microservice stacks need:
 [service discovery]({{ siteUrl }}/blog/do-nodejs-backends-need-service-discovery/)
 and an [internal load balancer]({{ siteUrl }}/blog/load-balancing-microservices-without-a-load-balancer/).
 
+A whole service, and the command that gives its callers a typed client:
+
+~~~typescript
+// hello.service.ts
+import { IMQService, expose } from '@imqueue/rpc';
+
+class Hello extends IMQService {
+    @expose()
+    async hello(name?: string) {
+        return `Hello, ${name}!`;
+    }
+}
+~~~
+
+~~~bash
+imq client generate Hello
+~~~
+
+Measured on the project's own rig: roughly **200,000 round-trip messages/second**
+with default delivery and **120,000/s** with safe delivery — aggregate across 22
+worker processes on one machine, not per core and not latency percentiles.
+[The benchmark post]({{ siteUrl }}/blog/benchmarking-imqueue-throughput/) states the
+rig and the method, so treat the figures as a shape and measure your own workload.
+
 ## Reach for it when
 
 - Your services are **Node.js and TypeScript** and talk to each other a lot.
