@@ -12,14 +12,6 @@ eleventyExcludeFromCollections: true
 # while leaving them fully fetchable by AI crawlers and agents — robots.txt
 # allows them, noindex only stops SERP indexing, not retrieval.
 
-/*.md
-  X-Robots-Tag: noindex
-
-/llms.txt
-  X-Robots-Tag: noindex
-
-/llms-full.txt
-  X-Robots-Tag: noindex
 
 # ---- caching -------------------------------------------------------------
 # Fonts are the one asset class safe to cache forever unasked: the filenames come
@@ -43,6 +35,43 @@ eleventyExcludeFromCollections: true
 
 /js/*
   Cache-Control: public, max-age=31536000, immutable
+
+# robots.txt and the agent-facing index files must be CHEAP TO CORRECT.
+#
+# Measured live on both zones 2026-08-03:
+#
+#   cache-control: public, max-age=14400, must-revalidate
+#   cf-cache-status: REVALIDATED
+#
+# That is Cloudflare Pages' default, not ours — the string 14400 appears in this
+# repo only in the two comments above, and no zone Cache Rule is involved (checked:
+# the built _headers had no /robots.txt entry at all). The consequence is that a
+# wrong Disallow, a missing Allow for a new AI crawler, or a corrected Sitemap line
+# takes FOUR HOURS to reach the crawler that needs it — and robots.txt is the one
+# file on the site where being wrong for four hours can cost a crawl of everything.
+#
+# Same reasoning for /llms.txt, /llms-full.txt and the mirrors: they are the
+# ingestion surface, they are regenerated on every deploy, and an agent holding a
+# four-hour-old copy of the index is following links to content that may have moved.
+# `must-revalidate` with max-age=0 keeps the edge copy and the ETag — the 304s
+# already work — while making every fetch ask first.
+# One block per path rather than two, so this does not depend on Cloudflare merging
+# rules that match the same URL — the noindex and the Cache-Control belong to the
+# same decision anyway.
+/robots.txt
+  Cache-Control: public, max-age=0, must-revalidate
+
+/llms.txt
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
+
+/llms-full.txt
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
+
+/*.md
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
 
 # ---- security ------------------------------------------------------------
 # Not ranking factors, but cheap and worth having. Left out on purpose:
