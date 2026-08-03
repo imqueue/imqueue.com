@@ -207,24 +207,17 @@ fleet its own Redis port or database number.
 
 ## FAQ
 
-<div class="faq">
-<details>
-<summary>Do I need IMQ_CLI_HOME if I only have one project?</summary>
-<div class="faq-a"><p>No. The defaults are exactly right for a single project — reach for isolation when the second project appears, or when you want a scratch environment.</p></div>
-</details>
-<details>
-<summary>Does IMQ_CLI_HOME change how my services run?</summary>
-<div class="faq-a"><p>No. Only the CLI reads it. Your services take their own configuration and environment as always — what moves is the CLI's bookkeeping <em>about</em> them: config, templates, logs and pid records.</p></div>
-</details>
-<details>
-<summary>Where should per-client tokens live?</summary>
-<div class="faq-a"><p>In that client's own home — each <code>config.json</code> is written <code>0600</code> in its own directory. For one-off runs you can still pass <code>-T &lt;token&gt;</code> on the command line instead. Never commit an <code>.imq-home</code> directory.</p></div>
-</details>
-<details>
-<summary>Can two fleets use different template versions?</summary>
-<div class="faq-a"><p>Yes — that's one of the main wins. Each home keeps its own clone of the templates repository, so <code>templatesRef</code> (and even <code>IMQ_TEMPLATES_REPO</code>) can differ per fleet without interference.</p></div>
-</details>
-</div>
+### Do I need IMQ_CLI_HOME if I only have one project?
+No. The defaults are exactly right for a single project — reach for isolation when the second project appears, or when you want a scratch environment.
+
+### Does IMQ_CLI_HOME change how my services run?
+No. Only the CLI reads it. Your services take their own configuration and environment as always — what moves is the CLI's bookkeeping *about* them: config, templates, logs and pid records.
+
+### Where should per-client tokens live?
+In that client's own home — each `config.json` is written `0600` in its own directory. For one-off runs you can still pass `-T <token>` on the command line instead. Never commit an `.imq-home` directory.
+
+### Can two fleets use different template versions?
+Yes — that's one of the main wins. Each home keeps its own clone of the templates repository, so `templatesRef` (and even `IMQ_TEMPLATES_REPO`) can differ per fleet without interference.
 
 ---
 
@@ -236,32 +229,19 @@ manages your fleets for you, point it at the machine-readable version of these
 recipes: [/agents/isolated-imq-environments/](/agents/isolated-imq-environments/).
 New to @imqueue? Start with [Get Started](/get-started/) — your first service
 is about five minutes away.
+<!--
+The hand-written FAQPage block that used to sit here is gone, and the four questions
+above were `<details>/<summary>` pairs rather than headings.
 
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "Do I need IMQ_CLI_HOME if I only have one imqueue project?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. The default ~/.imq home is exactly right for a single project. Reach for IMQ_CLI_HOME when a second project appears on the same machine, or when you want a disposable scratch environment." }
-    },
-    {
-      "@type": "Question",
-      "name": "Does IMQ_CLI_HOME change how imqueue services run?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. Only the imq CLI reads IMQ_CLI_HOME. Services take their own configuration and environment as always — what moves is the CLI's bookkeeping about them: global config, templates cache, logs and pid records." }
-    },
-    {
-      "@type": "Question",
-      "name": "Where should per-client tokens live when working for multiple clients?",
-      "acceptedAnswer": { "@type": "Answer", "text": "In each client's own CLI home — every config.json is written with 0600 permissions inside its own IMQ_CLI_HOME. For one-off runs, pass -T <token> on the command line instead, and never commit a CLI home directory to version control." }
-    },
-    {
-      "@type": "Question",
-      "name": "Can two imqueue fleets use different template versions?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Each CLI home keeps its own clone of the templates repository, so templatesRef and even IMQ_TEMPLATES_REPO can differ per fleet without the two environments interfering with each other." }
-    }
-  ]
-}
-</script>
+Both halves had drifted from each other. The markup asked "Do I need IMQ_CLI_HOME if
+I only have one imqueue project?" where the page asked "…one project?", and answered
+"The default ~/.imq home is exactly right" where the page says "The defaults are
+exactly right" — keyword-expanded copies of the visible text rather than the visible
+text. Google's FAQPage requirement is that the answer be present ON THE PAGE, and
+check-jsonld.js now asserts it, which is what surfaced this.
+
+As `### question?` headings the four join the other nine posts' shape: each gets an
+anchor and a [[toc]] entry, and faq-jsonld.html generates the markup from the prose,
+so the two cannot disagree again. An HTML comment, not a Liquid one — this file's
+rawInput is what the .md mirror emits.
+-->
