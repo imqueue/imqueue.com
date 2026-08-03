@@ -1,0 +1,30 @@
+{%- comment -%}
+The visible "read this page as markdown" link.
+
+This is the load-bearing half of the mirror-advertising work. The
+<link rel="alternate" type="text/markdown"> in head.html and the `Link:` header in
+functions/_middleware.js are both cheap future-proofing — no major crawler is
+documented to follow either. A link in the page body needs no new convention to be
+honoured: it enters the ordinary crawlable link graph, so the mirrors stop being
+1,236 files reachable only by guessing the URL pattern.
+
+It is also the only way a HUMAN discovers them, which matters more than it sounds:
+the people most likely to want this are the ones about to paste a page into a
+model, and they were being handed 79,626 B of HTML where 18,068 B of markdown says
+the same thing (/tutorial/user-service/).
+
+Rendered on documentation pages, blog posts and the generated API reference —
+everywhere `hasMirror` is true and there is a page footer to put it in. Gated on
+`hasMirror` (see lib/markdown-link.js) so it can never point at a 404.
+
+Deliberately not a copy-to-clipboard button: that needs JavaScript, produces
+nothing a crawler can follow, and a plain link already gives both audiences what
+they came for — the agent gets a URL in the link graph, the human gets a page they
+can select-all.
+{%- endcomment -%}
+{%- if hasMirror -%}
+<p class="muted" style="margin:10px 0 0;font-size:13.5px;">
+  <a href="{{ siteUrl }}{{ page.url }}index.md" rel="alternate" type="text/markdown">Read this page as plain markdown</a>
+  — no HTML, no navigation. For pasting into an LLM, or for an agent to fetch.
+</p>
+{%- endif -%}
