@@ -340,6 +340,55 @@ async function main() {
   }
   ok('AI referrals are attributed by brand, and our own navigation is not one');
 
+  // --- 12. gtag stitching ---------------------------------------------------
+  // The edge used a salted IP+UA digest and gtag uses its own `_ga` client id, so a
+  // person appearing in both streams was two unrelated users and no per-user metric
+  // in the property was true for them. Reading gtag's id when it is already there
+  // fixes it; the three assertions are that it is read, that a crawler never
+  // borrows one, and that nothing is invented when there is no cookie.
+  {
+    const { ga4ClientId } = await import('../lib/agent-analytics.js');
+
+    assert.strictEqual(
+      ga4ClientId('foo=1; _ga=GA1.1.1234567890.1699999999; _ga_ABC=x'),
+      '1234567890.1699999999',
+      'the _ga cookie\'s client id must be extracted without its version/depth labels',
+    );
+    assert.strictEqual(ga4ClientId(null), null, 'no cookie header must give null');
+    assert.strictEqual(ga4ClientId('_ga=nonsense'), null, 'a malformed _ga must give null');
+
+    const browserEvent = await buildEvent({
+      url: new URL('https://imqueue.org/docs/'),
+      userAgent: BROWSER, ip: '203.0.113.9', salt: 'test-salt', isDocument: true,
+      gaClientId: '1234567890.1699999999', status: 200, edition: 'org',
+    });
+
+    assert.strictEqual(browserEvent.client_id, '1234567890.1699999999',
+      'a browser with a _ga cookie must be reported under gtag\'s client id');
+
+    // A crawler has no cookie in practice, but if one is ever presented it must not
+    // be adopted: GPTBot is not a person, and merging it into a real user's history
+    // would corrupt exactly the numbers this exists to make true.
+    const crawlerEvent = await buildEvent({
+      url: new URL('https://imqueue.org/llms.txt'),
+      userAgent: GPTBOT, ip: '203.0.113.9', salt: 'test-salt',
+      gaClientId: '1234567890.1699999999', status: 200, edition: 'org',
+    });
+
+    assert.strictEqual(crawlerEvent.client_id, 'openai.gptbot',
+      'a crawler must keep its family label even if a _ga cookie is present');
+
+    const noCookie = await buildEvent({
+      url: new URL('https://imqueue.org/docs/'),
+      userAgent: BROWSER, ip: '203.0.113.9', salt: 'test-salt', isDocument: true,
+      status: 200, edition: 'org',
+    });
+
+    assert.ok(noCookie.client_id && noCookie.client_id !== '1234567890.1699999999',
+      'with no cookie the visitor digest must still be used');
+  }
+  ok('server events share gtag\'s client id when there is one, and never borrow one');
+
   console.log(`\nAll ${checks} agent-analytics checks passed.`);
 }
 
