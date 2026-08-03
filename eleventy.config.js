@@ -480,6 +480,69 @@ module.exports = function (eleventyConfig) {
     return pairs.filter((p) => p.q.endsWith("?"));
   });
 
+  // The same slugifier markdown-it-anchor writes `id` attributes with, exposed
+  // to templates. glossary-jsonld.html mints a `@id` per term from its heading,
+  // and an independent slug implementation there would silently produce fragments
+  // that do not exist on the page — a graph of edges pointing at nothing.
+  // Eleventy's built-in `slug`/`slugify` filters are NOT interchangeable here:
+  // they keep characters this one drops.
+  eleventyConfig.addFilter("mdSlug", slugify);
+
+  // ---- DefinedTermSet, generated from the glossary's own H3 entries --------
+  // Same argument as faqPairs above, and the same mechanism: the terms are
+  // already written, already visible, already shaped as `### Term` + definition,
+  // so transcribing them into JSON by hand would only create a second copy to
+  // keep honest.
+  //
+  // Scoped to `## `-sectioned `### ` headings anywhere in the page — unlike
+  // faqPairs there is no section-name gate, because a glossary page is a
+  // glossary throughout. The first paragraph after the heading is the
+  // definition; a following example or aside is deliberately left out, which is
+  // what makes each entry a short quotable unit rather than a run-on string.
+  //
+  // `inSection` tracks the H2 the term sits under, so the emitted node can carry
+  // it — the page groups terms by area (Framework, Delivery, CLI) and an engine
+  // reconciling "fleet" benefits from knowing it is CLI vocabulary.
+  eleventyConfig.addFilter("definedTerms", (raw) => {
+    const terms = [];
+    let term = null;
+    let body = [];
+    let section = null;
+
+    const flush = () => {
+      if (term && body.length) {
+        terms.push({ term, definition: inlineToText(body.join(" ")), section });
+      }
+      term = null;
+      body = [];
+    };
+
+    for (const line of String(raw == null ? "" : raw).split("\n")) {
+      if (/^##\s/.test(line) && !/^###/.test(line)) {
+        flush();
+        section = inlineToText(line.replace(/^##\s+/, ""));
+        continue;
+      }
+
+      const heading = line.match(/^###\s+(.+?)\s*$/);
+
+      if (heading) {
+        flush();
+        term = inlineToText(heading[1]);
+        continue;
+      }
+      if (!term) continue;
+      if (line.trim() === "") {
+        if (body.length) flush();
+        continue;
+      }
+      body.push(line.trim());
+    }
+    flush();
+
+    return terms;
+  });
+
   // ---- llms.txt section ordering -------------------------------------------
   // The Tutorial and CLI Guide sections of /llms.txt listed their pages in
   // `collections.all` order, which is neither authored nor alphabetical — the
