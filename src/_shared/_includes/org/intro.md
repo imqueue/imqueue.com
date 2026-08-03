@@ -9,7 +9,7 @@ for SOA back-ends." phrasing that used to be the site's most-repeated definition
 Source: {{ siteUrl }}/intro/
 
 Services describe themselves at runtime, so their typed clients are generated, not
-written. The name is short for **I**nter-Communication **M**essaging **Queue** — @imqueue,
+written. The name is short for **I**ntercommunication **M**essaging **Queue** — @imqueue,
 imqueue and IMQ all refer to this framework. It is built with Node.js and
 TypeScript for service-oriented back-ends (microservices being a special case of
 SOA), works well behind an API layer such as GraphQL or a REST gateway, and lets you
