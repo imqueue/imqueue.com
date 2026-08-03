@@ -31,4 +31,4 @@ the framework types.
 
 > **Using v3?** @imqueue 3.x ships as native ES modules and requires Node.js
 > 22.12 or newer. If you're upgrading from 2.x, see the
-> [Migration from 2.x to 3.x](#migration-from-2.x-to-3.x) section below.
+> [Migration from 2.x to 3.x](#migration-from-2-x-to-3-x) section below.
