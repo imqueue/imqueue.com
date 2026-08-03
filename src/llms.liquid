@@ -8,6 +8,16 @@ eleventyExcludeFromCollections: true
 > Commercial licensing and paid support for @imqueue, an RPC framework over an inter-communication messaging queue for Node.js & TypeScript microservices. The framework is open source under GPL-3.0; a commercial license lets you ship it inside a closed-source product without the GPL source-release obligation.
 
 The open-source packages (@imqueue/core, @imqueue/rpc, @imqueue/cli) and their documentation live at https://imqueue.org. This site covers licensing and support only.
+{%- comment -%}
+See the org branch below and src/_shared/_includes/head.html: Cloudflare Email
+Obfuscation removes this address from every HTML response on this zone too — one
+`__cf_email__` span was measured on imqueue.com/pricing/ with no literal address
+anywhere in the page. On a domain whose entire purpose is to be contacted about a
+commercial licence, that is the one string that must be machine-readable.
+{%- endcomment %}
+
+Contact: support@imqueue.com for commercial licensing, pricing and support
+enquiries. The form at {{ siteUrl }}/contact/ reaches the same mailbox.
 
 ## Commercial
 - [Pricing & commercial license]({{ siteUrl }}/pricing/): Lift the GPL-3.0 source-release obligation and get SLA-backed support. Same packages, same APIs. Contact form to talk to us.
@@ -29,11 +39,73 @@ The open-source packages (@imqueue/core, @imqueue/rpc, @imqueue/cli) and their d
 
 @imqueue is an open-source framework (GPL-3.0). Core packages: @imqueue/core (reliable message queue over Redis), @imqueue/rpc (typed RPC with automatic client generation), @imqueue/cli (scaffolding and orchestration of services). Commercial licensing and support for closed-source products: https://imqueue.com
 
+{%- comment -%}
+Everything an agent needs to know about HOW to read this site belongs here, in
+the free-prose block between the blockquote and the first H2 — which is the only
+place the llms.txt convention puts prose. It used to live inside `## Reference`
+(eight lines) and `## Articles` (two), and a consumer that splits this file on H2
+boundaries and parses each section as a link list gets those paragraphs as
+malformed list items, or drops the section. Same reason the per-group reference
+headings below are `##` and not `###`: an H2 splitter folds H3 content into
+whichever H2 preceded it, so every capability package was being attributed to the
+framework-spine section. The @imqueue MCP server is one such consumer — its
+`^##\s+` never matched `### `, so every capability package it indexed carried
+`section: "Reference"`.
+
+The `%}` closing this block deliberately does NOT strip trailing whitespace: it
+has to leave the blank line that separates this paragraph from the one above,
+or llms.txt ships `…https://imqueue.comConventions for machine readers`.
+{%- endcomment %}
+
+Conventions for machine readers. Every page listed below is also published as
+plain markdown at `<page-url>index.md` — same content, no HTML, no navigation.
+Under `/api/` that holds for every per-symbol page too, but only for the current
+major: archived majors are HTML-only. To look a symbol up by name instead of
+browsing, fetch {{ siteUrl }}/api/search-index.json — every exported symbol of
+the current majors as `{name, kind, package, url, summary}`, with
+`deprecated: true` on obsolete members. Start from a package index to see every
+exported symbol with its summary, then follow the symbol link for the signature,
+parameters, return value, exceptions and remarks.
+{%- comment -%}
+The literal contact address, in the intro block rather than inside an H2 —
+sections here hold link lists only.
+
+Cloudflare's Email Obfuscation strips this address from 100% of the HTML on both
+zones (the full measurement is in src/_shared/_includes/head.html), so a crawler
+that does not run JavaScript cannot find any way to contact the project. This
+file is served as text/plain, which obfuscation does not rewrite, so the address
+survives here. Same reasoning put it in the Organization JSON-LD.
+{%- endcomment %}
+
+Contact: support@imqueue.com reaches the maintainers — framework questions,
+documentation problems, security reports and commercial licensing enquiries.
+
 ## Getting Started
+{%- comment -%}
+An explicit ORDERED allowlist, not a URL test inside one pass over
+collections.all. The old form was `item.url == "/get-started/" or item.url ==
+"/intro/"`, and it failed twice over:
+
+  * It silently omitted every page nobody remembered to add to the condition.
+    Measured 2026-08-03 against the sitemap: the HOME PAGE, /using-ai-assistants/,
+    /contact/ and /blog/ were all absent from this file. That is not only an
+    llms.txt gap — the @imqueue MCP server builds its search index FROM llms.txt,
+    so `search_docs` could not return /using-ai-assistants/, the page that holds
+    the rules for not hallucinating this framework's API. A page missing here is
+    a page missing from the project's own docs search.
+  * It emitted entries in whatever order collections.all happened to be in
+    (get-started before intro), which is incidental rather than chosen.
+
+Titles and descriptions still come from each page's own front matter, so the
+listing cannot drift from the page. Order is definition -> quickstart -> agents.
+{%- endcomment -%}
+{%- assign startPages = "/,/intro/,/get-started/,/using-ai-assistants/" | split: "," -%}
+{%- for wanted in startPages -%}
 {%- for item in collections.all -%}
-{%- if item.url == "/get-started/" or item.url == "/intro/" %}
+{%- if item.url == wanted %}
 - [{{ item.data.title | default: "Introduction" }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %}
 {%- endif -%}
+{%- endfor -%}
 {%- endfor %}
 
 ## Tutorial
@@ -65,14 +137,12 @@ The open-source packages (@imqueue/core, @imqueue/rpc, @imqueue/cli) and their d
 {%- endfor %}
 
 ## Reference
-Every page below, and every per-symbol page under it, is also published as
-agent-friendly plain markdown at `<page-url>index.md` — same content, no HTML.
-Start from a package index to see every exported symbol with its summary, then
-follow the symbol link for signature, parameters, return value, exceptions and
-remarks. Only the current major is mirrored; archived majors are HTML-only.
-To look a symbol up by name, fetch {{ siteUrl }}/api/search-index.json — every
-exported symbol of the current majors as `{name, kind, package, url, summary}`,
-with `deprecated: true` on obsolete members.
+{%- comment -%}
+The prose that used to sit here — the mirror convention, search-index.json and
+how to read a package index — moved up into the intro block above the first H2.
+See the comment there. The closing `%}` keeps its trailing newline, or the first
+list item lands on the same line as the heading.
+{%- endcomment %}
 - [API Documentation]({{ siteUrl }}/api/): Full generated API reference for every documented @imqueue package (classes, interfaces, methods, types), grouped by what the package is for. — [markdown]({{ siteUrl }}/api/index.md)
 - [@imqueue/core API reference]({{ siteUrl }}/api/core/latest/): Every exported symbol of @imqueue/core, generated from {{ apiVersions.core.latest }} — this URL always serves the current major. The Redis-backed message queue: IMQ factory, RedisQueue, ClusteredRedisQueue, IMQOptions, the profile decorator and the cluster-manager extension points. — [markdown]({{ siteUrl }}/api/core/latest/index.md)
 - [@imqueue/rpc API reference]({{ siteUrl }}/api/rpc/latest/): Every exported symbol of @imqueue/rpc, generated from {{ apiVersions.rpc.latest }} — this URL always serves the current major. Typed RPC: IMQService, IMQClient, the expose/property/classType/lock/cache/logged decorators, the service Description shape used for client generation, and the cache and lock APIs. — [markdown]({{ siteUrl }}/api/rpc/latest/index.md)
@@ -86,14 +156,23 @@ generate. A group with nothing shipped yet emits no heading.
 {%- endcomment -%}
 {%- for group in apiPackages.groups %}
 
-### Reference — {{ group.group }}
+## Reference — {{ group.group }}
 {%- for pkg in group.packages %}
 - [{{ pkg.scoped }} API reference]({{ siteUrl }}{{ pkg.url }}): Every exported symbol of {{ pkg.scoped }}, generated from {{ apiVersions[pkg.name].latest }} — this URL always serves the current major. {{ pkg.blurb }}{% if pkg.note %} {{ pkg.note }}{% endif %}{% if pkg.agentNote %} {{ pkg.agentNote }}{% endif %}{% if pkg.tags.size > 0 %} Tagged {% for tag in pkg.tags %}`{{ tag.label }}`{% unless forloop.last %}, {% endunless %}{% endfor %}{% for tag in pkg.tags %}{% if tag.exclusive %} (pick at most one package with this tag){% endif %}{% endfor %}.{% endif %} — [markdown]({{ siteUrl }}{{ pkg.url }}index.md)
 {%- endfor %}
 {%- endfor %}
 
 ## Articles
-Every article is also published as agent-friendly plain markdown at `<article-url>index.md` — same content, no HTML. Canonical HTML pages are listed first, the markdown mirror after each summary.
+{%- comment -%}
+The "every article is also published as markdown" note moved to the intro block
+above the first H2, where it now covers every section rather than restating the
+same convention twice. Canonical HTML first, the mirror after each summary.
+{%- endcomment -%}
+{%- for item in collections.all -%}
+{%- if item.url == "/blog/" %}
+- [{{ item.data.title }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %} — [markdown]({{ siteUrl }}{{ item.url }}index.md)
+{%- endif -%}
+{%- endfor -%}
 {%- for post in collections.posts %}
 - [{{ post.data.title }}]({{ siteUrl }}{{ post.url }}){% if post.data.summary %}: {{ post.data.summary | strip_newlines }}{% endif %} — [markdown]({{ siteUrl }}{{ post.url }}index.md)
 {%- endfor %}
@@ -102,6 +181,7 @@ Every article is also published as agent-friendly plain markdown at `<article-ur
 - [License]({{ siteUrl }}/license/): @imqueue is GPL-3.0 open source; a commercial license is available for closed-source/proprietary use.
 - [Contributing]({{ siteUrl }}/contributing/): How to report issues and open pull requests across the @imqueue repositories.
 - [Support]({{ siteUrl }}/support/): Where to ask questions and file bugs — which repository to use for which package, how to report a security issue privately, and what response to expect.
+- [Contact]({{ siteUrl }}/contact/): Message the maintainers directly — framework questions, documentation problems and licensing enquiries all reach support@imqueue.com.
 - [Privacy policy]({{ siteUrl }}/privacy/): What imqueue.org and the hosted MCP endpoint process, the analytics involved, retention, and your rights. No accounts, no telemetry in the packages.
 - [Terms of use]({{ siteUrl }}/terms/): Terms for the website and the hosted MCP endpoint at mcp.imqueue.org — acceptable use, availability and no warranty. The software itself is licensed under GPL-3.0.
 
