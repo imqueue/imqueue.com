@@ -191,8 +191,20 @@ npm run dev
 ### 4.3 Generate a client
 
 Every @imqueue service is self-describing, so a fully typed client can be
-generated directly from a running service. Leave `npm run dev` running in the
-first terminal, and in a second one:
+generated directly from a running service:
+
+~~~mermaid
+flowchart LR
+    A["UserService.ts with @expose() + JSDoc"] -->|"npm run dev"| B["running service on queue UserService"]
+    B -->|"describes itself over the queue"| C["imq client generate UserService ./src/clients"]
+    C --> D["src/clients/UserService.ts exporting UserClient"]
+    D -->|"tsc"| E["caller: await client.get('42'), fully typed"]
+~~~
+
+The JSDoc-annotated `@expose()`d methods are @imqueue's only contract, so there is
+no schema file to keep in step — but generation does need the service *running*.
+
+Leave `npm run dev` running in the first terminal, and in a second one:
 
 ~~~bash
 imq client generate UserService ./src/clients

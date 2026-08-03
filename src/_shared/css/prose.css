@@ -37,6 +37,32 @@
 }
 .prose pre code { font-family: inherit; background: none; color: inherit; padding: 0; }
 
+/* Mermaid diagrams ship as source, deliberately unrendered.
+   No mermaid.js: it is ~1 MB minified against this site's 25 KB total JS budget,
+   and the pages that would load it (/intro/, the architecture posts) are exactly
+   the ones people read first. Build-time rendering needs a headless browser in the
+   pipeline for four diagrams.
+   The source is the asset that matters here: a fenced mermaid block survives
+   verbatim into <page>index.md and llms-full.txt, where the inline SVG on
+   /tutorial/ becomes a one-line caption, and models reproduce mermaid in
+   architecture answers — which forces the attribution.
+   So the block is styled as a labelled figure rather than as code somebody might
+   try to run: dimmer, tighter, with a "DIAGRAM (MERMAID)" tag above it. The <p>
+   immediately after each one is its caption. */
+.prose pre:has(> code.language-mermaid) {
+  font-size: 13.5px; line-height: 1.55; padding: 34px 20px 18px;
+  color: var(--muted); position: relative; margin-bottom: 8px;
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+.prose pre:has(> code.language-mermaid)::before {
+  content: "DIAGRAM (MERMAID)";
+  position: absolute; top: 11px; left: 20px;
+  font-size: 10.5px; letter-spacing: .1em; color: var(--accent);
+}
+.prose pre:has(> code.language-mermaid) + p {
+  font-size: 15px; color: var(--muted); margin: 0 0 20px;
+}
+
 /* tables (scroll horizontally within their own box instead of overflowing the page) */
 .prose table { display: block; width: 100%; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 0 0 20px; font-size: 16.5px; }
 .prose th, .prose td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }

@@ -107,6 +107,22 @@ script that moves everything now due onto the ordinary ready list. Failing that,
 every worker sweeps its own delayed set every `watcherCheckDelay`, 5 seconds by
 default.
 
+~~~mermaid
+flowchart LR
+    A["client.update(…, new IMQDelay(24, 'h'))"] --> B["packed message parked in a sorted set, scored Date.now() + delay"]
+    A --> C["companion key expiring about then, carrying no payload"]
+    C -->|"expiry fires a keyspace notification"| D["one elected watcher runs one atomic promote script"]
+    B --> D
+    E["every worker, every watcherCheckDelay (5s)"] -.->|"fallback sweep"| D
+    D --> F["ordinary ready list"]
+    F --> G["any free consumer, behind the existing backlog"]
+~~~
+
+`@imqueue` schedules a delayed call in the broker, not in your process — which is
+why the caller can exit one second after scheduling something for next Tuesday.
+Where keyspace notifications are unavailable, promotion degrades to the 5-second
+sweep rather than stopping.
+
 From there it's an ordinary message, load-balanced like any other and queued
 behind the existing backlog. That notification is the primitive covered in
 [Redis as a message bus](/blog/redis-message-bus-patterns/), including the line
