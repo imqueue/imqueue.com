@@ -53,8 +53,14 @@ Complex types:
 
 Clients:
 - Clients are GENERATED from a running service (`imq client generate`), not
-  hand-written. Usage:
-    const client = new UserClient();
+  hand-written. The name you pass is the service's CLASS name, because that is
+  its queue name: `imq client generate UserService ./src/clients`.
+- The generated file exports ONE symbol: a namespace named after the service with
+  a lower-case first letter, holding a client class whose trailing `Service` is
+  replaced by `Client`. There is no top-level export of the class, so importing it
+  by name does not resolve. Usage:
+    import { userService } from './src/clients/UserService.js';
+    const client = new userService.UserClient();
     await client.start();
     const user = await client.update({ ... });
 - Every generated method takes two extra optional trailing params, in this
@@ -103,14 +109,18 @@ export class UserService extends IMQService {
 }
 ~~~
 
-Then generate and use a fully typed client:
+Then generate and use a fully typed client. The name is the service's class name,
+because that is its queue name:
 
 ~~~bash
-imq client generate UserService
+imq client generate UserService ./src/clients
 ~~~
 
 ~~~typescript
-const client = new UserClient();
+// The generated module's only export is the namespace `userService`.
+import { userService } from './src/clients/UserService.js';
+
+const client = new userService.UserClient();
 await client.start();
 const user = await client.get('42'); // fully typed, no hand-written client
 ~~~

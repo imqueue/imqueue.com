@@ -63,15 +63,15 @@ imq client generate UserService ./src/clients
 ```
 
 ```typescript
-import { user } from './clients/index.js';
+import { userService } from './clients/UserService.js';
 
-const users = new user.UserClient({ callTimeout: 5000 });
+const users = new userService.UserClient({ callTimeout: 5000 });
 await users.start();
 
 const found = await users.get('42'); // typed, autocompleted, no hand-written client
 ```
 
-Note the class is `UserClient`, not `UserServiceClient` — the generator replaces a trailing `Service` with `Client` rather than appending.
+Two naming details, both of which bite: the module's **only** export is a namespace named after the service with a lower-case first letter, so there is no top-level `UserClient` to import on its own — and the class inside it is `UserClient`, not `UserServiceClient`, because the generator replaces a trailing `Service` with `Client` rather than appending.
 
 Now there's no copy to drift. When `UserService.get` changes, you regenerate and every caller whose usage no longer matches **fails to compile** — the mistake surfaces at build time, in your editor, instead of at runtime in front of a customer.
 
@@ -80,8 +80,10 @@ Now there's no copy to drift. When `UserService.get` changes, you regenerate and
 Generation needs the service running, because the client is built from the description the service reports. In practice that's a three-line loop, straight from the CLI guide:
 
 ```bash
+# -s takes the repository name; `client generate` takes the service's CLASS name,
+# because that is the queue the description request is addressed to.
 imq ctl start -s user -c     # bring the service up and wait for readiness
-imq client generate user ./src/clients
+imq client generate UserService ./src/clients
 imq ctl stop -s user
 ```
 

@@ -60,11 +60,13 @@ export class UserService extends IMQService {
 Because the service is self-describing, a fully typed client can be **generated** from it — you never write the client by hand:
 
 ```bash
-imq client generate UserService
+imq client generate UserService ./src/clients
 ```
 
 ```ts
-const client = new UserClient();
+import { userService } from './clients/UserService.js';
+
+const client = new userService.UserClient();
 await client.start();
 const user = await client.get('42'); // typed, autocompleted, no HTTP in sight
 ```
