@@ -44,6 +44,14 @@ eleventyComputed:
     "url": "{{ siteUrl }}/blog/authors/{{ author.slug }}/",
     "mainEntity": {
       "@type": "Person",
+      {%- comment -%}
+      The identity key. 56 Person nodes across three shapes carried no @id at all, so
+      the same three people were three unreconciled sets of nodes. This @id — the
+      author's own profile URL plus #person — is emitted identically here, in
+      post.html's BlogPosting.author and in the blog listing's blogPost[].author, so
+      the three shapes are now three statements about one node.
+      {%- endcomment -%}
+      "@id": "{{ siteUrl }}/blog/authors/{{ author.slug }}/#person",
       "name": {{ author.name | json }},
       "jobTitle": {{ author.occupation | json }},
       "description": {{ author.bio | strip_newlines | strip | json }},

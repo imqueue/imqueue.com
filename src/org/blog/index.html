@@ -161,28 +161,84 @@ eleventyComputed:
 })();
 </script>
 
+{%- comment -%}
+Six pages used to emit `Blog @id .../blog/#blog` — /blog/ plus five /blog/page/N/ —
+each with `url: /blog/` and a DIFFERENT `blogPost` array. One @id making six
+different membership claims about the same entity, which is the sort of
+contradiction that makes a graph worth less than no graph.
+
+Split by role, which is what the two node types are for:
+
+  * /blog/ owns the `Blog` entity and its `blogPost` array. One node, one page.
+  * every page, including /blog/, also emits a `CollectionPage` at its OWN url with
+    the posts on that page as an ItemList — the same pattern topics.html already
+    uses. `isPartOf` ties it back to the one Blog node.
+
+So a paginated page now says "I am page 4 of this collection, and here is what is on
+me", instead of claiming to be the collection.
+{%- endcomment -%}
+{%- assign blogId = siteUrl | append: "/blog/#blog" -%}
+{%- if pagination.pageNumber == 0 %}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Blog",
-  "@id": "{{ siteUrl }}/blog/#blog",
+  "@id": {{ blogId | json }},
   "name": "@imqueue Blog",
   "url": "{{ siteUrl }}/blog/",
   "description": "Articles about message-queue RPC for Node.js & TypeScript microservices.",
   "inLanguage": "en",
+  "about": { "@id": "{{ siteUrl }}/#software" },
+  "isPartOf": { "@id": "{{ siteUrl }}/#website" },
   "publisher": { "@id": "{{ siteUrl }}/#org" },
   "blogPost": [
-    {%- for post in pagePosts -%}
+    {%- for post in collections.posts -%}
     {%- assign pa = authors | authorBySlug: post.data.author -%}
     {
       "@type": "BlogPosting",
+      "@id": "{{ siteUrl }}{{ post.url }}#post",
       "headline": {{ post.data.title | json }},
       "url": "{{ siteUrl }}{{ post.url }}",
       {% if post.data.summary %}"description": {{ post.data.summary | json }},{% endif %}
       "datePublished": "{{ post.date | date: '%Y-%m-%d' }}",
-      "author": { "@type": "Person", "name": {{ pa.name | default: "@imqueue" | json }} }
+      {%- comment -%}
+      `@id` on the author, matching authors.html and post.html, so the name-only
+      shape that used to leave every listed author anonymous now reconciles to the
+      same Person node. Omitted when the author does not resolve — the "@imqueue"
+      fallback is an organisation, not a person.
+      {%- endcomment %}
+      "author": { "@type": "Person"{% if pa %}, "@id": "{{ siteUrl }}/blog/authors/{{ pa.slug }}/#person"{% endif %}, "name": {{ pa.name | default: "@imqueue" | json }} }
     }{% unless forloop.last %},{% endunless %}
     {%- endfor -%}
   ]
+}
+</script>
+{%- endif %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "@id": "{{ siteUrl }}{{ page.url }}#collection",
+  "url": "{{ siteUrl }}{{ page.url }}",
+  "name": {{ title | json }},
+  "description": {{ description | json }},
+  "inLanguage": "en",
+  "isPartOf": { "@id": {{ blogId | json }} },
+  "publisher": { "@id": "{{ siteUrl }}/#org" },
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": {{ pagePosts.size }},
+    "itemListOrder": "https://schema.org/ItemListOrderDescending",
+    "itemListElement": [
+      {%- for post in pagePosts -%}
+      {
+        "@type": "ListItem",
+        "position": {{ forloop.index }},
+        "name": {{ post.data.title | json }},
+        "url": "{{ siteUrl }}{{ post.url }}"
+      }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  }
 }
 </script>
