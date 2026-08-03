@@ -113,8 +113,9 @@ jobs:
   link-rot:
     name: External link rot
     runs-on: ubuntu-latest
-    # Belt to check-links.js's per-request timeout braces: 79 external links at a 10s
-    # worst case is ~13 minutes if every single one times out, which never happens.
+    # Measured: 1m13s for the full run (crawl + 75 unique external HEADs). The
+    # per-request timeout and the result memo are what make that true; this is the belt
+    # to their braces, because a scheduled job that hangs burns quota silently.
     timeout-minutes: 25
     permissions:
       # To open/update the tracking issue below.
