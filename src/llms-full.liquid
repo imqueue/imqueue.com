@@ -92,4 +92,9 @@ resolve against nothing in a file meant to be ingested standalone.
 {%- endcapture %}
 
 {{ apiGuide | agentMarkdown }}
-{%- endif -%}
+{%- comment -%}
+`{% endif %}`, not `{%- endif -%}`: the leading dash strips the newline that ends
+the file, so both editions shipped a text file with no final newline. agentMarkdown
+trims its output, so nothing else supplies one.
+{%- endcomment -%}
+{% endif %}

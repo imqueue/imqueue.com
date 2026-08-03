@@ -117,10 +117,15 @@ If you need durable, long-running orchestration with complex state, a workflow e
 
 Want to try the minimal, safe-by-default option? [**Get started with @imqueue**](/get-started/), read the [**@imqueue/job vs BullMQ**](/blog/imqueue-vs-bullmq/) deep-dive, or browse the [**API reference**](/api/). Shipping inside a closed-source product? See [**commercial licensing & support**](/license/).
 
-{%- comment -%}
+<!--
+An HTML comment, NOT a Liquid one. This file's rawInput is what the .md mirror and
+llms-full.txt emit, and a `{%- comment -%}` in rawInput is never rendered — it
+shipped verbatim into both. agentMarkdown strips HTML comments, so this is the form
+an authoring note has to take in a post.
+
 The hand-written FAQPage block that used to sit here is gone: the faqPairs filter
-(eleventy.config.js) now generates it from the `## FAQ` headings above, via
+(eleventy.config.js) generates it from the `## FAQ` headings above, via
 faq-jsonld.html. The hand-written copy had already drifted — it said "What is the
 best…" and "do not" where the visible prose says "What's the best…" and "don't" —
 and Google's FAQPage requirement is that the answer be present ON THE PAGE.
-{%- endcomment -%}
+-->
