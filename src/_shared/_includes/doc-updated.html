@@ -1,0 +1,32 @@
+{%- comment -%}
+"Last updated" for a documentation page, rendered at the end of the content.
+
+The date was already correct and already emitted — as `dateModified` inside the
+TechArticle JSON-LD, from src/_data/pageDates.json. What it was not was VISIBLE.
+That costs on both sides of the audience:
+
+  * A reader deciding whether a Node.js framework's docs are current has to view
+    source to find out.
+  * More to the point here, an answer engine weighs freshness from the rendered
+    page as well as the markup, and a model quoting a page it cannot date will
+    either hedge the claim or drop it. Every competing corpus this site is
+    arguing with — Medium, dev.to, Stack Overflow — puts a date on the page.
+
+Deliberately `dateModified`, not `datePublished`: for a docs page, when it was
+last correct is the useful fact, and the publication date of /cli/ says nothing.
+Posts are the other way round and handle their own byline in post.html.
+
+Emitted only when a date exists. head.html's rule applies here too — no date beats
+a wrong one — and the generated API reference has no editorial date at all, which
+is why apiref.html does not include this.
+
+`datetime` carries the machine-readable ISO instant, the text a human-readable
+one; that is what <time> is for, and it means the visible date and the JSON-LD
+cannot disagree, since both read the same value.
+{%- endcomment -%}
+{%- assign duKey = page.inputPath | remove_first: "./" -%}
+{%- assign duEntry = pageDates[duKey] -%}
+{%- assign duShown = dateModified | default: duEntry.modified | default: duEntry.published -%}
+{%- if duShown and duShown != "" -%}
+<p class="muted" style="margin:40px 0 0;padding-top:16px;border-top:1px solid var(--line);font-size:14px;">Last updated <time datetime="{{ duShown | isoDate }}">{{ duShown | date: "%B %-d, %Y" }}</time></p>
+{%- endif -%}

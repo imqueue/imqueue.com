@@ -26,6 +26,7 @@ A commercial license lets you ship @imqueue inside a closed-source product witho
 # {{ item.data.title | default: item.url }}
 
 Source: {{ siteUrl }}{{ item.url }}
+{%- include "mirror-meta.md", doc: item %}
 {% if item.data.lead %}
 {{ item.data.lead }}
 {% endif %}
