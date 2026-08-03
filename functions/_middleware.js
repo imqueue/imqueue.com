@@ -73,17 +73,20 @@ export async function onRequest(context) {
   try {
     const url = new URL(context.request.url);
     const edition = url.hostname.endsWith("imqueue.com") ? "com" : "org";
-    const send = trackRequest({
+    // waitUntil, so the response is already on its way to the client while this runs.
+    // Nothing downstream waits for Google — or for the SHA-256 of the visitor digest,
+    // which is why trackRequest being async costs the request nothing.
+    //
+    // Unconditional now: trackRequest is async, so it always hands back a promise and
+    // decides internally whether there is anything to send. It used to return null for
+    // "nothing to do" and this was wrapped in `if (send)`.
+    context.waitUntil(trackRequest({
       request: context.request,
       env: context.env,
       url,
       status: response.status,
       edition,
-    });
-
-    // waitUntil, so the response is already on its way to the client while this
-    // runs. Nothing downstream waits for Google.
-    if (send) context.waitUntil(send);
+    }));
 
     // Say in a header what was decided, so validating a deployment is one command:
     //
