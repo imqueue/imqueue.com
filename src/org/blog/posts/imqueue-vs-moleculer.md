@@ -149,22 +149,22 @@ They're not better or worse — they're aimed at different priorities.
 
 ## FAQ
 
-**Is Moleculer still maintained?**
+### Is Moleculer still maintained?
 Yes. It's actively developed and widely used; nothing in this comparison depends on it being stale.
 
-**Which is better for a TypeScript codebase?**
+### Which is better for a TypeScript codebase?
 `@imqueue`, on the specific axis of static typing across service boundaries, because the client is generated from the service rather than declared alongside it. Moleculer works fine in TypeScript — you just don't get a compile-time contract between caller and action for free.
 
-**Can I use Moleculer's transporters with @imqueue?**
+### Can I use Moleculer's transporters with @imqueue?
 No. `@imqueue` supports Redis today; `IMessageQueue` is the documented interface if you want to implement another adapter.
 
-**Does @imqueue have circuit breakers?**
+### Does @imqueue have circuit breakers?
 No. Some of that need is absorbed by the transport — a request to a down service waits on the queue rather than failing — but there's no breaker, bulkhead or retry policy to configure. If you want those as features, Moleculer has them.
 
-**Is the GPL-3.0 licence a problem for commercial use?**
+### Is the GPL-3.0 licence a problem for commercial use?
 It depends entirely on whether you distribute your product. Internal systems are usually unaffected; shipping closed-source software to customers needs the commercial licence. Resolve it with your legal team before you build, not after.
 
-**Can I migrate from Moleculer to @imqueue incrementally?**
+### Can I migrate from Moleculer to @imqueue incrementally?
 In principle yes, service by service, since both can sit on Redis and a gateway can front either. Expect the work to be in the typing model and the loss of Moleculer's built-in resilience features, not in the transport.
 
 ---

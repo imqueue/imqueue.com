@@ -98,55 +98,29 @@ The honest summary: **BullMQ remains the safe, capable default on Redis.** The a
 
 ## FAQ
 
-**Is BullMQ still the best Node.js job queue in 2026?**
+### Is BullMQ still the best Node.js job queue in 2026?
 For a feature-rich, Redis-backed queue, BullMQ is still the most capable and most widely used option. "Best" depends on your constraints — if you don't run Redis or want a smaller surface, an alternative may fit better.
 
-**What's the best BullMQ alternative if I don't use Redis?**
+### What's the best BullMQ alternative if I don't use Redis?
 pg-boss (PostgreSQL) if you're on Postgres, or Agenda (MongoDB) if you're on Mongo. Both let you avoid introducing Redis just for jobs.
 
-**What's a lighter alternative to BullMQ on Redis?**
+### What's a lighter alternative to BullMQ on Redis?
 Bee-Queue for a simple, fast queue, or `@imqueue/job` for a minimal, safe-by-default queue — especially if you already use `@imqueue` for RPC.
 
-**Is Bull deprecated?**
+### Is Bull deprecated?
 No. Bull (v3) is still maintained enough to run in production, but BullMQ is its successor and the recommended choice for new projects. Kue, a different older library, *is* deprecated — avoid it.
 
-**Should I use a job queue or a workflow engine?**
+### Should I use a job queue or a workflow engine?
 If you need durable, long-running orchestration with complex state, a workflow engine (e.g. Temporal) is a different category worth evaluating. For discrete background jobs, a queue like the ones above is simpler and lighter.
 
 ---
 
 Want to try the minimal, safe-by-default option? [**Get started with @imqueue**](/get-started/), read the [**@imqueue/job vs BullMQ**](/blog/imqueue-vs-bullmq/) deep-dive, or browse the [**API reference**](/api/). Shipping inside a closed-source product? See [**commercial licensing & support**](/license/).
 
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "Is BullMQ still the best Node.js job queue in 2026?",
-      "acceptedAnswer": { "@type": "Answer", "text": "For a feature-rich, Redis-backed queue, BullMQ is still the most capable and most widely used option. Whether it is best depends on your constraints — if you do not run Redis or want a smaller surface, an alternative such as pg-boss, Bee-Queue or @imqueue/job may fit better." }
-    },
-    {
-      "@type": "Question",
-      "name": "What is the best BullMQ alternative if I do not use Redis?",
-      "acceptedAnswer": { "@type": "Answer", "text": "pg-boss (PostgreSQL) if you are on Postgres, or Agenda (MongoDB) if you are on Mongo. Both let you avoid introducing Redis just for background jobs." }
-    },
-    {
-      "@type": "Question",
-      "name": "What is a lighter alternative to BullMQ on Redis?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Bee-Queue for a simple, fast queue, or @imqueue/job for a minimal, safe-by-default queue — especially if you already use @imqueue for RPC." }
-    },
-    {
-      "@type": "Question",
-      "name": "Is Bull deprecated?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. Bull v3 is still maintained enough to run in production, but BullMQ is its successor and the recommended choice for new projects. Kue, a different older library, is deprecated and should be avoided." }
-    },
-    {
-      "@type": "Question",
-      "name": "Should I use a job queue or a workflow engine?",
-      "acceptedAnswer": { "@type": "Answer", "text": "If you need durable, long-running orchestration with complex state, a workflow engine such as Temporal is a different category worth evaluating. For discrete background jobs, a queue like BullMQ, pg-boss or @imqueue/job is simpler and lighter." }
-    }
-  ]
-}
-</script>
+{%- comment -%}
+The hand-written FAQPage block that used to sit here is gone: the faqPairs filter
+(eleventy.config.js) now generates it from the `## FAQ` headings above, via
+faq-jsonld.html. The hand-written copy had already drifted — it said "What is the
+best…" and "do not" where the visible prose says "What's the best…" and "don't" —
+and Google's FAQPage requirement is that the answer be present ON THE PAGE.
+{%- endcomment -%}

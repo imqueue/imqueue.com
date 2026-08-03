@@ -178,22 +178,22 @@ The one thing to decide deliberately is which tool *owns* service-to-service cal
 
 ## FAQ
 
-**Is @imqueue a drop-in replacement for tRPC?**
+### Is @imqueue a drop-in replacement for tRPC?
 No. tRPC types the client–server boundary and speaks HTTP; `@imqueue` types the service–service boundary and speaks a queue. A browser can't talk to `@imqueue` at all.
 
-**Can I use tRPC between backend services?**
+### Can I use tRPC between backend services?
 You can, and people do — it's HTTP underneath. The friction shows up in coupling: the caller needs the callee's TypeScript types at compile time, so independently deployed services end up publishing a types package or living in one repo. That's the constraint `@imqueue` removes by generating a client instead.
 
-**Does @imqueue need a monorepo?**
+### Does @imqueue need a monorepo?
 No — that's rather the point. The generated client is a committed artifact, so callers can live in separate repositories and regenerate on their own schedule.
 
-**Do I still need code generation with @imqueue?**
+### Do I still need code generation with @imqueue?
 Yes, one command against a running service: `imq client generate <name> [path]`. That's the trade for working across deployment boundaries. See [why generated clients beat hand-written ones](/blog/stop-hand-writing-microservice-clients/).
 
-**Which gives better type safety?**
+### Which gives better type safety?
 Both are strong, differently. tRPC's inference can't drift from the server because it *is* the server's types. `@imqueue`'s generated client can drift until you regenerate — but it's a real artifact you can version, review and ship independently.
 
-**Can I use @imqueue with a GraphQL or REST gateway?**
+### Can I use @imqueue with a GraphQL or REST gateway?
 Yes, and it's the common shape: the gateway speaks HTTP outward and `@imqueue` inward. The [tutorial](/tutorial/) builds both variants.
 
 ---
