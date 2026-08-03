@@ -79,6 +79,32 @@ survives here. Same reasoning put it in the Organization JSON-LD.
 
 Contact: support@imqueue.com reaches the maintainers — framework questions,
 documentation problems, security reports and commercial licensing enquiries.
+{%- comment -%}
+The facts an agent needs before it can help with this framework, none of which
+were in this file: how to install it, where the source is, where the packages are,
+and that there is a hosted MCP endpoint it can use as tools instead of scraping.
+An assistant asked "add an @imqueue service to this repo" had to infer the install
+command from prose on a page it might not have fetched.
+
+`Updated:` is the maximum of the real committed page dates, NOT the build
+timestamp — Cloudflare Pages rebuilds on every deploy, so a build date moves when
+nothing changed. Without it a cached copy of this index is indistinguishable from
+a current one and there is nothing to decide a refetch on.
+
+The closing `%}` keeps its trailing newline; `-%}` would glue "Updated:" onto the
+end of the Contact paragraph above.
+{%- endcomment %}
+
+Updated: {{ collections.posts | latestModified }}
+Install: `npm i -g @imqueue/cli` (scaffolding and client generation), then
+`npm i @imqueue/rpc` in a service. Requires Node.js 22.12+ and a reachable Redis.
+Source: https://github.com/imqueue
+Packages: https://www.npmjs.com/org/imqueue
+Symbol index: {{ siteUrl }}/api/search-index.json
+MCP endpoint: https://mcp.imqueue.org/mcp (Streamable HTTP, no auth, read-only —
+docs search, symbol lookup and scaffolding as tools rather than as pages to parse)
+Licence: GPL-3.0, with a commercial licence for closed-source distribution —
+https://imqueue.com/license/
 
 ## Getting Started
 {%- comment -%}
@@ -103,37 +129,59 @@ listing cannot drift from the page. Order is definition -> quickstart -> agents.
 {%- for wanted in startPages -%}
 {%- for item in collections.all -%}
 {%- if item.url == wanted %}
-- [{{ item.data.title | default: "Introduction" }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %}
+- [{{ item.data.title | default: "Introduction" }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %} — [markdown]({{ siteUrl }}{{ item.url }}index.md)
 {%- endif -%}
 {%- endfor -%}
 {%- endfor %}
 
 ## Tutorial
-{%- for item in collections.all -%}
-{%- if item.url contains "/tutorial/" %}
-- [{{ item.data.title | default: item.url }}]({{ siteUrl }}{{ item.url }}){% if item.data.lead %}: {{ item.data.lead | strip_newlines }}{% elsif item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %}
-{%- endif -%}
+{%- comment -%}
+Sorted by the `chapter:` front matter both trees already carry, not by
+collections.all order — which had this numbered course listed 5, 3, 7, 8, 2, 1,
+6, 4. Every item also names its markdown mirror, so an agent following this index
+never has to guess the `<page-url>index.md` convention stated in the intro block.
+{%- endcomment -%}
+{%- comment -%}
+assign first: LiquidJS silently IGNORES a filter applied in a `for`
+expression, so `for item in collections.all | bySection: "/tutorial/"` iterated the
+WHOLE of collections.all — this section listed all 1,868 pages.
+{%- endcomment -%}
+{%- assign tutorialPages = collections.all | bySection: "/tutorial/" -%}
+{%- for item in tutorialPages %}
+- [{{ item.data.title | default: item.url }}]({{ siteUrl }}{{ item.url }}){% if item.data.lead %}: {{ item.data.lead | strip_newlines }}{% elsif item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %} — [markdown]({{ siteUrl }}{{ item.url }}index.md)
 {%- endfor %}
 
 ## CLI Guide
-{%- for item in collections.all -%}
-{%- if item.url contains "/cli/" %}
-- [{{ item.data.title | default: item.url }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %}
-{%- endif -%}
+{%- comment -%}
+assign first: LiquidJS silently IGNORES a filter applied in a `for`
+expression, so `for item in collections.all | bySection: "/cli/"` iterated the
+WHOLE of collections.all — this section listed all 1,868 pages.
+{%- endcomment -%}
+{%- assign cliPages = collections.all | bySection: "/cli/" -%}
+{%- for item in cliPages %}
+- [{{ item.data.title | default: item.url }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %} — [markdown]({{ siteUrl }}{{ item.url }}index.md)
 {%- endfor %}
 
 ## MCP Server
-{%- for item in collections.all -%}
-{%- if item.url contains "/mcp/" %}
-- [{{ item.data.title | default: item.url }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %}
-{%- endif -%}
+{%- comment -%}
+assign first: LiquidJS silently IGNORES a filter applied in a `for`
+expression, so `for item in collections.all | bySection: "/mcp/"` iterated the
+WHOLE of collections.all — this section listed all 1,868 pages.
+{%- endcomment -%}
+{%- assign mcpPages = collections.all | bySection: "/mcp/" -%}
+{%- for item in mcpPages %}
+- [{{ item.data.title | default: item.url }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %} — [markdown]({{ siteUrl }}{{ item.url }}index.md)
 {%- endfor %}
 
 ## Agent Recipes
-{%- for item in collections.all -%}
-{%- if item.url contains "/agents/" %}
-- [{{ item.data.title | default: item.url }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %}
-{%- endif -%}
+{%- comment -%}
+assign first: LiquidJS silently IGNORES a filter applied in a `for`
+expression, so `for item in collections.all | bySection: "/agents/"` iterated the
+WHOLE of collections.all — this section listed all 1,868 pages.
+{%- endcomment -%}
+{%- assign agentPages = collections.all | bySection: "/agents/" -%}
+{%- for item in agentPages %}
+- [{{ item.data.title | default: item.url }}]({{ siteUrl }}{{ item.url }}){% if item.data.description %}: {{ item.data.description | strip_newlines }}{% endif %} — [markdown]({{ siteUrl }}{{ item.url }}index.md)
 {%- endfor %}
 
 ## Reference
@@ -181,7 +229,7 @@ same convention twice. Canonical HTML first, the mirror after each summary.
 - [License]({{ siteUrl }}/license/): @imqueue is GPL-3.0 open source; a commercial license is available for closed-source/proprietary use.
 - [Contributing]({{ siteUrl }}/contributing/): How to report issues and open pull requests across the @imqueue repositories.
 - [Support]({{ siteUrl }}/support/): Where to ask questions and file bugs — which repository to use for which package, how to report a security issue privately, and what response to expect.
-- [Contact]({{ siteUrl }}/contact/): Message the maintainers directly — framework questions, documentation problems and licensing enquiries all reach support@imqueue.com.
+- [Contact]({{ siteUrl }}/contact/): Message the maintainers directly — framework questions, documentation problems and licensing enquiries all reach support@imqueue.com. — [markdown]({{ siteUrl }}/contact/index.md)
 - [Privacy policy]({{ siteUrl }}/privacy/): What imqueue.org and the hosted MCP endpoint process, the analytics involved, retention, and your rights. No accounts, no telemetry in the packages.
 - [Terms of use]({{ siteUrl }}/terms/): Terms for the website and the hosted MCP endpoint at mcp.imqueue.org — acceptable use, availability and no warranty. The software itself is licensed under GPL-3.0.
 
@@ -191,4 +239,35 @@ same convention twice. Canonical HTML first, the mirror after each summary.
 
 ## Commercial
 - [Commercial license & support](https://imqueue.com/): Ship @imqueue inside a closed-source product and get SLA-backed support.
-{%- endif -%}
+- [Licensing explained](https://imqueue.com/license/): When the GPL-3.0 source-release obligation applies and when it does not — distribution vs internal tools vs SaaS, as a decision rule.
+- [Pricing & enquiries](https://imqueue.com/pricing/): What a commercial licence includes, and the form that reaches the maintainers.
+{%- comment -%}
+`## Optional` is the llmstxt.org convention for "safe to skip when a shorter
+context is needed", and it is where the blog taxonomy belongs. These 15 pages were
+absent from this file entirely, which is a coverage gap — the MCP server indexes
+FROM llms.txt, so `search_docs` could not return a topic hub. But they are
+navigation over articles that are already listed individually above, so putting
+them in a main section would pad the index with 15 entries that duplicate reach
+without adding content. This is exactly the distinction the Optional section
+exists to make.
+
+Sorted by post count then slug, the same order collections.blogTopics uses, so the
+biggest hubs come first.
+
+The closing `%}` keeps its trailing newline, or the heading lands on the end of
+the last Commercial list item.
+{%- endcomment %}
+
+## Optional
+{%- comment -%}
+/blog/ is deliberately NOT repeated here — it is listed in `## Articles`, and one
+of the properties this file has always had is that no URL appears under two H2s.
+The hubs below are the taxonomy over those same articles.
+{%- endcomment -%}
+{%- for topic in collections.blogTopics %}
+- [{{ topic.title }}]({{ siteUrl }}/blog/topics/{{ topic.slug }}/): {{ topic.description | strip_newlines }} ({{ topic.posts.size }} articles) — [markdown]({{ siteUrl }}/blog/topics/{{ topic.slug }}/index.md)
+{%- endfor %}
+{%- for author in authors %}
+- [{{ author.name }} — author page]({{ siteUrl }}/blog/authors/{{ author.slug }}/): {{ author.occupation }}. Articles written by {{ author.name }}. — [markdown]({{ siteUrl }}/blog/authors/{{ author.slug }}/index.md)
+{%- endfor %}
+{% endif %}
