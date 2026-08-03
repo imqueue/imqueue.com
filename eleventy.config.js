@@ -233,6 +233,102 @@ module.exports = function (eleventyConfig) {
     })
   );
 
+  // ---- llms-full.txt document order ---------------------------------------
+  // The concatenated corpus, in a deliberate reading order rather than in whatever
+  // order `collections.all` happens to be in.
+  //
+  // The old template iterated collections.all unsorted, and the result was measured:
+  // the file opened on "Benchmarking @imqueue: throughput and delivery modes", with
+  // `cli` starting at line 4,680, `get-started` at 5,664, `mcp` at 5,856 and
+  // `tutorial` at 7,868 — documentation proper began ~45% in and the tutorial sat at
+  // 75%, in a 499 KB / ~125k-token file. A retrieval system that truncates keeps the
+  // BEGINNING, so the ordering decided what survived truncation, and it was decided
+  // by accident.
+  //
+  // Order: orientation, then the course, then reference, then articles, then legal.
+  // /, /intro/ and /docs/ are not here — they are authored as HTML templates, so the
+  // template front-loads them from the same shared includes their mirrors use.
+  //
+  // The tail matters as much as the head: anything with a markdown source that no
+  // rule above claims is APPENDED rather than dropped. The equivalent condition in
+  // llms.liquid was a hard-coded URL test, and it silently omitted the home page,
+  // /using-ai-assistants/, /contact/ and /blog/ for months. A page missing from this
+  // file is a page missing from the corpus an agent ingests.
+  const LLMS_FULL_LEAD = [
+    "/get-started/",
+    "/glossary/",
+    "/using-ai-assistants/",
+    "/compare/",
+  ];
+  const LLMS_FULL_SECTIONS = ["/tutorial/", "/cli/", "/mcp/", "/agents/"];
+  const LLMS_FULL_TAIL = [
+    "/license/",
+    "/support/",
+    "/contributing/",
+    "/contact/",
+    "/privacy/",
+    "/terms/",
+  ];
+
+  eleventyConfig.addCollection("llmsFull", (api) => {
+    const eligible = api.getAll().filter((item) => {
+      const url = item.url || "";
+
+      return item.inputPath.endsWith(".md")
+        && !item.data.draft
+        && !url.includes("/api/");
+    });
+
+    const byUrl = new Map(eligible.map((item) => [item.url, item]));
+    const out = [];
+    const taken = new Set();
+    const take = (item) => {
+      if (!item || taken.has(item.url)) return;
+      taken.add(item.url);
+      out.push(item);
+    };
+
+    for (const url of LLMS_FULL_LEAD) take(byUrl.get(url));
+
+    for (const prefix of LLMS_FULL_SECTIONS) {
+      // Same chapter-order rule the sidebars and llms.txt use: `chapter:` front
+      // matter first, then url, so a section index leads its own section.
+      const section = eligible
+        .filter((item) => (item.url || "").startsWith(prefix))
+        .sort((a, b) => {
+          const ca = a.data.chapter;
+          const cb = b.data.chapter;
+
+          if (typeof ca === "number" && typeof cb === "number") return ca - cb;
+          if (typeof ca === "number") return -1;
+          if (typeof cb === "number") return 1;
+
+          return (a.url || "").localeCompare(b.url || "");
+        });
+
+      for (const item of section) take(item);
+    }
+
+    // Articles, newest first — the same order /blog/ presents them in.
+    const posts = eligible
+      .filter((item) => (item.url || "").startsWith("/blog/") && item.date)
+      .sort((a, b) => b.date - a.date);
+
+    for (const item of posts) take(item);
+
+    // Whatever is left, before the legal tail, so an unclassified page lands in the
+    // body rather than after the boilerplate.
+    const tail = new Set(LLMS_FULL_TAIL);
+
+    for (const item of eligible) {
+      if (!tail.has(item.url)) take(item);
+    }
+
+    for (const url of LLMS_FULL_TAIL) take(byUrl.get(url));
+
+    return out;
+  });
+
   // Blog posts (.org only) — src/org/blog/posts/*.md, newest→oldest by date.
   // Drafts (front matter `draft: true`) build to their URL but are kept out of
   // the index listing.

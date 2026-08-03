@@ -252,6 +252,76 @@ for (const [edition, origin] of Object.entries(EDITIONS)) {
     pass(`llms-full.txt is ${(full.length / 1024).toFixed(0)} KB`);
   }
 
+  // ---- llms-full.txt has a table of contents that matches its contents ----
+  // 499 KB / ~125k tokens with no index of its 62 documents, and the first document
+  // was "Benchmarking @imqueue: throughput and delivery modes" — a hardware benchmark
+  // — because the loop iterated collections.all unsorted. Documentation proper began
+  // ~45% in and the tutorial sat at 75%. A retrieval system that truncates keeps the
+  // BEGINNING, so accident decided what survived truncation.
+  //
+  // Asserted as an equality between the TOC and the documents rather than as "a TOC
+  // exists": a stale index is worse than none, and the two are generated from one
+  // ordered collection precisely so they cannot diverge. This is what caught the
+  // duplicate `# title` / `Source:` headers on the three front-loaded includes (72
+  // Source lines against 69 documents) and a `{%- comment` that glued the heading
+  // onto the paragraph above it.
+  if (edition === 'org') {
+    const lines = full.split('\n');
+    const start = lines.indexOf('## Contents');
+
+    if (start < 0) {
+      fail('llms-full.txt has no "## Contents" index');
+    } else {
+      const toc = [];
+      const entry = /^(\d+)\. (.*) — (https:\/\/\S+)$/;
+
+      for (let i = start + 1; i < lines.length; i++) {
+        const m = entry.exec(lines[i]);
+
+        if (m) { toc.push({ title: m[2], url: m[3] }); continue; }
+        if (lines[i].trim() === '') continue;
+        break;
+      }
+
+      // A document is a `Source:` line preceded by the nearest `# ` heading.
+      const docs = [];
+
+      for (let i = 0; i < lines.length; i++) {
+        if (!/^Source: https:\/\//.test(lines[i])) continue;
+
+        let j = i - 1;
+
+        while (j >= 0 && !/^# /.test(lines[j])) j--;
+        docs.push({ title: lines[j].slice(2), url: lines[i].slice('Source:'.length).trim() });
+      }
+
+      const mismatches = [];
+
+      for (let i = 0; i < Math.max(toc.length, docs.length); i++) {
+        const t = toc[i];
+        const d = docs[i];
+
+        if (!t || !d || t.title !== d.title || t.url !== d.url) {
+          mismatches.push(`#${i + 1}: toc ${JSON.stringify(t)} vs doc ${JSON.stringify(d)}`);
+        }
+      }
+
+      if (mismatches.length) {
+        for (const m of mismatches.slice(0, 5)) fail(`llms-full.txt TOC/document mismatch ${m}`);
+        if (mismatches.length > 5) console.error(`  FAIL  …and ${mismatches.length - 5} more`);
+      } else {
+        pass(`llms-full.txt: ${toc.length} documents, and the "## Contents" index matches them exactly, in order`);
+      }
+
+      // The corpus must open on orientation, not on whatever sorted first.
+      if (docs.length && docs[0].url !== `${origin}/`) {
+        fail(`llms-full.txt opens on ${docs[0].url} — the home page has to come first, since truncation keeps the beginning`);
+      } else if (docs.length) {
+        pass('llms-full.txt opens on the home page');
+      }
+    }
+  }
+
   // ---- neither file leaks markup or template source ----------------------
   // agentMarkdown strips all of these; anything appearing here means a surface
   // bypassed it, which is exactly how /api/index.md came to ship
