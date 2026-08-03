@@ -158,10 +158,6 @@ GitHub issue, we process what you send in order to answer it. GitHub issues are
 sensitive by email instead. Security reports have [their own private
 channel](https://github.com/imqueue/mcp/security/policy).
 
-The donate button in the footer links to PayPal. We receive no data from it beyond
-what PayPal shows us about a donation; if you use it, PayPal's own policy governs
-that payment.
-
 ## Who else sees your data
 
 We use these providers. We have no other recipients: no data brokers, no
