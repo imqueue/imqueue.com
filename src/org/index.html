@@ -118,8 +118,20 @@ mcpDesc: "Official Model Context Protocol server for @imqueue: docs search, type
 <section class="container hero">
   <div>
     <div class="eyebrow" style="margin-bottom:22px;">// RPC · MESSAGING QUEUE · NODE · TYPESCRIPT</div>
-    <h1>Talk to your services like they're <span class="accent">local</span>.</h1>
-    <p class="hero-sub">RPC over an inter-communication messaging queue for service-oriented Node &amp; TypeScript back-ends. Self-describing services generate their own clients — no boilerplate, no service discovery, no load balancer. Just methods, simplicity and reliability.</p>
+    {%- comment -%}
+    "@imqueue:" prepended to an H1 that was pure benefit copy — "Talk to your
+    services like they're local." named neither the product nor what kind of thing
+    it is. On the highest-authority URL on the domain, that is the H1 an engine reads
+    when deciding what token this entity answers to, and it contained no token at
+    all. The category sits in the eyebrow directly above and the full definition in
+    the lead directly below, so the headline itself stays as short as it was written.
+
+    The lead now OPENS with site.definition verbatim, then keeps the three
+    differentiators that were already there. Same 24 words as the JSON-LD, /intro/
+    and llms.txt.
+    {%- endcomment -%}
+    <h1>@imqueue: talk to your services like they're <span class="accent">local</span>.</h1>
+    <p class="hero-sub">{{ site.definition }} No service discovery, no load balancer, no boilerplate — just methods, simplicity and reliability.</p>
     <div class="hero-cta">
       <a href="/get-started/" class="btn btn-primary">get started →</a>
       <a href="/docs/" class="btn btn-ghost">read the docs</a>

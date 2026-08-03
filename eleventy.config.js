@@ -89,6 +89,31 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.addDataExtension("yml", (contents) => yaml.load(contents));
 
+  // ---- the canonical definition is one string, and stays one string ---------
+  // src/_data/site.yml carries `definition` (24 words, on every surface verbatim)
+  // and `definitionShort` for the two headings the full sentence does not fit.
+  // The whole mechanism depends on them being the SAME claim: an answer engine
+  // pins an entity by finding one definitional string agreeing across independent
+  // surfaces, and this project already had seven variants and no consensus once.
+  //
+  // A prefix cannot be enforced by a comment. Editing `definition` without
+  // editing `definitionShort` is the obvious way to reintroduce variant eight,
+  // and it would fail nothing and look fine — so it fails the build instead.
+  {
+    const site = yaml.load(require("node:fs").readFileSync("./src/_data/site.yml", "utf8"));
+    const full = String(site.definition || "").replace(/\s+/g, " ").trim();
+    const short = String(site.definitionShort || "").replace(/\s+/g, " ").trim();
+
+    if (!full || !short || !full.startsWith(short)) {
+      throw new Error(
+        "src/_data/site.yml: definitionShort must be a literal prefix of definition.\n" +
+          `  definition:      ${full}\n` +
+          `  definitionShort: ${short}\n` +
+          "Edit both together, or the site ships two different definitions of itself.",
+      );
+    }
+  }
+
   // Edition-wide values available in every template.
   eleventyConfig.addGlobalData("edition", EDITION);
   eleventyConfig.addGlobalData("skin", SKIN);

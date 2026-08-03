@@ -5,7 +5,7 @@ eleventyExcludeFromCollections: true
 {%- if edition == "com" -%}
 # @imqueue — Commercial license & support
 
-> Commercial licensing and paid support for @imqueue, an RPC framework over an inter-communication messaging queue for Node.js & TypeScript microservices. The framework is open source under GPL-3.0; a commercial license lets you ship it inside a closed-source product without the GPL source-release obligation.
+> Commercial licensing and paid support for @imqueue. {{ site.definition }} The framework is open source under GPL-3.0; a commercial license lets you ship it inside a closed-source product without the GPL source-release obligation.
 
 The open-source packages (@imqueue/core, @imqueue/rpc, @imqueue/cli) and their documentation live at https://imqueue.org. This site covers licensing and support only.
 {%- comment -%}
@@ -35,7 +35,7 @@ enquiries. The form at {{ siteUrl }}/contact/ reaches the same mailbox.
 {%- else -%}
 # @imqueue
 
-> RPC over an inter-communication messaging queue for service-oriented Node.js & TypeScript back-ends. Self-describing services generate their own strongly-typed clients — no hand-written client code, no service discovery, no load balancer.
+> {{ site.definition }} No hand-written client code, no service discovery, no load balancer.
 
 @imqueue is an open-source framework (GPL-3.0). Core packages: @imqueue/core (reliable message queue over Redis), @imqueue/rpc (typed RPC with automatic client generation), @imqueue/cli (scaffolding and orchestration of services). Commercial licensing and support for closed-source products: https://imqueue.com
 

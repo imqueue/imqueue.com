@@ -36,8 +36,22 @@ keywords: "@imqueue introduction, what is imqueue, inter-communication messaging
   <div class="intro-hero">
     <div>
       <div class="section-label" style="margin-bottom:16px;">// INTRODUCTION</div>
-      <h1 style="font-family:var(--font-display);font-weight:700;font-size:44px;line-height:1.1;letter-spacing:-.03em;margin:0 0 18px;">An Inter-Communication Messaging Queue framework for SOA back-ends.</h1>
-      <p class="muted" style="font-size:18px;line-height:1.7;margin:0;">@imqueue is built with Node and TypeScript and works best when orchestrated by an API layer such as GraphQL. It lets developers create back-end services — or microservices as a special case of SOA — fast, focusing only on functionality while @imqueue handles the low-level messaging.</p>
+      {%- comment -%}
+      This H1 was "An Inter-Communication Messaging Queue framework for SOA
+      back-ends." — the 2018 phrasing, still live in 2026 on the page whose whole job
+      is to say what this is. It named neither Node.js, TypeScript, RPC nor
+      microservices, and because it was the oldest and most-repeated definitional
+      string on the domain, it was the one an engine with no consensus fell back to.
+
+      Now the canonical definition from src/_data/site.yml, verbatim, so this page
+      agrees word for word with the Organization/WebSite/SoftwareApplication nodes and
+      the llms.txt blockquote. "Inter-Communication Messaging Queue" survives as the
+      gloss it should always have been — it is the expansion of the name, not the
+      definition of the product, and dropping it entirely would orphan the older
+      phrasing that is already in the training data.
+      {%- endcomment -%}
+      <h1 style="font-family:var(--font-display);font-weight:700;font-size:44px;line-height:1.1;letter-spacing:-.03em;margin:0 0 18px;">{{ site.definitionShort }}</h1>
+      <p class="muted" style="font-size:18px;line-height:1.7;margin:0;">Services describe themselves at runtime, so their typed clients are generated, not written. The name is short for <strong>I</strong>nter-Communication <strong>M</strong>essaging <strong>Queue</strong> — @imqueue, imqueue and IMQ all refer to this framework. It is built with Node.js and TypeScript for service-oriented back-ends (microservices being a special case of SOA), works well behind an API layer such as GraphQL, and lets you write only the functionality while @imqueue handles the low-level messaging.</p>
     </div>
     <figure class="intro-schema">
       <div class="schema-card">
