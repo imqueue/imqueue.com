@@ -56,6 +56,19 @@ const DETACH = [
   ["men", "man"], ["ae", "a"], ["i", "us"],
 ];
 
+// -ly is ABSENT, and was tried. It buys "commercially" -> "commercial" and costs, measured
+// on this dictionary:
+//
+//   reply -> rep     apply -> app     only -> on     fully -> ful
+//
+// "reply" is request/reply vocabulary on half this site. The validity check cannot help,
+// because `rep`, `app`, `on` and `ful` are all words — which is the tell that this is a
+// DERIVATIONAL suffix, not an inflectional one: -ly attaches to an adjective to make an
+// adverb, so reversing it is only valid when the stem is an adjective, and nothing here
+// knows a part of speech. Same reasoning that removed -er and -est. The inflectional rules
+// above (-s, -ed, -ing, and the irregular lists) need no such knowledge, which is exactly
+// why they are safe.
+
 // -er and -est are DELIBERATELY ABSENT. In Morphy they belong to the adjective rules
 // and are only reached when the part of speech is known; applied blind to nouns they
 // destroy the most common vocabulary in this corpus:

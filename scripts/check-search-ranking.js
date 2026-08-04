@@ -361,6 +361,40 @@ if (!identifier || identifier.record.g !== 1) {
   pass('"safeDelivery" still ranks the symbol first — keywords cannot outrank reference');
 }
 
+// ---- a topic query reaches the page ABOUT the topic ---------------------------
+// Reported from the browser: "what is imqueue licensing options are" put a Moleculer
+// comparison section first and imqueue.org's own licensing page third, on imqueue.org. The
+// measured spread over eight licensing-intent phrasings is what the three fixes below were
+// judged against — the density ceiling, the URL element, and the front-matter keywords.
+const LICENSE_PHRASINGS = [
+  ['imqueue license', 1],
+  ['licensing', 1],
+  ['licensing options', 1],          // was #50 — `IMQOptions` won on a two-token title
+  ['what is imqueue licensing options are', 1], // was #3 — the reported case
+  ['gpl obligation', 1],
+];
+
+for (const [query, worst] of LICENSE_PHRASINGS) {
+  const hits = run(query);
+  const at = hits.findIndex((hit) => hit.record.u.split('#')[0] === '/license/');
+
+  if (at === -1 || at + 1 > worst) {
+    fail(`"${query}" ranks /license/ ${at === -1 ? 'nowhere' : `#${at + 1}`}, expected #${worst} or better`);
+  } else {
+    pass(`"${query}" ranks /license/ #${at + 1}`);
+  }
+}
+
+// The density ceiling, stated directly: a two-token title matching ONE query term must not
+// beat a page that is about the query. This is the shape of the IMQOptions defect.
+const shortTitle = run('licensing options')[0];
+
+if (shortTitle && shortTitle.record.g === 1) {
+  fail(`"licensing options" ranks the symbol ${shortTitle.record.t} first — density is saturating on short titles again`);
+} else {
+  pass('"licensing options" is not hijacked by a short symbol name');
+}
+
 // ---- cross-site search -------------------------------------------------------
 // imqueue.org and imqueue.com search each other, reading the peer's index from their own
 // origin (scripts/copy-peer-index.js). Two properties matter, and they pull against each
@@ -374,17 +408,39 @@ if (!fs.existsSync(peerIndex)) {
   ranker.state.x1 = ranker.prepare(JSON.parse(fs.readFileSync(peerIndex, 'utf8')));
   ranker.state.x2 = ranker.prepareSections(JSON.parse(fs.readFileSync(path.join(OUT, 'search-peer-text.json'), 'utf8')));
 
-  // Reachable: imqueue.org has no pricing page, so this can only be answered by the peer.
-  const pricing = ranker.search(ranker.parseQuery('pricing'));
-  const pricingTop = pricing[0];
+  // THE ORDERING INVARIANT: the site you are on wins. No peer result may precede any local
+  // result, on any query. This assertion replaces one that demanded the opposite for
+  // "pricing" — that imqueue.com/pricing/ rank FIRST on imqueue.org — which is what
+  // produced the reported defect: for "what is imqueue license" the entire COMMERCIAL group
+  // sat above imqueue.org's own licensing page, on imqueue.org.
+  const ORDER_PROBES = ['what is imqueue license', 'pricing', 'commercial license', 'support', 'SLA'];
 
-  if (!pricingTop || !pricingTop.external || pricingTop.record.u !== '/pricing/') {
+  for (const probe of ORDER_PROBES) {
+    const hits = ranker.search(ranker.parseQuery(probe));
+    const firstPeer = hits.findIndex((hit) => hit.external);
+    const lastLocal = hits.reduce((at, hit, i) => (hit.external ? at : i), -1);
+
+    if (firstPeer !== -1 && lastLocal > firstPeer) {
+      fail(
+        `"${probe}" interleaves sites: a peer result at #${firstPeer + 1} precedes a local one at ` +
+        `#${lastLocal + 1}. On imqueue.org, imqueue.org wins.`
+      );
+    } else {
+      pass(`"${probe}" keeps every local result ahead of every peer result`);
+    }
+  }
+
+  // Reachable, though. Priority is about ORDER, not exclusion: imqueue.org has no pricing
+  // page, and the reader must still be offered the one that exists.
+  const pricingPeers = ranker.search(ranker.parseQuery('pricing')).filter((hit) => hit.external);
+
+  if (!pricingPeers.length || pricingPeers[0].record.u !== '/pricing/') {
     fail(
-      `"pricing" on imqueue.org should surface imqueue.com/pricing/ first — got ` +
-      `${pricingTop ? `${pricingTop.external ? 'peer ' : 'local '}${pricingTop.record.u}` : 'nothing'}`
+      '"pricing" should still reach imqueue.com/pricing/ as the best peer result — got ' +
+      (pricingPeers.length ? pricingPeers[0].record.u : 'no peer results at all')
     );
   } else {
-    pass('"pricing" reaches imqueue.com/pricing/, which imqueue.org has no page for');
+    pass('"pricing" still reaches imqueue.com/pricing/ — first in the peer group');
   }
 
   // Not displacing: a reference query must stay entirely local. The commercial site talks

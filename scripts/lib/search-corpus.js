@@ -417,23 +417,36 @@ function lemmaMap(words) {
  * Curated `description`/`summary` and `keywords` per URL, from the build intermediate
  * src/search-frontmatter.11ty.js writes.
  *
- * Deleted after reading: it duplicates facts already public in llms.txt and in each page's
- * meta description, and publishing a third copy would be a maintenance surface with no
- * consumer. Absent is legal — the corpus then falls back to first paragraphs, exactly as
- * it did before front matter was wired in.
+ * MOVED out of the output directory rather than deleted, and that distinction is the whole
+ * function. Deleting it made this generator NON-IDEMPOTENT: `eleventy.after` fires on every
+ * rebuild, including the incremental ones under `--serve`, and an incremental rebuild that
+ * did not happen to re-render this one template found no file — so the index was rewritten
+ * with every curated description and keyword list silently absent. It cost two rounds of
+ * "the keywords element has stopped working" with numbers identical to before the feature
+ * existed, which is the most convincing kind of wrong.
+ *
+ * Keeping a copy outside the output keeps both properties: it never ships (it duplicates
+ * facts already public in llms.txt and in each page's meta description, so a third machine
+ * -readable copy would be a maintenance surface with no consumer), and any rebuild can read
+ * it whether or not the template ran. Per edition, because org and com have different
+ * front matter and one cache would serve whichever built last.
  */
 function takeFrontmatter(outputDir) {
-  const file = path.join(outputDir, "search-frontmatter.json");
+  const cache = path.join(
+    __dirname, "..", "..",
+    `.search-frontmatter-${path.basename(outputDir)}.json`
+  );
+  const fresh = path.join(outputDir, "search-frontmatter.json");
 
-  if (!fs.existsSync(file)) {
+  if (fs.existsSync(fresh)) {
+    fs.copyFileSync(fresh, cache);
+    fs.unlinkSync(fresh);
+  }
+  if (!fs.existsSync(cache)) {
     return {};
   }
 
-  const data = JSON.parse(fs.readFileSync(file, "utf8"));
-
-  fs.unlinkSync(file);
-
-  return data;
+  return JSON.parse(fs.readFileSync(cache, "utf8"));
 }
 
 function buildCorpus(outputDir) {
