@@ -213,18 +213,28 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
    longest link survives: measured at 768px, five columns are 108px each and
    "@imqueue/core" clips — minmax(0, 1fr) lets a column go under its content's
    min-width, which is what stops the grid overflowing the container but also means
-   nothing stops the text. Three columns is the honest intermediate; it must sit
-   ABOVE the ≤760px rule below, or it would win there too and undo the 2-column
-   mobile footer. */
+   nothing stops the text.
+
+   So the brand block leaves the row instead. It is not a peer of the four link
+   columns — it is a lockup and a sentence — and treating it as one is what made
+   every narrow layout break badly: five children in three columns left one empty
+   cell, and five in two columns left Legal alone on a third row with half the
+   footer's width blank beside it. Spanning it means the count that has to divide
+   is FOUR, which divides by both 4 and 2 exactly, so no arrangement below this
+   width can orphan a column. The desc gets a wider measure to match — capped at
+   260px it would set four short lines against 400px of empty row.
+
+   Each rule must sit ABOVE the narrower ones, or it would win there too. */
 @media (max-width: 1000px) {
-  .footer-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .footer-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 34px; }
+  .footer-grid > :first-child { grid-column: 1 / -1; }
+  .footer-brand-desc { max-width: 52ch; }
 }
 /* ≤760px = content mobile layout */
 @media (max-width: 760px) {
   .nav-links, .nav-actions { display: none; }
   .burger { display: inline-flex; }
   .grid-3, .grid-4 { grid-template-columns: 1fr; }
-  .footer-grid { grid-template-columns: 1fr 1fr; }
   /* Shrink headings whose size a template sets INLINE — post.html, docs.html,
      cli.html, mcp.html, tutorial.html, /intro/, the blog and topic hubs, the com
      heroes, 404 — at 34-46px they are far too big on a phone. `!important` is
@@ -244,9 +254,28 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
   h1:not(.prose h1, .hero h1) { font-size: 38.5px !important; }
   h2:not(.prose h2, .card h2, .post-card h2, .aside-box h2, .blog-archive h2, .fx-h2, .fx-thanks h2) { font-size: 29.5px !important; }
 }
+/* 2 × 2. Four columns fit until 656px (4 × 127 + 3 × 28 gap + 64 padding), so the fold
+   is here rather than at the 760px content breakpoint: between the two the footer keeps
+   all four across while the page above it is already in mobile layout, which is the
+   denser, less sparse of the two — two columns at 750px leaves each link floating in
+   the left third of a 329px cell. The footer's own constraint is its link widths, not
+   the content column, so it gets its own width. */
+@media (max-width: 700px) {
+  .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 @media (max-width: 480px) {
-  .footer-grid { grid-template-columns: 1fr; }
   .grid-2 { grid-template-columns: 1fr; }
+}
+/* The footer keeps two columns on a phone — one column stacks five blocks into a
+   screen and a half of scrolling, and the widest thing in there is only 127px
+   ("@imqueue/core ↗", measured at 15px). Two of those plus the 28px gap and the
+   container's 2 × 32px padding need 346px, so every current phone fits: 360 and 375
+   have room to spare. Below that it genuinely does not fit, and a wrapped
+   "@imqueue/" / "core ↗" is worse than a taller footer — hence one column, at the
+   measured width rather than a round number that would also catch the 375px
+   iPhones. */
+@media (max-width: 345px) {
+  .footer-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ---- image lightbox (click a screenshot to view it full size) ---- */
