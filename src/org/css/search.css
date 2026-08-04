@@ -9,35 +9,46 @@
 
 /* ---- the nav trigger --------------------------------------------------- */
 
+/* A compact icon button, not a mock text field. See the note in nav-org.html for
+   the measurement: this bar had ~16px of slack at its widest, and a search box
+   shaped like an input consumed all of it. */
 .nav-search {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
   border: 1px solid var(--line);
-  background: var(--surface2);
+  background: transparent;
   color: var(--muted);
-  padding: 8px 12px;
+  padding: 7px 10px;
   border-radius: 8px;
   font-family: var(--font-mono);
   font-size: 15px;
+  line-height: 1;
   cursor: pointer;
-  min-width: 190px;
 }
 
 .nav-search:hover { border-color: var(--accent); color: var(--ink); }
 .nav-search svg { flex: none; }
 .nav-search__kbd {
-  margin-left: auto;
   border: 1px solid var(--line);
-  border-radius: 5px;
-  padding: 1px 6px;
-  font-size: 12.5px;
-  line-height: 1.5;
+  border-radius: 4px;
+  padding: 0 5px;
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 /* Mobile drawer variant: the nav button is hidden below the breakpoint where the
-   nav collapses, and this takes its place inside the drawer. */
-.mobile-nav .nav-search { width: 100%; margin: 10px 0 4px; }
+   nav collapses, and this takes its place inside the drawer — where it is a
+   full-width row with the word, because a lone icon in a list of text links reads
+   as decoration. */
+.mobile-nav .nav-search {
+  width: 100%;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0 4px;
+  padding: 11px 12px;
+  background: var(--surface2);
+}
 
 /* ---- the dialog -------------------------------------------------------- */
 

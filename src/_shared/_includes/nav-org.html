@@ -1,3 +1,18 @@
+{%- comment -%}
+`commercial ↗` is no longer in this file, on either the bar or the drawer.
+
+It was the THIRD copy of one cross-link on imqueue.org — the footer has a Commercial
+column and footer-bottom repeats it — and the same argument already retired the
+ribbon (see the note in base.html, which called this the strongest of the four
+placements at the time). What changed is that two of the four are gone, so "the
+strongest remaining copy" is no longer a reason to keep a link that competes with
+the docs' own navigation for the widest bar on the site: at 1180px the contents came
+to within ~16px of the space available.
+
+The commercial route is still on every page — footer Commercial column,
+footer-bottom, /license/ — and in llms.txt twice, so nothing about discoverability
+for machines changed either.
+{%- endcomment -%}
 <nav class="nav">
   <div class="nav-inner container">
     {% include "brand-lockup.html", slogan: "RPC enqueued!", lg: true, aria: "@imqueue home" %}
@@ -15,13 +30,20 @@
       does nothing on the 1,886 pages nobody searches from would be a lie. See
       src/org/js/search.js.
       {%- endcomment %}
-      <button class="nav-search" type="button" data-search-open aria-label="Search the documentation">
+      {%- comment -%}
+      Icon and shortcut only — no "search" label. This bar already carries the brand
+      lockup, three links, a three-state theme toggle, the commercial cross-link and
+      a full install command; measured at 1180px (the container's max width) the
+      contents came to within ~16px of the available space, and a 190px search box
+      shaped like a text field spent all of that. The brand and `intro` ended up
+      touching. The magnifier plus the key hint is the same compact icon-button
+      language as the theme toggle next to it.
+      {%- endcomment %}
+      <button class="nav-search" type="button" data-search-open aria-label="Search the documentation" title="Search the documentation (press /)">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/></svg>
-        <span>search</span>
         <kbd class="nav-search__kbd">/</kbd>
       </button>
       {% include "theme-toggle.html" %}
-      <a href="{{ otherUrl }}/" class="nav-outline">commercial ↗</a>
       <a href="https://www.npmjs.com/package/@imqueue/cli" class="nav-outline" style="background:var(--accent);color:var(--on-accent);border-color:transparent;font-weight:600;">$ npm i -g @imqueue/cli</a>
     </div>
 
@@ -44,7 +66,6 @@
       <a href="/intro/">intro</a>
       <a href="/docs/">docs</a>
       <a href="/blog/">blog</a>
-      <a href="{{ otherUrl }}/">commercial ↗</a>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 6px;border-bottom:none;">
         <span style="font-size:14px;">theme</span>
         {% include "theme-toggle.html" %}
