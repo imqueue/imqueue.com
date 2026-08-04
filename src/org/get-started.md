@@ -18,8 +18,10 @@ system:
 
 - [Node.js](https://nodejs.org/en/) **22.12 or newer** — we recommend
   installing it through [NVM](https://github.com/nvm-sh/nvm#installing-and-updating).
-- [Redis](https://redis.io/download) — version 3.2 or newer. @imqueue uses
-  Redis as its message-queue transport.
+- [Redis](https://redis.io/download) — **version 6.2 or newer**. @imqueue uses
+  Redis as its message-queue transport. 6.2 is the floor because guaranteed
+  delivery moves each message with `LMOVE`/`BLMOVE`; 3.2 is enough only if you
+  never turn `safeDelivery` on.
 - [Git](https://git-scm.com/downloads) — the command-line client.
 
 ## 1. Install the CLI

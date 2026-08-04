@@ -140,7 +140,7 @@ The operational surface is usually the deciding factor, so it is worth comparing
 | To route calls | DNS, service mesh, or client-side LB config | Nothing — the queue name is the address |
 | To balance load | Mesh or client-side policy | Nothing — consumers compete |
 | To survive a callee restart | Retry policy, circuit breaker | Nothing — messages wait |
-| New infrastructure | Possibly a mesh and its control plane | Redis (3.2+; 6.2+ for safe delivery) |
+| New infrastructure | Possibly a mesh and its control plane | Redis (6.2+; 3.2+ without safe delivery) |
 | Build step | `.proto` codegen in every build | One client generation per contract change |
 
 The queue column is shorter, which is the entire pitch — but "Redis" is not nothing. It's a stateful dependency in the request path for every internal call, and its availability becomes your RPC layer's availability.
