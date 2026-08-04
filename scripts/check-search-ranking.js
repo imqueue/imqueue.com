@@ -505,6 +505,117 @@ if (!df || !ranker.state.t2.docs) {
   }
 }
 
+// ---- the topic term ------------------------------------------------------------
+// "can i use imqueue commercially" is the query that exposed three separate defects at
+// once, so it gets three assertions rather than one.
+//
+// What it looked like: the top five results were "Can I use @imqueue with a GraphQL or
+// REST gateway?", "…Moleculer's transporters…?", "…inside a NestJS application?" and two
+// more of the same, and the page that answers the question was not in the 72 results.
+{
+  const target = '/blog/imqueue-vs-moleculer/#is-the-gpl-3-0-licence-a-problem-for-commercial-use';
+  const hits = ranker.search(ranker.parseQuery('can i use imqueue commercially'));
+  const at = hits.findIndex((hit) => hit.record.u === target);
+
+  if (at !== 0) {
+    fail(
+      '"can i use imqueue commercially" ranks the commercial-use answer ' +
+      (at === -1 ? 'nowhere at all' : `#${at + 1}`) + ', expected #1'
+    );
+  } else {
+    pass('"can i use imqueue commercially" ranks the commercial-use answer #1 (was absent entirely)');
+  }
+
+  // Defect 2: the interrogative bonus was going to question-shaped answers that matched
+  // only the filler words. Nothing question-shaped that misses `commercially` may outrank
+  // the answer that carries it — the "Can I use @imqueue…" family is the specific case.
+  const gateway = hits.findIndex((hit) => /graphql-or-rest-gateway$/.test(hit.record.u));
+
+  if (gateway !== -1 && gateway < at) {
+    fail(`a topic-missing answer still outranks the real one (#${gateway + 1} vs #${at + 1})`);
+  } else {
+    pass('answers that miss the query topic no longer crowd out the one that has it');
+  }
+
+  // Defect 3: the coverage floor credited literal and lemma matches only, while the scorer
+  // also credited a truncated prefix — so the answer whose heading says "commercial use"
+  // was rejected before it could be ranked, with nothing to see. covers() is now shared.
+  const q = ranker.parseQuery('can i use imqueue commercially');
+
+  ranker.search(q);
+
+  if (q.lemmas[q.terms.indexOf('commercially')] !== 'commercial') {
+    fail(
+      '"commercially" no longer resolves to "commercial" — the corpus-validated ' +
+      'derivational route is off, and nothing else can bridge -ly'
+    );
+  } else {
+    pass('"commercially" reaches "commercial" (query side, validated against the corpus)');
+  }
+}
+
+// The words the -ly route must NOT touch, and the evidence is in scripts/lib/lemma.js:
+// index-time -ly stripping produced `reply -> rep`, `only -> on`, `apply -> app`,
+// `multiply -> multiple` and `supply -> supple`. Here the guard is a minimum stem plus
+// "does this site use the word", so these must all come out unchanged.
+{
+  const dangerous = ['only', 'apply', 'reply', 'multiply', 'supply', 'fully', 'family'];
+  const broken = dangerous.filter((word) => {
+    const q = ranker.parseQuery(word);
+
+    ranker.search(q);
+
+    return q.lemmas[0];
+  });
+
+  if (broken.length) {
+    fail(`the -ly route rewrote words it must leave alone: ${broken.join(', ')}`);
+  } else {
+    pass(`the ${dangerous.length} words -ly must not touch are untouched (only, apply, reply, …)`);
+  }
+}
+
+// ---- a page has to CLAIM the query -------------------------------------------
+// "is imqueue free" ranked /license/ #50, then #27, and the ranker was not the whole
+// story: /license/ never used the word "free" in its title, description or keywords, so
+// there was nothing for the rarest word in the query to match. Five blog records matched
+// "imqueue" in a title, in keywords and in a URL — five weak signals on the corpus's most
+// common word — and summed to more than /license/ covering 97% of the query in its prose.
+//
+// The fix was one line of front matter, which is what `keywords` is FOR: the author saying
+// which queries the page exists to answer. This check guards the outcome, not the wording —
+// if someone trims those keywords, this fails and says why.
+{
+  const hits = ranker.search(ranker.parseQuery('is imqueue free'));
+
+  if (!hits[0] || hits[0].record.u !== '/license/') {
+    fail(
+      '"is imqueue free" ranks ' + (hits[0] ? hits[0].record.u : 'nothing') +
+      ' first, expected /license/ — check that its `keywords` front matter still claims the query'
+    );
+  } else {
+    pass('"is imqueue free" ranks /license/ #1 (was #50)');
+  }
+}
+
+// ---- a thematic break is not part of the answer above it -----------------------
+// Every blog post ends with `---` and a "where to go next" paragraph. It used to be glued
+// onto the last heading, which on nine posts is an FAQ answer — so an answer about GraphQL
+// gateways contained "See commercial licensing & support", and the dialog rendered a
+// literal "---" mid-snippet.
+{
+  const glued = ranker.state.t2.sections.filter((section) => /(^|\s)-{3,}(\s|$)/.test(section[3]));
+
+  if (glued.length) {
+    fail(
+      `${glued.length} section(s) still carry a thematic break in their text, ` +
+      `e.g. "${glued[0][2] || ranker.state.t2.pages[glued[0][0]][1]}"`
+    );
+  } else {
+    pass('no section carries a thematic break — trailing navigation is its own record');
+  }
+}
+
 if (failures) {
   console.error(`\n${failures} search ranking check(s) failed.`);
   process.exit(1);
