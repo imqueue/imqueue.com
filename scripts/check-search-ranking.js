@@ -62,8 +62,15 @@ const CASES = [
     regression: 'none yet — this is the case KIND_BONUS exists for',
   },
   {
+    // Was '/' until the element order changed to put curated `keywords` above `title`.
+    // /intro/ declares the literal phrase "what is imqueue" in its keywords and its title
+    // answers the question in a sentence — "@imqueue is a message-queue RPC framework for
+    // Node.js and TypeScript back-ends" — so it wins on the signal that was promoted, which
+    // is the promotion working rather than a regression. The home page is #2 and the failure
+    // this case was written for has not come back: see the stopword and bagScore checks
+    // below, which are what actually guard it.
     query: 'what is imqueue',
-    url: '/',
+    url: '/intro/',
     protects: 'the unordered whole-query match (bagScore) and stopword weighting',
     regression: '"Can I use @imqueue alongside gRPC or NATS?" was first: stopword removal reduced the query to "imqueue", thirty records tied, and the tie-break was URL length',
   },
@@ -572,6 +579,65 @@ if (!df || !ranker.state.t2.docs) {
     fail(`the -ly route rewrote words it must leave alone: ${broken.join(', ')}`);
   } else {
     pass(`the ${dangerous.length} words -ly must not touch are untouched (only, apply, reply, …)`);
+  }
+}
+
+// ---- the URL element ----------------------------------------------------------
+// A path word the title does NOT have is the strongest element on the page, because it is
+// the only place that word exists. /mcp/installation/ is titled "Add the MCP server to
+// Claude, Cursor & VS Code" — "installation" appears nowhere but the path.
+//
+// This failed for a reason that had nothing to do with weight: urlScore required a query
+// term to EQUAL a segment, so "installation mcp" ranked the page #1 and "install mcp" could
+// not find it at all, while every other element in the ranker matched substrings.
+{
+  const cases = [
+    ['how to install mcp', '/mcp/installation/'],
+    ['install mcp', '/mcp/installation/'],
+    ['installation mcp', '/mcp/installation/'],
+  ];
+
+  for (const [query, url] of cases) {
+    const hits = ranker.search(ranker.parseQuery(query));
+    const at = hits.findIndex((hit) => hit.record.u === url);
+
+    if (at !== 0) {
+      fail(`"${query}" ranks ${url} ${at === -1 ? 'nowhere' : `#${at + 1}`}, expected #1`);
+    } else {
+      pass(`"${query}" ranks ${url} #1`);
+    }
+  }
+
+  // The other half: a path that merely echoes its own title must NOT be promoted. A blog
+  // slug is generated from the title, so scoring it at the top weight would silently mean
+  // "titles count double" — and every non-slug element would be demoted to pay for it.
+  const echo = ranker.search(ranker.parseQuery('imqueue vs moleculer'));
+  const first = echo[0] && echo[0].record.u;
+
+  if (first !== '/blog/imqueue-vs-moleculer/') {
+    fail(`"imqueue vs moleculer" ranks ${first} first, expected the article itself`);
+  } else {
+    pass('a slug that echoes its title still ranks its own article first, without a double count');
+  }
+}
+
+// ---- a declared query beats scattered overlap ---------------------------------
+// `keywords` sits above `title` now, and at that weight the difference between "one of my
+// declared phrases IS what you typed" and "your words appear somewhere in my list" is the
+// whole value of the element. Without the distinction, four blog comparison pages whose
+// lists merely contain "imqueue" pushed the home page's own "What @imqueue is" heading from
+// #1 to #9 for the query "what is imqueue".
+{
+  const hits = ranker.search(ranker.parseQuery('what is imqueue'));
+  const home = hits.findIndex((hit) => hit.record.u === '/');
+
+  if (home === -1 || home > 2) {
+    fail(
+      'the home page ranks ' + (home === -1 ? 'nowhere' : `#${home + 1}`) +
+      ' for "what is imqueue" — word overlap in a keywords list is outscoring a heading again'
+    );
+  } else {
+    pass(`the home page holds #${home + 1} for "what is imqueue" behind /intro/, which declares the phrase`);
   }
 }
 
