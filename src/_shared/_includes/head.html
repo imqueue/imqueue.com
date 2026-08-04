@@ -56,13 +56,35 @@ absent both, nothing is emitted, because no date beats a wrong one.
 <title>{{ metaTitle }}</title>
 <meta name="description" content="{{ metaDesc }}">
 {%- comment -%}
+The other edition's origin and how to label it, read by js/search.js so each site can
+search the other and show the results in their own group. A meta tag rather than a
+constant in the script, because the script is shared by both editions and only the build
+knows which one it is.
+
+The origin here is used to build result HREFS, not to fetch anything: the peer's index is
+copied onto this origin as /search-peer-*.json at build time (see
+scripts/copy-peer-index.js), so the fetch is same-origin and there is no CORS anywhere in
+this feature. A missing peer file means the peer group simply does not appear — a peer
+that was not built must never degrade the search that was.
+{%- endcomment -%}
+<meta name="search-peer" content="{{ otherUrl }}">
+<meta name="search-peer-label" content="{% if edition == 'com' %}Documentation (imqueue.org){% else %}Commercial (imqueue.com){% endif %}">
+{%- comment -%}
 No <meta name="keywords">: Google has ignored it since 2009 and Bing treats a
 stuffed one as a spam signal, so it was ~300 wasted bytes on every page. Page
 front matter still sets `keywords`, which post.html uses for BlogPosting.keywords
 in JSON-LD — that one search engines do read.
 {%- endcomment -%}
 <meta name="author" content="{{ siteName }}">
-<meta name="robots" content="{% if draft or noindex %}noindex, follow{% else %}index, follow, max-image-preview:large, max-snippet:-1{% endif %}">
+{%- comment -%}
+`noindex` alone keeps `follow`, which is right for a page that is real content held out of
+SERPs — the two /agents/ recipes — because a crawler should still traverse its links.
+`nofollow: true` is the separate, stronger declaration for a page whose links are not an
+endorsement of anything and whose URL space is infinite: /search/ can be requested with
+any `?q=`, and every result it renders is a link the crawler has no reason to follow from
+there, since the same links exist on the pages themselves.
+{%- endcomment -%}
+<meta name="robots" content="{% if draft or noindex %}noindex, {% if nofollow %}nofollow{% else %}follow{% endif %}{% else %}index, follow, max-image-preview:large, max-snippet:-1{% endif %}">
 <meta name="theme-color" content="{{ themeColor }}">
 <link rel="canonical" href="{{ metaUrl }}">
 {%- if pagination %}
@@ -619,12 +641,12 @@ page to set it fails loudly at build time instead of silently 404ing.
 <link rel="stylesheet" href="{{ '/css/base.css' | asset }}">
 <link rel="stylesheet" href="{{ '/css/prose.css' | asset }}">
 {%- comment -%}
-Search is imqueue.org only — imqueue.com is eight pages with a nav that fits them
-all. The stylesheet lives in src/org/css/, so it is not in the .com edition's asset
-manifest at all and the `asset` filter would throw on a .com build; this condition
-is what keeps that from being a trap rather than a build error nobody expected.
+Both editions now, and the stylesheet moved to src/_shared/css/ to say so. The earlier
+org-only condition rested on "imqueue.com is seven pages with a nav that fits them all",
+which is true and beside the point: com's search exists to reach the DOCUMENTATION from
+the site where somebody is evaluating a licence, not to find com's own pages.
 {%- endcomment -%}
-{% if edition == "org" %}<link rel="stylesheet" href="{{ '/css/search.css' | asset }}">{% endif %}
+<link rel="stylesheet" href="{{ '/css/search.css' | asset }}">
 {% if skin == "flux" %}<link rel="stylesheet" href="{{ '/css/flux.css' | asset }}">{% endif %}
 {% if pageCss %}<link rel="stylesheet" href="{{ pageCss | asset }}">{% endif %}
 

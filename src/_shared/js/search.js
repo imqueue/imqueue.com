@@ -34,6 +34,17 @@
 
   var TIER1 = "/search-index.json";
   var TIER2 = "/search-text.json";
+  // The OTHER edition's index, copied onto this origin at build time by
+  // scripts/copy-peer-index.js. Same-origin on purpose — see that file.
+  var PEER1 = "/search-peer-index.json";
+  var PEER2 = "/search-peer-text.json";
+
+  // Results from the other site are de-weighted so they can never outrank a page of the
+  // site you are actually on at comparable relevance. Not hidden, not excluded: somebody
+  // reading the docs who searches "pricing" should be offered the pricing page, and
+  // somebody on the commercial site searching "callTimeout" should be offered the
+  // reference — just never ahead of a local page that answers as well.
+  var PEER_WEIGHT = 0.8;
 
   // Groups, as written by the generator.
   var G_DOC = 0;
@@ -144,6 +155,9 @@
     { key: "answers", label: "Answers" },
     { key: "docs", label: "Guides & articles" },
     { key: "api", label: "API reference" },
+    // Labelled from the search-peer-label meta tag at init; "peer" is a placeholder that
+    // is never displayed, because the group is only ever rendered when a peer loaded.
+    { key: "peer", label: "peer" },
   ];
 
   // Five per group in the dialog — three groups of five is a list you can take in
@@ -160,7 +174,18 @@
   // in a body scores ~115, while one term of four covering nothing else scores ~28.
   var MIN_SCORE = 60;
 
-  var state = { t1: null, t2: null, p1: null, p2: null, q: "", results: null, active: -1 };
+  var state = {
+    t1: null, t2: null, p1: null, p2: null,
+    // The peer's two tiers, loaded alongside this site's.
+    x1: null, x2: null, px1: null, px2: null,
+    q: "", results: null, active: -1,
+  };
+
+  // Set from the meta tags head.html emits. `peerOrigin` prefixes every peer result's
+  // href — the index it came from holds root-relative URLs for ITS site, which on this
+  // one would point at pages that do not exist.
+  var peerOrigin = "";
+  var peerLabel = "";
   var el = {};
 
   // Set at the bottom, once the DOM is there (this script is deferred). Non-null
@@ -750,36 +775,34 @@
     return index;
   }
 
-  function search(q) {
-    var hits = [];
+  // One pass over one index pair. Called twice: once for this site, once for the peer.
+  // `weight` is 1 locally and PEER_WEIGHT for the other site; `external` tags the records
+  // so rendering can group them and absolutise their links.
+  function collect(hits, t1, t2, q, weight, external) {
     var i;
 
-    // Here rather than in parseQuery, because the map arrives with tier 2 — after the
-    // first keystrokes. Re-running the query when tier 2 lands is what upgrades an
-    // already-typed search from literal to morphological.
-    lemmatize(q);
-
-    if (state.t1) {
-      for (i = 0; i < state.t1.records.length; i++) {
-        var record = state.t1.records[i];
+    if (t1) {
+      for (i = 0; i < t1.records.length; i++) {
+        var record = t1.records[i];
         var score = scoreRecord(record, q);
 
         if (score > 0) {
-          hits.push({ score: score, record: record, section: null });
+          hits.push({ score: score * weight, record: record, section: null, external: external });
         }
       }
     }
 
-    if (state.t2 && !q.filters.pkg && !q.filters.kind) {
-      for (i = 0; i < state.t2.sections.length; i++) {
-        var section = state.t2.sections[i];
-        var page = state.t2.pages[section[S_PAGE]];
+    if (t2 && !q.filters.pkg && !q.filters.kind) {
+      for (i = 0; i < t2.sections.length; i++) {
+        var section = t2.sections[i];
+        var page = t2.pages[section[S_PAGE]];
         var sectionScore = scoreSection(section, q, page);
 
         if (sectionScore > 0) {
           hits.push({
-            score: sectionScore,
+            score: sectionScore * weight,
             section: section,
+            external: external,
             record: {
               g: G_DOC,
               t: section[S_HEAD] || page[P_TITLE],
@@ -792,6 +815,19 @@
         }
       }
     }
+  }
+
+  function search(q) {
+    var hits = [];
+    var i;
+
+    // Here rather than in parseQuery, because the map arrives with tier 2 — after the
+    // first keystrokes. Re-running the query when tier 2 lands is what upgrades an
+    // already-typed search from literal to morphological.
+    lemmatize(q);
+
+    collect(hits, state.t1, state.t2, q, 1, false);
+    collect(hits, state.x1, state.x2, q, PEER_WEIGHT, true);
 
     // One URL, one result — but an ANSWER and a prose section can be the same
     // heading seen twice, and then the answer's presentation is the one that
@@ -801,10 +837,14 @@
     var byUrl = {};
 
     for (i = 0; i < hits.length; i++) {
-      var previous = byUrl[hits[i].record.u];
+      // Keyed by SITE + url: both editions have a /license/ and a /contact/, and they are
+      // different pages. Without the prefix one would silently evict the other.
+      hits[i].key = (hits[i].external ? "x" : "") + hits[i].record.u;
+
+      var previous = byUrl[hits[i].key];
 
       if (!previous) {
-        byUrl[hits[i].record.u] = hits[i];
+        byUrl[hits[i].key] = hits[i];
         continue;
       }
 
@@ -819,7 +859,7 @@
           : hits[i];
 
       winner.score = Math.max(hits[i].score, previous.score);
-      byUrl[hits[i].record.u] = winner;
+      byUrl[hits[i].key] = winner;
     }
 
     hits = Object.keys(byUrl).map(function (url) { return byUrl[url]; });
@@ -843,8 +883,8 @@
 
     for (i = 0; i < hits.length; i++) {
       var hit = hits[i];
-      var url = hit.record.u;
-      var pageUrl = url.split("#")[0];
+      var url = hit.key;
+      var pageUrl = (hit.external ? "x" : "") + hit.record.u.split("#")[0];
 
       if (seen[url]) {
         continue;
@@ -955,8 +995,15 @@
 
   // ---- rendering ----------------------------------------------------------
 
-  function groupKey(record) {
-    return record.g === G_ANSWER ? "answers" : record.g === G_API ? "api" : "docs";
+  function groupKey(hit) {
+    // The peer's results form one group of their own rather than being spread through
+    // this site's three: the useful distinction for a reader is "this is on the other
+    // site" long before it is "this is an answer vs a symbol".
+    if (hit.external) {
+      return "peer";
+    }
+
+    return hit.record.g === G_ANSWER ? "answers" : hit.record.g === G_API ? "api" : "docs";
   }
 
   /**
@@ -985,8 +1032,10 @@
     var record = hit.record;
     var a = document.createElement("a");
 
-    a.className = "s-hit s-hit--" + groupKey(record);
-    a.href = record.u;
+    a.className = "s-hit s-hit--" + (hit.external ? "peer" : groupKey(hit));
+    // Peer records hold URLs that are root-relative to THEIR site; on this one they would
+    // point at pages that do not exist.
+    a.href = hit.external ? peerOrigin + record.u : record.u;
 
     if (listbox) {
       a.id = "s-hit-" + index;
@@ -1011,7 +1060,10 @@
     var crumb = document.createElement("span");
 
     crumb.className = "s-hit__crumbs";
-    crumb.textContent = crumbs(record);
+    // The host, so it is never a surprise that following this leaves the current site.
+    crumb.textContent = hit.external
+      ? peerOrigin.replace(/^https?:\/\//, "") + " › " + crumbs(record)
+      : crumbs(record);
     a.appendChild(crumb);
 
     var body = hit.section ? snippet(hit.section[S_TEXT], q, 190) : record.s;
@@ -1079,11 +1131,11 @@
     }
     el.hint.hidden = true;
 
-    var buckets = { answers: [], docs: [], api: [] };
-    var extra = { answers: 0, docs: 0, api: 0 };
+    var buckets = { answers: [], docs: [], api: [], peer: [] };
+    var extra = { answers: 0, docs: 0, api: 0, peer: 0 };
 
     for (var i = 0; i < hits.length; i++) {
-      var key = groupKey(hits[i].record);
+      var key = groupKey(hits[i]);
 
       if (buckets[key].length < PER_GROUP) {
         buckets[key].push(hits[i]);
@@ -1092,7 +1144,13 @@
       }
     }
 
-    var groups = GROUPS.map(function (def) { return [def, buckets[def.key], extra[def.key]]; });
+    var groups = GROUPS.map(function (def) {
+      return [
+        def.key === "peer" ? { key: "peer", label: peerLabel || "Elsewhere" } : def,
+        buckets[def.key],
+        extra[def.key],
+      ];
+    });
 
     // Grouped, but ORDERED BY RELEVANCE — by each group's best hit, not by a fixed
     // list. A static order looks tidy and lies: typing `watcherCheckDelay` scored
@@ -1223,6 +1281,8 @@
   }
 
   function loadTier1() {
+    loadPeer();
+
     return load(TIER1, 1, function (index) {
       state.t1 = prepare(index);
       if (el.input && el.input.value) run();
@@ -1290,6 +1350,38 @@
       state.t2 = prepareSections(index);
       if (el.input && el.input.value) run();
     });
+  }
+
+  // The peer's tiers. Failures are SWALLOWED, not surfaced: a peer index that was not
+  // built (production still on `build:org`, or a local single-edition build) is the normal
+  // case, not an error, and "Search index unavailable" would be a lie about a search that
+  // is working perfectly for this site.
+  function loadPeer() {
+    if (!peerOrigin || state.px1) {
+      return;
+    }
+
+    state.px1 = fetch(PEER1, { credentials: "omit" })
+      .then(function (response) { return response.ok ? response.json() : null; })
+      .then(function (index) {
+        if (index) {
+          state.x1 = prepare(index);
+          if (el.input && el.input.value) run();
+        }
+      })
+      .catch(function () { /* no peer; this site's search is unaffected */ });
+
+    state.px2 = fetch(PEER2, { credentials: "omit" })
+      .then(function (response) { return response.ok ? response.json() : null; })
+      .then(function (index) {
+        if (index) {
+          state.x2 = prepareSections(index);
+          if (el.input && el.input.value) run();
+        }
+      })
+      .catch(function () { /* same */ });
+
+    return Promise.all([state.px1, state.px2]);
   }
 
   function build() {
@@ -1548,13 +1640,13 @@
     document.title = "Search: " + raw + " · @imqueue";
 
     var hits = search(q);
-    var counts = { answers: 0, docs: 0, api: 0 };
+    var counts = { answers: 0, docs: 0, api: 0, peer: 0 };
 
     for (var i = 0; i < hits.length; i++) {
-      counts[groupKey(hits[i].record)]++;
+      counts[groupKey(hits[i])]++;
     }
 
-    var shown = key ? hits.filter(function (hit) { return groupKey(hit.record) === key; }) : hits;
+    var shown = key ? hits.filter(function (hit) { return groupKey(hit) === key; }) : hits;
     var pages = Math.max(1, Math.ceil(shown.length / PER_PAGE));
 
     page = Math.min(page, pages);
@@ -1567,8 +1659,10 @@
     tabs.appendChild(all);
 
     for (i = 0; i < GROUPS.length; i++) {
-      if (counts[GROUPS[i].key]) {
-        tabs.appendChild(tab(GROUPS[i], counts[GROUPS[i].key], key === GROUPS[i].key, raw));
+      var def = GROUPS[i].key === "peer" ? { key: "peer", label: peerLabel || "Elsewhere" } : GROUPS[i];
+
+      if (counts[def.key]) {
+        tabs.appendChild(tab(def, counts[def.key], key === def.key, raw));
       }
     }
 
@@ -1599,13 +1693,22 @@
     report(q, hits.length);
   }
 
+  var peerMeta = document.querySelector('meta[name="search-peer"]');
+  var labelMeta = document.querySelector('meta[name="search-peer-label"]');
+
+  peerOrigin = peerMeta ? String(peerMeta.getAttribute("content") || "").replace(/\/+$/, "") : "";
+  peerLabel = labelMeta ? labelMeta.getAttribute("content") || "" : "";
+
   pageHost = document.querySelector("[data-search-page]");
 
   if (pageHost) {
     // Both tiers, because this page shows everything and a half-loaded list that
     // silently grows would be worse than a moment's wait.
     pageEl(pageHost, "status").textContent = "Searching…";
-    Promise.all([loadTier1(), loadTier2()]).then(function () {
+    // The peer is awaited here, unlike in the dialog: this page shows everything, and a
+    // list that silently grows a group a second later is worse than a moment's wait.
+    // `loadPeer` never rejects, so a missing peer cannot hold the page.
+    Promise.all([loadTier1(), loadTier2(), loadPeer()]).then(function () {
       renderPage(pageHost);
     });
 

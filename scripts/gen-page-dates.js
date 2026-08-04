@@ -41,7 +41,7 @@ const SKIP = [
   // taken from the day the template changed would be a claim about nothing. Same
   // reasoning as the generated API trees below, and head.html already emits no
   // date for a page with no entry, so this needs no other change.
-  'src/org/search.html',
+  'src/search.html',
 ];
 
 // The GENERATED API version trees — no editorial date, and their sitemap lastmod

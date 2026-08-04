@@ -38,7 +38,11 @@ const path = require('node:path');
 const zlib = require('node:zlib');
 
 const ROOT = path.join(__dirname, '..');
-const OUT = path.join(ROOT, '_site-org');
+// Which edition's output to check. Both are checked, in two invocations, because the com
+// index is now published too — see the eleventy.after hook. Argument rather than a loop so
+// a failure names the edition in the npm script that ran it.
+const EDITION_DIR = process.argv[2] || '_site-org';
+const OUT = path.join(ROOT, EDITION_DIR);
 
 // Same numbers the generator enforces at build time. Duplicated deliberately: the
 // generator's copy fails the BUILD, this one fails `npm test` against whatever is
@@ -72,17 +76,31 @@ const pages = tier2.json.pages || [];
 // missing page.
 const sitemapUrls = new Set();
 
-for (const name of fs.readdirSync(OUT)) {
-  if (!/^sitemap-.+\.xml$/.test(name)) {
-    continue;
-  }
-  for (const loc of fs.readFileSync(path.join(OUT, name), 'utf8').match(/<loc>[^<]+<\/loc>/g) || []) {
-    sitemapUrls.add(loc.slice(5, -6).replace(/^https?:\/\/[^/]+/, ''));
+function collectLocs(file) {
+  for (const loc of fs.readFileSync(file, 'utf8').match(/<loc>[^<]+<\/loc>/g) || []) {
+    const url = loc.slice(5, -6).replace(/^https?:\/\/[^/]+/, '');
+
+    // A <loc> pointing at another sitemap is an INDEX entry, not a page. imqueue.org
+    // splits into buckets and its sitemap.xml lists them; imqueue.com is seven pages and
+    // has a single flat sitemap. Filtering on the extension covers both shapes without
+    // the check needing to know which edition it is looking at.
+    if (!url.endsWith('.xml')) {
+      sitemapUrls.add(url);
+    }
   }
 }
 
+const buckets = fs.readdirSync(OUT).filter((name) => /^sitemap-.+\.xml$/.test(name));
+
+for (const name of buckets) {
+  collectLocs(path.join(OUT, name));
+}
+if (!sitemapUrls.size && fs.existsSync(path.join(OUT, 'sitemap.xml'))) {
+  collectLocs(path.join(OUT, 'sitemap.xml'));
+}
+
 if (!sitemapUrls.size) {
-  fail('no sitemap buckets found in _site-org — cannot verify coverage');
+  fail(`no sitemap URLs found in ${EDITION_DIR} — cannot verify coverage`);
 }
 
 const docUrls = new Set(records.filter((r) => r.g === 0).map((r) => r.u));
@@ -209,8 +227,10 @@ const lemmas = tier2.json.lemmas;
 
 if (!lemmas || typeof lemmas !== "object") {
   fail("search-text.json has no lemma map — inflected queries will silently lose recall");
-} else if (Object.keys(lemmas).length < 500) {
-  fail(`the lemma map has only ${Object.keys(lemmas).length} entries; the corpus vocabulary should yield well over a thousand`);
+} else if (Object.keys(lemmas).length < Math.min(200, sections.length * 2)) {
+  // Scaled to the corpus, not a flat number: imqueue.com is seven pages and 296 lemmas is
+  // right for it, while the same 296 on imqueue.org would mean the map had mostly failed.
+  fail(`the lemma map has only ${Object.keys(lemmas).length} entries for ${sections.length} sections — too few to be working`);
 } else {
   pass(`the lemma map carries ${Object.keys(lemmas).length} inflected forms`);
 }
@@ -226,12 +246,37 @@ for (const [name, source] of [['search-index.json', tier1], ['search-text.json',
   }
 }
 
+// ---- the peer index, when both editions were built -----------------------
+// Cross-site search reads the OTHER edition from this origin (scripts/copy-peer-index.js).
+// Absent is legal — a single-edition build cannot produce it, and the client degrades to
+// same-site search — but a peer file that is present and malformed would break silently.
+for (const name of ['search-peer-index.json', 'search-peer-text.json']) {
+  const file = path.join(OUT, name);
+
+  if (!fs.existsSync(file)) {
+    pass(`${name} absent — cross-site search inactive for this build (expected unless both editions were built)`);
+    continue;
+  }
+  try {
+    const peer = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const size = peer.records ? peer.records.length : (peer.sections || []).length;
+
+    if (!size) {
+      fail(`${name} parses but is empty`);
+    } else {
+      pass(`${name} carries ${size} peer entries`);
+    }
+  } catch (e) {
+    fail(`${name} does not parse: ${e.message}`);
+  }
+}
+
 const counts = { docs: docUrls.size, api: apiUrls.size, answers: records.filter((r) => r.g === 2).length };
 
-console.log(`        ${counts.docs} pages, ${counts.api} symbols, ${counts.answers} answers, ${sections.length} sections`);
+console.log(`        ${EDITION_DIR}: ${counts.docs} pages, ${counts.api} symbols, ${counts.answers} answers, ${sections.length} sections`);
 
 if (failures) {
   console.error(`\n${failures} search index check(s) failed.`);
   process.exit(1);
 }
-console.log('\nAll search index checks passed.');
+console.log(`\nAll search index checks passed for ${EDITION_DIR}.`);
