@@ -163,10 +163,11 @@ mcpDesc: "Official Model Context Protocol server for @imqueue: docs search, type
   <div class="hero-stats">
     {%- comment -%}
     "/ core" was wrong by roughly the worker count: the benchmark reports these as
-    round-trip messages/second SUMMED ACROSS 22 worker processes on one rig, not
-    per core. Linked to the post so the number carries its conditions.
+    round-trip messages/second SUMMED ACROSS worker processes on one rig, not per core.
+    Hence "aggregate", and hence the link — the conditions live in the post rather than
+    in the label, which is why the label must stay linked even as it gets shorter.
     {%- endcomment -%}
-    <div><div class="num">~200K/s</div><div class="lbl">aggregate round-trips — <a href="/blog/benchmarking-imqueue-throughput/">22 workers, one rig</a></div></div>
+    <div><div class="num">~200K/s</div><div class="lbl"><a href="/blog/benchmarking-imqueue-throughput/">aggregate round-trips</a></div></div>
     <div><div class="num">Auto</div><div class="lbl">typed clients generated</div></div>
     <div><div class="num">Optimal</div><div class="lbl">traffic flows with compression</div></div>
   </div>
@@ -195,7 +196,7 @@ mcpDesc: "Official Model Context Protocol server for @imqueue: docs search, type
   <div class="how">
     <div><div class="n">01</div><h3>Implement a service</h3><p>Write a class with exposed methods and doc-blocks. That's your whole service.</p></div>
     <div><div class="n">02</div><h3>Generate the client</h3><p>Services are self-describing — clients are generated on-the-fly or written to files.</p></div>
-    <div><div class="n">03</div><h3>Call it remotely</h3><p>Await a client method like any local call. The queue routes and returns the result.</p></div>
+    <div><div class="n">03</div><h3>Call it remotely as it's local</h3><p>Await a client method like any local call. The queue routes and returns the result.</p></div>
   </div>
 </section>
 
