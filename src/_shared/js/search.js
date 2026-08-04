@@ -1851,9 +1851,9 @@
     });
   }
 
-  // The peer's tiers. Failures are SWALLOWED, not surfaced: a peer index that was not
-  // built (production still on `build:org`, or a local single-edition build) is the normal
-  // case, not an error, and "Search index unavailable" would be a lie about a search that
+  // The peer's tiers. Failures are SWALLOWED, not surfaced: a peer index that was not built
+  // — a local `npm run edition:org`, or a deploy whose peer build failed — is a supported
+  // state, not an error, and "Search index unavailable" would be a lie about a search that
   // is working perfectly for this site.
   function loadPeer() {
     if (!peerOrigin || state.px1) {

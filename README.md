@@ -22,8 +22,9 @@ npm run serve:com   # imqueue.com — http://localhost:8081
 ## Build
 
 ```bash
-npm run build:all   # both editions -> _site-org/ and _site-com/
-npm run build:org   # or just one
+npm run build:all    # both editions -> _site-org/ and _site-com/
+npm run edition:org  # or just one, on its own
+npm run build:org    # what Cloudflare runs: this edition, plus the peer's search index
 ```
 
 ## Checks
