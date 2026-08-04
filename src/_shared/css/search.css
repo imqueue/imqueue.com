@@ -61,13 +61,21 @@
   padding: 0;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: var(--surface);
+  /* TWO layers, not `background: var(--surface)`.
+     On the terminal skin --surface is an opaque colour and either form looks the same. On
+     flux it is `rgba(255,255,255,.045)` — a glass card designed to sit ON the page — so
+     using it directly made the panel 4.5% white over whatever was behind it, and the
+     pricing hero read straight through the results. Compositing the same translucent
+     surface over the opaque page colour keeps each skin's intended tint while making the
+     panel opaque, in light and dark, without hardcoding a colour or touching either theme. */
+  background-color: var(--bg);
+  background-image: linear-gradient(var(--surface), var(--surface));
   color: var(--ink);
   box-shadow: 0 30px 80px var(--shadow);
   overflow: hidden;
 }
 
-.s-dialog::backdrop { background: rgba(0, 0, 0, .55); backdrop-filter: blur(2px); }
+.s-dialog::backdrop { background: rgba(0, 0, 0, .62); backdrop-filter: blur(3px); }
 
 .s-form { display: flex; flex-direction: column; max-height: inherit; min-height: 0; }
 
@@ -180,7 +188,8 @@
    face. Mono is reserved for identifiers, where the character shapes carry meaning
    — which also makes the face itself a signal of which kind of result a row is. */
 .s-hit--docs .s-hit__title,
-.s-hit--answers .s-hit__title {
+.s-hit--answers .s-hit__title,
+.s-hit--peer .s-hit__title {
   font-family: var(--font-body);
   font-size: 16.5px;
   font-weight: 600;
@@ -247,6 +256,17 @@
   color: var(--ink);
   font-weight: 600;
 }
+
+/* A result on the OTHER site. Marked with a left rule rather than a colour, so it reads
+   as "elsewhere" without competing with the accent used for matches — and because the two
+   editions have different accent colours, so anything hue-based would mean opposite things
+   on the two sites. */
+.s-hit--peer {
+  border-left: 2px solid var(--line);
+  padding-left: 12px;
+}
+
+.s-hit--peer .s-hit__crumbs { color: var(--muted); }
 
 /* ---- "all N results" --------------------------------------------------- */
 

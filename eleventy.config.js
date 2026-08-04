@@ -761,19 +761,23 @@ module.exports = function (eleventyConfig) {
   // not read /api/search-index.json, which is itself a template's output.
   //
   // `eleventy.after` fires on every build including each incremental rebuild under
-  // `--serve`, so the dev preview cannot serve a stale index. Org only: imqueue.com
-  // is eight pages with a nav that fits them all, and a search box there would be
-  // UI for a problem it does not have.
+  // `--serve`, so the dev preview cannot serve a stale index.
+  //
+  // BOTH editions, which reverses an earlier decision. The first version was org-only,
+  // on the grounds that imqueue.com is seven pages with a nav that fits them all — true,
+  // and it missed the point: com's search is not for finding com's pages, it is for
+  // reaching the documentation from the site where somebody is evaluating a licence. Its
+  // own index costs 0.9 KB + 11 KB gzipped, and publishing it is also what lets the
+  // @imqueue MCP server keep full coverage if it ever moves off llms.txt, since it
+  // indexes both domains today.
   //
   // Deliberately NOT wrapped in try/catch. Everything else that touches the
   // request path here fails open, but this is build time: an index that is silently
   // absent would ship a search box that finds nothing, which is worse than a red
   // build. The size budget in the generator throws for the same reason.
-  if (!isCom) {
-    eleventyConfig.on("eleventy.after", ({ dir }) => {
-      require("./scripts/gen-search-index.js").generate(dir.output);
-    });
-  }
+  eleventyConfig.on("eleventy.after", ({ dir }) => {
+    require("./scripts/gen-search-index.js").generate(dir.output);
+  });
 
   eleventyConfig.addPassthroughCopy({ "images": "images" });
   eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/favicon.svg`]: "favicon.svg" });

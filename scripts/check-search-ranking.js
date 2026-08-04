@@ -21,7 +21,7 @@ const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, '_site-org');
-const ranker = require(path.join(ROOT, 'src', 'org', 'js', 'search.js'));
+const ranker = require(path.join(ROOT, 'src', '_shared', 'js', 'search.js'));
 
 let failures = 0;
 const fail = (msg) => { failures++; console.error(`  FAIL  ${msg}`); };
@@ -320,6 +320,56 @@ if (!sendTop || sendName !== 'send') {
   fail(`"send" should rank a send() member first among symbols, got ${sendTop ? sendTop.record.t : 'nothing'}`);
 } else {
   pass(`"send" ranks ${sendTop.record.t} first among symbols — identifiers stay literal`);
+}
+
+// ---- cross-site search -------------------------------------------------------
+// imqueue.org and imqueue.com search each other, reading the peer's index from their own
+// origin (scripts/copy-peer-index.js). Two properties matter, and they pull against each
+// other: the other site's pages must be REACHABLE, and they must never displace a local
+// page that answers as well.
+const peerIndex = path.join(OUT, 'search-peer-index.json');
+
+if (!fs.existsSync(peerIndex)) {
+  pass('no peer index in this build — cross-site search not checked (build both editions)');
+} else {
+  ranker.state.x1 = ranker.prepare(JSON.parse(fs.readFileSync(peerIndex, 'utf8')));
+  ranker.state.x2 = ranker.prepareSections(JSON.parse(fs.readFileSync(path.join(OUT, 'search-peer-text.json'), 'utf8')));
+
+  // Reachable: imqueue.org has no pricing page, so this can only be answered by the peer.
+  const pricing = ranker.search(ranker.parseQuery('pricing'));
+  const pricingTop = pricing[0];
+
+  if (!pricingTop || !pricingTop.external || pricingTop.record.u !== '/pricing/') {
+    fail(
+      `"pricing" on imqueue.org should surface imqueue.com/pricing/ first — got ` +
+      `${pricingTop ? `${pricingTop.external ? 'peer ' : 'local '}${pricingTop.record.u}` : 'nothing'}`
+    );
+  } else {
+    pass('"pricing" reaches imqueue.com/pricing/, which imqueue.org has no page for');
+  }
+
+  // Not displacing: a reference query must stay entirely local. The commercial site talks
+  // about the framework too, so this is a real risk rather than a formality.
+  const local = ranker.search(ranker.parseQuery('watcherCheckDelay'));
+
+  if (local[0] && local[0].external) {
+    fail(`"watcherCheckDelay" ranked a peer page first: ${local[0].record.u}`);
+  } else {
+    pass('"watcherCheckDelay" stays on imqueue.org — the peer cannot displace reference');
+  }
+
+  // De-weighted: the same record scored from the peer must come out below its local score.
+  const q = ranker.parseQuery('commercial license');
+  const withPeer = ranker.search(q).filter((hit) => hit.external);
+
+  if (!withPeer.length) {
+    fail('"commercial license" found nothing on the peer — the peer corpus is not being searched');
+  } else {
+    pass(`the peer group is populated and de-weighted (${withPeer.length} peer hits, best ${Math.round(withPeer[0].score)})`);
+  }
+
+  ranker.state.x1 = null;
+  ranker.state.x2 = null;
 }
 
 if (failures) {

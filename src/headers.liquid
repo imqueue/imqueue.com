@@ -115,6 +115,10 @@ noindex because these are the same content as the pages they index, in a form bu
 for a fetch() rather than for a reader — exactly the duplicate-content argument that
 put the header on the markdown mirrors.
 {%- endcomment %}
+# There is deliberately NO Access-Control-Allow-Origin here. Cross-site search reads the
+# OTHER edition's index from `/search-peer-*.json` on THIS origin — copied in at build
+# time by scripts/copy-peer-index.js — so no cross-origin request is ever made and no
+# header has to permit one. That file explains why copying beat both CORS and a symlink.
 /search-index.json
   X-Robots-Tag: noindex
   Cache-Control: public, max-age=0, must-revalidate
@@ -122,6 +126,25 @@ put the header on the markdown mirrors.
 /search-text.json
   X-Robots-Tag: noindex
   Cache-Control: public, max-age=0, must-revalidate
+
+# The peer copies get identical treatment: regenerated every deploy, not a page, and
+# stale-cached they would point search at content that has moved.
+/search-peer-index.json
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
+
+/search-peer-text.json
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
+
+# /search/ is a results page: unbounded URL space (`?q=` takes anything), no content of
+# its own, and every link on it exists on a real page. The meta tag says the same thing —
+# both, because a header covers the case where a crawler reads only the response.
+#
+# Deliberately NOT a robots.txt Disallow: that would stop the page being fetched, and a
+# page that is never fetched is a page whose noindex is never read.
+/search/*
+  X-Robots-Tag: noindex, nofollow
 
 # ---- security ------------------------------------------------------------
 # Not ranking factors, but cheap and worth having. Left out on purpose:

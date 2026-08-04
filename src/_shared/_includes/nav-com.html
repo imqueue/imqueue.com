@@ -8,6 +8,16 @@
       <a href="{{ otherUrl }}/" class="nav-link" style="font-family:var(--font-body);">Docs ↗</a>
     </div>
     <div class="nav-actions">
+      {%- comment -%}
+      Search on the commercial site is mostly search of the DOCUMENTATION — this site is
+      seven pages and every one of them is in the nav above. See head.html's search-peer
+      meta and src/_shared/js/search.js: results from imqueue.org arrive in their own
+      group, de-weighted so they cannot outrank a page of the site you are actually on.
+      {%- endcomment %}
+      <button class="nav-search" type="button" data-search-open aria-label="Search the documentation" title="Search @imqueue (press /)">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/></svg>
+        <kbd class="nav-search__kbd">/</kbd>
+      </button>
       {% include "theme-toggle.html" %}
       <a href="{{ otherUrl }}/" class="nav-outline" style="border-radius:999px;font-family:var(--font-body);">Open source ↗</a>
       <a href="/pricing/" class="btn btn-gradient btn-sm" style="border-radius:999px;">Talk to sales</a>
@@ -16,6 +26,10 @@
   </div>
   <div class="mobile-nav" data-mobile-nav>
     <div class="container">
+      <button class="nav-search" type="button" data-search-open aria-label="Search the documentation">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/></svg>
+        <span>search</span>
+      </button>
       <a href="/pricing/">Pricing</a>
       <a href="/license/">License</a>
       <a href="/support/">Support</a>
