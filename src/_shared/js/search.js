@@ -97,26 +97,57 @@
   // must never overtake exact evidence ("the title IS the query"). With title at 620
   // it did — `IMQOptions.safeDeliveryTtl` scored 836 for the query "safeDelivery" and
   // `IMQOptions.safeDelivery`, whose last segment is exactly that, scored 708.
+  // Element order: URL > keywords > title > header > emphasis > body.
+  //
+  // The URL leads because a path is two to four words and a human chose every one of them —
+  // the same argument that makes a title strong, applied to something even terser. But it
+  // only leads for the words it ADDS. A blog slug is generated from the title, so
+  // /blog/imqueue-vs-moleculer/ matching "imqueue" is the title matching twice, not a second
+  // piece of evidence; scoring that at the top weight would quietly mean "titles count
+  // double" and demote every other element to pay for it.
+  //
+  // Split in two, therefore. A query term in the path AND in the title is an echo, worth
+  // less than the title it repeats. A term in the path and NOT in the title is the case
+  // worth the top weight: /mcp/installation/ is titled "Add the MCP server to Claude,
+  // Cursor & VS Code", and the word "installation" exists nowhere on that page except its
+  // path. Same for /pricing/, /get-started/ and /glossary/.
   var E = {
+    // A path word the title does not have. See urlScore.
+    urlNew: 480,
+    // Curated `keywords` front matter: the author stating which queries this page exists to
+    // answer. Just under the URL, as another deliberately-chosen and terse label — and above
+    // title, which is a promotion: it used to sit at 300.
+    //
+    // Google has ignored <meta name="keywords"> since 2009 and Bing treats a stuffed one as
+    // a spam signal, because neither can trust the author. This index can: the author is the
+    // site. What does not change is that a self-declared list is cheap to pad, which is why
+    // it is scored on COVERAGE ONLY — no density, no repetition bonus, so lengthening the
+    // list buys nothing (see keywordScore).
+    keywords: 450,
     title: 430,
     header: 360,
     emphasis: 200,
-    // Curated `keywords` front matter: the author stating which queries this page exists to
-    // answer. BELOW emphasis deliberately. Google has ignored <meta name="keywords"> since
-    // 2009 and Bing treats a stuffed one as a spam signal — because neither can trust the
-    // author. This index can: the author is the site. What does not change is that a
-    // self-declared list is cheap to pad, so it sits under the signals that cost something
-    // to fake and is scored on COVERAGE ONLY (see keywordScore).
-    keywords: 300,
+    // A path word the title already carries. Below body on purpose: it is not independent
+    // evidence, and its only job now is to stop a path match counting as nothing at all.
+    url: 110,
     body: 120,
-    // The URL path. Weak, and standard in every search engine for a reason: a site's
-    // canonical page on a subject usually has the subject in its path — /license/,
-    // /pricing/, /get-started/, /glossary/. Scored on coverage AND on how much of the path
-    // the query accounts for, so /license/ matching "licensing" counts as the whole
-    // identity of that page while /blog/imqueue-vs-moleculer/ matching "imqueue" counts as
-    // a quarter of it.
-    url: 190,
   };
+
+  // A query term counts against a path segment when it is a PREFIX of it, from this length up.
+  //
+  // The URL element used to require the term to EQUAL the segment. That is why "install mcp"
+  // could not find /mcp/installation/ while "installation mcp" ranked it #1 — the one element
+  // that knew the word was doing exact string equality while every other element matched on
+  // substrings. Weight and ordering had nothing to do with it.
+  //
+  // Bounded by length because a path segment is short and unanchored prefixes of three
+  // letters collide with everything: `com` is a prefix of `commercial`, `con` of `contact`
+  // and `contributing`. Five is past the point where that happens on this site's paths.
+  var URL_PREFIX_MIN = 5;
+
+  // Share of the keywords weight that mere word overlap gets, as against a declared phrase.
+  // 450 * 0.6 = 270, close to the 300 the whole element used to be worth.
+  var KEYWORD_OVERLAP = 0.6;
 
   // A section's PAGE title is context, not the section's own name, so it counts at a
   // fraction — otherwise every section of a page whose title matches outranks the
@@ -858,6 +889,21 @@
       return 0;
     }
 
+    // A DECLARED QUERY beats scattered overlap, and by a lot.
+    //
+    // The list is comma-separated phrases, and the difference between "one of these phrases
+    // IS what you typed" and "your words appear somewhere among these phrases" is the whole
+    // value of the element. Promoting it to 450 without this distinction rewarded the second
+    // as if it were the first: /intro/ and /license/ both declare a real query, but so did
+    // four blog comparison pages whose lists merely contain the word "imqueue" — and they
+    // pushed the home page's own "What @imqueue is" heading from #1 to #9.
+    //
+    // Substring rather than equality, so "what is imqueue" matches the declared phrase
+    // "@imqueue introduction, what is imqueue, …" wherever in the list it sits.
+    if (q.joined.length > 3 && record._w.indexOf(q.joined) !== -1) {
+      return E.keywords;
+    }
+
     var matched = 0;
 
     for (var i = 0; i < q.terms.length; i++) {
@@ -878,15 +924,21 @@
       }
     }
 
-    return matched ? E.keywords * Math.min(1, q.weightSum ? matched / q.weightSum : 0) : 0;
+    // Word overlap, at KEYWORD_OVERLAP of the declared-phrase weight — near where the whole
+    // element sat before it was promoted, which is the right place for "these words appear in
+    // my list somewhere".
+    return matched
+      ? E.keywords * KEYWORD_OVERLAP * Math.min(1, q.weightSum ? matched / q.weightSum : 0)
+      : 0;
   }
 
   /**
-   * The URL element. Coverage of the query, plus how much of the path the query covers.
+   * The URL element. Coverage of the query, plus how much of the path the query covers,
+   * scored TWICE: once for the path words the title does not have, once for the echoes.
    *
-   * Whole-word matching on path segments, so "license" matches /license/ and not
-   * /licenses-and-things/; segments are split on `-` too, so "get started" reaches
-   * /get-started/.
+   * Segments are split on `-` too, so "get started" reaches /get-started/, and a term is
+   * credited when it equals a segment, is its lemma, or is a prefix of it from
+   * URL_PREFIX_MIN characters up — which is what lets "install" reach /mcp/installation/.
    */
   function urlScore(record, q) {
     // NOT for generated reference. A symbol's path is derived from its own name, so scoring
@@ -899,31 +951,54 @@
     }
 
     var segments = record._u;
-    var matched = 0;
+    // Two accumulators, split by whether the title already carries the term.
+    var fresh = 0;
+    var echo = 0;
     var hitSegments = 0;
 
     for (var i = 0; i < q.terms.length; i++) {
-      var found = false;
+      var weight = 0;
 
       for (var j = 0; j < segments.length; j++) {
-        if (segments[j] === q.terms[i] || segments[j] === q.lemmas[i]) {
-          found = true;
+        var segment = segments[j];
+        var exact = segment === q.terms[i] || (q.lemmas[i] && segment === q.lemmas[i]);
+        // A prefix is real evidence but weaker than an exact segment, and weighted the same
+        // as the other inexact routes: "install" is not certainly "installation".
+        var prefix = !exact && q.terms[i].length >= URL_PREFIX_MIN &&
+          segment.length > q.terms[i].length && segment.indexOf(q.terms[i]) === 0;
+
+        if (exact || prefix) {
+          weight = Math.max(weight, q.weights[i] * (exact ? 1 : PREFIX_WEIGHT));
           hitSegments++;
         }
       }
-      if (found) {
-        matched += q.weights[i];
+      if (!weight) {
+        continue;
+      }
+      // In the title too? Then the path is repeating it, and titleScore already said so.
+      if (scanFor(record._l, q.terms[i], q.whole[i]).n ||
+        (q.lemmas[i] && scanFor(record._l, q.lemmas[i], true).n)) {
+        echo += weight;
+      } else {
+        fresh += weight;
       }
     }
 
-    if (!matched) {
+    if (!fresh && !echo) {
       return 0;
     }
 
-    var coverage = matched / q.weightSum;
+    // `focus` — how much of the PATH the query accounts for — is shared by both halves:
+    // /license/ matching "licensing" is the whole identity of that page, while
+    // /blog/imqueue-vs-moleculer/ matching "imqueue" is a quarter of it.
     var focus = Math.min(1, hitSegments / segments.length);
+    var graded = function (matched, weight) {
+      return matched
+        ? weight * (0.5 * (matched / q.weightSum) + 0.5 * focus)
+        : 0;
+    };
 
-    return E.url * (0.5 * coverage + 0.5 * focus);
+    return graded(fresh, E.urlNew) + graded(echo, E.url);
   }
 
   /**
@@ -975,7 +1050,13 @@
       return 0;
     }
 
-    var texts = [record._l, record._s, record._w];
+    // The path is included for exactly the records urlScore will score, and excluded for the
+    // ones it returns 0 for. Yesterday's bug was a floor that rejected what the scorer would
+    // have ranked first; crediting a path the scorer ignores would be the same bug mirrored.
+    var texts = [
+      record._l, record._s, record._w,
+      record.g === G_API || !record._u ? "" : record._u.join(" "),
+    ];
 
     // Coverage floor. Matching ONE term of a four-term question is not a result:
     // "does @imqueue retry a failed call?" matched 57 answers and 151 sections,
