@@ -314,6 +314,9 @@
       terms: t,
       weights: weights,
       offsets: offsets,
+      // Parallel to `terms`: true where the term must match a whole word. Stopwords
+      // only — see scanFor().
+      whole: weights.map(function (weight) { return weight !== 1; }),
       weightSum: weightSum || 1,
       // How many terms are not stopwords — the coverage floor is expressed in these,
       // so a long question cannot be "half matched" by its articles and prepositions.
@@ -326,16 +329,50 @@
 
   // ---- scoring ------------------------------------------------------------
 
-  function countOf(folded, term) {
+  function isWordChar(ch) {
+    return (ch >= "a" && ch <= "z") || (ch >= "0" && ch <= "9");
+  }
+
+  /**
+   * Occurrences of one term, and the position of the first.
+   *
+   * `whole` makes it match on word boundaries only, and is set for stopwords. They are
+   * the terms where substring matching means nothing: searching "what is imqueue"
+   * found "is" inside "comparison", "decision" and "Redis", which inflated density on
+   * every page and — because the highlighter marks what matched — rendered snippets as
+   * "compar<mark>is</mark>on". Content terms keep substring matching, because that is
+   * what makes "imq" reach "imqueue" and "watcher" reach watcherCheckDelay.
+   *
+   * Allocates one small object per term per element. Deliberate: the alternative was a
+   * module-level side channel to return two numbers, and a hidden second return value
+   * is the kind of thing that breaks silently later. At ~20k short-lived objects per
+   * keystroke behind a 110ms debounce, it does not register.
+   */
+  function scanFor(folded, term, whole) {
     var n = 0;
+    var first = -1;
     var at = folded.indexOf(term);
 
     while (at !== -1) {
-      n++;
-      at = folded.indexOf(term, at + term.length);
+      var ok = true;
+
+      if (whole) {
+        ok = !(at > 0 && isWordChar(folded.charAt(at - 1))) &&
+          !isWordChar(folded.charAt(at + term.length));
+      }
+      if (ok) {
+        n++;
+
+        if (first === -1) {
+          first = at;
+        }
+      }
+      // +1 rather than +term.length: adjacent and overlapping occurrences both count,
+      // and a boundary rejection must not skip the characters after it.
+      at = folded.indexOf(term, at + 1);
     }
 
-    return n;
+    return { n: n, first: first };
   }
 
   /**
@@ -404,7 +441,7 @@
       // FIRST occurrence only. A term repeated across a long section has many
       // positions and no single meaningful one; for a bonus this small the first is a
       // good enough proxy.
-      var at = folded.indexOf(q.terms[i]);
+      var at = scanFor(folded, q.terms[i], q.whole[i]).first;
 
       if (at !== -1) {
         found.push([i, at]);
@@ -432,13 +469,13 @@
     var occurrences = 0;
 
     for (var i = 0; i < q.terms.length; i++) {
-      var n = countOf(folded, q.terms[i]);
+      var hit = scanFor(folded, q.terms[i], q.whole[i]);
 
-      if (n) {
+      if (hit.n) {
         // Both coverage and density are weighted, so a stopword contributes a
         // fifteenth of a content word on either axis.
         matched += q.weights[i];
-        occurrences += n * q.weights[i];
+        occurrences += hit.n * q.weights[i];
       }
     }
     if (!matched) {
@@ -571,8 +608,8 @@
     for (var i = 0; i < q.terms.length; i++) {
       var term = q.terms[i];
 
-      if (head.indexOf(term) !== -1 || text.indexOf(term) !== -1 ||
-        section[S_FOLDEMPH].indexOf(term) !== -1) {
+      if (scanFor(head, term, q.whole[i]).n || scanFor(text, term, q.whole[i]).n ||
+        scanFor(section[S_FOLDEMPH], term, q.whole[i]).n) {
         hits++;
 
         if (q.weights[i] === 1) {
@@ -761,7 +798,6 @@
     var lower = fold(text);
     var marks = [];
     var i;
-    var at;
 
     for (i = 0; i < q.terms.length; i++) {
       var term = q.terms[i];
@@ -769,11 +805,22 @@
       if (term.length < 2) {
         continue;
       }
-      at = lower.indexOf(term);
+      // Stopwords are matched but not MARKED, unless they are all the query has.
+      // Marking them turned a snippet for "what is imqueue" into a field of green on
+      // "is" and "what" — the words that contributed least to the result being there.
+      if (q.whole[i] && q.content > 0) {
+        continue;
+      }
+
+      var at = lower.indexOf(term);
 
       while (at !== -1) {
-        marks.push([at, at + term.length]);
-        at = lower.indexOf(term, at + term.length);
+        // Same boundary rule the scorer used, so what is highlighted is what matched.
+        if (!q.whole[i] ||
+          (!(at > 0 && isWordChar(lower.charAt(at - 1))) && !isWordChar(lower.charAt(at + term.length)))) {
+          marks.push([at, at + term.length]);
+        }
+        at = lower.indexOf(term, at + 1);
       }
     }
 
