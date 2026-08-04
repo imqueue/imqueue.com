@@ -100,6 +100,29 @@ eleventyExcludeFromCollections: true
   X-Robots-Tag: noindex
   Cache-Control: public, max-age=0, must-revalidate
 
+{%- comment -%}
+The search corpus (scripts/gen-search-index.js). Same treatment as llms.txt and for
+the same two reasons: it is regenerated on every deploy, and it is not a page.
+
+`max-age=0, must-revalidate` rather than the year-long immutable that /js/* gets,
+because these are NOT content-hashed — the filenames are stable so js/search.js can
+fetch them without being told a hash. Revalidation is a conditional request that
+comes back 304 with no body, which is the right trade for a file whose whole job is
+to describe the current state of the site: an index cached for four hours points
+search results at content that may have moved, and there is no way to bust it.
+
+noindex because these are the same content as the pages they index, in a form built
+for a fetch() rather than for a reader — exactly the duplicate-content argument that
+put the header on the markdown mirrors.
+{%- endcomment %}
+/search-index.json
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
+
+/search-text.json
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
+
 # ---- security ------------------------------------------------------------
 # Not ranking factors, but cheap and worth having. Left out on purpose:
 #   * Strict-Transport-Security — a year-long max-age is effectively
