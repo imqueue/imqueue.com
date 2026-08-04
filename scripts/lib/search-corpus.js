@@ -177,11 +177,16 @@ function splitSections(body) {
   // dropping it here dropped the marker faqRecords() gates on — 2 of the site's
   // 86 FAQ answers were being indexed. Callers that want text filter on it.
   const flush = () => {
+    const raw = current.lines.join("\n");
+
     sections.push({
       heading: current.heading,
       level: current.level,
       anchor: current.anchor,
-      text: plainText(current.lines.join("\n")),
+      text: plainText(raw),
+      // Extracted from the RAW markdown, before plainText() deletes the markers
+      // that identify it. See emphasized().
+      emphasis: emphasized(raw),
     });
   };
 
@@ -247,6 +252,39 @@ function headingText(md) {
     .replace(/\*\*|__|~~/g, "")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+/**
+ * The emphasized text of a section, as one string.
+ *
+ * Ranking weights title > heading > emphasis > body density, and emphasis is the
+ * element that was missing: plainText() deletes `**`, `*` and `>` along with the
+ * rest of the syntax, so a term the author had bolded scored exactly like a term
+ * buried in a paragraph. Authors emphasize what a passage is ABOUT, which makes
+ * this the cheapest signal on the page.
+ *
+ * Bold, italic and blockquotes only. Inline `code` is deliberately excluded: on
+ * this site almost every paragraph contains some, so it separates nothing — the
+ * body text already carries those identifiers, and giving them emphasis weight
+ * would promote every page that mentions any API name in passing.
+ */
+function emphasized(md) {
+  const found = [];
+  const text = String(md == null ? "" : md);
+
+  for (const re of [
+    /\*\*([^*\n]+)\*\*/g,          // **bold**
+    /__([^_\n]+)__/g,              // __bold__
+    /(?:^|[\s(])\*([^*\n]+)\*/g,   // *italic*, not a list bullet
+    /(?:^|[\s(])_([^_\n]+)_/g,     // _italic_
+    /^\s{0,3}>\s?(.+)$/gm,         // > blockquote
+  ]) {
+    for (const match of text.matchAll(re)) {
+      found.push(match[1]);
+    }
+  }
+
+  return plainText(found.join(" "));
 }
 
 function summarize(text) {
@@ -392,7 +430,7 @@ function buildCorpus(outputDir) {
 
       for (const part of parts) {
         if (part.text) {
-          sections.push([pageIdx, part.anchor, part.heading, part.text]);
+          sections.push([pageIdx, part.anchor, part.heading, part.text, part.emphasis]);
         }
       }
     }
@@ -437,6 +475,7 @@ function buildCorpus(outputDir) {
 
 module.exports = {
   buildCorpus,
+  emphasized,
   faqRecords,
   groupFor,
   headingText,

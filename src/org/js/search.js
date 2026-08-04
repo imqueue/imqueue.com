@@ -40,22 +40,54 @@
   var G_API = 1;
   var G_ANSWER = 2;
 
+  // Whole-string evidence: the strongest signals there are, because they say the
+  // record IS the thing asked for rather than that it mentions it.
   var W = {
     exact: 1000,      // the whole name/title IS the query
+    bag: 900,         // every word of the query is in the title, in any order
     lastSeg: 700,     // "send" for RedisQueue.send
     prefix: 500,
+    squashed: 450,    // "backpressure" vs "Back-pressure" — real, weaker evidence
     substring: 320,
-    squashed: 250,   // "backpressure" vs "Back-pressure": real, but weaker evidence
-    allTerms: 240,    // every query term present, in any order
-    someTerms: 90,    // partial coverage, scaled
-    summaryTerm: 22,
-    summaryCap: 60,   // rule 1: one field cannot outrank a whole-name match
-    headingTerm: 90,
-    bodyTerm: 14,
-    bodyCap: 130,
-    phrase: 80,       // the query appears verbatim
-    allTermsBonus: 55,
   };
+
+  // A verbatim occurrence of the whole query is worth a quarter of the element it
+  // occurs in. Proportional, not a flat bonus: a flat +90 was added to the BODY only,
+  // which pushed a body match (120 + 90) above an emphasis match (200) and inverted
+  // two of the four element weights. Scaling by the element keeps the ordering true
+  // by construction rather than by luck.
+  var PHRASE_SHARE = 0.25;
+
+  // ELEMENT WEIGHTS. Relevance flows in this order: what the thing is called, then
+  // what the section it sits in is called, then what the author chose to emphasize,
+  // then how densely the body talks about it. Each element is scored independently
+  // and contributes at most its own weight, which is the structural form of the rule
+  // that no single field can outrank a whole-name match.
+  // Every one of these sits BELOW the whole-string signals in W, and that ordering is
+  // load-bearing: graded evidence ("the title contains all the query words, densely")
+  // must never overtake exact evidence ("the title IS the query"). With title at 620
+  // it did — `IMQOptions.safeDeliveryTtl` scored 836 for the query "safeDelivery" and
+  // `IMQOptions.safeDelivery`, whose last segment is exactly that, scored 708.
+  var E = {
+    title: 430,
+    header: 360,
+    emphasis: 200,
+    body: 120,
+  };
+
+  // A section's PAGE title is context, not the section's own name, so it counts at a
+  // fraction — otherwise every section of a page whose title matches outranks the
+  // page itself and the list fills up with one document.
+  var PAGE_TITLE_SHARE = 0.4;
+
+  // Inside one element: mostly "how much of the query does this cover", partly "how
+  // concentrated is it". Coverage has to dominate, or a one-word section beats a
+  // thorough treatment of the whole query.
+  var COVERAGE_SHARE = 0.75;
+
+  // Occurrences per token at which density counts as saturated. One hit in eight
+  // words is already emphatic; ten hits in eight words is not ten times better.
+  var DENSITY_SATURATION = 8;
 
   // Kind is a real relevance signal in generated reference: somebody typing
   // "RedisQueue" wants the class, not its 30th inherited method.
@@ -71,11 +103,20 @@
 
   var QUESTION_WORD = /^(?:how|what|why|when|where|which|who|whose|does|do|did|is|are|was|can|could|should|would|will|must|am)\b/;
 
-  // Dropped from term matching, kept in the phrase. Without this, "does @imqueue
-  // retry a failed call?" scored 170 prose sections — every section containing
-  // "does", "a" or "call" — and the third result was an author page that happened
-  // to contain the word "does". The interrogative words are in here too: they
-  // decide the query's SHAPE (see `question` below), they are not content.
+  // Stopwords are SEARCHABLE, at a fraction of the weight — not discarded.
+  //
+  // Discarding them was the first attempt and it broke short queries: "what is
+  // imqueue" became the single term "imqueue", which is in half the corpus, thirty
+  // records then tied, and the winner was whichever had the shortest URL. Keeping
+  // them at full weight is the opposite failure — "does @imqueue retry a failed
+  // call?" matched 170 sections on the words "does" and "a".
+  //
+  // A weight solves both: every word still matches, but a page whose only claim is
+  // the word "the" cannot clear MIN_SCORE, while a heading that matches ALL of
+  // "what", "is" and "imqueue" scores as the near-exact answer it is. The
+  // interrogative words are in here too — they shape the query (see `question`
+  // below) rather than describing content.
+  var STOP_WEIGHT = 0.15;
   var STOP = {};
 
   ("a an and are as at be been but by can could did do does for from had has have how i if in into is it its "
@@ -88,17 +129,19 @@
     { key: "api", label: "API reference" },
   ];
 
-  // Ten per group in the dialog; anything beyond that is behind a link to /search/,
-  // which pages through the whole group. At most two results from one page, or a
-  // query matching a long comparison article returns that article eight times and
-  // buries everything else.
-  var PER_GROUP = 10;
+  // Five per group in the dialog — three groups of five is a list you can take in
+  // without scrolling, and anything past it is behind the link to /search/, which
+  // pages through the whole group twenty at a time. At most two results from one
+  // page, or a query matching a long comparison article returns that article five
+  // times and buries everything else.
+  var PER_GROUP = 5;
   var PER_PAGE = 20;
   var MAX = { perPage: 2 };
 
   // Below this a "match" is one weak term hit and showing it costs more than the
-  // blank space it fills.
-  var MIN_SCORE = 34;
+  // blank space it fills. On the element scale: a single term covering a whole query
+  // in a body scores ~115, while one term of four covering nothing else scores ~28.
+  var MIN_SCORE = 60;
 
   var state = { t1: null, t2: null, p1: null, p2: null, q: "", results: null, active: -1 };
   var el = {};
@@ -107,6 +150,28 @@
   // only on /search/, where the page owns a search field of its own and the modal
   // would be a second one stacked on top of it.
   var pageHost = null;
+
+  // Section tuple layout. The first five slots come from the generator, the rest are
+  // computed once when tier 2 lands — folding and counting 640 KB of prose on every
+  // keystroke was measurably the most expensive thing this file did.
+  var S_PAGE = 0;
+  var S_ANCHOR = 1;
+  var S_HEAD = 2;
+  var S_TEXT = 3;
+  var S_EMPH = 4;
+  var S_SQUASH = 5;
+  var S_FOLDED = 6;
+  var S_HEADTOK = 7;
+  var S_FOLDEMPH = 8;
+  var S_NTOK = 9;
+  var S_NEMPH = 10;
+
+  // Page tuple layout: url, title, kind, then the same precomputation.
+  var P_URL = 0;
+  var P_TITLE = 1;
+  var P_KIND = 2;
+  var P_FOLDED = 3;
+  var P_NTOK = 4;
 
   // ---- text utilities -----------------------------------------------------
 
@@ -155,6 +220,41 @@
     return parts[parts.length - 1];
   }
 
+  /**
+   * The query as an unordered bag of words against a title's own words.
+   *
+   * This is what makes "what is imqueue" find the section headed "What @imqueue is".
+   * Nothing else could: the phrase check needs the words in order, and term matching
+   * had already thrown "what" and "is" away as stopwords, leaving the single term
+   * "imqueue" — which is in half the corpus. Thirty FAQ answers then scored
+   * identically and the winner was decided by URL length, which is how "Can I use
+   * @imqueue alongside gRPC or NATS?" became the top result for "what is imqueue".
+   *
+   * EVERY word of the query has to be present, so this fires rarely and precisely.
+   * The score scales by how much of the title the query accounts for: three words
+   * matching a three-word heading is an exact answer, three words matching a
+   * twelve-word heading is a coincidence.
+   */
+  function bagScore(tokens, q) {
+    if (!q.all.length || q.all.length > tokens.length) {
+      return 0;
+    }
+
+    for (var i = 0; i < q.all.length; i++) {
+      if (tokens.indexOf(q.all[i]) === -1) {
+        return 0;
+      }
+    }
+
+    // Damped for a query with little content, but never to zero: "how do i" is all
+    // stopwords and a heading that is exactly those words is still the best possible
+    // answer to it. The floor is what keeps that true while stopping a bare "the"
+    // from scoring 450 on every heading that happens to start with it.
+    var strength = Math.max(0.4, Math.min(1, q.weightSum));
+
+    return W.bag * strength * (q.all.length / tokens.length);
+  }
+
   function parseQuery(raw) {
     var text = String(raw || "").trim();
     var filters = { pkg: null, kind: null };
@@ -168,15 +268,34 @@
     }).trim();
 
     var t = terms(text);
-    var content = t.filter(function (term) { return !STOP[term]; });
+    var weights = [];
+    var weightSum = 0;
+    var content = 0;
+
+    for (var i = 0; i < t.length; i++) {
+      var weight = STOP[t[i]] ? STOP_WEIGHT : 1;
+
+      weights.push(weight);
+      weightSum += weight;
+
+      if (weight === 1) {
+        content++;
+      }
+    }
 
     return {
       raw: text,
       joined: fold(text).replace(/\s+/g, " ").trim(),
       squashed: squash(fold(text)),
-      // Falling back to the unfiltered list matters for a query that is ALL
-      // stopwords — "how do I" — which should still search rather than go blank.
-      terms: content.length ? content : t,
+      // Every token, stopwords included. `weights` is what makes them count for
+      // less; see STOP_WEIGHT.
+      terms: t,
+      weights: weights,
+      weightSum: weightSum || 1,
+      // How many terms are not stopwords — the coverage floor is expressed in these,
+      // so a long question cannot be "half matched" by its articles and prepositions.
+      content: content,
+      all: t,
       filters: filters,
       question: /\?\s*$/.test(text) || QUESTION_WORD.test(fold(text)),
     };
@@ -184,7 +303,72 @@
 
   // ---- scoring ------------------------------------------------------------
 
-  function nameScore(record, q) {
+  function countOf(folded, term) {
+    var n = 0;
+    var at = folded.indexOf(term);
+
+    while (at !== -1) {
+      n++;
+      at = folded.indexOf(term, at + term.length);
+    }
+
+    return n;
+  }
+
+  /**
+   * Score ONE element (a title, a heading, the emphasized text, a body) against the
+   * query: how much of the query it covers, and how densely.
+   *
+   * Density is per element, so "queue" once in a five-word heading beats "queue"
+   * once in a four-hundred-word section, which is the whole point of weighting by
+   * element rather than counting hits across a page. Takes text that is already
+   * folded — prepare() and loadTier2() do that once, not once per keystroke.
+   */
+  function elementScore(weight, folded, tokenCount, q) {
+    if (!folded || !q.terms.length) {
+      return 0;
+    }
+
+    var matched = 0;
+    var occurrences = 0;
+
+    for (var i = 0; i < q.terms.length; i++) {
+      var n = countOf(folded, q.terms[i]);
+
+      if (n) {
+        // Both coverage and density are weighted, so a stopword contributes a
+        // fifteenth of a content word on either axis.
+        matched += q.weights[i];
+        occurrences += n * q.weights[i];
+      }
+    }
+    if (!matched) {
+      return 0;
+    }
+
+    var coverage = matched / q.weightSum;
+    var density = Math.min(1, (occurrences / Math.max(tokenCount, 1)) * DENSITY_SATURATION);
+    // Coverage is RELATIVE — matched weight over total weight — so a query of nothing
+    // but stopwords would reach coverage 1.0 on the word "the" and return most of the
+    // site. Strength is the absolute check: below one content word's worth of query,
+    // graded evidence is scaled down until it cannot clear MIN_SCORE. bagScore() is
+    // deliberately NOT scaled, so "how do i" still matches a heading that is exactly
+    // those words.
+    var strength = Math.min(1, q.weightSum);
+    var phrase = q.joined.length > 3 && folded.indexOf(q.joined) !== -1 ? PHRASE_SHARE : 0;
+
+    return weight * strength * (COVERAGE_SHARE * coverage + (1 - COVERAGE_SHARE) * density + phrase);
+  }
+
+  /**
+   * The title element, including the whole-string signals that outrank it.
+   *
+   * `direct` is deliberately a Math.max against the graded element score rather than
+   * added to it: an exact name match is not "a very dense title", it is a different
+   * and stronger kind of evidence, and adding them would let a long title with many
+   * repetitions overtake the record actually named after the query.
+   */
+  function titleScore(record, q) {
     var lower = record._l;
     var direct = 0;
 
@@ -194,61 +378,17 @@
       direct = W.lastSeg;
     } else if (lower.indexOf(q.joined) === 0) {
       direct = W.prefix;
+    } else if (q.squashed.length > 4 && record._q.indexOf(q.squashed) !== -1) {
+      direct = W.squashed;
     } else if (q.joined.length > 2 && lower.indexOf(q.joined) !== -1) {
       direct = W.substring;
-    } else if (q.squashed.length > 4 && record._q.indexOf(q.squashed) !== -1) {
-      // Scored below a literal substring hit: it is a weaker kind of evidence.
-      direct = W.squashed;
     }
 
-    // Per-term coverage over the identifier's own tokens. Prefix counts as a hit
-    // (typing "watcher" should reach watcherCheckDelay) but scores below exact.
-    var hits = 0;
-    var tokens = record._t;
-
-    for (var i = 0; i < q.terms.length; i++) {
-      var term = q.terms[i];
-      var exact = false;
-      var prefix = false;
-
-      for (var j = 0; j < tokens.length; j++) {
-        if (tokens[j] === term) { exact = true; break; }
-        if (tokens[j].indexOf(term) === 0) { prefix = true; }
-      }
-
-      if (exact) hits += 1;
-      else if (prefix) hits += 0.8;
-      else if (lower.indexOf(term) !== -1) hits += 0.45;
-    }
-
-    var coverage = q.terms.length ? hits / q.terms.length : 0;
-    var byTerms = coverage >= 1
-      ? W.allTerms + W.allTermsBonus
-      : coverage * W.someTerms;
-
-    return Math.max(direct, byTerms);
-  }
-
-  // Takes text that is ALREADY folded (prepare() does it once per record), because
-  // this runs 1,325 times per keystroke and folding here made it 1,325 normalize()
-  // calls per keystroke instead of once per build of the index.
-  function fieldScore(lower, q, perTerm, cap) {
-    if (!lower) {
-      return 0;
-    }
-
-    var score = 0;
-
-    for (var i = 0; i < q.terms.length; i++) {
-      if (lower.indexOf(q.terms[i]) !== -1) {
-        score += perTerm;
-      }
-    }
-    if (q.joined.length > 3 && lower.indexOf(q.joined) !== -1) {
-      score += W.phrase;
-    }
-
-    return Math.min(score, cap);
+    return Math.max(
+      direct,
+      bagScore(record._t, q),
+      elementScore(E.title, lower, record._t.length, q)
+    );
   }
 
   function scoreRecord(record, q) {
@@ -263,11 +403,12 @@
     // "does @imqueue retry a failed call?" matched 57 answers and 151 sections,
     // most of them on the word "@imqueue" alone, which is in half the corpus. A
     // long query has to be met at least halfway.
-    if (q.terms.length >= 3) {
+    if (q.content >= 3) {
       var found = 0;
 
       for (var t = 0; t < q.terms.length; t++) {
-        if (record._l.indexOf(q.terms[t]) !== -1 || record._s.indexOf(q.terms[t]) !== -1) {
+        if (q.weights[t] === 1 &&
+          (record._l.indexOf(q.terms[t]) !== -1 || record._s.indexOf(q.terms[t]) !== -1)) {
           found++;
         }
       }
@@ -276,7 +417,11 @@
       }
     }
 
-    var score = nameScore(record, q) + fieldScore(record._s, q, W.summaryTerm, W.summaryCap);
+    // A record has two elements: what it is called, and its summary. The summary is
+    // scored as a body — same weight a section's prose gets — so a symbol whose
+    // description happens to use the query words cannot outrank the symbol named
+    // after them.
+    var score = titleScore(record, q) + elementScore(E.body, record._s, record._sn, q);
 
     if (score < MIN_SCORE) {
       return 0;
@@ -296,55 +441,57 @@
     return score;
   }
 
-  function scoreSection(section, q, pageKind) {
-    var lowerText = section[5];
-    var lowerHead = fold(section[2]);
+  function scoreSection(section, q, page) {
+    var head = section[S_HEAD] ? fold(section[S_HEAD]) : "";
+    var text = section[S_FOLDED];
+
+    // The four elements, each scored on its own coverage and its own density, then
+    // summed — a section that matches in the heading AND in bolded text AND
+    // throughout the body is genuinely more relevant than one that matches in only
+    // one of them, and summing is what says so. The heading takes the whole-query
+    // bag match the same way a title does.
+    var score = Math.max(
+      bagScore(section[S_HEADTOK], q),
+      elementScore(E.header, head, section[S_HEADTOK].length, q)
+    ) +
+      elementScore(E.emphasis, section[S_FOLDEMPH], section[S_NEMPH], q) +
+      elementScore(E.body, text, section[S_NTOK], q) +
+      PAGE_TITLE_SHARE * elementScore(E.title, page[P_FOLDED], page[P_NTOK], q);
+
+    // Coverage floor, over the union of the elements. Matching ONE term of a
+    // four-term question is not a result: "does @imqueue retry a failed call?" once
+    // matched 151 sections, most of them on the word "@imqueue" alone.
     var hits = 0;
-    var score = 0;
+    var contentHits = 0;
 
     for (var i = 0; i < q.terms.length; i++) {
       var term = q.terms[i];
-      var inHead = lowerHead.indexOf(term) !== -1;
-      var at = lowerText.indexOf(term);
 
-      if (inHead) {
-        score += W.headingTerm;
-      }
-      if (at !== -1) {
-        // Damped frequency: a section that says "queue" nine times is not nine
-        // times more relevant, and without damping long pages win everything.
-        var occurrences = lowerText.split(term).length - 1;
+      if (head.indexOf(term) !== -1 || text.indexOf(term) !== -1 ||
+        section[S_FOLDEMPH].indexOf(term) !== -1) {
+        hits++;
 
-        score += W.bodyTerm * (1 + Math.log(Math.min(occurrences, 12)));
-      }
-      if (inHead || at !== -1) {
-        hits += 1;
+        if (q.weights[i] === 1) {
+          contentHits++;
+        }
       }
     }
 
-    // Hyphenation, in the body this time: the back-pressure article says
-    // "back-pressure" throughout and nobody types the hyphen. Only consulted when
-    // the ordinary term pass found nothing, because it cannot report WHERE it
-    // matched and so contributes no snippet position.
-    if (!hits && q.squashed.length > 4 && section[4].indexOf(q.squashed) !== -1) {
-      return W.squashed * 0.5;
-    }
+    if (!hits) {
+      // Hyphenation, in the body this time: the back-pressure article says
+      // "back-pressure" throughout and nobody types the hyphen. Last resort only —
+      // it cannot report WHERE it matched, so it contributes no snippet position.
+      if (q.squashed.length > 4 && section[S_SQUASH].indexOf(q.squashed) !== -1) {
+        return W.squashed * 0.5;
+      }
 
-    // Same coverage floor as scoreRecord, for the same reason.
-    if (!hits || (q.terms.length >= 3 && hits < 2)) {
+      return score > 0 ? score : 0;
+    }
+    if (q.content >= 3 && contentHits < 2) {
       return 0;
     }
-    // Every term present, and better still present verbatim.
-    if (hits === q.terms.length && q.terms.length > 1) {
-      score *= 1.5;
-    }
-    if (q.joined.length > 3 && lowerText.indexOf(q.joined) !== -1) {
-      score += W.phrase;
-    }
 
-    score = Math.min(score, W.bodyCap + W.headingTerm * q.terms.length + W.phrase);
-
-    if (EDITORIAL[pageKind] && !q.question) {
+    if (EDITORIAL[page[P_KIND]] && !q.question) {
       score *= BLOG_WEIGHT;
     }
 
@@ -361,6 +508,10 @@
       r._s = fold(r.s);
       r._q = squash(r._l);
       r._t = idTokens(r.t);
+      // Word count, for the summary's density. Cheap approximation on purpose:
+      // splitting on whitespace is within a token or two of idTokens() here and this
+      // runs over 1,325 records at load.
+      r._sn = r._s ? r._s.split(" ").length : 0;
     }
 
     return index;
@@ -384,8 +535,8 @@
     if (state.t2 && !q.filters.pkg && !q.filters.kind) {
       for (i = 0; i < state.t2.sections.length; i++) {
         var section = state.t2.sections[i];
-        var page = state.t2.pages[section[0]];
-        var sectionScore = scoreSection(section, q, page[2]);
+        var page = state.t2.pages[section[S_PAGE]];
+        var sectionScore = scoreSection(section, q, page);
 
         if (sectionScore > 0) {
           hits.push({
@@ -393,11 +544,11 @@
             section: section,
             record: {
               g: G_DOC,
-              t: section[2] || page[1],
-              u: section[1] ? page[0] + "#" + section[1] : page[0],
+              t: section[S_HEAD] || page[P_TITLE],
+              u: section[S_ANCHOR] ? page[P_URL] + "#" + section[S_ANCHOR] : page[P_URL],
               s: "",
-              k: page[2],
-              _page: page[1],
+              k: page[P_KIND],
+              _page: page[P_TITLE],
             },
           });
         }
@@ -419,7 +570,15 @@
         continue;
       }
 
-      var winner = hits[i].record.g === G_ANSWER && previous.record.g !== G_ANSWER ? hits[i] : previous;
+      // An answer wins outright — its presentation is the one that helps. Otherwise
+      // the better-scoring hit wins, which was the missing half: a page whose
+      // heading matched the query exactly ("What @imqueue is" for "what is imqueue")
+      // shares a URL with the page record when the heading has no anchor, and
+      // keeping "whichever came first" kept the page record — inheriting the
+      // section's score while showing the page's title and blurb.
+      var winner = hits[i].record.g === G_ANSWER && previous.record.g !== G_ANSWER ? hits[i]
+        : previous.record.g === G_ANSWER || previous.score >= hits[i].score ? previous
+          : hits[i];
 
       winner.score = Math.max(hits[i].score, previous.score);
       byUrl[hits[i].record.u] = winner;
@@ -427,7 +586,15 @@
 
     hits = Object.keys(byUrl).map(function (url) { return byUrl[url]; });
 
-    hits.sort(function (a, b) { return b.score - a.score || a.record.u.length - b.record.u.length; });
+    // Ties are common — a one-word query can match thirty records identically — and
+    // the tie-break has to mean something. Shortest title first: it is the one with
+    // the fewest words that are not the query, i.e. the most specifically about it.
+    // This used to be URL length, which is why an arbitrary FAQ won.
+    hits.sort(function (a, b) {
+      return b.score - a.score ||
+        a.record.t.length - b.record.t.length ||
+        a.record.u.length - b.record.u.length;
+    });
 
     // At most MAX.perPage results from one page. Without this a query matching a
     // long comparison article returns that article eight times and buries
@@ -599,7 +766,7 @@
     crumb.textContent = crumbs(record);
     a.appendChild(crumb);
 
-    var body = hit.section ? snippet(hit.section[3], q, 190) : record.s;
+    var body = hit.section ? snippet(hit.section[S_TEXT], q, 190) : record.s;
 
     if (body) {
       var text = document.createElement("span");
@@ -814,18 +981,35 @@
     });
   }
 
+  // Folded, squashed and counted once here, not once per keystroke: this is 640 KB of
+  // prose, and doing it in the scorer made every keystroke re-normalize the whole
+  // corpus. Stored as extra slots on each section and page tuple.
+  function prepareSections(index) {
+    {
+      for (var i = 0; i < index.sections.length; i++) {
+        var section = index.sections[i];
+        var folded = fold(section[S_TEXT]);
+        var emphasis = fold(section[S_EMPH] || "");
+
+        section[S_SQUASH] = squash(folded);
+        section[S_FOLDED] = folded;
+        section[S_HEADTOK] = idTokens(section[S_HEAD]);
+        section[S_FOLDEMPH] = emphasis;
+        section[S_NTOK] = folded ? folded.split(" ").length : 0;
+        section[S_NEMPH] = emphasis ? emphasis.split(" ").length : 0;
+      }
+      for (i = 0; i < index.pages.length; i++) {
+        index.pages[i][P_FOLDED] = fold(index.pages[i][P_TITLE]);
+        index.pages[i][P_NTOK] = idTokens(index.pages[i][P_TITLE]).length;
+      }
+    }
+
+    return index;
+  }
+
   function loadTier2() {
     return load(TIER2, 2, function (index) {
-      // Folded and squashed once here, not once per keystroke: this is 640 KB of
-      // prose and doing it in the scorer made every keystroke re-normalize the
-      // whole corpus. Stored as extra slots on each section tuple.
-      for (var i = 0; i < index.sections.length; i++) {
-        var folded = fold(index.sections[i][3]);
-
-        index.sections[i][4] = squash(folded);
-        index.sections[i][5] = folded;
-      }
-      state.t2 = index;
+      state.t2 = prepareSections(index);
       if (el.input && el.input.value) run();
     });
   }
@@ -934,6 +1118,24 @@
     return target && (/^(?:INPUT|TEXTAREA|SELECT)$/.test(target.tagName) || target.isContentEditable);
   }
 
+  // ---- browser wiring ------------------------------------------------------
+  // Everything above is pure functions over two JSON files; everything below needs a
+  // DOM. The guard is what lets Node require this file and exercise the ranker —
+  // see scripts/check-search-ranking.js, which asserts the rankings that were argued
+  // over rather than trusting that a screenshot still looks right.
+  if (typeof document === "undefined") {
+    module.exports = {
+      parseQuery: parseQuery,
+      prepare: prepare,
+      prepareSections: prepareSections,
+      search: search,
+      groupKey: groupKey,
+      state: state,
+    };
+
+    return;
+  }
+
   document.addEventListener("click", function (event) {
     var trigger = event.target.closest("[data-search-open]");
 
@@ -969,7 +1171,7 @@
   });
 
   // ---- /search/ — the full, paged result list ------------------------------
-  // The dialog shows the best ten per group, which is the right size for "find the
+  // The dialog shows the best five per group, which is the right size for "find the
   // page I mean". This is the other job: see everything that matched and walk it.
   // It runs the SAME ranker over the same two files — there is no second index and
   // no second scoring implementation to drift — and it is a static page that does
