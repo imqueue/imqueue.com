@@ -39,12 +39,19 @@
   var PEER1 = "/search-peer-index.json";
   var PEER2 = "/search-peer-text.json";
 
-  // Results from the other site are de-weighted so they can never outrank a page of the
-  // site you are actually on at comparable relevance. Not hidden, not excluded: somebody
-  // reading the docs who searches "pricing" should be offered the pricing page, and
-  // somebody on the commercial site searching "callTimeout" should be offered the
-  // reference — just never ahead of a local page that answers as well.
-  var PEER_WEIGHT = 0.8;
+  // THE SITE YOU ARE ON WINS. Every local result precedes every peer result — the peer
+  // group renders last, and in a merged list local hits sort first.
+  //
+  // This replaces a 0.8 de-weight, which could not deliver it. A multiplier only shifts
+  // scores, and com's pages are titled things like "@imqueue — commercial license &
+  // support", so for the query "what is imqueue license" the whole COMMERCIAL group
+  // outranked imqueue.org's own /license/ page on imqueue.org. De-weighting expresses a
+  // preference; priority is a rule, and a rule needs to be enforced where the order is
+  // decided rather than hoped for in the scores.
+  //
+  // The cost is real and accepted: on imqueue.org, "pricing" now shows org's licensing
+  // material above imqueue.com/pricing/, even though org has no pricing page. The peer
+  // group is still there, labelled, one glance below.
 
   // Groups, as written by the generator.
   var G_DOC = 0;
@@ -102,6 +109,13 @@
     // to fake and is scored on COVERAGE ONLY (see keywordScore).
     keywords: 300,
     body: 120,
+    // The URL path. Weak, and standard in every search engine for a reason: a site's
+    // canonical page on a subject usually has the subject in its path — /license/,
+    // /pricing/, /get-started/, /glossary/. Scored on coverage AND on how much of the path
+    // the query accounts for, so /license/ matching "licensing" counts as the whole
+    // identity of that page while /blog/imqueue-vs-moleculer/ matching "imqueue" counts as
+    // a quarter of it.
+    url: 190,
   };
 
   // A section's PAGE title is context, not the section's own name, so it counts at a
@@ -591,7 +605,15 @@
     }
 
     var coverage = matched / q.weightSum;
-    var density = Math.min(1, (occurrences / Math.max(tokenCount, 1)) * DENSITY_SATURATION);
+    // Density cannot exceed coverage. Without that ceiling a SHORT field saturates on a
+    // single term — `IMQOptions` is two tokens, so matching just "options" gave density 1.0
+    // and the interface outranked the licensing page for the query "licensing options".
+    // Concentration is a property of the terms that matched; if half the query missed, half
+    // is the most that concentration can be worth.
+    var density = Math.min(
+      coverage,
+      (occurrences / Math.max(tokenCount, 1)) * DENSITY_SATURATION
+    );
     // Coverage is RELATIVE — matched weight over total weight — so a query of nothing
     // but stopwords would reach coverage 1.0 on the word "the" and return most of the
     // site. Strength is the absolute check: below one content word's worth of query,
@@ -678,6 +700,51 @@
     return matched ? E.keywords * Math.min(1, q.weightSum ? matched / q.weightSum : 0) : 0;
   }
 
+  /**
+   * The URL element. Coverage of the query, plus how much of the path the query covers.
+   *
+   * Whole-word matching on path segments, so "license" matches /license/ and not
+   * /licenses-and-things/; segments are split on `-` too, so "get started" reaches
+   * /get-started/.
+   */
+  function urlScore(record, q) {
+    // NOT for generated reference. A symbol's path is derived from its own name, so scoring
+    // it double-counts the title — and the package segment is a bare English word: `job`,
+    // `net`, `core`, `validation`. For the query "nodejs job queue" that lifted every
+    // @imqueue/job symbol above the article written for the phrase, moving it from #3 to
+    // #10. The path only carries independent information when a human chose it.
+    if (!record._u || record.g === G_API) {
+      return 0;
+    }
+
+    var segments = record._u;
+    var matched = 0;
+    var hitSegments = 0;
+
+    for (var i = 0; i < q.terms.length; i++) {
+      var found = false;
+
+      for (var j = 0; j < segments.length; j++) {
+        if (segments[j] === q.terms[i] || segments[j] === q.lemmas[i]) {
+          found = true;
+          hitSegments++;
+        }
+      }
+      if (found) {
+        matched += q.weights[i];
+      }
+    }
+
+    if (!matched) {
+      return 0;
+    }
+
+    var coverage = matched / q.weightSum;
+    var focus = Math.min(1, hitSegments / segments.length);
+
+    return E.url * (0.5 * coverage + 0.5 * focus);
+  }
+
   function scoreRecord(record, q) {
     if (q.filters.pkg && fold(record.p || "").indexOf(q.filters.pkg) === -1) {
       return 0;
@@ -711,6 +778,7 @@
     // after them.
     var score = titleScore(record, q) +
       keywordScore(record, q) +
+      urlScore(record, q) +
       elementScore(E.body, record._s, record._sn, q, "");
 
     if (score < MIN_SCORE) {
@@ -811,6 +879,10 @@
       // runs over 1,325 records at load.
       r._sn = r._s ? r._s.split(" ").length : 0;
       r._w = r.w ? fold(r.w) : "";
+      // Path segments, hyphens split, `latest` and `api` dropped — they are in 1,152 URLs
+      // and identify nothing.
+      r._u = fold(r.u).split("#")[0].split(/[^a-z0-9]+/)
+        .filter(function (part) { return part && part !== "latest" && part !== "api"; });
     }
 
     return index;
@@ -868,7 +940,7 @@
     lemmatize(q);
 
     collect(hits, state.t1, state.t2, q, 1, false);
-    collect(hits, state.x1, state.x2, q, PEER_WEIGHT, true);
+    collect(hits, state.x1, state.x2, q, 1, true);
 
     // One URL, one result — but an ANSWER and a prose section can be the same
     // heading seen twice, and then the answer's presentation is the one that
@@ -910,7 +982,10 @@
     // the fewest words that are not the query, i.e. the most specifically about it.
     // This used to be URL length, which is why an arbitrary FAQ won.
     hits.sort(function (a, b) {
-      return b.score - a.score ||
+      // Local before peer, unconditionally — see the note on site priority above. Applies
+      // to the merged "Everything" list on /search/ as much as to the dialog.
+      return (a.external ? 1 : 0) - (b.external ? 1 : 0) ||
+        b.score - a.score ||
         a.record.t.length - b.record.t.length ||
         a.record.u.length - b.record.u.length;
     });
@@ -1054,9 +1129,21 @@
    * recipe or a section of a blog post — and after the caps, several rows can share
    * a heading. The URL path answers it in the fewest characters.
    */
-  function crumbs(record) {
+  function host(url) {
+    return String(url || "").replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  }
+
+  function crumbs(record, external) {
     var path = record.u.split("#")[0].replace(/^\/+|\/+$/g, "");
     var parts = path ? path.split("/") : [];
+
+    // A root URL has no path to show, so it shows its HOST. This used to be the literal
+    // string "imqueue.org", which made imqueue.com's home page read
+    // "imqueue.com › imqueue.org" as a peer result, and claim to be on imqueue.org when
+    // viewed on imqueue.com itself.
+    if (!parts.length) {
+      return external ? host(peerOrigin) : host(window.location.host);
+    }
 
     if (record.g === G_API) {
       // "api › core › latest › core.redisqueue.send" says the same thing three
@@ -1066,7 +1153,7 @@
         (record.d ? " · deprecated" : "");
     }
 
-    return parts.length ? parts.join(" › ") : "imqueue.org";
+    return parts.join(" › ");
   }
 
   function row(hit, q, index, listbox) {
@@ -1102,9 +1189,11 @@
 
     crumb.className = "s-hit__crumbs";
     // The host, so it is never a surprise that following this leaves the current site.
-    crumb.textContent = hit.external
-      ? peerOrigin.replace(/^https?:\/\//, "") + " › " + crumbs(record)
-      : crumbs(record);
+    // The peer's host prefixes its path, so following the row is never a surprise — but
+    // only when there IS a path; for the peer's home page the host is the whole crumb.
+    crumb.textContent = hit.external && record.u.split("#")[0].replace(/^\/+|\/+$/g, "")
+      ? host(peerOrigin) + " › " + crumbs(record, true)
+      : crumbs(record, hit.external);
     a.appendChild(crumb);
 
     var body = hit.section ? snippet(hit.section[S_TEXT], q, 190) : record.s;
@@ -1200,6 +1289,13 @@
     // grouping is worth keeping (a symbol and an article are different kinds of
     // answer); the fixed precedence is not.
     groups.sort(function (a, b) {
+      // The peer group is pinned last, whatever it scored. Everything else is ordered by
+      // its best hit, which is the rule that stopped three prose mentions of
+      // `watcherCheckDelay` from sitting above the page documenting it.
+      if ((a[0].key === "peer") !== (b[0].key === "peer")) {
+        return a[0].key === "peer" ? 1 : -1;
+      }
+
       var bestA = a[1].length ? a[1][0].score : -1;
       var bestB = b[1].length ? b[1][0].score : -1;
 
