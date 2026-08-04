@@ -3,9 +3,9 @@ layout: post.html
 permalink: /blog/rpc-over-redis-nodejs/
 templateEngineOverride: md
 title: "RPC over Redis in Node.js: patterns and pitfalls"
-summary: "How request/reply RPC over Redis actually works in Node.js — the correlation, timeout and delivery problems you have to solve yourself, why the old npm packages stalled, and how @imqueue turns it into typed, boilerplate-free calls."
-description: "A practical guide to RPC over Redis in Node.js: the request/reply pattern, its pitfalls — correlation, timeouts, at-least-once, backpressure — and a typed fix."
-keywords: "RPC over Redis, redis rpc, redis rpc node.js, typed rpc redis, node.js redis rpc, request reply redis, redis pub/sub rpc, imqueue"
+summary: "How request/reply RPC over Redis actually works in Node.js — correlation, timeouts and at-least-once delivery, which of those @imqueue handles for you, and what it deliberately leaves to you: retrying a failed RPC call, coalescing duplicate concurrent calls with @lock, and the circuit breaker it does not ship."
+description: "RPC over Redis in Node.js: correlation, timeouts, at-least-once delivery — plus retries, @lock call coalescing, and the circuit breaker @imqueue does not ship."
+keywords: "RPC over Redis, redis rpc, redis rpc node.js, typed rpc redis, retry failed rpc call, imqueue retry, duplicate concurrent calls, imqueue lock decorator, circuit breaker node.js rpc, request reply redis, imqueue"
 date: 2026-07-23
 author: serhiy-morenko
 illustration: redis-rpc
@@ -91,9 +91,14 @@ you're on your own for the rest of the list above.
 [`@imqueue`](/get-started/) is a maintained implementation of this exact pattern,
 built for TypeScript. Two pieces do the work:
 
-- [`@imqueue/core`](/api/core/latest/) is the reliable message queue over Redis
-  (`ClusteredRedisQueue`) — it owns delivery, blocking reads, reconnection and the
-  serialization that plain JSON gets wrong.
+- [`@imqueue/core`](/api/core/latest/) is the message queue over Redis. It owns
+  delivery, blocking reads and reconnection. `IMQ.create()` returns a `RedisQueue`
+  for a single server and a `ClusteredRedisQueue` when you pass `cluster` — that
+  choice is about spreading one queue across several Redis instances, not about
+  reliability, which is the [`safeDelivery`](/api/core/latest/core.imqoptions.safedelivery/)
+  option. It does **not** fix the serialization pitfall above: messages are plain
+  JSON (`JSON.stringify`, gzipped when `useGzip` is on), so convert rich types
+  yourself at both ends.
 - [`@imqueue/rpc`](/api/rpc/latest/) is the RPC layer on top. You write a service as
   a class and mark the callable methods with `@expose()`:
 
@@ -122,13 +127,15 @@ real one from the running service:
 imq client generate UserService ./src/clients
 ~~~
 
-and call it like a local, fully-typed object — the correlation, reply routing and
-timeouts are handled for you:
+and call it like a local, fully-typed object — correlation and reply routing are
+handled for you, and per-call timeouts are available once you ask for them:
 
 ~~~typescript
 import { userService } from './clients/UserService.js';
 
-const users = new userService.UserClient();
+// callTimeout is unset by default, and an unset timeout means a call to a service
+// that is down waits forever. Set it.
+const users = new userService.UserClient({ callTimeout: 5000 });
 await users.start();
 
 const user = await users.get('42'); // typed: User, no client boilerplate
@@ -136,9 +143,22 @@ const user = await users.get('42'); // typed: User, no client boilerplate
 
 Because the client is generated from the live service rather than hand-maintained,
 the types can't drift out of sync with the implementation — the failure mode that
-makes hand-rolled RPC rot. Everything on the pitfalls list (correlation, timeouts,
-at-least-once delivery, serialization, backpressure handling) lives in the library,
-not in your service code.
+makes hand-rolled RPC rot.
+
+### Which pitfalls does @imqueue actually take off your hands?
+
+Not all of them, and it is worth being exact about which — the ones that remain are
+the ones that fail silently.
+
+| Pitfall | Who owns it with @imqueue |
+|---|---|
+| Correlation | **The library.** Request ids and the pending-call map are handled; you never see them. |
+| Types | **The library.** The client is generated from the running service, so drift becomes a compile error in the caller's build. |
+| Redis operations | **The library**, as far as reconnection and blocking reads go. Clustering and failover are still your infrastructure. |
+| Timeouts | **You, by opting in.** `callTimeout` is unset by default, so an unconfigured client waits forever on a service that never answers. |
+| Delivery semantics | **You.** Delivery is at-least-once in both modes, so handlers must be idempotent. `safeDelivery` protects the hand-off, not the processing — a worker killed mid-handler loses that message either way. |
+| Serialization | **You.** Messages are plain JSON, so the `Date`/`Map`/`Set`/`BigInt` losses listed above apply unchanged. Convert rich types explicitly on both sides. |
+| Back-pressure | **Shared.** The queue absorbs a spike instead of turning it into a cascade, but nothing watches queue depth or pushes back for you — see [back-pressure for Node.js services](/blog/backpressure-nodejs-services/). |
 
 ## When this is the right call — and when it isn't
 
@@ -154,3 +174,45 @@ If that fit sounds right, the [getting-started guide](/get-started/) has a worki
 two-service example running in a couple of minutes, and the
 [throughput benchmark](/blog/benchmarking-imqueue-throughput/) covers the numbers
 and a reproducible harness.
+
+## FAQ
+
+### Does @imqueue retry a failed RPC call?
+
+No, and this is deliberate. There is no automatic retry at the RPC layer: a call that
+times out rejects with `IMQ_RPC_CALL_TIMEOUT`, and a method that throws returns its
+error to the caller. The only backoff in the stack is the queue reconnecting to
+Redis, which is a transport concern and has nothing to do with your call.
+
+So retrying is the caller's decision, and it is a decision rather than a default
+because the safe retry policy depends on what the method does. Since delivery is
+at-least-once, a handler can already run twice for one send — which means the
+idempotency a retry needs is something you owe the system anyway. Make the handler
+idempotent, then retry in the caller with whatever backoff suits it.
+
+If you find yourself wanting durable, retried, scheduled work rather than a
+request/reply call, that is a different tool: [`@imqueue/job`](/blog/imqueue-vs-bullmq/)
+has retries and delays built in.
+
+### How do I stop duplicate concurrent calls doing the same work twice?
+
+Decorate the method with [`@lock()`](/api/rpc/latest/rpc.lock/). Concurrent calls
+that share the same arguments are coalesced: the first one executes and the rest
+resolve with its result, which is what you want for an expensive read that several
+callers ask for at once.
+
+Two limits worth knowing. It is **in-process only** — separate processes, cluster
+workers and service replicas each keep their own lock and will all run the guarded
+code, so it is not a distributed mutex. And similarity is computed from the argument
+values, so pass `skipArgs` for arguments that must not affect the key, such as a
+request context.
+
+### Is there a circuit breaker?
+
+No. @imqueue ships no circuit breaker and no bulkhead. What the queue gives you
+instead is that a slow consumer does not reject callers the way a saturated HTTP
+service does — the work waits in the queue rather than failing outward, so a spike
+becomes latency instead of a cascade. That covers the failure mode a breaker is
+usually reached for, but it is not the same thing: if you need calls to fail fast
+once a dependency is unhealthy, that is yours to add on top, and `callTimeout` is
+the primitive to build it from.
