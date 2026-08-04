@@ -67,3 +67,8 @@ CUTOVER.md
 *-NOTES.md
 *-REPORT.md
 *-HANDOVER.md
+
+# Build intermediate: the curated front matter the search index folds in. Moved here out
+# of the output dir by scripts/lib/search-corpus.js so an incremental rebuild can still
+# read it — see takeFrontmatter() for why deleting it was a correctness bug.
+.search-frontmatter-*.json
