@@ -132,6 +132,22 @@
   // contributes no position and gets no highlight.
   var LEMMA_WEIGHT = 0.55;
 
+  // Truncated-prefix matching: the last resort for a long term that matched nothing.
+  //
+  // "commercially" cannot reach "commercial" any other way. Substring matching finds a
+  // short term inside a longer word, never the reverse, and the lemmatizer will not do it
+  // because -ly is derivational — see the note at the top of scripts/lib/lemma.js for why
+  // that door is closed for good.
+  //
+  // Truncating the QUERY term and requiring a word-start match is the classic fallback, and
+  // it is safe where lemmatizing is not for one reason: it happens at match time. A wrong
+  // guess costs a fraction of one term's weight on one query, where a wrong lemma would
+  // merge two words in the index permanently and silently. Bounded to long terms so that
+  // short words, where spelling collisions live, never reach it.
+  var PREFIX_WEIGHT = 0.45;
+  var PREFIX_MIN_TERM = 10;
+  var PREFIX_KEEP = 8;
+
   var COVERAGE_SHARE = 0.75;
 
   // Occurrences per token at which density counts as saturated. One hit in eight
@@ -165,6 +181,20 @@
   // "what", "is" and "imqueue" scores as the near-exact answer it is. The
   // interrogative words are in here too — they shape the query (see `question`
   // below) rather than describing content.
+  // A term's weight also scales with how RARE it is in the corpus — inverse document
+  // frequency, the oldest idea in retrieval and the one this ranker was missing.
+  //
+  // Measured over 703 sections: "imqueue" is in 600 of them, "use" in ~300, "commercial" in
+  // ~20. Treating those equally is what made "can i use imqueue commercially" return five
+  // FAQ answers titled "Can I use @imqueue…" — every one matched four words of the query and
+  // none of them matched the word the question was ABOUT. Stopword weighting cannot fix that
+  // on its own, because "use" and "imqueue" are not stopwords; they are just uninformative
+  // HERE, which is a fact about this corpus rather than about English.
+  //
+  // Floored rather than allowed to reach zero: a term in every document still carries a
+  // little evidence, and a query made only of common words must still rank something.
+  var IDF_FLOOR = 0.12;
+
   var STOP_WEIGHT = 0.15;
   var STOP = {};
 
@@ -408,6 +438,20 @@
     return "";
   }
 
+  function idfOf(term) {
+    var t2 = state.t2;
+
+    if (!t2 || !t2.df || !t2.docs) {
+      return 1;
+    }
+
+    var df = t2.df[term] || 0;
+    // Normalised by log(N) so the result is 0..1 regardless of corpus size, then floored.
+    var idf = Math.log(t2.docs / (1 + df)) / Math.log(t2.docs);
+
+    return Math.max(IDF_FLOOR, Math.min(1, idf));
+  }
+
   function lemmatize(q) {
     var map = state.t2 && state.t2.lemmas;
 
@@ -421,6 +465,24 @@
       var lemma = (map && map[q.terms[i]]) || fallbackLemma(q.terms[i]);
 
       q.lemmas[i] = lemma && lemma !== q.terms[i] ? lemma : "";
+    }
+
+    // AFTER the lemma pass, not before: a term's document frequency is the frequency of the
+    // word it actually matches on, and looking it up first read q.lemmas while it was still
+    // empty — so every inflected term was scored as if it were unique.
+    //
+    // IDF folds into the per-term weights, so every ratio computed from them — coverage in
+    // elementScore, keywordScore, urlScore — becomes rarity-weighted for free. Guarded,
+    // because applying it twice to one query object would square it.
+    if (!q.weighted && state.t2 && state.t2.df) {
+      var sum = 0;
+
+      for (var k = 0; k < q.terms.length; k++) {
+        q.weights[k] *= idfOf(q.lemmas[k] || q.terms[k]);
+        sum += q.weights[k];
+      }
+      q.weightSum = sum || 1;
+      q.weighted = true;
     }
 
     return q;
@@ -550,6 +612,22 @@
     return weight * POSITION_SHARE * positionScore(found, q);
   }
 
+  // Occurrences of `prefix` at the START of a word. scanFor's whole-word rule requires a
+  // boundary on both sides, which is exactly what a truncated prefix cannot have.
+  function scanPrefix(folded, prefix) {
+    var n = 0;
+    var at = folded.indexOf(prefix);
+
+    while (at !== -1) {
+      if (!(at > 0 && isWordChar(folded.charAt(at - 1)))) {
+        n++;
+      }
+      at = folded.indexOf(prefix, at + 1);
+    }
+
+    return n;
+  }
+
   /**
    * Score ONE element (a title, a heading, the emphasized text, a body) against the
    * query: how much of the query it covers, and how densely.
@@ -598,6 +676,16 @@
       if (lemmaHit.n) {
         matched += q.weights[i] * LEMMA_WEIGHT;
         occurrences += lemmaHit.n * q.weights[i] * LEMMA_WEIGHT;
+        continue;
+      }
+
+      if (q.terms[i].length >= PREFIX_MIN_TERM) {
+        var prefixHit = scanPrefix(folded, q.terms[i].slice(0, PREFIX_KEEP));
+
+        if (prefixHit) {
+          matched += q.weights[i] * PREFIX_WEIGHT;
+          occurrences += prefixHit * q.weights[i] * PREFIX_WEIGHT;
+        }
       }
     }
     if (!matched) {
@@ -694,6 +782,13 @@
       }
       if (hit.n) {
         matched += q.weights[i];
+        continue;
+      }
+      // Same last resort as elementScore. This is the path that carries
+      // "commercially" -> "commercial license" in /license/'s curated keywords.
+      if (q.terms[i].length >= PREFIX_MIN_TERM &&
+        scanPrefix(record._w, q.terms[i].slice(0, PREFIX_KEEP))) {
+        matched += q.weights[i] * PREFIX_WEIGHT;
       }
     }
 
@@ -761,7 +856,11 @@
       var found = 0;
 
       for (var t = 0; t < q.terms.length; t++) {
-        if (q.weights[t] === 1 &&
+        // `!q.whole[t]`, NOT `q.weights[t] === 1`. Weights are multiplied by inverse
+        // document frequency now, so no weight is ever exactly 1 and that test silently
+        // matched nothing — the floor then rejected every record for any query of three or
+        // more content terms, and /license/ went from #1 to absent on three of them.
+        if (!q.whole[t] &&
           (record._l.indexOf(q.terms[t]) !== -1 || record._s.indexOf(q.terms[t]) !== -1 ||
             (record._w && record._w.indexOf(q.terms[t]) !== -1))) {
           found++;
@@ -837,7 +936,7 @@
         scanFor(section[S_LEMBODY], probe, true).n || scanFor(section[S_LEMHEAD], probe, true).n) {
         hits++;
 
-        if (q.weights[i] === 1) {
+        if (!q.whole[i]) {
           contentHits++;
         }
       }
@@ -1456,6 +1555,10 @@
   function prepareSections(index) {
     {
       var map = index.lemmas;
+      // Document frequency: in how many SECTIONS a term appears at all. Presence per
+      // section, not total occurrences — that is what makes it a measure of how
+      // discriminating a word is rather than of how chatty a page is.
+      var df = {};
 
       for (var i = 0; i < index.sections.length; i++) {
         var section = index.sections[i];
@@ -1471,7 +1574,20 @@
         section[S_LEMHEAD] = lemmaStringOf(fold(section[S_HEAD]), map);
         section[S_LEMEMPH] = lemmaStringOf(emphasis, map);
         section[S_LEMBODY] = lemmaStringOf(folded, map);
+
+        var seenHere = {};
+        var words = (folded + " " + fold(section[S_HEAD])).split(/[^a-z0-9]+/);
+
+        for (var w = 0; w < words.length; w++) {
+          if (words[w] && !seenHere[words[w]]) {
+            seenHere[words[w]] = 1;
+            df[words[w]] = (df[words[w]] || 0) + 1;
+          }
+        }
       }
+
+      index.df = df;
+      index.docs = index.sections.length;
       for (i = 0; i < index.pages.length; i++) {
         index.pages[i][P_FOLDED] = fold(index.pages[i][P_TITLE]);
         index.pages[i][P_NTOK] = idTokens(index.pages[i][P_TITLE]).length;
