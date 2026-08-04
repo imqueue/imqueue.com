@@ -215,6 +215,38 @@ if (!(density.dense > density.sparse)) {
   pass(`density counts within an element (${Math.round(density.dense)} > ${Math.round(density.sparse)})`);
 }
 
+// ---- word order and spacing break a tie ------------------------------------
+// The case this exists for, stated by the person who asked for it: two passages
+// containing exactly the same words, one in the order they were typed. Everything
+// else about them is identical — same coverage, same density, same bag match — so
+// nothing but position can separate them, and the bonus has to be applied OUTSIDE
+// the max(bag, graded) or it is discarded before it can.
+const POSITION_PROBE = {
+  v: 1,
+  pages: [['/in-order/', 'p', 'Docs'], ['/scrambled/', 'p', 'Docs']],
+  sections: [
+    [0, 'x', 'what is imqueue', 'filler filler filler', ''],
+    [1, 'y', 'what imqueue is', 'filler filler filler', ''],
+  ],
+};
+
+ranker.state.t2 = ranker.prepareSections(POSITION_PROBE);
+
+const position = {};
+
+for (const hit of ranker.search(ranker.parseQuery('what is imqueue'))) {
+  position[hit.record.u.split('#')[1]] = hit.score;
+}
+ranker.state.t2 = saved;
+
+if (!(position.x > position.y)) {
+  fail(`word order is not scored: "what is imqueue" ${Math.round(position.x || 0)} vs "what imqueue is" ${Math.round(position.y || 0)}`);
+} else if (position.x - position.y > position.y * 0.25) {
+  fail(`the word-order bonus is too large to be a tie-breaker: ${Math.round(position.x)} vs ${Math.round(position.y)}`);
+} else {
+  pass(`word order breaks a tie, gently (${Math.round(position.x)} vs ${Math.round(position.y)})`);
+}
+
 if (failures) {
   console.error(`\n${failures} search ranking check(s) failed.`);
   process.exit(1);
