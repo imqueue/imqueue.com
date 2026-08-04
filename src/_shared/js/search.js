@@ -134,11 +134,6 @@
 
   // Truncated-prefix matching: the last resort for a long term that matched nothing.
   //
-  // "commercially" cannot reach "commercial" any other way. Substring matching finds a
-  // short term inside a longer word, never the reverse, and the lemmatizer will not do it
-  // because -ly is derivational — see the note at the top of scripts/lib/lemma.js for why
-  // that door is closed for good.
-  //
   // Truncating the QUERY term and requiring a word-start match is the classic fallback, and
   // it is safe where lemmatizing is not for one reason: it happens at match time. A wrong
   // guess costs a fraction of one term's weight on one query, where a wrong lemma would
@@ -147,6 +142,44 @@
   var PREFIX_WEIGHT = 0.45;
   var PREFIX_MIN_TERM = 10;
   var PREFIX_KEEP = 8;
+
+  // DERIVATIONAL matching, query side only: "commercially" -> "commercial".
+  //
+  // scripts/lib/lemma.js refuses -ly and gives the evidence: at index time it produced
+  // `multiply -> multiple`, `supply -> supple`, `reply -> rep`, `only -> on`, and no stem
+  // length or is-it-a-lemma test separates those from the cases worth having, because
+  // `supply` and `commercially` are both WordNet lemmas. That reasoning stands, and this
+  // does not contradict it — it changes the validity test to one the indexer cannot use.
+  //
+  // The candidate must appear IN THIS CORPUS, which is checked against the document
+  // frequency table that tier 2 already ships. That is a stronger filter than any
+  // dictionary here: `multip`, `supp`, `rep`, `assemb` and `fami` are not words on this
+  // site, so they cannot be reached, while `commercial` (42 sections) and `explicit` (11)
+  // can. `only` and `apply` are excluded before that by the stem length — the failures were
+  // all short stems.
+  //
+  // Still query-side and still weighted as a lemma match rather than a literal one: a wrong
+  // guess costs part of one term on one query. The index is never told that these two words
+  // are the same, because they are not.
+  var DERIV_MIN_STEM = 6;
+
+  // What a candidate scores when it misses the query's TOPIC — the highest-weighted content
+  // term, which after IDF means the rarest word the person typed.
+  //
+  // "can i use imqueue commercially" is the case. Five FAQ answers titled "Can I use
+  // @imqueue with a GraphQL gateway?" / "…inside a NestJS application?" took the top five
+  // places: each matched four of the five words, missed only `commercially`, and then
+  // collected the 1.55 interrogative bonus for being question-shaped. The page that answers
+  // the question — "Is the GPL-3.0 licence a problem for commercial use?" — was not in the
+  // 72 results at all. Weighting `commercially` higher could not fix it, because coverage is
+  // a RATIO: four cheap words still cover more of the query than one expensive word that
+  // only half-matches.
+  //
+  // A multiplier rather than a filter, deliberately. A filter is one typo away from zero
+  // results ("imqeueue commercially" would drop everything), and the rarest term is exactly
+  // the one most likely to be misspelled or to be a word this site words differently. This
+  // way a topic miss loses to any real topic match but still beats nothing.
+  var TOPIC_MISS = 0.2;
 
   var COVERAGE_SHARE = 0.75;
 
@@ -224,6 +257,10 @@
   // blank space it fills. On the element scale: a single term covering a whole query
   // in a body scores ~115, while one term of four covering nothing else scores ~28.
   var MIN_SCORE = 60;
+
+  // Share of its group's BEST score that a hit must reach to be shown at all. See the note
+  // where it is applied for why this is relative, and why it is per group.
+  var GROUP_FLOOR = 0.3;
 
   var state = {
     t1: null, t2: null, p1: null, p2: null,
@@ -438,6 +475,29 @@
     return "";
   }
 
+  // -ly / -ally only, validated against the corpus. See DERIV_MIN_STEM for why the
+  // validity test is "does this site use the word" rather than "is this a word".
+  function derivedLemma(term) {
+    var df = state.t2 && state.t2.df;
+
+    if (!df || !/ly$/.test(term)) {
+      return "";
+    }
+
+    // "automatically" -> "automatical" is in no corpus; -ally has to be tried as a unit.
+    var candidates = /ally$/.test(term)
+      ? [term.slice(0, -4), term.slice(0, -2)]
+      : [term.slice(0, -2)];
+
+    for (var i = 0; i < candidates.length; i++) {
+      if (candidates[i].length >= DERIV_MIN_STEM && df[candidates[i]]) {
+        return candidates[i];
+      }
+    }
+
+    return "";
+  }
+
   function idfOf(term) {
     var t2 = state.t2;
 
@@ -465,6 +525,13 @@
       var lemma = (map && map[q.terms[i]]) || fallbackLemma(q.terms[i]);
 
       q.lemmas[i] = lemma && lemma !== q.terms[i] ? lemma : "";
+
+      // Last: the corpus-validated derivational route. After the map, so a word the
+      // corpus actually contains is never rewritten — `only` and `supply` are in the
+      // map, resolve to themselves, and never reach this.
+      if (!q.lemmas[i]) {
+        q.lemmas[i] = derivedLemma(q.terms[i]);
+      }
     }
 
     // AFTER the lemma pass, not before: a term's document frequency is the frequency of the
@@ -483,6 +550,25 @@
       }
       q.weightSum = sum || 1;
       q.weighted = true;
+    }
+
+    // The TOPIC: the heaviest content term, which after IDF is the rarest word typed.
+    // Computed here rather than in parseQuery because it is meaningless before the
+    // weights are rarity-adjusted — by raw weight every content term ties at 1.
+    //
+    // Only for queries with at least two content terms. With one, the topic IS the query
+    // and every result that scored at all already matches it.
+    q.topic = -1;
+
+    if (q.content >= 2) {
+      var best = 0;
+
+      for (var n = 0; n < q.terms.length; n++) {
+        if (!q.whole[n] && q.weights[n] > best) {
+          best = q.weights[n];
+          q.topic = n;
+        }
+      }
     }
 
     return q;
@@ -840,6 +926,47 @@
     return E.url * (0.5 * coverage + 0.5 * focus);
   }
 
+  /**
+   * Does term `i` of the query appear in any of `texts`, by ANY route that scoring
+   * would credit — literal, lemma, or truncated prefix?
+   *
+   * One function because there used to be two, and they disagreed. The coverage floors
+   * tested `indexOf` and the lemma probe only, while elementScore also credited a
+   * truncated prefix — so "Is the GPL-3.0 licence a problem for commercial use?" was
+   * dropped by the floor for a query about using @imqueue commercially: `commercially`
+   * matched the heading in the scorer's eyes and not in the floor's, leaving one content
+   * hit where two were required. A floor that rejects what the scorer would have ranked
+   * first is the worst kind of bug — it produces no wrong answer to look at.
+   */
+  function covers(q, i, texts) {
+    var term = q.terms[i];
+    var probe = q.lemmas[i];
+
+    for (var k = 0; k < texts.length; k++) {
+      var text = texts[k];
+
+      if (!text) {
+        continue;
+      }
+      if (scanFor(text, term, q.whole[i]).n) {
+        return true;
+      }
+      if (probe && scanFor(text, probe, true).n) {
+        return true;
+      }
+      if (term.length >= PREFIX_MIN_TERM && scanPrefix(text, term.slice(0, PREFIX_KEEP))) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  // TOPIC_MISS, or 1 when the candidate does match the query's topic term.
+  function topicFactor(q, texts) {
+    return q.topic === -1 || covers(q, q.topic, texts) ? 1 : TOPIC_MISS;
+  }
+
   function scoreRecord(record, q) {
     if (q.filters.pkg && fold(record.p || "").indexOf(q.filters.pkg) === -1) {
       return 0;
@@ -847,6 +974,8 @@
     if (q.filters.kind && fold(record.k || "") !== q.filters.kind) {
       return 0;
     }
+
+    var texts = [record._l, record._s, record._w];
 
     // Coverage floor. Matching ONE term of a four-term question is not a result:
     // "does @imqueue retry a failed call?" matched 57 answers and 151 sections,
@@ -860,9 +989,7 @@
         // document frequency now, so no weight is ever exactly 1 and that test silently
         // matched nothing — the floor then rejected every record for any query of three or
         // more content terms, and /license/ went from #1 to absent on three of them.
-        if (!q.whole[t] &&
-          (record._l.indexOf(q.terms[t]) !== -1 || record._s.indexOf(q.terms[t]) !== -1 ||
-            (record._w && record._w.indexOf(q.terms[t]) !== -1))) {
+        if (!q.whole[t] && covers(q, t, texts)) {
           found++;
         }
       }
@@ -895,7 +1022,21 @@
       score *= BLOG_WEIGHT;
     }
 
-    return score;
+    // The topic discount applies to ANSWERS ONLY, and the asymmetry is the point.
+    //
+    // A tier-1 record carries a title, a one-line summary and its keywords — no body. So
+    // "this record does not contain the query's rarest word" is not evidence about the page:
+    // /license/ is titled "GPL-3.0 open-source license terms" and never says "obligation" in
+    // those twenty words, though the page is largely about them. Discounting it for that
+    // dropped "gpl obligation" from #1 to #2 behind a /contributing/ clause. The page's BODY
+    // is indexed too, as sections in tier 2, and there the test is meaningful.
+    //
+    // An answer record is different: its summary IS the answer, in full. A question-shaped
+    // record that never mentions the topic anywhere in its own answer is not an answer to
+    // this query, and it is the one kind of record that collects a 1.55 bonus for merely
+    // looking like one — so it is exactly where the discount is both fair and needed.
+    // Applied last so it discounts that bonus rather than being swallowed by it.
+    return record.g === G_ANSWER ? score * topicFactor(q, texts) : score;
   }
 
   function scoreSection(section, q, page) {
@@ -923,17 +1064,12 @@
     // Coverage floor, over the union of the elements. Matching ONE term of a
     // four-term question is not a result: "does @imqueue retry a failed call?" once
     // matched 151 sections, most of them on the word "@imqueue" alone.
+    var texts = [head, text, section[S_FOLDEMPH], section[S_LEMBODY], section[S_LEMHEAD]];
     var hits = 0;
     var contentHits = 0;
 
     for (var i = 0; i < q.terms.length; i++) {
-      var term = q.terms[i];
-
-      var probe = q.lemmas[i] || term;
-
-      if (scanFor(head, term, q.whole[i]).n || scanFor(text, term, q.whole[i]).n ||
-        scanFor(section[S_FOLDEMPH], term, q.whole[i]).n ||
-        scanFor(section[S_LEMBODY], probe, true).n || scanFor(section[S_LEMHEAD], probe, true).n) {
+      if (covers(q, i, texts)) {
         hits++;
 
         if (!q.whole[i]) {
@@ -959,6 +1095,13 @@
     if (EDITORIAL[page[P_KIND]] && !q.question) {
       score *= BLOG_WEIGHT;
     }
+
+    // The page title counts for the topic test but NOT for the coverage floor above. The
+    // scorer credits it either way (PAGE_TITLE_SHARE), so a section of an article that is
+    // itself about the topic should not be discounted for it — but letting it satisfy the
+    // floor would readmit every section of any page whose title happens to carry two query
+    // words, which is the noise the floor exists to stop.
+    score *= topicFactor(q, texts.concat([page[P_FOLDED], page[P_LEMMA]]));
 
     return score < MIN_SCORE ? 0 : score;
   }
@@ -1095,6 +1238,7 @@
     var perPage = {};
     var seen = {};
     var kept = [];
+    var lead = {};
 
     for (i = 0; i < hits.length; i++) {
       var hit = hits[i];
@@ -1102,6 +1246,27 @@
       var pageUrl = (hit.external ? "x" : "") + hit.record.u.split("#")[0];
 
       if (seen[url]) {
+        continue;
+      }
+
+      // A RELATIVE floor, per group. MIN_SCORE is absolute and cannot express "far worse
+      // than the thing above it": for "can i use imqueue commercially" the right answer
+      // scored 386 and four "Can I use @imqueue…" near-misses sat at 155, 149, 134 and 130
+      // — every one of them clear of MIN_SCORE, and every one of them visible, because the
+      // dialog shows five rows per group. Ranking them correctly was not enough; they still
+      // filled the group under the answer.
+      //
+      // Per group, not overall, and that matters: an exact identifier match scores over
+      // 1000, so one shared yardstick would wipe out the entire prose group behind any
+      // symbol lookup. Each group is judged against its OWN best hit, which is the only
+      // comparison a reader makes.
+      //
+      // hits is already sorted descending, so the first hit of a group is its leader.
+      var group = (hit.external ? "x:" : "") + groupKey(hit);
+
+      if (lead[group] === undefined) {
+        lead[group] = hit.score;
+      } else if (hit.score < lead[group] * GROUP_FLOOR) {
         continue;
       }
       if (hit.record.g === G_DOC) {
