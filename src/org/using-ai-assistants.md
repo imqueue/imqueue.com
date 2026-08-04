@@ -79,7 +79,9 @@ Clients:
   routing.
 
 Runtime:
-- Requires Node.js 22.12+ and Redis 3.2+ (default connection localhost:6379).
+- Requires Node.js 22.12+ and Redis 6.2+ (default connection localhost:6379).
+  Guaranteed delivery needs LMOVE/BLMOVE, which is why 6.2 is the floor; 3.2+
+  suffices only with safeDelivery left off.
 - Configure host/port/cluster/safeDelivery via IMQServiceOptions or environment.
 
 License: the open-source packages are GPL-3.0. Commercial licensing for
