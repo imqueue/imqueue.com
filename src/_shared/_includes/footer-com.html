@@ -31,7 +31,15 @@
         <a href="{{ otherUrl }}/get-started/">Get started ↗</a>
         <a href="{{ otherUrl }}/tutorial/">Tutorial ↗</a>
         <a href="{{ otherUrl }}/api/">API ↗</a>
-        <a href="{{ otherUrl }}/mcp/">MCP server ↗</a>
+        {%- comment -%}
+        "MCP", the same label footer-org.html uses. The section's own name is "MCP
+        server" — that is what the breadcrumb, the docs index and the nav card call
+        it — but in a Docs column sitting next to API and Tutorial, "server" is the
+        one word carrying nothing: a reader who knows what MCP is knows it is a
+        server, and a reader who doesn't is not helped by being told. Both editions
+        point at the same page, so they name it the same way.
+        {%- endcomment -%}
+        <a href="{{ otherUrl }}/mcp/">MCP ↗</a>
       </div>
     </div>
     <div>
