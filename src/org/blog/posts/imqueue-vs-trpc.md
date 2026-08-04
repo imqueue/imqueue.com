@@ -111,7 +111,7 @@ Change an exposed method in `@imqueue` and nothing breaks until someone regenera
 
 ```bash
 imq ctl start -s user -c     # bring the service up and wait for readiness
-imq client generate user ./src/clients
+imq client generate User ./src/clients   # the queue/class name, not the directory
 imq ctl stop -s user
 ```
 
