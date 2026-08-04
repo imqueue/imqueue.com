@@ -322,6 +322,45 @@ if (!sendTop || sendName !== 'send') {
   pass(`"send" ranks ${sendTop.record.t} first among symbols — identifiers stay literal`);
 }
 
+// ---- curated keywords ---------------------------------------------------------
+// `keywords:` front matter states which queries a page exists to answer, and it was absent
+// from the index entirely until this element existed — 140 of 186 curated phrases appeared
+// nowhere in the indexed text, so the page written for "nodejs backpressure microservices"
+// was not among that query's 32 results at all. Each case below is a measured before/after.
+const KEYWORD_CASES = [
+  ['handle traffic spikes microservices', '/blog/backpressure-nodejs-services/', 'was absent entirely'],
+  ['nodejs backpressure microservices', '/blog/backpressure-nodejs-services/', 'was absent entirely'],
+  ['overload resilience', '/blog/backpressure-nodejs-services/', 'was absent entirely'],
+  ['message queue throughput', '/blog/benchmarking-imqueue-throughput/', 'was #32'],
+  ['nodejs job queue', '/blog/imqueue-vs-bullmq/', 'was #36'],
+  ['imqueue benchmark', '/blog/benchmarking-imqueue-throughput/', 'was #2'],
+];
+
+for (const [query, target, was] of KEYWORD_CASES) {
+  const hits = run(query);
+  const at = hits.findIndex((hit) => hit.record.u.split('#')[0] === target);
+
+  if (at === -1) {
+    fail(`"${query}" does not reach ${target} at all (${was}) — curated keywords are not being scored`);
+  } else if (at > 5) {
+    fail(`"${query}" ranks ${target} at #${at + 1} (${was}); the page written for this phrase should be in the top few`);
+  } else {
+    pass(`"${query}" ranks its target page #${at + 1} (${was})`);
+  }
+}
+
+// The counterweight. Keywords are self-declared and cheap to pad, so the element sits
+// below emphasis and is scored on coverage alone. If it ever outgrew that, an identifier
+// query would start returning articles that merely LIST the identifier — which is the
+// failure mode <meta name="keywords"> earned its reputation for.
+const identifier = run('safeDelivery')[0];
+
+if (!identifier || identifier.record.g !== 1) {
+  fail(`"safeDelivery" no longer ranks a symbol first — keyword weight may have overtaken the reference`);
+} else {
+  pass('"safeDelivery" still ranks the symbol first — keywords cannot outrank reference');
+}
+
 // ---- cross-site search -------------------------------------------------------
 // imqueue.org and imqueue.com search each other, reading the peer's index from their own
 // origin (scripts/copy-peer-index.js). Two properties matter, and they pull against each
