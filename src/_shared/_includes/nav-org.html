@@ -9,6 +9,17 @@
     </div>
 
     <div class="nav-actions">
+      {%- comment -%}
+      A BUTTON, not an input: the dialog and its index are built on first open, so
+      there is nothing here to type into until then, and a text field that quietly
+      does nothing on the 1,886 pages nobody searches from would be a lie. See
+      src/org/js/search.js.
+      {%- endcomment %}
+      <button class="nav-search" type="button" data-search-open aria-label="Search the documentation">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/></svg>
+        <span>search</span>
+        <kbd class="nav-search__kbd">/</kbd>
+      </button>
       {% include "theme-toggle.html" %}
       <a href="{{ otherUrl }}/" class="nav-outline">commercial ↗</a>
       <a href="https://www.npmjs.com/package/@imqueue/cli" class="nav-outline" style="background:var(--accent);color:var(--on-accent);border-color:transparent;font-weight:600;">$ npm i -g @imqueue/cli</a>
@@ -21,6 +32,15 @@
 
   <div class="mobile-nav" data-mobile-nav>
     <div class="container" style="font-family:var(--font-mono);">
+      {%- comment -%}
+      The desktop trigger is hidden below 900px (see css/search.css), which is where
+      this nav collapses into the drawer — so search would otherwise be unreachable
+      on a phone, where it is arguably needed most.
+      {%- endcomment %}
+      <button class="nav-search" type="button" data-search-open aria-label="Search the documentation">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/></svg>
+        <span>search</span>
+      </button>
       <a href="/intro/">intro</a>
       <a href="/docs/">docs</a>
       <a href="/blog/">blog</a>
