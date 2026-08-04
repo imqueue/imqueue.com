@@ -58,6 +58,17 @@
   // by construction rather than by luck.
   var PHRASE_SHARE = 0.25;
 
+  // Word ORDER and SPACING, worth a small fraction of the element. Deliberately
+  // small: it is a tie-breaker between two passages that already say the same thing,
+  // not a reason to prefer one that says less. "What is imqueue" and "What @imqueue
+  // is" both match the query "what is imqueue" on every other axis — coverage,
+  // density, even the bag — and this is the only signal that separates them.
+  var POSITION_SHARE = 0.12;
+
+  // Within the position bonus: how much comes from the terms appearing in the query's
+  // order, and how much from the gaps between them being the size the query implies.
+  var ORDER_SHARE = 0.65;
+
   // ELEMENT WEIGHTS. Relevance flows in this order: what the thing is called, then
   // what the section it sits in is called, then what the author chose to emphasize,
   // then how densely the body talks about it. Each element is scored independently
@@ -268,9 +279,12 @@
     }).trim();
 
     var t = terms(text);
+    var joined = fold(text).replace(/\s+/g, " ").trim();
     var weights = [];
+    var offsets = [];
     var weightSum = 0;
     var content = 0;
+    var cursor = 0;
 
     for (var i = 0; i < t.length; i++) {
       var weight = STOP[t[i]] ? STOP_WEIGHT : 1;
@@ -281,16 +295,25 @@
       if (weight === 1) {
         content++;
       }
+
+      // Where each term sits in the query itself, so the gaps between terms in a
+      // candidate can be compared with the gaps the person typed. Scanned with a
+      // moving cursor so a repeated word gets its own successive positions.
+      var at = joined.indexOf(t[i], cursor);
+
+      offsets.push(at === -1 ? cursor : at);
+      cursor = (at === -1 ? cursor : at) + t[i].length;
     }
 
     return {
       raw: text,
-      joined: fold(text).replace(/\s+/g, " ").trim(),
+      joined: joined,
       squashed: squash(fold(text)),
       // Every token, stopwords included. `weights` is what makes them count for
       // less; see STOP_WEIGHT.
       terms: t,
       weights: weights,
+      offsets: offsets,
       weightSum: weightSum || 1,
       // How many terms are not stopwords — the coverage floor is expressed in these,
       // so a long question cannot be "half matched" by its articles and prepositions.
@@ -313,6 +336,82 @@
     }
 
     return n;
+  }
+
+  /**
+   * How closely the matched terms sit, relative to how the query spaced them.
+   *
+   * Two parts, both cheap. ORDER: of each adjacent pair of query terms, how often the
+   * later one also appears later in the text. SPACING: how close the gap between them
+   * is to the gap in the query — min/max, so "twice as far apart" and "half as far
+   * apart" are penalised alike.
+   *
+   * Worked example, query "what is imqueue" (gaps 5 and 3):
+   *   "What is imqueue"  order 1.0, spacing 1.0  -> full bonus
+   *   "What @imqueue is" order 0.5, spacing 0.33 -> about a third of it
+   * Everything else about those two headings is identical, which is exactly the case
+   * this exists for.
+   *
+   * @param {Array<Array<number>>} found [queryIndex, positionInText] in query order.
+   */
+  function positionScore(found, q) {
+    if (found.length < 2) {
+      return 0;
+    }
+
+    var inOrder = 0;
+    var spacing = 0;
+
+    for (var i = 1; i < found.length; i++) {
+      var textGap = found[i][1] - found[i - 1][1];
+      var queryGap = q.offsets[found[i][0]] - q.offsets[found[i - 1][0]];
+
+      if (textGap > 0) {
+        inOrder++;
+      }
+
+      var a = Math.abs(textGap) || 1;
+      var b = Math.abs(queryGap) || 1;
+
+      spacing += Math.min(a, b) / Math.max(a, b);
+    }
+
+    var pairs = found.length - 1;
+
+    return ORDER_SHARE * (inOrder / pairs) + (1 - ORDER_SHARE) * (spacing / pairs);
+  }
+
+  /**
+   * The position bonus for one element, as points.
+   *
+   * Deliberately ADDED to whatever the element's base score turned out to be, rather
+   * than folded into the graded path — because the case it exists for is two candidates
+   * that tie on every other signal. "What is imqueue" and "What @imqueue is" contain
+   * the same words, so they get the same bag match (900) and the same coverage; if this
+   * lived inside the graded score, `Math.max(bag, graded)` would discard it and the two
+   * would still tie exactly.
+   *
+   * Returns 0 for a single-term query without scanning: there is no order to compare.
+   */
+  function positionBonus(weight, folded, q) {
+    if (!folded || q.terms.length < 2) {
+      return 0;
+    }
+
+    var found = [];
+
+    for (var i = 0; i < q.terms.length; i++) {
+      // FIRST occurrence only. A term repeated across a long section has many
+      // positions and no single meaningful one; for a bonus this small the first is a
+      // good enough proxy.
+      var at = folded.indexOf(q.terms[i]);
+
+      if (at !== -1) {
+        found.push([i, at]);
+      }
+    }
+
+    return weight * POSITION_SHARE * positionScore(found, q);
   }
 
   /**
@@ -388,7 +487,7 @@
       direct,
       bagScore(record._t, q),
       elementScore(E.title, lower, record._t.length, q)
-    );
+    ) + positionBonus(E.title, lower, q);
   }
 
   function scoreRecord(record, q) {
@@ -453,10 +552,15 @@
     var score = Math.max(
       bagScore(section[S_HEADTOK], q),
       elementScore(E.header, head, section[S_HEADTOK].length, q)
-    ) +
+    ) + positionBonus(E.header, head, q) +
       elementScore(E.emphasis, section[S_FOLDEMPH], section[S_NEMPH], q) +
+      positionBonus(E.emphasis, section[S_FOLDEMPH], q) +
       elementScore(E.body, text, section[S_NTOK], q) +
-      PAGE_TITLE_SHARE * elementScore(E.title, page[P_FOLDED], page[P_NTOK], q);
+      positionBonus(E.body, text, q) +
+      PAGE_TITLE_SHARE * (
+        elementScore(E.title, page[P_FOLDED], page[P_NTOK], q) +
+        positionBonus(E.title, page[P_FOLDED], q)
+      );
 
     // Coverage floor, over the union of the elements. Matching ONE term of a
     // four-term question is not a result: "does @imqueue retry a failed call?" once
