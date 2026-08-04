@@ -27,7 +27,7 @@
     }
   },
   "scripts": {
-    "test": "npm run check:redirects && npm run check:agent-analytics && npm run check:dates && npm run check:links && npm run check:sitemap && npm run check:llms && npm run check:search-index && npm run check:jsonld && npm run check:mermaid",
+    "test": "npm run check:redirects && npm run check:agent-analytics && npm run check:dates && npm run check:links && npm run check:sitemap && npm run check:llms && npm run check:search-index && npm run check:search-ranking && npm run check:jsonld && npm run check:mermaid",
     "check:redirects": "node scripts/check-redirects.js",
     "check:agent-analytics": "node scripts/check-agent-analytics.js",
     "probe:agent-analytics": "node scripts/probe-agent-analytics.js",
@@ -35,6 +35,7 @@
     "check:sitemap": "node scripts/check-sitemap.js",
   "check:llms": "node scripts/check-llms.js",
   "check:search-index": "node scripts/check-search-index.js",
+  "check:search-ranking": "node scripts/check-search-ranking.js",
   "gen-search-index": "node scripts/gen-search-index.js",
   "check:jsonld": "node scripts/check-jsonld.js",
     "check:mermaid": "node scripts/check-mermaid.js",
