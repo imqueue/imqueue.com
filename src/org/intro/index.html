@@ -2,8 +2,8 @@
 layout: base.html
 section: intro
 title: "Introduction to message-queue RPC for Node.js"
-description: "@imqueue is an inter-communication messaging queue framework for Node.js & TypeScript microservices — it handles messaging, discovery and load balancing."
-keywords: "@imqueue introduction, what is imqueue, inter-communication messaging queue, message queue framework Node.js, TypeScript microservices messaging, RPC over message queue, SOA back-end, Redis RPC"
+description: "@imqueue is an Intercommunication Messaging Queue framework for Node.js & TypeScript microservices — it handles messaging, discovery and load balancing."
+keywords: "@imqueue introduction, what is imqueue, Intercommunication Messaging Queue, message queue framework Node.js, TypeScript microservices messaging, RPC over message queue, SOA back-end, Redis RPC"
 ---
 <style>
   .intro-two { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start; }
@@ -45,10 +45,16 @@ keywords: "@imqueue introduction, what is imqueue, inter-communication messaging
 
       Now the canonical definition from src/_data/site.yml, verbatim, so this page
       agrees word for word with the Organization/WebSite/SoftwareApplication nodes and
-      the llms.txt blockquote. "Inter-Communication Messaging Queue" survives as the
+      the llms.txt blockquote. "Intercommunication Messaging Queue" survives as the
       gloss it should always have been — it is the expansion of the name, not the
       definition of the product, and dropping it entirely would orphan the older
       phrasing that is already in the training data.
+
+      One word, not "Inter-Communication": the gloss is spelled that way wherever it
+      is presented AS the expansion — here, the body copy below, and the glossary's
+      IMQ entry. The hyphenated form survives only in the quotation above and in the
+      lowercase product descriptions ("RPC over an inter-communication messaging
+      queue"), which describe the transport rather than expanding the name.
       {%- endcomment -%}
       <h1 style="font-family:var(--font-display);font-weight:700;font-size:44px;line-height:1.1;letter-spacing:-.03em;margin:0 0 18px;">{{ site.definitionShort }}</h1>
       <p class="muted" style="font-size:18px;line-height:1.7;margin:0;">Services describe themselves at runtime, so their typed clients are generated, not written. The name is short for <strong>I</strong>ntercommunication <strong>M</strong>essaging <strong>Queue</strong> — @imqueue, imqueue and IMQ all refer to this framework. It is built with Node.js and TypeScript for service-oriented back-ends (microservices being a special case of SOA), works well behind an API layer such as GraphQL or a REST gateway, and lets you write only the functionality while @imqueue handles the low-level messaging.</p>
