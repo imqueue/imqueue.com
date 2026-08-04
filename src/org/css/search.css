@@ -1,10 +1,13 @@
-/* Search dialog. Loaded on every org page, so it is deliberately small and holds
-   no styles for anything else.
+/* Search: the ⌘K dialog, the result rows, and the paged /search/ page.
+   Loaded on every org page, so it is deliberately small and holds no styles for
+   anything else.
 
-   The dialog element is created by js/search.js on first open, which is why none
-   of these selectors appear in any template. Everything is themed through the
-   same variables as the rest of the site (see css/theme-terminal.css), so light,
-   dark and the terminal skin come for free. */
+   The dialog element is created by js/search.js on first open, which is why most of
+   these selectors appear in no template. Everything is themed through the same
+   variables as the rest of the site (see css/theme-terminal.css), so light, dark and
+   the terminal skin come for free. */
+
+/* ---- the nav trigger --------------------------------------------------- */
 
 .nav-search {
   display: inline-flex;
@@ -36,6 +39,8 @@
    nav collapses, and this takes its place inside the drawer. */
 .mobile-nav .nav-search { width: 100%; margin: 10px 0 4px; }
 
+/* ---- the dialog -------------------------------------------------------- */
+
 .s-open, .s-open body { overflow: hidden; }
 
 .s-dialog {
@@ -59,7 +64,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 16px;
+  padding: 15px 18px;
   border-bottom: 1px solid var(--line);
   flex: none;
 }
@@ -101,31 +106,53 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 6px;
+  padding: 0 8px 8px;
 }
 
-.s-group + .s-group { margin-top: 4px; }
+/* ---- groups ------------------------------------------------------------ */
 
 .s-group__label {
   font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: .14em;
+  font-size: 11.5px;
+  letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--muted);
-  padding: 12px 10px 6px;
+  padding: 18px 10px 8px;
 }
+
+/* A rule above every group but the first: the groups are the primary structure of
+   the list, and an uppercase label alone was not enough to see them. */
+.s-group + .s-group .s-group__label {
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+}
+
+/* ---- one result -------------------------------------------------------- */
 
 .s-hit {
   display: block;
-  padding: 9px 10px;
+  padding: 11px 10px 13px;
   border-radius: 8px;
   color: var(--ink);
   text-decoration: none;
   border-bottom: none;
 }
 
-.s-hit.is-active { background: var(--surface2); box-shadow: inset 0 0 0 1px var(--line); }
+/* Hairline dividers rather than nothing: without them nine results read as one
+   block of text. Inset via box-shadow so the divider does not move when the row
+   below it gains the active background. */
+.s-hit + .s-hit { box-shadow: inset 0 1px 0 var(--line); }
+
 .s-hit:hover { background: var(--surface2); }
+
+/* The active row is the one Enter follows, so it has to be unmistakable — the
+   previous 1px inset ring was invisible against the panel. */
+.s-hit.is-active {
+  background: var(--surface2);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.s-hit.is-active + .s-hit { box-shadow: inset 0 1px 0 var(--line); }
 
 /* Plain inline flow, NOT flex. Highlighting splits the title into several nodes
    ("IMQOptions." + <mark>safeDelivery</mark> + "Ttl"), and as a flex container every
@@ -135,16 +162,31 @@
    375px screen. */
 .s-hit__title {
   display: block;
-  font-family: var(--font-mono);
-  font-size: 15.5px;
-  line-height: 1.5;
   overflow-wrap: anywhere;
+}
+
+/* Prose titles are prose: sentence-shaped, read as sentences, and set in the body
+   face. Mono is reserved for identifiers, where the character shapes carry meaning
+   — which also makes the face itself a signal of which kind of result a row is. */
+.s-hit--docs .s-hit__title,
+.s-hit--answers .s-hit__title {
+  font-family: var(--font-body);
+  font-size: 16.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.s-hit--api .s-hit__title {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1.45;
 }
 
 .s-hit__kind {
   display: inline-block;
   margin-left: 8px;
-  font-size: 11.5px;
+  font-family: var(--font-mono);
+  font-size: 11px;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--muted);
@@ -152,42 +194,68 @@
   border-radius: 4px;
   padding: 0 5px;
   white-space: nowrap;
+  vertical-align: 1px;
 }
 
-.s-hit__meta {
+.s-hit__crumbs {
   display: block;
   font-family: var(--font-mono);
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--muted);
-  margin-top: 3px;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
 }
 
 .s-hit__text {
-  display: block;
-  font-size: 14.5px;
-  line-height: 1.55;
-  color: var(--code);
-  margin-top: 5px;
-  /* Two lines, so a long answer cannot push the next result off the screen. */
   display: -webkit-box;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--code);
+  margin-top: 6px;
+  /* Two lines, so a long answer cannot push the next result off the screen. */
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* No horizontal padding: highlighting "Lock" inside "LockOptions" would otherwise
-   render as "Lock Options" and imply a space that is not in the identifier. */
-.s-hit mark {
-  background: color-mix(in srgb, var(--accent) 26%, transparent);
+/* Highlighting, at two strengths. In a TITLE the match is why the row is here, so
+   it gets the accent wash. In the SNIPPET the same treatment marked every
+   occurrence of every term and turned the panel green — "redis queue" lit up half
+   of it — so there it is weight and colour only. Same information, a tenth of the
+   noise. */
+.s-hit__title mark {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
   color: inherit;
   border-radius: 2px;
   padding: 0;
 }
 
+.s-hit__text mark,
+.s-hit__crumbs mark {
+  background: none;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---- "all N results" --------------------------------------------------- */
+
+.s-more {
+  display: block;
+  padding: 9px 10px 4px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--accent);
+  border-bottom: none;
+}
+
+.s-more:hover { text-decoration: underline; }
+
+/* ---- panel furniture --------------------------------------------------- */
+
 .s-empty, .s-hint, .s-status {
   margin: 0;
-  padding: 14px 16px;
-  font-size: 14px;
+  padding: 16px 18px;
+  font-size: 14.5px;
   line-height: 1.6;
   color: var(--muted);
   flex: none;
@@ -206,10 +274,114 @@
 .s-status {
   border-top: 1px solid var(--line);
   font-family: var(--font-mono);
-  font-size: 12.5px;
-  padding: 9px 16px;
-  min-height: 34px;
+  font-size: 12px;
+  letter-spacing: .04em;
+  padding: 10px 18px;
+  min-height: 36px;
 }
+
+/* ---- /search/ ---------------------------------------------------------- */
+
+.s-page { max-width: 820px; }
+
+.s-page__form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+
+.s-page__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface2);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  padding: 12px 14px;
+}
+
+.s-page__input:focus { outline: none; border-color: var(--accent); }
+.s-page__input::-webkit-search-cancel-button { display: none; }
+
+.s-page__submit {
+  flex: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 15px;
+  padding: 0 20px;
+  cursor: pointer;
+}
+
+.s-page__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.s-tab {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 13px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+
+.s-tab:hover { color: var(--ink); border-color: var(--accent); }
+.s-tab.is-active {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: transparent;
+}
+
+.s-page .s-page__status {
+  padding: 0 0 14px;
+  border-top: 0;
+  min-height: 0;
+}
+
+.s-page__results { border-top: 1px solid var(--line); }
+.s-page__results .s-hit { padding: 16px 12px 18px; border-radius: 10px; }
+.s-page__results .s-hit__text { -webkit-line-clamp: 3; }
+.s-page .s-empty { padding: 20px 0; }
+
+.s-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.s-pager__item {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 11px;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+}
+
+.s-pager__item:hover { border-color: var(--accent); }
+.s-pager__item.is-current {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: transparent;
+}
+.s-pager__item.is-disabled { color: var(--muted); opacity: .5; }
+
+/* ---- responsive -------------------------------------------------------- */
 
 @media (max-width: 900px) {
   .nav-search { display: none; }
@@ -238,6 +410,9 @@
   /* The hint is two lines of instructions on a screen that has room for two more
      results instead. It is still shown before anything is typed. */
   .s-results:not(:empty) ~ .s-hint { display: none; }
+
+  .s-page__form { flex-wrap: wrap; }
+  .s-page__submit { width: 100%; padding: 12px 20px; }
 }
 
 @media (prefers-reduced-motion: no-preference) {

@@ -258,7 +258,22 @@ and 2.1.0 on another. /api/ itself defines all 16 (src/org/api/index.md).
       "description": {{ site.definition | json }},
       "alternateName": {{ site.aliases | json }},
       "inLanguage": "en",
-      "publisher": { "@id": "{{ siteUrl }}/#org" }
+      "publisher": { "@id": "{{ siteUrl }}/#org" }{% if edition == "org" %},
+      {% comment %}
+      Only claimed on imqueue.org, and only because /search/?q= is a real URL that
+      renders real results (src/org/search.html). A potentialAction pointing at a
+      route that does not resolve is a false statement about the site, which is why
+      this was not here before the search existed — and why it is inside an edition
+      condition: imqueue.com is eight pages and has no search to point at.
+      {% endcomment %}
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "{{ siteUrl }}/search/?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }{% endif %}
     }{% comment %}
     The SoftwareApplication/SoftwareSourceCode pair describes the open-source
     project. Both editions emit it: the packages, the repository and the npm scope
