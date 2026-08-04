@@ -1,9 +1,10 @@
 ---
 layout: base.html
 permalink: /search/
-title: "Search the @imqueue documentation"
+title: "Search @imqueue"
 description: "Search every @imqueue guide, article and API symbol — full text, in your browser, with no server involved."
 noindex: true
+nofollow: true
 eleventyExcludeFromCollections: true
 ---
 {%- comment -%}
@@ -11,13 +12,21 @@ The full result list, paged. The dialog (⌘K anywhere on the site) shows the be
 per group, which is the right size for "find the page I mean"; this is the other
 job — see everything that matched and walk it.
 
+At src/ root rather than src/org/, so BOTH editions build it. imqueue.com needs one for
+the same reason it needs a search box at all: the "All N results" link the dialog shows
+points at `/search/` on the current origin, and on com that was a 404 — the dialog offered
+a page that did not exist. Its results are com's seven pages plus the documentation from
+imqueue.org in a group of their own.
+
 `base.html` rather than `docs.html`: a docs page brings an "On this page" sidebar
 built from headings this page has none of, a markdown-mirror link to a mirror that
 does not exist, and a "last updated" date that means nothing for a page whose
 content is a query result.
 
-`noindex` + `eleventyExcludeFromCollections`: a search-results page must never be in
-an index of its own site. Between them this page stays out of the sitemap, out of
+`noindex` + `nofollow` + `eleventyExcludeFromCollections`: a search-results page must
+never be in an index of its own site, and its links are not endorsements — the URL space
+is unbounded (`?q=` accepts anything) and every result it shows is reachable from a real
+page. head.html carries the matching X-Robots-Tag reasoning. Between them this page stays out of the sitemap, out of
 llms.txt, out of the search index and out of SERPs — while remaining perfectly
 fetchable, which is what /search/?q= needs to be for the WebSite SearchAction in
 head.html to be a true claim.
@@ -47,7 +56,19 @@ the dialog and this page cannot disagree about what matches.
     <p class="s-page__status" role="status" aria-live="polite"></p>
     <div class="s-page__results"></div>
 
+    {%- comment -%}
+    The no-JS fallback names real destinations, which differ per edition: /docs/ and /api/
+    exist only on imqueue.org, and offering a dead link to somebody who already cannot use
+    the search would be the second failure in a row.
+    {%- endcomment %}
     <noscript>
+      {%- if edition == "com" %}
+      <p class="s-empty">This page searches in your browser, so it needs JavaScript. This
+      site is seven pages — <a href="/pricing/">Pricing</a>, <a href="/license/">License</a>,
+      <a href="/support/">Support</a>, <a href="/contact/">Contact</a> — and the
+      documentation it searches alongside them lives at
+      <a href="{{ otherUrl }}/docs/">imqueue.org/docs/</a>.</p>
+      {%- else %}
       <p class="s-empty">This page searches the documentation in your browser, so it
       needs JavaScript. Without it, three routes cover the same ground:
       <a href="/docs/">the documentation index</a> for the guides,
@@ -55,6 +76,7 @@ the dialog and this page cannot disagree about what matches.
       <a href="/llms.txt">llms.txt</a> — a single page listing every URL on this site
       with a description of each. There is also
       <a href="/api/search-index.json">a JSON index of every exported symbol</a>.</p>
+      {%- endif %}
     </noscript>
   </div>
 </div>

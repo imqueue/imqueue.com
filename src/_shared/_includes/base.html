@@ -53,14 +53,11 @@
   {%- comment -%} Content-hashed via the `asset` filter — see head.html's note. {%- endcomment -%}
   <script src="{{ '/js/site.js' | asset }}" defer></script>
   {%- comment -%}
-  Org only, same reasoning as the stylesheet in head.html. `defer` and nothing else:
-  the script binds a click/keydown listener and returns — the index files are not
-  touched until somebody shows intent to search (hover, focus, or the first
-  keystroke), so this costs one small file on load and no requests.
+  `defer` and nothing else: the script binds a click/keydown listener and returns — the
+  index files are not touched until somebody shows intent to search (hover, focus, or the
+  first keystroke), so this costs one small file on load and no requests.
   {%- endcomment -%}
-  {%- if edition == "org" %}
   <script src="{{ '/js/search.js' | asset }}" defer></script>
-  {%- endif %}
   {%- if analytics.ga4 or analytics.clarity %}
   <script src="{{ '/js/consent.js' | asset }}" defer></script>
   {%- endif %}
