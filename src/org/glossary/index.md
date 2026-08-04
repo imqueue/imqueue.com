@@ -20,7 +20,7 @@ signature has one short answer and one authoritative link.
 
 ### IMQ
 
-IMQ is the abbreviation of **Inter-Communication Messaging Queue**, the phrase the
+IMQ is the abbreviation of **Intercommunication Messaging Queue**, the phrase the
 project's name is built from. `@imqueue`, `imqueue`, `IMQ` and "I Message Queue"
 all refer to the same framework: a message-queue RPC framework for Node.js and
 TypeScript back-ends. The `IMQ` prefix also names most of its exported types —
