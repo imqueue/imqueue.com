@@ -201,6 +201,20 @@ if (outOfRange.length) {
   pass(`all ${sections.length} sections resolve to a page and carry text`);
 }
 
+// ---- the lemma map ------------------------------------------------------
+// Morphology is invisible when it silently stops working: every query keeps returning
+// results, just fewer of them. This asserts the map is present and populated; which
+// words map where is scripts/check-search-ranking.js's job.
+const lemmas = tier2.json.lemmas;
+
+if (!lemmas || typeof lemmas !== "object") {
+  fail("search-text.json has no lemma map — inflected queries will silently lose recall");
+} else if (Object.keys(lemmas).length < 500) {
+  fail(`the lemma map has only ${Object.keys(lemmas).length} entries; the corpus vocabulary should yield well over a thousand`);
+} else {
+  pass(`the lemma map carries ${Object.keys(lemmas).length} inflected forms`);
+}
+
 // ---- 6. budget ----------------------------------------------------------
 for (const [name, source] of [['search-index.json', tier1], ['search-text.json', tier2]]) {
   const gz = zlib.gzipSync(Buffer.from(source.text), { level: 9 }).length;

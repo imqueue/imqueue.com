@@ -94,6 +94,12 @@
   // Inside one element: mostly "how much of the query does this cover", partly "how
   // concentrated is it". Coverage has to dominate, or a one-word section beats a
   // thorough treatment of the whole query.
+  // A term matched only through its lemma counts for a bit over half of a literal hit.
+  // It is real evidence — "queues" and "queue" are the same word — but weaker, because
+  // no lemmatizer without a part-of-speech tagger is certain, and because a lemma match
+  // contributes no position and gets no highlight.
+  var LEMMA_WEIGHT = 0.55;
+
   var COVERAGE_SHARE = 0.75;
 
   // Occurrences per token at which density counts as saturated. One hit in eight
@@ -176,6 +182,12 @@
   var S_FOLDEMPH = 8;
   var S_NTOK = 9;
   var S_NEMPH = 10;
+  // Lemma strings, one per element: the lemmas of the words in that element whose
+  // surface form differs. Needed for the direction the surface text cannot answer —
+  // query "go" against a section that only says "went".
+  var S_LEMHEAD = 11;
+  var S_LEMEMPH = 12;
+  var S_LEMBODY = 13;
 
   // Page tuple layout: url, title, kind, then the same precomputation.
   var P_URL = 0;
@@ -183,6 +195,7 @@
   var P_KIND = 2;
   var P_FOLDED = 3;
   var P_NTOK = 4;
+  var P_LEMMA = 5;
 
   // ---- text utilities -----------------------------------------------------
 
@@ -317,6 +330,10 @@
       // Parallel to `terms`: true where the term must match a whole word. Stopwords
       // only — see scanFor().
       whole: weights.map(function (weight) { return weight !== 1; }),
+      // Parallel to `terms`: the term's lemma when it differs, else "". Filled in by
+      // lemmatize() once the map has loaded, so a query typed before tier 2 arrives
+      // simply has no lemma layer rather than blocking on one.
+      lemmas: t.map(function () { return ""; }),
       weightSum: weightSum || 1,
       // How many terms are not stopwords — the coverage floor is expressed in these,
       // so a long question cannot be "half matched" by its articles and prepositions.
@@ -325,6 +342,42 @@
       filters: filters,
       question: /\?\s*$/.test(text) || QUESTION_WORD.test(fold(text)),
     };
+  }
+
+  // The map covers every word the CORPUS contains, so these rules only ever run on a
+  // form that appears nowhere in it — where the worst case is failing to find a match
+  // that did not exist. That is why they can be this crude: the `string` -> `str` class
+  // of error cannot reach the ranker, because "string" is in the corpus and therefore
+  // in the map, and the map wins.
+  function fallbackLemma(term) {
+    if (term.length < 5) {
+      return "";
+    }
+    if (/ies$/.test(term)) return term.slice(0, -3) + "y";
+    if (/(ss|us|is|s)es$/.test(term)) return term.slice(0, -2);
+    if (/[^s]s$/.test(term)) return term.slice(0, -1);
+    if (/ing$/.test(term)) return term.slice(0, -3);
+    if (/ed$/.test(term)) return term.slice(0, -2);
+
+    return "";
+  }
+
+  function lemmatize(q) {
+    var map = state.t2 && state.t2.lemmas;
+
+    for (var i = 0; i < q.terms.length; i++) {
+      // Stopwords are never lemma-matched. Merging is/was/were onto "be" would make a
+      // function word match most sentences in the corpus for no gain in topicality.
+      if (q.whole[i]) {
+        continue;
+      }
+
+      var lemma = (map && map[q.terms[i]]) || fallbackLemma(q.terms[i]);
+
+      q.lemmas[i] = lemma && lemma !== q.terms[i] ? lemma : "";
+    }
+
+    return q;
   }
 
   // ---- scoring ------------------------------------------------------------
@@ -460,7 +513,7 @@
    * element rather than counting hits across a page. Takes text that is already
    * folded — prepare() and loadTier2() do that once, not once per keystroke.
    */
-  function elementScore(weight, folded, tokenCount, q) {
+  function elementScore(weight, folded, tokenCount, q, lemmaText) {
     if (!folded || !q.terms.length) {
       return 0;
     }
@@ -476,6 +529,29 @@
         // fifteenth of a content word on either axis.
         matched += q.weights[i];
         occurrences += hit.n * q.weights[i];
+        continue;
+      }
+      // No literal hit. Two lemma routes remain, and they answer opposite directions:
+      //
+      //   query "queues", text says "queue"  -> the query's LEMMA appears in the text
+      //   query "queue",  text says "queues" -> handled already, "queue" is a substring
+      //   query "go",     text says "went"   -> only the text's lemma STRING has "go"
+      //
+      // `lemmaText === false` disables both. Nothing passes it today — identifiers are
+      // kept safe by the whole-word rule below rather than by exclusion — but it stays
+      // as the switch for any element that must be matched literally.
+      if (lemmaText === false) {
+        continue;
+      }
+
+      var lemmaHit = q.lemmas[i] ? scanFor(folded, q.lemmas[i], true) : { n: 0 };
+
+      if (!lemmaHit.n && lemmaText) {
+        lemmaHit = scanFor(lemmaText, q.lemmas[i] || q.terms[i], true);
+      }
+      if (lemmaHit.n) {
+        matched += q.weights[i] * LEMMA_WEIGHT;
+        occurrences += lemmaHit.n * q.weights[i] * LEMMA_WEIGHT;
       }
     }
     if (!matched) {
@@ -520,10 +596,23 @@
       direct = W.substring;
     }
 
+    // Symbol names get the lemma route too, and the WHOLE-WORD requirement is what makes
+    // that safe — not excluding them, which is what this did first.
+    //
+    // The fear was `send` reaching `sendOptions`. It cannot: a lemma is only ever matched
+    // at word boundaries, and in `sendoptions` the characters after "send" are letters,
+    // so the match is rejected. `locks` finds `rpc.lock` and does not find
+    // `imqlockmetadataitem`; `logged` does not find `logger`. What the blanket exclusion
+    // cost was real: `timeouts` could not reach `IMQClientOptions.timeout`, because its
+    // description happens never to use the word.
+    //
+    // Blind SUFFIX STEMMING on identifiers would still be unsafe. That is not what this
+    // is — every lemma here came from a dictionary that rejected the candidate unless the
+    // result was a word.
     return Math.max(
       direct,
       bagScore(record._t, q),
-      elementScore(E.title, lower, record._t.length, q)
+      elementScore(E.title, lower, record._t.length, q, "")
     ) + positionBonus(E.title, lower, q);
   }
 
@@ -557,7 +646,7 @@
     // scored as a body — same weight a section's prose gets — so a symbol whose
     // description happens to use the query words cannot outrank the symbol named
     // after them.
-    var score = titleScore(record, q) + elementScore(E.body, record._s, record._sn, q);
+    var score = titleScore(record, q) + elementScore(E.body, record._s, record._sn, q, "");
 
     if (score < MIN_SCORE) {
       return 0;
@@ -588,14 +677,14 @@
     // bag match the same way a title does.
     var score = Math.max(
       bagScore(section[S_HEADTOK], q),
-      elementScore(E.header, head, section[S_HEADTOK].length, q)
+      elementScore(E.header, head, section[S_HEADTOK].length, q, section[S_LEMHEAD])
     ) + positionBonus(E.header, head, q) +
-      elementScore(E.emphasis, section[S_FOLDEMPH], section[S_NEMPH], q) +
+      elementScore(E.emphasis, section[S_FOLDEMPH], section[S_NEMPH], q, section[S_LEMEMPH]) +
       positionBonus(E.emphasis, section[S_FOLDEMPH], q) +
-      elementScore(E.body, text, section[S_NTOK], q) +
+      elementScore(E.body, text, section[S_NTOK], q, section[S_LEMBODY]) +
       positionBonus(E.body, text, q) +
       PAGE_TITLE_SHARE * (
-        elementScore(E.title, page[P_FOLDED], page[P_NTOK], q) +
+        elementScore(E.title, page[P_FOLDED], page[P_NTOK], q, page[P_LEMMA]) +
         positionBonus(E.title, page[P_FOLDED], q)
       );
 
@@ -608,8 +697,11 @@
     for (var i = 0; i < q.terms.length; i++) {
       var term = q.terms[i];
 
+      var probe = q.lemmas[i] || term;
+
       if (scanFor(head, term, q.whole[i]).n || scanFor(text, term, q.whole[i]).n ||
-        scanFor(section[S_FOLDEMPH], term, q.whole[i]).n) {
+        scanFor(section[S_FOLDEMPH], term, q.whole[i]).n ||
+        scanFor(section[S_LEMBODY], probe, true).n || scanFor(section[S_LEMHEAD], probe, true).n) {
         hits++;
 
         if (q.weights[i] === 1) {
@@ -661,6 +753,11 @@
   function search(q) {
     var hits = [];
     var i;
+
+    // Here rather than in parseQuery, because the map arrives with tier 2 — after the
+    // first keystrokes. Re-running the query when tier 2 lands is what upgrades an
+    // already-typed search from literal to morphological.
+    lemmatize(q);
 
     if (state.t1) {
       for (i = 0; i < state.t1.records.length; i++) {
@@ -1135,8 +1232,34 @@
   // Folded, squashed and counted once here, not once per keystroke: this is 640 KB of
   // prose, and doing it in the scorer made every keystroke re-normalize the whole
   // corpus. Stored as extra slots on each section and page tuple.
+  // The lemmas of the words in one element whose surface form differs, deduplicated.
+  // Only the DELTA needs to be here: a word that is already its own lemma is findable
+  // in the surface text, which the literal pass has already searched.
+  function lemmaStringOf(folded, map) {
+    if (!map || !folded) {
+      return "";
+    }
+
+    var words = folded.split(/[^a-z0-9]+/);
+    var seen = {};
+    var out = [];
+
+    for (var i = 0; i < words.length; i++) {
+      var lemma = map[words[i]];
+
+      if (lemma && !seen[lemma]) {
+        seen[lemma] = 1;
+        out.push(lemma);
+      }
+    }
+
+    return out.join(" ");
+  }
+
   function prepareSections(index) {
     {
+      var map = index.lemmas;
+
       for (var i = 0; i < index.sections.length; i++) {
         var section = index.sections[i];
         var folded = fold(section[S_TEXT]);
@@ -1148,10 +1271,14 @@
         section[S_FOLDEMPH] = emphasis;
         section[S_NTOK] = folded ? folded.split(" ").length : 0;
         section[S_NEMPH] = emphasis ? emphasis.split(" ").length : 0;
+        section[S_LEMHEAD] = lemmaStringOf(fold(section[S_HEAD]), map);
+        section[S_LEMEMPH] = lemmaStringOf(emphasis, map);
+        section[S_LEMBODY] = lemmaStringOf(folded, map);
       }
       for (i = 0; i < index.pages.length; i++) {
         index.pages[i][P_FOLDED] = fold(index.pages[i][P_TITLE]);
         index.pages[i][P_NTOK] = idTokens(index.pages[i][P_TITLE]).length;
+        index.pages[i][P_LEMMA] = lemmaStringOf(index.pages[i][P_FOLDED], map);
       }
     }
 

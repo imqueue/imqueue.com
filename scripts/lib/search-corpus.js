@@ -33,6 +33,7 @@ const fs = require("fs");
 const path = require("path");
 
 const { slugify } = require("./md-slug.js");
+const { lemmaOf, report } = require("./lemma.js");
 
 // Metadata block emitted by _includes/mirror-meta.md, directly under the `# `
 // title. Dropped from the indexed text: "Published: 2026-07-23" is in every
@@ -376,11 +377,38 @@ function verifyAnchor(part, outputDir, url) {
   return { ...part, anchor: "" };
 }
 
+/**
+ * Surface form -> lemma, for every word in the corpus whose lemma differs.
+ *
+ * Only the DELTA is emitted: 64% of the vocabulary is already its own lemma and needs
+ * no entry. The client applies the map to the prose it has already folded, so no
+ * per-section lemma data ships — this map is the entire cost of morphology on the
+ * wire, and the ~20 ms of lookups at load is cheaper than the bytes would be.
+ *
+ * Stopwords are left IN the map. They are excluded at match time instead (the ranker
+ * knows which terms are stopwords), so the exclusion lives in one place rather than
+ * being duplicated here as a second list that could drift.
+ */
+function lemmaMap(words) {
+  const map = {};
+
+  for (const word of words) {
+    const lemma = lemmaOf(word);
+
+    if (lemma !== word) {
+      map[word] = lemma;
+    }
+  }
+
+  return map;
+}
+
 function buildCorpus(outputDir) {
   const docs = [];
   const faq = [];
   const pages = [];
   const sections = [];
+  const vocabulary = new Set();
 
   idCache.clear();
   unanchored = 0;
@@ -428,6 +456,12 @@ function buildCorpus(outputDir) {
 
       pages.push([mirror.url, mirror.title, groupFor(mirror.url)]);
 
+      for (const word of `${mirror.title} ${mirror.body}`.toLowerCase().split(/[^a-z0-9]+/)) {
+        if (word) {
+          vocabulary.add(word);
+        }
+      }
+
       for (const part of parts) {
         if (part.text) {
           sections.push([pageIdx, part.anchor, part.heading, part.text, part.emphasis]);
@@ -458,9 +492,11 @@ function buildCorpus(outputDir) {
     });
   }
 
+  const lemmas = lemmaMap(vocabulary);
+
   return {
     tier1: { v: 1, records: [...faq, ...docs, ...api] },
-    tier2: { v: 1, pages, sections },
+    tier2: { v: 1, pages, sections, lemmas },
     stats: {
       docs: docs.length,
       faq: faq.length,
@@ -469,6 +505,12 @@ function buildCorpus(outputDir) {
       // Reported rather than swallowed: a jump here means a page's rendered
       // headings and its markdown mirror have drifted apart.
       unanchored,
+      vocabulary: vocabulary.size,
+      lemmas: Object.keys(lemmas).length,
+      // Stems a detachment produced, that the dictionary rejected, and that the corpus
+      // uses as words: candidates for scripts/data/project-words.txt. Reported rather
+      // than added automatically — see that file for why roughly one in seven is a trap.
+      missingWords: report(vocabulary),
     },
   };
 }

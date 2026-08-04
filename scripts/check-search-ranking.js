@@ -247,6 +247,81 @@ if (!(position.x > position.y)) {
   pass(`word order breaks a tie, gently (${Math.round(position.x)} vs ${Math.round(position.y)})`);
 }
 
+// ---- morphology --------------------------------------------------------------
+// An inflected query must reach the same page as its dictionary form. Not the same
+// SCORE — a lemma match is worth 0.55 of a literal one on purpose — the same page.
+const INFLECTED = [
+  ['retry', 'retries'],
+  ['client', 'clients'],
+  ['timeout', 'timeouts'],
+  ['namespace', 'namespaces'],
+];
+
+for (const [base, inflected] of INFLECTED) {
+  const a = run(base);
+  const b = run(inflected);
+
+  // RECALL, not rank. A lemma match is deliberately worth 0.55 of a literal one, so the
+  // inflected form legitimately orders its results differently — what morphology buys is
+  // that the page is reachable at all. Asserting the same top-five was asserting a
+  // property this design does not claim, and it failed for exactly that reason.
+  const at = b.findIndex((hit) => hit.record.u === a[0].record.u);
+
+  if (!b.length) {
+    fail(`"${inflected}" returned nothing — the lemma map is not reaching the ranker`);
+  } else if (at === -1) {
+    fail(
+      `"${inflected}" never reaches "${base}"'s top result (${a[0].record.u}) in ${b.length} hits:\n` +
+      `        ${b.slice(0, 5).map((h) => h.record.u).join('\n        ')}`
+    );
+  } else {
+    pass(`"${inflected}" reaches what "${base}" finds, at rank ${at + 1} of ${b.length}`);
+  }
+}
+
+// Irregular forms are the half no rule set can do, and the reason the dictionary was
+// chosen over suffix stripping.
+const IRREGULAR = [['went', 'go'], ['gone', 'go'], ['mice', 'mouse'], ['indices', 'index']];
+const lemmaMap = ranker.state.t2.lemmas;
+const wrongIrregular = IRREGULAR.filter(([form, lemma]) => lemmaMap[form] && lemmaMap[form] !== lemma);
+const presentIrregular = IRREGULAR.filter(([form]) => lemmaMap[form]);
+
+if (wrongIrregular.length) {
+  fail(`irregular forms map wrongly: ${wrongIrregular.map(([f, l]) => `${f}->${lemmaMap[f]} (wanted ${l})`).join(', ')}`);
+} else if (!presentIrregular.length) {
+  fail('no irregular form from the sample is in the lemma map — the exception lists are not being read');
+} else {
+  pass(`irregular forms resolve (${presentIrregular.map(([f]) => `${f}->${lemmaMap[f]}`).join(', ')})`);
+}
+
+// The traps. Each of these WAS a wrong merge at some point in building this, and each
+// would silently degrade identifier search if it came back. scripts/data/project-words.txt
+// documents why every one of them is refused.
+const NEVER_MERGED = ['string', 'data', 'index', 'user', 'server', 'broker', 'later', 'send', 'lock'];
+const merged = NEVER_MERGED.filter((word) => lemmaMap[word]);
+
+if (merged.length) {
+  fail(`these must never be lemmatized, but are: ${merged.map((w) => `${w}->${lemmaMap[w]}`).join(', ')}`);
+} else {
+  pass(`the ${NEVER_MERGED.length} words that must stay themselves do (string, data, user, server, broker, send, …)`);
+}
+
+// Identifiers are matched literally. `send` reaching `sendOptions` through a shared
+// lemma is the exact failure the no-stemmer rule was written to prevent.
+const sendHits = run('send').filter((hit) => hit.record.g === 1);
+const sendTop = sendHits[0];
+
+// The top symbol may be named exactly `send` or `Something.send` — both are the member
+// being asked for. The first version of this check demanded the dotted form and failed
+// on the better answer.
+const sendName = sendTop ? sendTop.record.t.toLowerCase().split('.').pop() : '';
+
+if (!sendTop || sendName !== 'send') {
+  fail(`"send" should rank a send() member first among symbols, got ${sendTop ? sendTop.record.t : 'nothing'}`);
+} else {
+  pass(`"send" ranks ${sendTop.record.t} first among symbols — identifiers stay literal`);
+}
+
 if (failures) {
   console.error(`\n${failures} search ranking check(s) failed.`);
   process.exit(1);

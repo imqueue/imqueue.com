@@ -75,9 +75,21 @@ function generate(outputDir, opts = {}) {
     console.log(
       `[search] ${stats.docs} pages, ${stats.api} symbols, ${stats.faq} FAQ answers, ` +
       `${stats.sections} sections — ${TIER1} ${kb(sizes[TIER1].gz)} gz, ` +
-      `${TIER2} ${kb(sizes[TIER2].gz)} gz` +
+      `${TIER2} ${kb(sizes[TIER2].gz)} gz, ${stats.lemmas} lemmas` +
       (stats.unanchored ? ` (${stats.unanchored} sections link to the page, not a heading)` : "")
     );
+
+    // Vocabulary the dictionary does not have but the corpus uses. Printed, never
+    // applied: about one in seven is a fragment that would break a word that currently
+    // works, so scripts/data/project-words.txt is curated by hand from this list. An
+    // empty report is the steady state, which is what makes a new line worth reading.
+    if (stats.missingWords.length) {
+      console.log(
+        `[search] ${stats.missingWords.length} word(s) missing from the dictionary — ` +
+        `review for scripts/data/project-words.txt: ` +
+        stats.missingWords.map((w) => `${w.stem} (from ${w.sawAs})`).join(", ")
+      );
+    }
   }
 
   return { stats, sizes };
