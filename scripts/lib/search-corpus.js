@@ -191,6 +191,25 @@ function splitSections(body) {
     });
   };
 
+  // A THEMATIC BREAK ends the section too, and the text after it belongs to the page
+  // rather than to the heading above it.
+  //
+  // Every blog post closes with `---` and then a "where to go next" paragraph. Without
+  // this the paragraph is glued onto whatever the last heading was, and on nine posts that
+  // heading is an FAQ answer — so `### Can I use @imqueue with a GraphQL or REST gateway?`
+  // ended up containing the sentence "Shipping inside a closed-source product? See
+  // commercial licensing & support", and was returned as the second-best answer to "can i
+  // use imqueue commercially". It also put a literal "---" in the middle of that answer's
+  // snippet in the dialog, which is how it was noticed.
+  //
+  // The text is KEPT, as a headingless section: it is real prose with real links, and a
+  // page-level hit for it is honest. Dropping it would be a judgement that trailing
+  // navigation is worthless, which is a bigger claim than the one this fixes.
+  //
+  // `previousBlank` is required because `text` followed by `---` is a SETEXT H2 in
+  // markdown, not a rule. Every real break in this corpus has a blank line before it.
+  let previousBlank = true;
+
   for (const line of body.split("\n")) {
     const fenceMark = line.match(/^\s{0,3}(```+|~~~+)/);
 
@@ -201,6 +220,14 @@ function splitSections(body) {
         fence = null;
       }
       current.lines.push(line);
+      previousBlank = false;
+      continue;
+    }
+
+    if (fence === null && previousBlank && /^ {0,3}(?:-{3,}|\*{3,}|_{3,})\s*$/.test(line)) {
+      flush();
+      current = { heading: "", level: 0, anchor: "", lines: [] };
+      previousBlank = true;
       continue;
     }
 
@@ -208,10 +235,12 @@ function splitSections(body) {
 
     if (!heading) {
       current.lines.push(line);
+      previousBlank = line.trim() === "";
       continue;
     }
 
     flush();
+    previousBlank = false;
 
     // Same de-duplication markdown-it-anchor applies, so the anchors here match
     // the ids in the HTML even when two headings slugify identically.
