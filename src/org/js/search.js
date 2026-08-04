@@ -82,7 +82,19 @@
     + "must my no not of on or should so than that the their then there these they this to was we what when where "
     + "which who why will with would you your").split(" ").forEach(function (word) { STOP[word] = 1; });
 
-  var MAX = { answers: 3, docs: 8, api: 8, perPage: 2 };
+  var GROUPS = [
+    { key: "answers", label: "Answers" },
+    { key: "docs", label: "Guides & articles" },
+    { key: "api", label: "API reference" },
+  ];
+
+  // Ten per group in the dialog; anything beyond that is behind a link to /search/,
+  // which pages through the whole group. At most two results from one page, or a
+  // query matching a long comparison article returns that article eight times and
+  // buries everything else.
+  var PER_GROUP = 10;
+  var PER_PAGE = 20;
+  var MAX = { perPage: 2 };
 
   // Below this a "match" is one weak term hit and showing it costs more than the
   // blank space it fills.
@@ -90,6 +102,11 @@
 
   var state = { t1: null, t2: null, p1: null, p2: null, q: "", results: null, active: -1 };
   var el = {};
+
+  // Set at the bottom, once the DOM is there (this script is deferred). Non-null
+  // only on /search/, where the page owns a search field of its own and the modal
+  // would be a second one stacked on top of it.
+  var pageHost = null;
 
   // ---- text utilities -----------------------------------------------------
 
@@ -523,22 +540,51 @@
 
   // ---- rendering ----------------------------------------------------------
 
-  function row(hit, q, index) {
+  function groupKey(record) {
+    return record.g === G_ANSWER ? "answers" : record.g === G_API ? "api" : "docs";
+  }
+
+  /**
+   * The row's second line: where this result lives.
+   *
+   * A title on its own does not say whether "Verify" is a tutorial step, an agent
+   * recipe or a section of a blog post — and after the caps, several rows can share
+   * a heading. The URL path answers it in the fewest characters.
+   */
+  function crumbs(record) {
+    var path = record.u.split("#")[0].replace(/^\/+|\/+$/g, "");
+    var parts = path ? path.split("/") : [];
+
+    if (record.g === G_API) {
+      // "api › core › latest › core.redisqueue.send" says the same thing three
+      // times: the package is a field of the record and `latest` is an artefact of
+      // the URL scheme, not information.
+      return record.p + (parts.length > 2 ? " › " + parts[parts.length - 1] : "") +
+        (record.d ? " · deprecated" : "");
+    }
+
+    return parts.length ? parts.join(" › ") : "imqueue.org";
+  }
+
+  function row(hit, q, index, listbox) {
     var record = hit.record;
     var a = document.createElement("a");
 
-    a.className = "s-hit";
+    a.className = "s-hit s-hit--" + groupKey(record);
     a.href = record.u;
-    a.id = "s-hit-" + index;
-    a.setAttribute("role", "option");
-    a.setAttribute("aria-selected", "false");
+
+    if (listbox) {
+      a.id = "s-hit-" + index;
+      a.setAttribute("role", "option");
+      a.setAttribute("aria-selected", "false");
+    }
 
     var head = document.createElement("span");
 
     head.className = "s-hit__title";
     highlight(head, record.t, q);
 
-    if (record.g === G_API) {
+    if (record.g === G_API && record.k) {
       var kind = document.createElement("span");
 
       kind.className = "s-hit__kind";
@@ -547,13 +593,11 @@
     }
     a.appendChild(head);
 
-    var meta = document.createElement("span");
+    var crumb = document.createElement("span");
 
-    meta.className = "s-hit__meta";
-    meta.textContent = record.g === G_API
-      ? record.p + (record.d ? " · deprecated" : "")
-      : (record._page && record._page !== record.t ? record._page + " · " : "") + record.k;
-    a.appendChild(meta);
+    crumb.className = "s-hit__crumbs";
+    crumb.textContent = crumbs(record);
+    a.appendChild(crumb);
 
     var body = hit.section ? snippet(hit.section[3], q, 190) : record.s;
 
@@ -568,7 +612,13 @@
     return a;
   }
 
-  function group(title, hits, q, offset, extra) {
+  function resultsUrl(key, raw, page) {
+    return "/search/?q=" + encodeURIComponent(raw) +
+      (key ? "&g=" + key : "") +
+      (page && page > 1 ? "&page=" + page : "");
+  }
+
+  function group(def, hits, q, offset, extra) {
     if (!hits.length) {
       return null;
     }
@@ -580,14 +630,22 @@
     var label = document.createElement("div");
 
     label.className = "s-group__label";
-    // "8 of 86", not "(86)". The cap is real and saying so is the honest form —
-    // a bare total reads as a claim that there are 86 good matches, and a bare
-    // list reads as if there were only 8.
-    label.textContent = extra > 0 ? title + " · " + hits.length + " of " + (hits.length + extra) : title;
+    label.textContent = def.label;
     section.appendChild(label);
 
     for (var i = 0; i < hits.length; i++) {
-      section.appendChild(row(hits[i], q, offset + i));
+      section.appendChild(row(hits[i], q, offset + i, true));
+    }
+
+    // Only when the cap actually hid something. A group of six needs no "more",
+    // and a link that leads to the same six results is worse than no link.
+    if (extra > 0) {
+      var more = document.createElement("a");
+
+      more.className = "s-more";
+      more.href = resultsUrl(def.key, q.raw);
+      more.textContent = "All " + (hits.length + extra) + " results in " + def.label.toLowerCase() + " →";
+      section.appendChild(more);
     }
 
     return section;
@@ -610,20 +668,16 @@
     var extra = { answers: 0, docs: 0, api: 0 };
 
     for (var i = 0; i < hits.length; i++) {
-      var key = hits[i].record.g === G_ANSWER ? "answers" : hits[i].record.g === G_API ? "api" : "docs";
+      var key = groupKey(hits[i].record);
 
-      if (buckets[key].length < MAX[key === "answers" ? "answers" : key]) {
+      if (buckets[key].length < PER_GROUP) {
         buckets[key].push(hits[i]);
       } else {
         extra[key]++;
       }
     }
 
-    var groups = [
-      ["Answers", buckets.answers, extra.answers],
-      ["Guides & articles", buckets.docs, extra.docs],
-      ["API reference", buckets.api, extra.api],
-    ];
+    var groups = GROUPS.map(function (def) { return [def, buckets[def.key], extra[def.key]]; });
 
     // Grouped, but ORDERED BY RELEVANCE — by each group's best hit, not by a fixed
     // list. A static order looks tidy and lies: typing `watcherCheckDelay` scored
@@ -845,6 +899,21 @@
   }
 
   function open(seed) {
+    // On /search/ the same intent — the nav button, ⌘K, "/" — means "let me type a
+    // query", and there is already a field for that. Opening a modal over it would
+    // put two search inputs on screen with different behaviour.
+    if (pageHost) {
+      var field = pageEl(pageHost, "input");
+
+      if (seed) {
+        field.value = seed;
+      }
+      field.focus();
+      field.select();
+
+      return;
+    }
+
     var dialog = el.dialog || build();
 
     loadTier1();
@@ -899,12 +968,181 @@
     }, true);
   });
 
-  // ?q= opens search with the query already run, so a result list is linkable
-  // even before there is a server-rendered /search/ page.
-  var params = new URLSearchParams(window.location.search);
+  // ---- /search/ — the full, paged result list ------------------------------
+  // The dialog shows the best ten per group, which is the right size for "find the
+  // page I mean". This is the other job: see everything that matched and walk it.
+  // It runs the SAME ranker over the same two files — there is no second index and
+  // no second scoring implementation to drift — and it is a static page that does
+  // its work in the browser, so it needs no server.
 
-  if (params.get("q")) {
-    loadTier1();
-    open(params.get("q"));
+  function pageEl(host, name) {
+    return host.querySelector(".s-page__" + name);
+  }
+
+  function tab(def, count, active, raw) {
+    var a = document.createElement("a");
+
+    a.className = "s-tab" + (active ? " is-active" : "");
+    a.href = resultsUrl(def.key, raw);
+    a.textContent = def.label + " " + count;
+
+    return a;
+  }
+
+  function pager(page, pages, key, raw) {
+    var nav = document.createElement("nav");
+
+    nav.className = "s-pager";
+    nav.setAttribute("aria-label", "Result pages");
+
+    if (pages < 2) {
+      return nav;
+    }
+
+    var link = function (to, text, disabled, current) {
+      var node = document.createElement(disabled ? "span" : "a");
+
+      node.className = "s-pager__item" + (disabled ? " is-disabled" : "") + (current ? " is-current" : "");
+      node.textContent = text;
+
+      if (!disabled) {
+        node.href = resultsUrl(key, raw, to);
+      }
+      if (current) {
+        node.setAttribute("aria-current", "page");
+      }
+
+      return node;
+    };
+
+    nav.appendChild(link(page - 1, "← prev", page === 1));
+
+    // A window around the current page, with the first and last always reachable —
+    // 58 pages of numbers would be its own navigation problem.
+    var from = Math.max(1, Math.min(page - 2, pages - 4));
+    var to = Math.min(pages, Math.max(page + 2, 5));
+
+    if (from > 1) {
+      nav.appendChild(link(1, "1", false, page === 1));
+      if (from > 2) {
+        nav.appendChild(link(0, "…", true));
+      }
+    }
+    for (var n = from; n <= to; n++) {
+      nav.appendChild(link(n, String(n), false, n === page));
+    }
+    if (to < pages) {
+      if (to < pages - 1) {
+        nav.appendChild(link(0, "…", true));
+      }
+      nav.appendChild(link(pages, String(pages), false, page === pages));
+    }
+
+    nav.appendChild(link(page + 1, "next →", page === pages));
+
+    return nav;
+  }
+
+  function renderPage(host) {
+    var params = new URLSearchParams(window.location.search);
+    var raw = params.get("q") || "";
+    var key = params.get("g") || "";
+    var page = Math.max(1, parseInt(params.get("page"), 10) || 1);
+    var results = pageEl(host, "results");
+    var status = pageEl(host, "status");
+    var tabs = pageEl(host, "tabs");
+    var input = pageEl(host, "input");
+
+    input.value = raw;
+    results.textContent = "";
+    tabs.textContent = "";
+
+    var q = parseQuery(raw);
+
+    if (!q.terms.length && !q.filters.pkg && !q.filters.kind) {
+      status.textContent = raw ? "Nothing to search for." : "Type something to search for.";
+
+      return;
+    }
+
+    document.title = "Search: " + raw + " · @imqueue";
+
+    var hits = search(q);
+    var counts = { answers: 0, docs: 0, api: 0 };
+
+    for (var i = 0; i < hits.length; i++) {
+      counts[groupKey(hits[i].record)]++;
+    }
+
+    var shown = key ? hits.filter(function (hit) { return groupKey(hit.record) === key; }) : hits;
+    var pages = Math.max(1, Math.ceil(shown.length / PER_PAGE));
+
+    page = Math.min(page, pages);
+
+    var all = document.createElement("a");
+
+    all.className = "s-tab" + (key ? "" : " is-active");
+    all.href = resultsUrl("", raw);
+    all.textContent = "Everything " + hits.length;
+    tabs.appendChild(all);
+
+    for (i = 0; i < GROUPS.length; i++) {
+      if (counts[GROUPS[i].key]) {
+        tabs.appendChild(tab(GROUPS[i], counts[GROUPS[i].key], key === GROUPS[i].key, raw));
+      }
+    }
+
+    if (!shown.length) {
+      var empty = document.createElement("p");
+
+      empty.className = "s-empty";
+      empty.textContent =
+        "Try a symbol name (RedisQueue, callTimeout), a shorter phrase, or narrow with pkg:rpc.";
+      status.textContent = "Nothing matched “" + raw + "”.";
+      results.appendChild(empty);
+      report(q, 0);
+
+      return;
+    }
+
+    var first = (page - 1) * PER_PAGE;
+    var slice = shown.slice(first, first + PER_PAGE);
+
+    status.textContent = shown.length + (shown.length === 1 ? " result" : " results") +
+      (pages > 1 ? " · showing " + (first + 1) + "–" + (first + slice.length) : "");
+
+    for (i = 0; i < slice.length; i++) {
+      results.appendChild(row(slice[i], q, i, false));
+    }
+
+    host.appendChild(pager(page, pages, key, raw));
+    report(q, hits.length);
+  }
+
+  pageHost = document.querySelector("[data-search-page]");
+
+  if (pageHost) {
+    // Both tiers, because this page shows everything and a half-loaded list that
+    // silently grows would be worse than a moment's wait.
+    pageEl(pageHost, "status").textContent = "Searching…";
+    Promise.all([loadTier1(), loadTier2()]).then(function () {
+      renderPage(pageHost);
+    });
+
+    pageHost.addEventListener("submit", function (event) {
+      event.preventDefault();
+      // Straight to the URL, so a refined search is a real, shareable page and the
+      // back button walks the searches somebody actually ran.
+      window.location.href = resultsUrl("", pageEl(pageHost, "input").value.trim());
+    });
+  } else {
+    // ?q= on any other page opens the dialog with the query already run, so a link
+    // into search works from anywhere.
+    var seed = new URLSearchParams(window.location.search).get("q");
+
+    if (seed) {
+      loadTier1();
+      open(seed);
+    }
   }
 })();

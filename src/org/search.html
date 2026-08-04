@@ -1,0 +1,60 @@
+---
+layout: base.html
+permalink: /search/
+title: "Search the @imqueue documentation"
+description: "Search every @imqueue guide, article and API symbol — full text, in your browser, with no server involved."
+noindex: true
+eleventyExcludeFromCollections: true
+---
+{%- comment -%}
+The full result list, paged. The dialog (⌘K anywhere on the site) shows the best ten
+per group, which is the right size for "find the page I mean"; this is the other
+job — see everything that matched and walk it.
+
+`base.html` rather than `docs.html`: a docs page brings an "On this page" sidebar
+built from headings this page has none of, a markdown-mirror link to a mirror that
+does not exist, and a "last updated" date that means nothing for a page whose
+content is a query result.
+
+`noindex` + `eleventyExcludeFromCollections`: a search-results page must never be in
+an index of its own site. Between them this page stays out of the sitemap, out of
+llms.txt, out of the search index and out of SERPs — while remaining perfectly
+fetchable, which is what /search/?q= needs to be for the WebSite SearchAction in
+head.html to be a true claim.
+
+Everything below is empty on purpose. src/org/js/search.js fills it, running the
+same ranker over the same two index files the dialog uses — one implementation, so
+the dialog and this page cannot disagree about what matches.
+{%- endcomment -%}
+<div class="container" style="padding-top:56px;padding-bottom:80px;">
+  <div class="s-page" data-search-page>
+    <div class="section-label" style="margin-bottom:14px;">// SEARCH</div>
+    <h1 style="font-family:var(--font-display);font-size:40px;line-height:1.1;letter-spacing:-.03em;margin:0 0 24px;">Search the documentation</h1>
+
+    <form class="s-page__form" role="search" action="/search/" method="get">
+      {%- comment -%}
+      aria-label rather than a visually-hidden <label>: this repo has no
+      screen-reader-only utility class, and adding one for a single field would be a
+      sitewide convention introduced by a leaf page.
+      {%- endcomment %}
+      <input class="s-page__input" id="s-page-q" name="q" type="search" autocomplete="off"
+             autocapitalize="off" spellcheck="false" autofocus aria-label="Search query"
+             placeholder="Search docs, articles and the API reference">
+      <button class="s-page__submit" type="submit">Search</button>
+    </form>
+
+    <div class="s-page__tabs"></div>
+    <p class="s-page__status" role="status" aria-live="polite"></p>
+    <div class="s-page__results"></div>
+
+    <noscript>
+      <p class="s-empty">This page searches the documentation in your browser, so it
+      needs JavaScript. Without it, three routes cover the same ground:
+      <a href="/docs/">the documentation index</a> for the guides,
+      <a href="/api/">the API reference</a> for symbols, and
+      <a href="/llms.txt">llms.txt</a> — a single page listing every URL on this site
+      with a description of each. There is also
+      <a href="/api/search-index.json">a JSON index of every exported symbol</a>.</p>
+    </noscript>
+  </div>
+</div>
