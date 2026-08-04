@@ -56,18 +56,34 @@ const DETACH = [
   ["men", "man"], ["ae", "a"], ["i", "us"],
 ];
 
-// -ly is ABSENT, and was tried. It buys "commercially" -> "commercial" and costs, measured
-// on this dictionary:
+// THE LINE THIS FILE DOES NOT CROSS
 //
-//   reply -> rep     apply -> app     only -> on     fully -> ful
+// Only INFLECTIONAL suffixes are here: -s, -es, -ies, -ed, -ing, and the irregular lists.
+// They do not change part of speech, so "is the result a word?" is a sufficient test and
+// the dictionary can answer it.
 //
-// "reply" is request/reply vocabulary on half this site. The validity check cannot help,
-// because `rep`, `app`, `on` and `ful` are all words — which is the tell that this is a
-// DERIVATIONAL suffix, not an inflectional one: -ly attaches to an adjective to make an
-// adverb, so reversing it is only valid when the stem is an adjective, and nothing here
-// knows a part of speech. Same reasoning that removed -er and -est. The inflectional rules
-// above (-s, -ed, -ing, and the irregular lists) need no such knowledge, which is exactly
-// why they are safe.
+// DERIVATIONAL suffixes are absent, and three were tried before that was a rule rather than
+// an omission. -er and -est gave `user -> use`, `server -> serve`, `broker -> broke`,
+// `later -> lat`. -ly gave `reply -> rep`, `apply -> app`, `only -> on`, `fully -> ful`.
+//
+// Two attempts to rescue -ly failed in a way worth recording, because they close the door:
+//
+//   * A minimum stem length. At 4 it kept `apply -> apple` and `comply -> comp`; at 6 it
+//     STILL kept `multiply -> multiple` and `supply -> supple`. Length is not the missing
+//     information — both stems are real words and both transformations are legal spelling
+//     rules.
+//   * Refusing to touch a word that is itself a lemma. Every relevant word is one:
+//     `commercially`, `silently` and `explicitly` are all WordNet adverb lemmas, exactly
+//     like `supply` and `reply`. The check blocks the cases it should allow.
+//
+// What actually separates `commercially` from `supply` is that supply is not an adverb — a
+// part of speech of the INPUT, which no lexicon carries and only a tagger could supply. So
+// dictionary-based morphology genuinely cannot do derivation, and adding a fourth suffix
+// will fail the same way.
+//
+// The consequence is handled elsewhere and deliberately: search.js falls back to a
+// truncated-prefix match at MATCH time, where a wrong guess costs a little relevance
+// instead of permanently merging two words in the index.
 
 // -er and -est are DELIBERATELY ABSENT. In Morphy they belong to the adjective rules
 // and are only reached when the part of speech is known; applied blind to nouns they

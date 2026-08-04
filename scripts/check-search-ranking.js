@@ -162,7 +162,13 @@ const ELEMENT_PROBE = {
 
 const saved = ranker.state.t2;
 
+// IDF is neutralised for the synthetic probes below by clearing `df`. They are two- and
+// four-document corpora, where document frequency cannot mean anything — a term in three of
+// four documents reads as "common" and every score collapses to the floor, which is exactly
+// how these two checks first failed. The probes exist to pin the ELEMENT weights and the
+// density rule in isolation; corpus-level rarity is measured against the real corpus above.
 ranker.state.t2 = ranker.prepareSections(ELEMENT_PROBE);
+ranker.state.t2.df = null;
 
 const probe = {};
 
@@ -201,6 +207,7 @@ const DENSITY_PROBE = {
 };
 
 ranker.state.t2 = ranker.prepareSections(DENSITY_PROBE);
+ranker.state.t2.df = null;
 
 const density = {};
 
@@ -231,6 +238,7 @@ const POSITION_PROBE = {
 };
 
 ranker.state.t2 = ranker.prepareSections(POSITION_PROBE);
+ranker.state.t2.df = null;
 
 const position = {};
 
@@ -465,6 +473,36 @@ if (!fs.existsSync(peerIndex)) {
 
   ranker.state.x1 = null;
   ranker.state.x2 = null;
+}
+
+// ---- rare words weigh more ----------------------------------------------------
+// The signal that made "can i use imqueue commercially" stop returning five FAQ answers
+// titled "Can I use @imqueue…", none of which were about licensing. Measured over 703
+// sections: "imqueue" is in 407 of them, "commercial" in 42.
+const df = ranker.state.t2.df;
+
+if (!df || !ranker.state.t2.docs) {
+  fail('the prose index carries no document frequencies — rare terms are not being weighted');
+} else if (!(df.imqueue > df.commercial * 3)) {
+  fail(`document frequencies look wrong: imqueue ${df.imqueue}, commercial ${df.commercial}`);
+} else {
+  const common = ranker.parseQuery('imqueue');
+  const rare = ranker.parseQuery('backpressure');
+
+  ranker.search(common);
+  ranker.search(rare);
+
+  if (!(rare.weights[0] > common.weights[0] * 2)) {
+    fail(
+      `a rare term is not weighted above a common one: backpressure ${rare.weights[0].toFixed(3)} ` +
+      `vs imqueue ${common.weights[0].toFixed(3)}`
+    );
+  } else {
+    pass(
+      `rare terms weigh more (backpressure ${rare.weights[0].toFixed(2)} in ${df.backpressure} sections, ` +
+      `imqueue ${common.weights[0].toFixed(2)} in ${df.imqueue})`
+    );
+  }
 }
 
 if (failures) {
