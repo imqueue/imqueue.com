@@ -1,0 +1,246 @@
+/* Search dialog. Loaded on every org page, so it is deliberately small and holds
+   no styles for anything else.
+
+   The dialog element is created by js/search.js on first open, which is why none
+   of these selectors appear in any template. Everything is themed through the
+   same variables as the rest of the site (see css/theme-terminal.css), so light,
+   dark and the terminal skin come for free. */
+
+.nav-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface2);
+  color: var(--muted);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  cursor: pointer;
+  min-width: 190px;
+}
+
+.nav-search:hover { border-color: var(--accent); color: var(--ink); }
+.nav-search svg { flex: none; }
+.nav-search__kbd {
+  margin-left: auto;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* Mobile drawer variant: the nav button is hidden below the breakpoint where the
+   nav collapses, and this takes its place inside the drawer. */
+.mobile-nav .nav-search { width: 100%; margin: 10px 0 4px; }
+
+.s-open, .s-open body { overflow: hidden; }
+
+.s-dialog {
+  width: min(760px, calc(100vw - 32px));
+  max-height: min(680px, calc(100vh - 80px));
+  margin: 8vh auto auto;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 30px 80px var(--shadow);
+  overflow: hidden;
+}
+
+.s-dialog::backdrop { background: rgba(0, 0, 0, .55); backdrop-filter: blur(2px); }
+
+.s-form { display: flex; flex-direction: column; max-height: inherit; min-height: 0; }
+
+.s-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+
+.s-bar__icon { color: var(--muted); flex: none; }
+
+.s-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  padding: 4px 0;
+}
+
+.s-input:focus { outline: none; }
+.s-input::placeholder { color: var(--muted); }
+/* The UA's own clear button duplicates Escape and sits under the close control. */
+.s-input::-webkit-search-cancel-button { display: none; }
+
+.s-close {
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+.s-close:hover { color: var(--ink); border-color: var(--accent); }
+
+.s-results {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+}
+
+.s-group + .s-group { margin-top: 4px; }
+
+.s-group__label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 12px 10px 6px;
+}
+
+.s-hit {
+  display: block;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: none;
+}
+
+.s-hit.is-active { background: var(--surface2); box-shadow: inset 0 0 0 1px var(--line); }
+.s-hit:hover { background: var(--surface2); }
+
+/* Plain inline flow, NOT flex. Highlighting splits the title into several nodes
+   ("IMQOptions." + <mark>safeDelivery</mark> + "Ttl"), and as a flex container every
+   one of those became a flex item with the container's `gap` between them — the
+   identifier rendered as "IMQOptions. safeDelivery Ttl", with spaces that are not
+   in the name. Inline flow also wraps for free, which is what the badge needs on a
+   375px screen. */
+.s-hit__title {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 15.5px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.s-hit__kind {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 11.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 5px;
+  white-space: nowrap;
+}
+
+.s-hit__meta {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.s-hit__text {
+  display: block;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--code);
+  margin-top: 5px;
+  /* Two lines, so a long answer cannot push the next result off the screen. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* No horizontal padding: highlighting "Lock" inside "LockOptions" would otherwise
+   render as "Lock Options" and imply a space that is not in the identifier. */
+.s-hit mark {
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0;
+}
+
+.s-empty, .s-hint, .s-status {
+  margin: 0;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+  flex: none;
+}
+
+.s-hint { border-top: 1px solid var(--line); }
+.s-hint code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.s-status {
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  padding: 9px 16px;
+  min-height: 34px;
+}
+
+@media (max-width: 900px) {
+  .nav-search { display: none; }
+}
+
+/* Phones get the whole screen. `inset: 0` with `margin: 0` is the part that
+   actually does it: a <dialog> is centred by `margin: auto` in the UA stylesheet,
+   so setting only width/height leaves it laid out against the initial containing
+   block and short of one edge. `dvh` after `vh` so the dialog is not taller than
+   the visible area once a mobile browser's URL bar is showing. */
+@media (max-width: 640px) {
+  .s-dialog {
+    inset: 0;
+    margin: 0;
+    width: 100%;
+    max-width: none;
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .s-form { height: 100%; max-height: none; }
+
+  /* The hint is two lines of instructions on a screen that has room for two more
+     results instead. It is still shown before anything is typed. */
+  .s-results:not(:empty) ~ .s-hint { display: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .s-dialog[open] { animation: s-in .14s ease-out; }
+  @keyframes s-in { from { opacity: 0; transform: translateY(-6px); } }
+}
