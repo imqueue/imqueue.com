@@ -94,6 +94,13 @@
     title: 430,
     header: 360,
     emphasis: 200,
+    // Curated `keywords` front matter: the author stating which queries this page exists to
+    // answer. BELOW emphasis deliberately. Google has ignored <meta name="keywords"> since
+    // 2009 and Bing treats a stuffed one as a spam signal — because neither can trust the
+    // author. This index can: the author is the site. What does not change is that a
+    // self-declared list is cheap to pad, so it sits under the signals that cost something
+    // to fake and is scored on COVERAGE ONLY (see keywordScore).
+    keywords: 300,
     body: 120,
   };
 
@@ -641,6 +648,36 @@
     ) + positionBonus(E.title, lower, q);
   }
 
+  /**
+   * The keywords element. Coverage only — no density, no position, no phrase bonus.
+   *
+   * A keyword list is a handful of comma-separated phrases, so occurrences-per-token sits
+   * near 1.0 for every page that matches at all: density would rank by list brevity, and
+   * reward padding. Order in a comma list means nothing, so the position bonus would be
+   * noise. What the list can honestly say is "these words describe this page", and coverage
+   * is exactly that statement.
+   */
+  function keywordScore(record, q) {
+    if (!record._w) {
+      return 0;
+    }
+
+    var matched = 0;
+
+    for (var i = 0; i < q.terms.length; i++) {
+      var hit = scanFor(record._w, q.terms[i], q.whole[i]);
+
+      if (!hit.n && q.lemmas[i]) {
+        hit = scanFor(record._w, q.lemmas[i], true);
+      }
+      if (hit.n) {
+        matched += q.weights[i];
+      }
+    }
+
+    return matched ? E.keywords * Math.min(1, q.weightSum ? matched / q.weightSum : 0) : 0;
+  }
+
   function scoreRecord(record, q) {
     if (q.filters.pkg && fold(record.p || "").indexOf(q.filters.pkg) === -1) {
       return 0;
@@ -658,7 +695,8 @@
 
       for (var t = 0; t < q.terms.length; t++) {
         if (q.weights[t] === 1 &&
-          (record._l.indexOf(q.terms[t]) !== -1 || record._s.indexOf(q.terms[t]) !== -1)) {
+          (record._l.indexOf(q.terms[t]) !== -1 || record._s.indexOf(q.terms[t]) !== -1 ||
+            (record._w && record._w.indexOf(q.terms[t]) !== -1))) {
           found++;
         }
       }
@@ -671,7 +709,9 @@
     // scored as a body — same weight a section's prose gets — so a symbol whose
     // description happens to use the query words cannot outrank the symbol named
     // after them.
-    var score = titleScore(record, q) + elementScore(E.body, record._s, record._sn, q, "");
+    var score = titleScore(record, q) +
+      keywordScore(record, q) +
+      elementScore(E.body, record._s, record._sn, q, "");
 
     if (score < MIN_SCORE) {
       return 0;
@@ -770,6 +810,7 @@
       // splitting on whitespace is within a token or two of idTokens() here and this
       // runs over 1,325 records at load.
       r._sn = r._s ? r._s.split(" ").length : 0;
+      r._w = r.w ? fold(r.w) : "";
     }
 
     return index;
