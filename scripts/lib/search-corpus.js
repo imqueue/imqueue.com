@@ -389,6 +389,16 @@ function verifyAnchor(part, outputDir, url) {
  * knows which terms are stopwords), so the exclusion lives in one place rather than
  * being duplicated here as a second list that could drift.
  */
+function vocabularyOf(text, into) {
+  for (const word of String(text).toLowerCase().split(/[^a-z0-9]+/)) {
+    if (word) {
+      into.add(word);
+    }
+  }
+
+  return into;
+}
+
 function lemmaMap(words) {
   const map = {};
 
@@ -403,12 +413,37 @@ function lemmaMap(words) {
   return map;
 }
 
+/**
+ * Curated `description`/`summary` and `keywords` per URL, from the build intermediate
+ * src/search-frontmatter.11ty.js writes.
+ *
+ * Deleted after reading: it duplicates facts already public in llms.txt and in each page's
+ * meta description, and publishing a third copy would be a maintenance surface with no
+ * consumer. Absent is legal — the corpus then falls back to first paragraphs, exactly as
+ * it did before front matter was wired in.
+ */
+function takeFrontmatter(outputDir) {
+  const file = path.join(outputDir, "search-frontmatter.json");
+
+  if (!fs.existsSync(file)) {
+    return {};
+  }
+
+  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+
+  fs.unlinkSync(file);
+
+  return data;
+}
+
 function buildCorpus(outputDir) {
   const docs = [];
   const faq = [];
   const pages = [];
   const sections = [];
   const vocabulary = new Set();
+
+  const frontmatter = takeFrontmatter(outputDir);
 
   idCache.clear();
   unanchored = 0;
@@ -442,13 +477,30 @@ function buildCorpus(outputDir) {
 
       const parts = splitSections(mirror.body).map((part) => verifyAnchor(part, outputDir, mirror.url));
 
-      docs.push({
+      const meta = frontmatter[mirror.url] || {};
+      // Named `record`, not `entry`: the enclosing loop's variable is the directory entry,
+      // and shadowing it in the same block is a temporal-dead-zone error at the line ABOVE
+      // this one, which reads as the readdir having failed.
+      const record = {
         g: 0,
         t: mirror.title,
         u: mirror.url,
-        s: summarize(mirror.body),
+        // The CURATED description wins over the first paragraph. It was written to say
+        // what the page answers, in one sentence; a lead paragraph was written to be read
+        // next. Falling back matters for the pages that have neither.
+        s: meta.d ? summarize(meta.d) : summarize(mirror.body),
         k: groupFor(mirror.url),
-      });
+      };
+
+      // Curated keywords, as their own scoring element — see E.keywords in search.js. This
+      // is the one signal no amount of body analysis can reconstruct: it is the author
+      // stating which queries the page exists to answer.
+      if (meta.k) {
+        vocabularyOf(meta.k, vocabulary);
+        record.w = meta.k;
+      }
+
+      docs.push(record);
 
       faq.push(...faqRecords(parts, mirror));
 
@@ -456,11 +508,7 @@ function buildCorpus(outputDir) {
 
       pages.push([mirror.url, mirror.title, groupFor(mirror.url)]);
 
-      for (const word of `${mirror.title} ${mirror.body}`.toLowerCase().split(/[^a-z0-9]+/)) {
-        if (word) {
-          vocabulary.add(word);
-        }
-      }
+      vocabularyOf(`${mirror.title} ${mirror.body}`, vocabulary);
 
       for (const part of parts) {
         if (part.text) {
@@ -506,6 +554,7 @@ function buildCorpus(outputDir) {
       // headings and its markdown mirror have drifted apart.
       unanchored,
       vocabulary: vocabulary.size,
+      keyworded: docs.filter((d) => d.w).length,
       lemmas: Object.keys(lemmas).length,
       // Stems a detachment produced, that the dictionary rejected, and that the corpus
       // uses as words: candidates for scripts/data/project-words.txt. Reported rather
