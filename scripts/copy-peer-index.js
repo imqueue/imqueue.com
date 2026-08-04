@@ -21,20 +21,22 @@
 //
 // WHY NOT A SYMLINK
 //
-// Cloudflare Pages uploads a flat list of files, so a symlink is at best resolved at
-// upload time and at worst dangling — and it would be dangling here, because each Pages
-// project runs only its own edition's build (`build:org` / `build:com`, see CUTOVER.md),
-// so the other edition's output does not exist during it. The bytes have to be copied by
-// a step that runs after BOTH builds, which is why this hangs off `build:all` rather
-// than off the per-edition eleventy hook.
+// Cloudflare Pages uploads a flat list of files, so a symlink is at best resolved at upload
+// time and at worst dangling. The bytes have to be copied, by a step that runs after BOTH
+// editions are built — which is why this cannot hang off the per-edition eleventy hook.
 //
-// PRODUCTION NEEDS ONE DASHBOARD CHANGE
+// HOW IT GETS RUN IN PRODUCTION
 //
-// Because of that same constraint: with the build command still set to `npm run
-// build:org`, this script never runs in production and the peer files are absent. That is
-// not a breakage — the client treats a missing peer index as "no peer" and searches only
-// its own site — but cross-site results stay switched off until both Pages projects use
-// `npm run build`. It says so in the output rather than leaving you to wonder.
+// It used to be that each Pages project built only its own edition, so this never ran on a
+// deploy and the peer files were simply absent — cross-site search silently off, waiting on
+// somebody editing a build command in two dashboards. scripts/build-site.js closes that:
+// `npm run build:org` and `npm run build:com` each build the peer edition as well and then
+// call copyPeers(), so the dashboard commands can stay exactly as CUTOVER.md documents them
+// and the behaviour lives in the repo. That file explains the cost and why a failed peer
+// build is not allowed to fail the deploy.
+//
+// A missing peer index is still a supported state, and this reports it: a local
+// single-edition run, or a deploy whose peer build failed, searches only its own site.
 
 "use strict";
 
