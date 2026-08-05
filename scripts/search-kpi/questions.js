@@ -53,6 +53,8 @@ const os = require('node:os');
 const { execFileSync } = require('node:child_process');
 
 const { load, evaluate, summarise, table, accuracyFor } = require('./lib/harness');
+const { halves } = require('./lib/split.js');
+const { verdict } = require('./lib/stats.js');
 const { RANKER_DIR } = require('../lib/ranker.js');
 
 const ROOT = path.join(__dirname, '..', '..');
@@ -174,6 +176,15 @@ function main() {
   console.log(`  accuracy         ${byTopic.accuracy.toFixed(1)}%`);
   console.log(`  recall@6         ${byTopic.top6.toFixed(1)}%`);
 
+  // 115 questions over 18 topics is the smallest of the three sets, so the halves are small and
+  // the gap is noisy. Printed anyway: this is the set whose labels were written most recently and
+  // therefore the one most exposed to having been written around what the ranker already did.
+  const { fit, holdout } = halves(results, (r) => r.label);
+
+  console.log('\nfit / holdout (macro, split by topic)');
+  console.log(`  fit      ${fit.accuracy.toFixed(1)}%  (${fit.topics} topics, n = ${fit.n})`);
+  console.log(`  holdout  ${holdout.accuracy.toFixed(1)}%  (${holdout.topics} topics, n = ${holdout.n})`);
+
   console.log('\n  weakest topics');
   for (const row of byTopic.rows.slice(0, 8)) {
     console.log(`    ${row.label.padEnd(20)} n=${String(row.n).padStart(2)}  `
@@ -197,11 +208,34 @@ function main() {
     }
 
     const beforeMacro = macro(before);
+    // Per-query and per-topic deltas, tested. 115 questions is a small set and it will call most
+    // real improvements unmeasured — which is the truth about a set this size, and better than a
+    // point estimate that reads as a result.
+    const deltas = [];
+    const byTopicDelta = new Map();
+
+    for (const r of results) {
+      const b = beforeBy.get(r.query);
+
+      if (!b) continue;
+
+      const delta = r.accuracy - b.accuracy;
+
+      deltas.push(delta);
+
+      if (!byTopicDelta.has(r.label)) byTopicDelta.set(r.label, []);
+      byTopicDelta.get(r.label).push(delta);
+    }
+
+    const topicDeltas = [...byTopicDelta.values()]
+      .map((list) => list.reduce((x, y) => x + y, 0) / list.length);
 
     console.log(`\nvs ${REF}`);
     console.log(`  macro accuracy   ${beforeMacro.accuracy.toFixed(1)}% -> ${byTopic.accuracy.toFixed(1)}%`);
     console.log(`  recall@6         ${beforeMacro.top6.toFixed(1)}% -> ${byTopic.top6.toFixed(1)}%`);
     console.log(`  per query        ${better} better, ${worse} worse, ${results.length - better - worse} unchanged`);
+    console.log(`  micro delta      ${verdict(deltas).line}`);
+    console.log(`  macro delta      ${verdict(topicDeltas).line}`);
 
     // Never judge by the aggregate — the lesson compare.js exists for.
     for (const m of moved.slice(0, WORST)) {

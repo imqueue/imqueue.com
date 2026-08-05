@@ -26,7 +26,8 @@ const os = require('node:os');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const { load, page, accuracyFor } = require('./lib/harness');
+const { load, page, accuracyFor, ndcgFor } = require('./lib/harness');
+const { verdict } = require('./lib/stats.js');
 
 const ROOT = path.join(__dirname, '..', '..');
 const { RANKER_DIR } = require('../lib/ranker.js');
@@ -104,31 +105,78 @@ function main() {
   const before = load(DIR, baselineFile);
   const after = load(DIR);
 
-  const readJson = (file) => JSON.parse(fs.readFileSync(path.join(__dirname, 'data', file), 'utf8'));
+  const readJson = (file) => {
+    const at = path.join(__dirname, 'data', file);
+
+    return fs.existsSync(at) ? JSON.parse(fs.readFileSync(at, 'utf8')) : null;
+  };
+  const setOf = (file, key) => {
+    const data = readJson(file);
+
+    return data ? data[key] : null;
+  };
   const sets = {
-    natural: readJson('natural-judged.json').judged,
-    artificial: readJson('artificial-queries.json').main,
+    natural: setOf('natural-judged.json', 'judged'),
+    artificial: setOf('artificial-queries.json', 'main'),
+    // The chat-shaped set was measured only by questions.js --ref, so a comparison run reported
+    // two of the three populations. It is the one that caught a real regression the other two
+    // could not see, which makes leaving it out of the default comparison the wrong default.
+    question: setOf('question-queries.json', 'queries'),
   };
 
   let dirty = false;
 
   for (const [name, cases] of Object.entries(sets)) {
+    if (!cases) {
+      console.log(`\n=== ${name}: SET NOT PRESENT, not measured ===`);
+      continue;
+    }
+
     const better = [];
     const worse = [];
+    // Per-query deltas, INCLUDING the zeros — see lib/stats.js. `byTopic` carries the same deltas
+    // grouped, because the headline number is a macro average and a claim about a macro has to be
+    // tested over topics rather than over queries.
+    const deltas = [];
+    const ndcgDeltas = [];
+    const byTopic = new Map();
 
     for (const testCase of cases) {
       const expect = (Array.isArray(testCase.expect) ? testCase.expect : [testCase.expect])
         .map(page);
       const b = rankOf(before, testCase.query, expect);
       const a = rankOf(after, testCase.query, expect);
+      const delta = accuracyFor(a) - accuracyFor(b);
+      const topic = testCase.label || testCase.bucket || '(none)';
 
-      if (accuracyFor(a) > accuracyFor(b)) better.push({ ...testCase, b, a });
-      if (accuracyFor(a) < accuracyFor(b)) worse.push({ ...testCase, b, a });
+      deltas.push(delta);
+      ndcgDeltas.push((ndcgFor(a, 1, 1) - ndcgFor(b, 1, 1)) * 100);
+
+      if (!byTopic.has(topic)) byTopic.set(topic, []);
+      byTopic.get(topic).push(delta);
+
+      if (delta > 0) better.push({ ...testCase, b, a });
+      if (delta < 0) worse.push({ ...testCase, b, a });
     }
 
-    console.log(`\n=== ${name} (n = ${cases.length}) vs ${REF} ===`);
-    console.log(`better: ${better.length}   worse: ${worse.length}   `
-      + `unchanged: ${cases.length - better.length - worse.length}`);
+    // One number per topic, so each topic weighs the same as every other — the macro definition.
+    const topicDeltas = [...byTopic.values()]
+      .map((list) => list.reduce((x, y) => x + y, 0) / list.length);
+
+    const micro = verdict(deltas);
+    const macro = verdict(topicDeltas);
+
+    console.log(`\n=== ${name} (n = ${cases.length}, ${byTopic.size} topics) vs ${REF} ===`);
+    console.log(`  accuracy micro   ${micro.line}`);
+    console.log(`  accuracy macro   ${macro.line}`);
+    console.log(`  nDCG@10 micro    ${verdict(ndcgDeltas).line}`);
+
+    // The honest reading, spelled out because "unmeasured" is the result most likely to be
+    // misread as "safe". It means this set cannot tell, not that nothing happened.
+    if (!micro.significant && !macro.significant && (better.length || worse.length)) {
+      console.log(`  → ${better.length + worse.length} queries moved and neither average clears `
+        + 'zero: this change is UNMEASURED on this set, not neutral.');
+    }
 
     if (!worse.length) {
       continue;

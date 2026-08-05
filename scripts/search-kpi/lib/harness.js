@@ -74,6 +74,35 @@ function accuracyFor(position) {
   return position >= 1 && position <= 10 ? 100 - 10 * (position - 1) : 0;
 }
 
+// nDCG@10, reported ALONGSIDE the accuracy above rather than instead of it.
+//
+// The linear −10-per-position metric is this project's own invention and it says something true —
+// "nobody scrolls to the eleventh row" — but it discounts positions 5 to 10 far more harshly than
+// any reader behaves, and it cannot express a partially-right answer. nDCG is the field's standard
+// and its log discount is the shape click distributions actually follow, so the two together say
+// more than either: a change that moves a query from #4 to #2 barely registers in accuracy terms
+// (+20 of 100) and is a large nDCG move, while #1 to #2 is the reverse.
+//
+// SINGLE RELEVANT DOCUMENT per query, deliberately. `expect` lists ALTERNATIVES — "the topic index
+// or the article it lists, either is right" — so the ideal ranking has one relevant document at
+// position 1, not three. Summing gains over the alternatives, as textbook DCG would, would credit a
+// ranker for returning three spellings of the same answer and would make a query with more
+// acceptable answers score higher for the same reader experience.
+//
+// `grades` is honoured when a query carries one ({url: gain}), so a graded label set can be
+// introduced later without touching this. Absent, every listed URL is worth the same.
+const NDCG_K = 10;
+
+function ndcgFor(position, gain, maxGain) {
+  if (!position || position > NDCG_K) {
+    return 0;
+  }
+
+  const ideal = maxGain || 1;
+
+  return ((gain || 1) / ideal) / Math.log2(position + 1);
+}
+
 // One case = one query plus the URL(s) that would be a correct top result. `expect` may be
 // a string or an array: several pages can be equally right (a topic index and the article
 // it lists), and pretending otherwise would score a good answer as a miss.
@@ -91,25 +120,32 @@ function evaluate(ranker, cases, options) {
     try {
       hits = ranker.search(ranker.parseQuery(testCase.query)).slice(0, limit);
     } catch (error) {
-      results.push({ ...testCase, position: 0, accuracy: 0, error: String(error.message) });
+      results.push({ ...testCase, position: 0, accuracy: 0, ndcg: 0, error: String(error.message) });
       continue;
     }
 
     let position = 0;
+    let gain = 0;
 
     for (let i = 0; i < hits.length; i++) {
       const url = strict ? hits[i].record.u : page(hits[i].record.u);
 
       if (!hits[i].external && expected.includes(url)) {
         position = i + 1;
+        gain = testCase.grades ? Number(testCase.grades[url]) || 1 : 1;
         break;
       }
     }
+
+    const maxGain = testCase.grades
+      ? Math.max(...Object.values(testCase.grades).map(Number))
+      : 1;
 
     results.push({
       ...testCase,
       position,
       accuracy: accuracyFor(position),
+      ndcg: ndcgFor(position, gain, maxGain) * 100,
       returned: hits.length,
       top: hits.length ? hits[0].record.u : null,
       topScore: hits.length ? Math.round(hits[0].score) : 0,
@@ -143,6 +179,7 @@ function summarise(results) {
   return {
     total,
     accuracy: sum((r) => r.accuracy) / total,
+    ndcg: sum((r) => r.ndcg || 0) / total,
     top1: (count((r) => r.position === 1) / total) * 100,
     top3: (count((r) => r.position >= 1 && r.position <= 3) / total) * 100,
     top5: (count((r) => r.position >= 1 && r.position <= 5) / total) * 100,
@@ -174,6 +211,7 @@ function table(label, summary) {
   const lines = [
     `${label}  (n = ${summary.total})`,
     `  accuracy (KPI)   ${pct(summary.accuracy)}`,
+    `  nDCG@10          ${pct(summary.ndcg)}`,
     `  #1 exactly       ${pct(summary.top1)}`,
     `  in top 3         ${pct(summary.top3)}`,
     `  in top 5         ${pct(summary.top5)}`,
@@ -188,4 +226,4 @@ function table(label, summary) {
   return lines.join('\n');
 }
 
-module.exports = { load, evaluate, summarise, table, accuracyFor, page, median };
+module.exports = { load, evaluate, summarise, table, accuracyFor, ndcgFor, page, median };
