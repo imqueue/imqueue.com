@@ -118,7 +118,19 @@ function loadContent(dir) {
     emph: section[S_EMPH],
   }));
 
-  return { docs, answers, api, sections };
+  // Section document frequency: in how many sections a word appears at all, matching how
+  // search.js measures it. A Map, not an object — `df.constructor` on a plain object is a
+  // truthy function, which is exactly the bug that hid nineteen unreachable pages in the
+  // ranker (see STOP in src/_shared/js/search.js).
+  const df = new Map();
+
+  for (const section of sections) {
+    for (const word of new Set(words(`${section.text} ${section.head}`))) {
+      df.set(word, (df.get(word) || 0) + 1);
+    }
+  }
+
+  return { docs, answers, api, sections, df };
 }
 
 // ---- buckets --------------------------------------------------------------
@@ -126,10 +138,30 @@ function loadContent(dir) {
 // from; identical strings are merged later so all their sources are accepted.
 function generate(data) {
   const out = [];
+  // A one-word query whose word is everywhere on this site has no defensible expected answer,
+  // so scoring one measures nothing. Two such cases reached the set and both were reviewed as
+  // invalid: `service` — generated from `StartSpanOptions.service` but appearing in 365 of 719
+  // sections, and a reader typing it more likely wants IMQService — and `default`, from
+  // `_default`, in 130 sections, where what the ranker returns today is more useful than the
+  // page the case demanded. Marking either a miss made the KPI wrong, not the ranker.
+  //
+  // Data-driven rather than a blocklist, so it holds as the corpus changes: this is the same
+  // principle as STOP above ("too common on this site to carry a query on their own"), applied
+  // to the API buckets, which STOP never reached. The threshold keeps every real identifier
+  // clear — `networks` 11, `jobqueue` 6, `constructor` 3, `lte` 0 — while both invalid cases sit
+  // an order of magnitude above it.
+  const COMMON_SHARE = 0.05;
+  const tooCommon = Math.max(8, Math.round(data.sections.length * COMMON_SHARE));
+
   const add = (query, expect, bucket) => {
     const q = clean(query);
+    const terms = content(q);
 
-    if (q.length >= MIN_LEN && content(q).length) out.push({ query: q, expect, bucket });
+    if (terms.length === 1 && (data.df.get(terms[0]) || 0) > tooCommon) {
+      return;
+    }
+
+    if (q.length >= MIN_LEN && terms.length) out.push({ query: q, expect, bucket });
   };
 
   // 1. curated keywords front matter — the phrasings the authors predicted readers use.
