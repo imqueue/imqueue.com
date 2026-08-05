@@ -682,6 +682,63 @@ if (!df || !ranker.state.t2.docs) {
   }
 }
 
+// ---- the commercial half answers from the commercial edition -------------------
+// The one failure mode with revenue attached, and the one that reports nothing when it
+// happens. imqueue.com reaches the ranker ONLY through the peer feeds, so with x1/x2
+// unloaded "pricing commercial license" answers from imqueue.org's own /license/: a
+// plausible page, the wrong edition, no error anywhere. The @imqueue MCP server's docs.ts
+// went out of its way to fix exactly this — "the commercial question was the single thing
+// this server could not answer" — and nothing here asserted it stayed fixed.
+//
+// Skipped, not failed, when the peer feed is absent: `npm run build:org` alone does not
+// produce one, and that is a supported local state.
+{
+  const peerIndex = path.join(OUT, 'search-peer-index.json');
+  const peerText = path.join(OUT, 'search-peer-text.json');
+
+  if (!fs.existsSync(peerIndex) || !fs.existsSync(peerText)) {
+    console.log('  skip  peer feed absent (build:all builds it) — commercial cases not checked');
+  } else {
+    ranker.state.x1 = ranker.prepare(JSON.parse(fs.readFileSync(peerIndex, 'utf8')));
+    ranker.state.x2 = ranker.prepareSections(JSON.parse(fs.readFileSync(peerText, 'utf8')));
+
+    // Deliberately asserted as "an imqueue.com result is in the set", not "it is first".
+    // Which commercial page wins is a ranking judgement that may change; that the answer
+    // comes from the edition which documents licensing at all is not.
+    // Chosen for being answerable ONLY by the commercial edition. "support" was tried and
+    // dropped: imqueue.org has its own page titled Support, which takes #1 correctly, so the
+    // query is not commercial-only and asserting otherwise asserted a false premise. The
+    // third case is the exact phrasing the plan names as the failure it saw.
+    const COMMERCIAL = [
+      ['pricing', 'a price is only ever quoted on the commercial edition'],
+      ['commercial license', 'the org edition documents the GPL, not the commercial terms'],
+      ['pricing commercial license', 'the phrasing that answered from org /license/ with no error'],
+    ];
+
+    for (const [query, why] of COMMERCIAL) {
+      const hits = ranker.search(ranker.parseQuery(query));
+      const peer = hits.findIndex((hit) => hit.external);
+
+      if (peer === -1) {
+        fail(`"${query}" returns no imqueue.com result at all — ${why}`);
+      } else if (peer >= 10) {
+        fail(`"${query}" puts its first imqueue.com result at ${peer + 1}, past the visible set`);
+      } else {
+        pass(`"${query}" reaches imqueue.com at #${peer + 1} — ${why}`);
+      }
+    }
+
+    // And the reverse, because the peer feed must not swamp the framework docs either.
+    const local = ranker.search(ranker.parseQuery('redis queue')).findIndex((hit) => !hit.external);
+
+    if (local !== 0) {
+      fail(`"redis queue" no longer leads with an imqueue.org result (index ${local})`);
+    } else {
+      pass('a framework query still leads with imqueue.org, so the peer feed does not swamp it');
+    }
+  }
+}
+
 if (failures) {
   console.error(`\n${failures} search ranking check(s) failed.`);
   process.exit(1);
