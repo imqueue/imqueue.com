@@ -1136,7 +1136,11 @@
     // to match left all three of those natural queries worse off; requiring all of them left
     // none.
     var segments = [];
-    var raw = record._l ? record._l.split(/[^a-z0-9]+/) : [];
+    // The breadcrumb's disambiguator is a segment a caller may legitimately name, so `1` of
+    // nullableindex_1 counts here exactly as `constructor` of imqdelay.(constructor) does.
+    // Without it the stray term fails the all-terms test below and the exact match loses its
+    // multiplier — passing the coverage floor only to be outranked, which fixes nothing.
+    var raw = ((record._l || "") + " " + (record._ct || "")).split(/[^a-z0-9]+/);
 
     for (var e = 0; e < raw.length; e++) {
       if (raw[e]) {
@@ -1205,6 +1209,9 @@
     var texts = [
       record._l, record._s, record._w,
       record.g === G_API || !record._u ? "" : record._u.join(" "),
+      // Coverage only — see _ct in prepare(). This is what lets a query name the overload it
+      // wants instead of being punished for it.
+      record._ct,
     ];
 
     // Coverage floor. Matching ONE term of a four-term question is not a result:
@@ -1356,6 +1363,41 @@
       // and identify nothing.
       r._u = fold(r.u).split("#")[0].split(/[^a-z0-9]+/)
         .filter(function (part) { return part && part !== "latest" && part !== "api"; });
+
+      // What the breadcrumb says that nothing else does.
+      //
+      // crumbs() renders "@imqueue/pg-sequelize › pg-sequelize.nullableindex_1" under every
+      // API result, so the `1` is on screen — and it was searchable nowhere, because urlScore
+      // returns 0 for generated reference and the title is just "NullableIndex". Two overloads
+      // therefore had identical searchable text, and typing the disambiguator that
+      // distinguishes them RUINED the query: at three terms the coverage floor needs two of
+      // them found, `1` was found in nothing, and the exact match was rejected while an /api/
+      // section that merely lists version numbers survived on "pg-sequelize" and a digit from
+      // "3.0.5".
+      //
+      // The package tokens are deliberately NOT included. That word is the reason urlScore
+      // gives up on G_API at all — crediting `job` lifted every @imqueue/job symbol above the
+      // article written for "nodejs job queue" — and crediting it for coverage cost 13
+      // artificial regressions when measured. Tokens the title already carries are dropped too,
+      // per E.url: an echoed path word is not independent evidence. What survives is the
+      // disambiguator and nothing else: `1` for nullableindex_1, `9` for on_9, and empty for
+      // the 1,126 records whose slug says only what their title already said.
+      if (r.g === G_API) {
+        // Object.create(null) — keyed by words, so `{}` would have made "constructor" always
+        // look already-known. Same trap as STOP.
+        var known = Object.create(null);
+        var owned = fold(r.p || "").split(/[^a-z0-9]+/).concat(r._l.split(/[^a-z0-9]+/));
+
+        for (var o = 0; o < owned.length; o++) {
+          if (owned[o]) {
+            known[owned[o]] = 1;
+          }
+        }
+
+        r._ct = r._u.filter(function (part) { return !known[part]; }).join(" ");
+      } else {
+        r._ct = "";
+      }
     }
 
     return index;
