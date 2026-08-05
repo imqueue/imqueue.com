@@ -30,11 +30,14 @@ const { buildCorpus } = require("./lib/search-corpus.js");
 
 const TIER1 = "search-index.json";
 const TIER2 = "search-text.json";
+// Not a tier: nothing in the browser reads it. Anchor -> [start, end) line range into
+// <page>/index.md, for a reader that wants one section of a mirror rather than the whole page.
+const RANGES = "search-sections.json";
 
 // A failing check is how index growth gets noticed. Tier 1 is fetched
 // interactively, so its transfer size is a UX number, not a build statistic.
 // Both are gzipped sizes, which is what Cloudflare actually serves.
-const BUDGET_GZ = { [TIER1]: 120 * 1024, [TIER2]: 320 * 1024 };
+const BUDGET_GZ = { [TIER1]: 120 * 1024, [TIER2]: 320 * 1024, [RANGES]: 40 * 1024 };
 
 function gzipSize(text) {
   return zlib.gzipSync(Buffer.from(text), { level: 9 }).length;
@@ -52,10 +55,10 @@ function kb(bytes) {
  * @returns {{stats: object, sizes: object}}
  */
 function generate(outputDir, opts = {}) {
-  const { tier1, tier2, stats } = buildCorpus(outputDir);
+  const { tier1, tier2, sectionRanges, stats } = buildCorpus(outputDir);
   const sizes = {};
 
-  for (const [name, data] of [[TIER1, tier1], [TIER2, tier2]]) {
+  for (const [name, data] of [[TIER1, tier1], [TIER2, tier2], [RANGES, sectionRanges]]) {
     const json = JSON.stringify(data);
     const gz = gzipSize(json);
 
