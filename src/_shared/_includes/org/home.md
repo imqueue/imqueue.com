@@ -65,7 +65,7 @@ rig and the method, so treat the figures as a shape and measure your own workloa
 
 1. **Implement a service** — a class with exposed methods and doc-blocks.
 2. **Generate the client** — services are self-describing, so clients are generated on the fly or written to files.
-3. **Call it remotely** — await a client method like any local call; the queue routes it and returns the result.
+3. **Call it remotely as it's local** — await a client method like any local call; the queue routes it and returns the result.
 
 ## Start here
 

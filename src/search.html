@@ -1,0 +1,82 @@
+---
+layout: base.html
+permalink: /search/
+title: "Search @imqueue"
+description: "Search every @imqueue guide, article and API symbol — full text, in your browser, with no server involved."
+noindex: true
+nofollow: true
+eleventyExcludeFromCollections: true
+---
+{%- comment -%}
+The full result list, paged. The dialog (⌘K anywhere on the site) shows the best ten
+per group, which is the right size for "find the page I mean"; this is the other
+job — see everything that matched and walk it.
+
+At src/ root rather than src/org/, so BOTH editions build it. imqueue.com needs one for
+the same reason it needs a search box at all: the "All N results" link the dialog shows
+points at `/search/` on the current origin, and on com that was a 404 — the dialog offered
+a page that did not exist. Its results are com's seven pages plus the documentation from
+imqueue.org in a group of their own.
+
+`base.html` rather than `docs.html`: a docs page brings an "On this page" sidebar
+built from headings this page has none of, a markdown-mirror link to a mirror that
+does not exist, and a "last updated" date that means nothing for a page whose
+content is a query result.
+
+`noindex` + `nofollow` + `eleventyExcludeFromCollections`: a search-results page must
+never be in an index of its own site, and its links are not endorsements — the URL space
+is unbounded (`?q=` accepts anything) and every result it shows is reachable from a real
+page. head.html carries the matching X-Robots-Tag reasoning. Between them this page stays out of the sitemap, out of
+llms.txt, out of the search index and out of SERPs — while remaining perfectly
+fetchable, which is what /search/?q= needs to be for the WebSite SearchAction in
+head.html to be a true claim.
+
+Everything below is empty on purpose. src/org/js/search.js fills it, running the
+same ranker over the same two index files the dialog uses — one implementation, so
+the dialog and this page cannot disagree about what matches.
+{%- endcomment -%}
+<div class="container" style="padding-top:56px;padding-bottom:80px;">
+  <div class="s-page" data-search-page>
+    <div class="section-label" style="margin-bottom:14px;">// SEARCH</div>
+    <h1 style="font-family:var(--font-display);font-size:40px;line-height:1.1;letter-spacing:-.03em;margin:0 0 24px;">Search the documentation</h1>
+
+    <form class="s-page__form" role="search" action="/search/" method="get">
+      {%- comment -%}
+      aria-label rather than a visually-hidden <label>: this repo has no
+      screen-reader-only utility class, and adding one for a single field would be a
+      sitewide convention introduced by a leaf page.
+      {%- endcomment %}
+      <input class="s-page__input" id="s-page-q" name="q" type="search" autocomplete="off"
+             autocapitalize="off" spellcheck="false" autofocus aria-label="Search query"
+             placeholder="Search docs, articles and the API reference">
+      <button class="s-page__submit" type="submit">Search</button>
+    </form>
+
+    <div class="s-page__tabs"></div>
+    <p class="s-page__status" role="status" aria-live="polite"></p>
+    <div class="s-page__results"></div>
+
+    {%- comment -%}
+    The no-JS fallback names real destinations, which differ per edition: /docs/ and /api/
+    exist only on imqueue.org, and offering a dead link to somebody who already cannot use
+    the search would be the second failure in a row.
+    {%- endcomment %}
+    <noscript>
+      {%- if edition == "com" %}
+      <p class="s-empty">This page searches in your browser, so it needs JavaScript. This
+      site is seven pages — <a href="/pricing/">Pricing</a>, <a href="/license/">License</a>,
+      <a href="/support/">Support</a>, <a href="/contact/">Contact</a> — and the
+      documentation it searches alongside them lives at
+      <a href="{{ otherUrl }}/docs/">imqueue.org/docs/</a>.</p>
+      {%- else %}
+      <p class="s-empty">This page searches the documentation in your browser, so it
+      needs JavaScript. Without it, three routes cover the same ground:
+      <a href="/docs/">the documentation index</a> for the guides,
+      <a href="/api/">the API reference</a> for symbols, and
+      <a href="/llms.txt">llms.txt</a> — a single page listing every URL on this site
+      with a description of each. There is also
+      <a href="/api/search-index.json">a JSON index of every exported symbol</a>.</p>
+      {%- endif %}
+    </noscript>
+  </div>
+</div>

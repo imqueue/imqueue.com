@@ -67,3 +67,16 @@ CUTOVER.md
 *-NOTES.md
 *-REPORT.md
 *-HANDOVER.md
+
+# Build intermediate: the curated front matter the search index folds in. Moved here out
+# of the output dir by scripts/lib/search-corpus.js so an incremental rebuild can still
+# read it — see takeFrontmatter() for why deleting it was a correctness bug.
+.search-frontmatter-*.json
+
+# The artificial KPI query set: 1.2 MB, and regenerated exactly by
+# `npm run kpi:search:gen` from the built index plus a fixed PRNG seed, so committing it
+# would only duplicate the content it is derived from. The NATURAL set beside it IS
+# committed, because a Google autocomplete harvest cannot be reproduced — the suggestions
+# change — and without the same queries a change in the KPI would not mean a change in the
+# ranker. See scripts/search-kpi/README.md.
+scripts/search-kpi/data/artificial-queries.json
