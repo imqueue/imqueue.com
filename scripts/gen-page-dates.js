@@ -36,6 +36,12 @@ const PAGE_EXT = new Set(['.md', '.html']);
 // Excluded by prefix, relative to ROOT and posix-separated.
 const SKIP = [
   'src/org/blog/posts/', // real `date:` front matter
+  // /search/ has no editorial date. Its content is a query result — there is no
+  // moment at which it was written or last revised, and a "last updated" stamp
+  // taken from the day the template changed would be a claim about nothing. Same
+  // reasoning as the generated API trees below, and head.html already emits no
+  // date for a page with no entry, so this needs no other change.
+  'src/search.html',
 ];
 
 // The GENERATED API version trees — no editorial date, and their sitemap lastmod
