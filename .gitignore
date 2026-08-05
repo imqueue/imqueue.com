@@ -58,6 +58,12 @@ promotion/
 #
 # The patterns come last so a new plan or report is ignored by default rather
 # than by someone remembering to add it here.
+#
+# Two holes closed on 2026-08-05, both found the hard way: notes/mcp-search-docs-plan.md
+# was committed and pushed to master. The patterns were UPPERCASE only, and gitignore is
+# case-sensitive on Linux, so a lowercase `-plan.md` matched nothing; and a plan in a NEW
+# directory escapes a root-anchored name pattern entirely. So: both cases, and the
+# directory names a planning note is likely to be filed under.
 BLOG-BACKLOG.md
 REBRAND-PLAN.md
 API-DOCS-PLAN.md
@@ -67,6 +73,12 @@ CUTOVER.md
 *-NOTES.md
 *-REPORT.md
 *-HANDOVER.md
+*-plan.md
+*-notes.md
+*-report.md
+*-handover.md
+notes/
+plans/
 
 # Build intermediate: the curated front matter the search index folds in. Moved here out
 # of the output dir by scripts/lib/search-corpus.js so an incremental rebuild can still
