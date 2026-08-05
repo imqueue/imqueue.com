@@ -207,6 +207,47 @@ best against −0.19 question macro, −0.06 artificial and −0.5 on typos. A w
 and the direction refuted the hypothesis — the best suffix weight is *below* the interior weight, so
 the bucket was damping short noisy suffixes (`log` of `blog`) rather than crediting camelCase.
 
+### The hard coverage floor stays hard
+
+`scoreRecord` and `scoreSection` reject a candidate outright when a query of three or more content
+terms is met by fewer than two of them. Replacing that `return 0` with a discount looks obviously
+right — `TOPIC_MISS` is the same situation and is a multiplier *because* "a filter is one typo away
+from zero results", and this floor has twice been caught rejecting what the scorer would have ranked
+first. It was built and swept at 0.1 → 1.0, and the hard floor won:
+
+| kept when thin | natural macro | question macro | artificial micro | typos |
+|---|---|---|---|---|
+| 0 (hard floor) | 89.24 | 62.73 | **91.35** | **57.8** |
+| 0.10 / 0.15 | *identical to 0* — nothing survives against `MIN_SCORE` | | | |
+| 0.40 | 89.74 | 63.42 | 91.21 | 57.9 |
+| 0.75 | **89.87** | **65.32** | 90.04 | 54.8 |
+| 1.00 (no floor) | 89.64 | 64.31 | 88.79 | 53.8 |
+
+Removing the floor entirely is the worst setting on artificial by 2.6 points, so the floor is
+load-bearing. And 0.4, the best-balanced setting, fails on inspection even though its averages look
+positive:
+
+- artificial −0.15 micro, **p < 0.0001, 86 queries worse against 1 better**;
+- the question set's +0.69 macro comes from **one query** moving;
+- **eight `trpc` queries fell from #1 to #11, #12 and #18.**
+
+That last one is the whole answer, and it is the exact failure `--compare` exists to catch.
+`trpc infinite query` returns *two* hits under the hard floor, both the right page. Softened, twelve
+`pg-sequelize.query*` symbol pages score 102 on the single common word "query" — a short API title
+matching one term of three at high density — and bury the right answer at 48.
+
+Two costs also worth knowing:
+
+1. **Softening the floor starves the relaxation pass**, which is gated on an empty result set.
+   Measured: it fires on 100 of 499 typo queries at 0.75 against 118 at both 0 and 0.4, so 18
+   queries that had been corrected returned junk instead of nothing.
+2. The floor is a **patch for a short field saturating on one common term** — the same root cause as
+   the `cron` regression above. Per-term IDF with real length normalisation would make a common
+   word's own contribution small, and then the floor could go.
+
+So "make the floor a soft discount" is a measured dead end rather than an untried idea. Two of this
+round's three findings point at the scoring core, not at another constant.
+
 ### IDF
 
 `IDF_POWER = 0.6` in `vendor/search-ranker/search.js`, flattening the rarity curve toward 1. Natural
