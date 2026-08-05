@@ -54,7 +54,7 @@ regression detector.**
 ## What has been changed, and what was tried and rejected
 
 One ranker change has been made on the strength of these numbers: `IDF_POWER = 0.6` in
-`src/_shared/js/search.js`, flattening the rarity curve toward 1. Natural macro 87.8% →
+`vendor/search-ranker/search.js`, flattening the rarity curve toward 1. Natural macro 87.8% →
 88.9%, artificial macro 93.5% → 94.5%, 75 natural queries improved against 36 worsened.
 
 Two intuitive fixes were measured **and rejected**, both aimed at the symptom that a common

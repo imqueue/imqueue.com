@@ -28,7 +28,9 @@ const ROOT = path.join(__dirname, '..', '..', '..');
 // working tree.
 function load(dir, rankerFile) {
   const indexDir = dir || path.join(ROOT, '_site-org');
-  const ranker = require(rankerFile || path.join(ROOT, 'src', '_shared', 'js', 'search.js'));
+  const ranker = rankerFile
+    ? require(rankerFile)
+    : require(path.join(ROOT, 'scripts', 'lib', 'ranker.js')).requireRanker();
 
   const read = (name, optional) => {
     const file = path.join(indexDir, name);

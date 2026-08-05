@@ -4,13 +4,15 @@
 //   node scripts/check-search-ranking.js
 //
 // Relevance is the part of a search feature that regresses silently. Every weight in
-// src/org/js/search.js was set to fix a specific wrong answer, and each of those is
-// one "small improvement" away from coming back — the @imqueue MCP server's ranker
-// learned this the hard way, twice. So each case below names the signal it protects
-// and the wrong answer that was actually observed before it existed.
+// the ranker was set to fix a specific wrong answer, and each of those is one "small
+// improvement" away from coming back — the @imqueue MCP server's ranker learned this
+// the hard way, twice. So each case below names the signal it protects and the wrong
+// answer that was actually observed before it existed.
 //
 // The ranker is required directly: it exports itself when there is no `document`,
-// which is why it can be checked here instead of through a browser screenshot.
+// which is why it can be checked here instead of through a browser screenshot. It
+// lives in a submodule now, so this file is also the check that notices an
+// unpopulated one — requireRanker() throws with the fix.
 //
 // Exits non-zero on any failure; wired into `npm test`.
 
@@ -21,7 +23,7 @@ const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, '_site-org');
-const ranker = require(path.join(ROOT, 'src', '_shared', 'js', 'search.js'));
+const ranker = require('./lib/ranker.js').requireRanker();
 
 let failures = 0;
 const fail = (msg) => { failures++; console.error(`  FAIL  ${msg}`); };

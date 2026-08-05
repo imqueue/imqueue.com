@@ -172,7 +172,17 @@ for (const [re, ok, why] of JS_CASES) {
 // ---- what search reports ----------------------------------------------------
 // The measurement is the only route to improving relevance with real readers instead of
 // hand-written ground truth (scripts/search-kpi/), so it is worth a few cases of its own.
-const searchJs = read(path.join(ROOT, 'src', '_shared', 'js', 'search.js'));
+// Read as TEXT, not required: these cases assert on source strings, which is the only way to
+// check a constant that never leaves the IIFE. From the submodule — see scripts/lib/ranker.js,
+// and check its presence first so a plain clone gets the instruction rather than an ENOENT.
+const rankerLib = require('./lib/ranker.js');
+
+if (!rankerLib.exists()) {
+  console.error(rankerLib.MISSING);
+  process.exit(1);
+}
+
+const searchJs = read(rankerLib.RANKER_FILE);
 
 // A settle window is the difference between "queries people asked" and a report full of
 // their own prefixes. Asserted as a NUMBER, not a mention: `var SETTLE = 0` would satisfy
