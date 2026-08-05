@@ -741,6 +741,64 @@ if (!df || !ranker.state.t2.docs) {
   }
 }
 
+// ---- relaxation fires ONLY on an empty result set ------------------------------
+// The whole safety argument for spelling correction is the gate: a query that returns
+// something is scored by identical code, so the feature cannot move the KPI. That argument is
+// worth exactly as much as this assertion — remove the gate and the ranker starts silently
+// answering questions nobody asked, with no test objecting.
+//
+// The ordering case is here too. `nestjs.microservices cqrs` is answered by splitting the
+// compound alone, and a single combined relaxation pass also "corrected" `cqrs` to `cars`
+// (one substitution, and `cars` is in five sections) — announcing a query about CQRS as a
+// query about cars. Confident rewrites have to be tried before guesses.
+{
+  const RELAXED = [
+    {
+      query: 'nestjs.microservices cqrs',
+      corrected: 'nestjs microservices cqrs',
+      protects: 'a dotted compound is split, and the unknown word beside it is left alone',
+      regression: 'returned zero results; then returned results "for nestjs microservices cars"',
+    },
+    {
+      query: 'imqeueue',
+      corrected: 'imqueue',
+      protects: 'one transposed key is corrected against the corpus vocabulary',
+      regression: '29% of one-transposed-key queries returned an empty result set',
+    },
+    {
+      query: 'watcherChekcDelay',
+      corrected: null,
+      protects: 'a query that already returns something is never rewritten',
+      regression: 'n/a — this is the gate the safety argument rests on',
+    },
+  ];
+
+  for (const testCase of RELAXED) {
+    const q = ranker.parseQuery(testCase.query);
+    const hits = ranker.search(q);
+
+    if (!hits.length) {
+      fail(`"${testCase.query}" returns nothing — ${testCase.protects}`);
+      continue;
+    }
+    if (testCase.corrected === null) {
+      if (q.corrected) {
+        fail(`"${testCase.query}" was rewritten to "${q.corrected}" although it had results — `
+          + 'relaxation must fire only on an empty result set');
+      } else {
+        pass(`"${testCase.query}" is not rewritten — ${testCase.protects}`);
+      }
+      continue;
+    }
+    if (q.corrected !== testCase.corrected) {
+      fail(`"${testCase.query}" was rewritten to "${q.corrected}", expected `
+        + `"${testCase.corrected}" — ${testCase.protects}`);
+    } else {
+      pass(`"${testCase.query}" → "${q.corrected}" — ${testCase.protects}`);
+    }
+  }
+}
+
 if (failures) {
   console.error(`\n${failures} search ranking check(s) failed.`);
   process.exit(1);
