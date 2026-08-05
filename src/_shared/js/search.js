@@ -412,6 +412,11 @@
     return folded.replace(/[^a-z0-9]/g, "");
   }
 
+  // Leading sigils a caller never types: `$lte`, `_default`, `#private`.
+  function sigilless(segment) {
+    return segment.replace(/^[^a-z0-9]+/, "");
+  }
+
   function lastSegment(name) {
     var parts = String(name).split(".");
 
@@ -875,7 +880,12 @@
 
     if (lower === q.joined) {
       direct = W.exact;
-    } else if (fold(lastSegment(lower)) === q.joined) {
+    } else if (sigilless(fold(lastSegment(lower))) === q.joined) {
+      // Sigil-insensitive, because nobody types the sigil. `FilterInput.$lte` is exactly what
+      // lastSeg exists for — "send" for RedisQueue.send — but its last segment folds to `$lte`,
+      // which never equalled `lte`, so the record fell through to W.substring and ranked 27th
+      // behind 26 titles that merely contain those letters inside aLTErnative and fiLTEr.
+      // Same for `_default`, `$gte`, `$in`: the sigil is TypeScript's, not the reader's.
       direct = W.lastSeg;
     } else if (lower.indexOf(q.joined) === 0) {
       direct = W.prefix;
