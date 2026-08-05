@@ -27,7 +27,7 @@
     }
   },
   "scripts": {
-    "test": "npm run check:redirects && npm run check:agent-analytics && npm run check:dates && npm run check:links && npm run check:sitemap && npm run check:llms && npm run check:search-index && npm run check:search-ranking && npm run check:jsonld && npm run check:mermaid",
+    "test": "npm run check:redirects && npm run check:agent-analytics && npm run check:dates && npm run check:links && npm run check:sitemap && npm run check:llms && npm run check:search-index && npm run check:search-ranking && npm run check:search-ui && npm run check:jsonld && npm run check:mermaid",
     "check:redirects": "node scripts/check-redirects.js",
     "check:agent-analytics": "node scripts/check-agent-analytics.js",
     "probe:agent-analytics": "node scripts/probe-agent-analytics.js",
@@ -36,6 +36,7 @@
   "check:llms": "node scripts/check-llms.js",
   "check:search-index": "node scripts/check-search-index.js _site-org && node scripts/check-search-index.js _site-com",
   "check:search-ranking": "node scripts/check-search-ranking.js",
+  "check:search-ui": "node scripts/check-search-ui.js",
   "kpi:search": "node scripts/search-kpi/measure.js",
   "kpi:search:worst": "node scripts/search-kpi/measure.js --worst 40",
   "kpi:search:harvest": "node scripts/search-kpi/harvest-natural.js && node scripts/search-kpi/judge-natural.js",
