@@ -225,6 +225,71 @@ for (const [re, ok, why] of SEARCH_CASES) {
   else fail(`js/search.js: ${why}`);
 }
 
+// ---- the blog's scoped box runs THIS ranker ---------------------------------
+// It used to be a third search implementation: an inline script matching
+// `haystack.indexOf(query)` over title + summary + topics from /blog/search-index.json.
+// That is a phrase test, so "redis queue" found nothing — no title or summary has those
+// two words adjacent — and post bodies were not in that feed, so "idempotency" and
+// "retries" found nothing either. 7 of 14 ordinary queries returned nothing.
+const blogPage = path.join(ROOT, '_site-org', 'blog', 'index.html');
+
+if (!fs.existsSync(blogPage)) {
+  fail('_site-org/blog/index.html was not built — run `npm run build:org` first');
+} else {
+  const blogHtml = read(blogPage);
+
+  if (!/data-search-scope="Article"/.test(blogHtml)) {
+    fail(
+      '_site-org/blog/index.html: the sidebar box has no [data-search-scope="Article"], so ' +
+      'js/search.js never binds it and "Search posts" is an inert input'
+    );
+  } else pass('blog: the sidebar box is bound to the shared ranker, scoped to Article');
+
+  // The old implementation, by its own fingerprints. Either would mean it came back.
+  if (/blog-search-(?:input|results|note)/.test(blogHtml) || /\.indexOf\(q\)/.test(blogHtml)) {
+    fail(
+      '_site-org/blog/index.html: the inline naive matcher is back — that is a second ' +
+      'ranker on the same site, and it is a phrase test that cannot answer "redis queue"'
+    );
+  } else pass('blog: no inline matcher — one ranker, one place a fix lands');
+
+  if (!/data-search-dates="\/blog\/search-index\.json"/.test(blogHtml)) {
+    fail('_site-org/blog/index.html: no [data-search-dates], so whole-post hits lose their date');
+  } else pass('blog: post dates still come from the published feed');
+}
+
+const SCOPE_CASES = [
+  // Both tiers. Tier 1 alone is titles, summaries and keywords — i.e. very nearly the
+  // behaviour this replaced, and the reason "idempotency" returned nothing.
+  [
+    /Promise\.all\(\[loadTier1\(\), loadTier2\(\)\]\)\.then\(draw\)/,
+    'a scoped box loads both tiers, so post bodies are searched',
+    'the scoped box no longer loads tier 2 — body text is unsearchable again, which is ' +
+    'exactly the defect that made "idempotency" and "retries" return nothing',
+  ],
+  // Scope by filtering RESULTS. Indexing a subset would compute df over 29 pages instead
+  // of 86, so every idf would differ and the ranking would leave what the KPI measures.
+  [
+    /!hit\.external && urls\[hit\.record\.u\.split\("#"\)\[0\]\]/,
+    'scoping filters results by page kind, and excludes the peer edition',
+    'the scope filter changed shape — if it stops excluding hit.external, imqueue.com ' +
+    'pages appear under "Search posts"; if it stops keying on the page URL, answer ' +
+    'records leak in, because their record.k is the parent TITLE and not a kind',
+  ],
+  [
+    /if \(el\.status\) \{/,
+    'a failed index fetch cannot throw from inside its own catch',
+    'load()\'s catch writes el.status unguarded again. `el` is only populated by build(), ' +
+    'and both /search/ and the scoped box load indexes before any dialog exists — so a ' +
+    'network error became an unhandled TypeError and swallowed the warning',
+  ],
+];
+
+for (const [re, ok, why] of SCOPE_CASES) {
+  if (re.test(searchJs)) pass(`scope: ${ok}`);
+  else fail(`js/search.js: ${why}`);
+}
+
 console.log(
   failures
     ? `\n${failures} search-UI check(s) failed.`

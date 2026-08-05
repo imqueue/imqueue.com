@@ -1863,7 +1863,14 @@
         // A failed index fetch must not leave a dead-looking box. Retry on the
         // next keystroke by clearing the memoised promise.
         state["p" + key] = null;
-        el.status.textContent = "Search index unavailable";
+        // Guarded: `el` is only populated by build(), and both the /search/ page and
+        // the scoped sidebar load indexes before any dialog exists. Unguarded, a failed
+        // fetch on those pages threw a TypeError from inside this very catch — turning a
+        // handled network error into an unhandled rejection, and losing the warning
+        // below that says what actually happened.
+        if (el.status) {
+          el.status.textContent = "Search index unavailable";
+        }
         if (window.console) window.console.warn("[search]", error);
       });
 
@@ -2308,6 +2315,200 @@
     report(q, hits.length, shown[0] && shown[0].record.u);
   }
 
+  // ---- scoped host: one part of the site, from a sidebar --------------------
+  // The blog's "Search posts" box. It was a THIRD search implementation — 37 lines of
+  // inline script in blog/index.html running indexOf() over title + summary + topics
+  // from /blog/search-index.json — and two things were wrong with it beyond the
+  // duplication. `haystack.indexOf(query)` tests the WHOLE query as one substring, so it
+  // was a phrase match: "redis queue" found nothing, because no title or summary carries
+  // those two words adjacent. And post bodies were never in that feed, so "idempotency"
+  // and "retries" found nothing either. Seven of fourteen ordinary queries returned
+  // nothing while this ranker answered all fourteen.
+  //
+  // Scoped by filtering RESULTS, not by indexing a subset. A blog-only corpus would
+  // compute df over 29 pages instead of 86, so every idf — and therefore the ranking —
+  // would drift from what scripts/search-kpi/ measures. Filtering after the ranker has
+  // run leaves the measured behaviour exactly intact.
+  //
+  // `kind:article` cannot do this job either. It is an exact match against the
+  // overloaded record.k (the kind on a page record, the parent page's TITLE on an answer
+  // record), and it switches tier 2 off — see collect() — which is precisely the post
+  // body that makes "idempotency" findable.
+
+  var SCOPE_MAX = 8;
+  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  // Formatted from the ISO parts rather than through `new Date`, which would shift the
+  // day for every reader west of UTC — "2026-08-12" parses as midnight UTC.
+  function isoDate(iso) {
+    var parts = String(iso || "").split("-");
+
+    if (parts.length !== 3) {
+      return "";
+    }
+
+    return MONTHS[Number(parts[1]) - 1] + " " + Number(parts[2]) + ", " + parts[0];
+  }
+
+  // The page URLs of one kind. Tier 2's page tuples are the only place the corpus
+  // records what a page IS, and this is cached against the identity of that array.
+  var scopeCache = { pages: null, kind: "", urls: null };
+
+  function urlsOfKind(kind) {
+    var pages = state.t2 && state.t2.pages;
+
+    if (!pages) {
+      return null;
+    }
+    if (scopeCache.pages === pages && scopeCache.kind === kind) {
+      return scopeCache.urls;
+    }
+
+    var urls = {};
+
+    for (var i = 0; i < pages.length; i++) {
+      if (pages[i][P_KIND] === kind) {
+        urls[pages[i][P_URL]] = 1;
+      }
+    }
+
+    scopeCache = { pages: pages, kind: kind, urls: urls };
+
+    return urls;
+  }
+
+  function scopedHost(host) {
+    var kind = host.getAttribute("data-search-scope");
+    var datesUrl = host.getAttribute("data-search-dates");
+    var input = host.querySelector("[data-scope-input]");
+    var out = host.querySelector("[data-scope-results]");
+    var note = host.querySelector("[data-scope-note]");
+    var dates = null;
+    var started = false;
+    var timer = null;
+
+    if (!kind || !input || !out || !note) {
+      return;
+    }
+
+    function say(message) {
+      note.textContent = message;
+      note.hidden = !message;
+    }
+
+    function row(hit) {
+      var page = hit.record.u.split("#")[0];
+      var deep = hit.record.u !== page;
+      var li = document.createElement("li");
+      var a = document.createElement("a");
+      var meta = document.createElement("span");
+
+      a.href = hit.record.u;
+      // `record.t` is already the right label for both shapes: collect() builds a section
+      // hit with the matched HEADING as its title, and a page record carries the page
+      // title. So a section hit leads with the heading the link lands on — the part that
+      // answers the query, rather than the post title repeating down the whole list.
+      a.textContent = hit.record.t;
+      // Which is why the meta line differs: a heading needs the post it belongs to, or
+      // the result is a fragment with no context. A whole-post hit keeps the date, which
+      // is what this box showed before.
+      meta.className = "meta";
+      meta.textContent = deep
+        ? (hit.record._page || hit.record.k || "")
+        : isoDate(dates && dates[page]);
+
+      if (meta.textContent) {
+        a.appendChild(meta);
+      }
+      li.appendChild(a);
+
+      return li;
+    }
+
+    function draw() {
+      var raw = input.value.trim();
+
+      out.textContent = "";
+
+      if (!raw) {
+        say("");
+
+        return;
+      }
+      if (!state.t1 || !state.t2) {
+        say(state.p1 === null || state.p2 === null ? "Search is unavailable." : "Loading…");
+
+        return;
+      }
+
+      var urls = urlsOfKind(kind);
+      var q = parseQuery(raw);
+
+      if (!q.terms.length) {
+        say("Nothing to search for.");
+
+        return;
+      }
+
+      var hits = search(q).filter(function (hit) {
+        return !hit.external && urls[hit.record.u.split("#")[0]];
+      });
+
+      if (!hits.length) {
+        say("No posts match “" + raw + "”.");
+
+        return;
+      }
+
+      say("");
+      hits = hits.slice(0, SCOPE_MAX);
+
+      for (var i = 0; i < hits.length; i++) {
+        out.appendChild(row(hits[i]));
+      }
+    }
+
+    function start() {
+      if (started) {
+        return;
+      }
+
+      started = true;
+
+      // Both tiers: tier 1 alone would answer titles and summaries only, which is the
+      // behaviour this replaced. Not the peer index — the other edition has no posts.
+      Promise.all([loadTier1(), loadTier2()]).then(draw);
+
+      if (datesUrl) {
+        // Post dates are not in the search corpus. This feed is 12 KB, llms.txt already
+        // publishes it for agents, and a failure here costs a meta line and nothing else.
+        dates = {};
+        fetch(datesUrl, { credentials: "omit" })
+          .then(function (response) { return response.ok ? response.json() : []; })
+          .then(function (posts) {
+            for (var i = 0; i < posts.length; i++) {
+              dates[posts[i].url] = posts[i].date;
+            }
+
+            draw();
+          })
+          .catch(function () {});
+      }
+    }
+
+    input.addEventListener("focus", start);
+    input.addEventListener("input", function () {
+      start();
+      clearTimeout(timer);
+      timer = setTimeout(draw, 110);
+    });
+
+    // Deliberately NOT reported to analytics. The dialog and /search/ send one `search`
+    // event shape, and mixing a corpus-of-29 sidebar query into it would make the
+    // site-wide numbers mean two different things with no parameter to tell them apart.
+    // Reporting this surface needs its own dimension registered first.
+  }
+
   var peerMeta = document.querySelector('meta[name="search-peer"]');
   var labelMeta = document.querySelector('meta[name="search-peer-label"]');
 
@@ -2346,5 +2547,13 @@
       loadTier1();
       open(seed);
     }
+  }
+
+  // Independent of the branch above: a scoped box is a sidebar on an ordinary page, and
+  // there may be more than one of them.
+  var scopes = document.querySelectorAll("[data-search-scope]");
+
+  for (var s = 0; s < scopes.length; s++) {
+    scopedHost(scopes[s]);
   }
 })();

@@ -82,11 +82,20 @@ eleventyComputed:
 
     <!-- SIDEBAR -->
     <aside class="blog-aside">
-      <div class="aside-box blog-search">
+      {%- comment -%}
+      Driven by js/search.js — the same ranker the dialog and /search/ use, with its
+      results filtered to pages of kind "Article". `data-search-dates` names the feed the
+      post dates come from, because the search corpus has no dates in it.
+
+      This used to be its own search: an inline script matching indexOf() over
+      title + summary + topics. That is a phrase test, so "redis queue" returned nothing,
+      and post bodies were not in the feed at all.
+      {%- endcomment -%}
+      <div class="aside-box blog-search" data-search-scope="Article" data-search-dates="/blog/search-index.json">
         <h2>Search posts</h2>
-        <input type="search" id="blog-search-input" placeholder="Search…" autocomplete="off" aria-label="Search posts">
-        <p class="search-note" id="blog-search-note" hidden></p>
-        <ul class="search-results" id="blog-search-results"></ul>
+        <input type="search" data-scope-input placeholder="Search…" autocomplete="off" aria-label="Search posts">
+        <p class="search-note" data-scope-note hidden></p>
+        <ul class="search-results" data-scope-results></ul>
       </div>
 
       <nav class="aside-box" aria-label="Browse by topic">
@@ -121,45 +130,6 @@ eleventyComputed:
     </aside>
   </div>
 </section>
-
-<script>
-(function () {
-  var input = document.getElementById('blog-search-input');
-  var out = document.getElementById('blog-search-results');
-  var note = document.getElementById('blog-search-note');
-  if (!input || !out) return;
-  var index = null, loading = false;
-
-  function load() {
-    if (index || loading) return;
-    loading = true;
-    fetch('/blog/search-index.json').then(function (r) { return r.json(); }).then(function (data) {
-      index = data;
-      if (input.value.trim()) run(input.value);
-    }).catch(function () { loading = false; });
-  }
-
-  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-
-  function run(q) {
-    q = q.trim().toLowerCase();
-    out.innerHTML = '';
-    if (!q) { note.hidden = true; return; }
-    if (!index) { note.hidden = false; note.textContent = 'Loading…'; return; }
-    var hits = index.filter(function (p) {
-      return (p.title + ' ' + (p.summary || '') + ' ' + (p.topics || []).join(' ')).toLowerCase().indexOf(q) !== -1;
-    }).slice(0, 10);
-    if (!hits.length) { note.hidden = false; note.textContent = 'No posts match “' + q + '”.'; return; }
-    note.hidden = true;
-    out.innerHTML = hits.map(function (p) {
-      return '<li><a href="' + p.url + '">' + esc(p.title) + '<span class="meta">' + esc(p.date || '') + '</span></a></li>';
-    }).join('');
-  }
-
-  input.addEventListener('focus', load);
-  input.addEventListener('input', function () { load(); run(input.value); });
-})();
-</script>
 
 {%- comment -%}
 Six pages used to emit `Blog @id .../blog/#blog` — /blog/ plus five /blog/page/N/ —
