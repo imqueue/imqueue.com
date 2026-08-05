@@ -38,6 +38,9 @@ jobs:
           # as though that commit added it and the check fails on every run.
           # Same reason refresh-api-docs.yml sets it.
           fetch-depth: 0
+          # REQUIRED by the same step: the search ranker is a submodule at
+          # vendor/search-ranker, and the build throws without it. See checks.yml.
+          submodules: true
 
       - name: Resolve cli ref
         id: ref

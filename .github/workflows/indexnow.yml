@@ -21,6 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          # REQUIRED by `npm run build:all` below: the search ranker is a submodule
+          # at vendor/search-ranker, and the build throws without it. See checks.yml.
+          submodules: true
 
       - uses: actions/setup-node@v7
         with:

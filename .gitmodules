@@ -1,0 +1,3 @@
+[submodule "search-ranker"]
+	path = vendor/search-ranker
+	url = https://github.com/imqueue/search-ranker.git

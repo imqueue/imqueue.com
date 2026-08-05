@@ -2,6 +2,9 @@
 //
 //   node scripts/search-kpi/compare.js [--ref HEAD] [--dir _site-org] [--worst 40]
 //
+// `--ref` is a commit in the ranker's own repository (the vendor/search-ranker submodule), so
+// `HEAD` means the pinned ranker and the working tree means your unstaged edits to it.
+//
 // WHY, and it is the whole reason this file exists: an aggregate can hold still while the results
 // churn underneath it, and it has hidden a real regression twice.
 //
@@ -26,7 +29,13 @@ const { execFileSync } = require('node:child_process');
 const { load, page, accuracyFor } = require('./lib/harness');
 
 const ROOT = path.join(__dirname, '..', '..');
-const RANKER = path.join('src', '_shared', 'js', 'search.js');
+const { RANKER_DIR } = require('../lib/ranker.js');
+
+// `--ref` names a commit in the RANKER's repository, not this one. The ranker is a submodule
+// (github.com/imqueue/search-ranker), so its history is not in this repo's history at all and
+// `git show HEAD:...` here would resolve to whatever this repo's HEAD says — which for a
+// submodule path is the pinned SHA, not a file. Every git call below therefore runs with
+// cwd = the submodule, and `HEAD` means "the ranker commit currently checked out".
 
 const arg = (name, fallback) => {
   const i = process.argv.indexOf(name);
@@ -41,14 +50,29 @@ const WORST = Number(arg('--worst', 40));
 function baselineRanker() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kpi-baseline-'));
   const file = path.join(dir, 'search.js');
+  let source;
 
   // maxBuffer: the ranker is ~100 kB and execFileSync's default is 1 MB, so this is comfortable —
   // but it is the kind of limit that fails only after the file has grown, so it is stated.
-  const source = execFileSync('git', ['show', `${REF}:${RANKER}`], {
-    cwd: ROOT,
-    encoding: 'utf8',
-    maxBuffer: 8 * 1024 * 1024,
-  });
+  try {
+    source = execFileSync('git', ['show', `${REF}:search.js`], {
+      cwd: RANKER_DIR,
+      encoding: 'utf8',
+      maxBuffer: 8 * 1024 * 1024,
+      // execFileSync sends the child's stderr to ours unless stdio says otherwise, so without
+      // this git's own message prints BEFORE the handler below explains it — twice, out of order.
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (error) {
+    // Both plausible causes name the same fix, and git's own message names neither: a submodule
+    // checked out with `--init` but never fetched has no HEAD to show, and `git show` run against
+    // a directory that is not a repository at all says only "does not exist in 'HEAD'".
+    console.error(`Cannot read ranker ref \`${REF}\` from ${RANKER_DIR}\n`);
+    console.error(`  git: ${String(error.stderr || error.message).trim()}\n`);
+    console.error('`--ref` names a commit in the ranker submodule, not in this repo. If the\n'
+      + 'submodule is not fully checked out:\n\n    git submodule update --init\n');
+    process.exit(1);
+  }
 
   fs.writeFileSync(file, source);
 

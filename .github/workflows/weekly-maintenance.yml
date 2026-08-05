@@ -51,6 +51,9 @@ jobs:
           # file looks as though one commit added it. Same reason refresh-api-docs.yml
           # and sync-cli-guide.yml set it.
           fetch-depth: 0
+          # REQUIRED by the `npm test` step below: the search ranker is a submodule
+          # at vendor/search-ranker, and the build throws without it. See checks.yml.
+          submodules: true
 
       - uses: actions/setup-node@v7
         with:
@@ -122,6 +125,10 @@ jobs:
       issues: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          # REQUIRED: check:links:external builds both editions, and the build throws
+          # without the vendor/search-ranker submodule. See checks.yml.
+          submodules: true
       - uses: actions/setup-node@v7
         with:
           node-version: 22

@@ -13,11 +13,29 @@ pages live in `src/org/` and `src/com/`, and Eleventy ignores the other one.
 
 ## Local development
 
+**Clone with submodules.** The search ranker is its own repo
+([imqueue/search-ranker](https://github.com/imqueue/search-ranker)), pinned here at
+`vendor/search-ranker` and pinned identically by the `@imqueue/mcp` server, so the site
+and the MCP tool cannot answer the same query differently. A plain `git clone` leaves that
+directory empty and the build stops with the fix in the message — deliberately, because the
+alternative is a site that builds cleanly and ships no `search.js` at all.
+
+```bash
+git clone --recurse-submodules https://github.com/imqueue/imqueue.com.git
+# already cloned?
+git submodule update --init
+```
+
 ```bash
 npm install
 npm run serve:org   # imqueue.org — http://localhost:8080
 npm run serve:com   # imqueue.com — http://localhost:8081
 ```
+
+To change the ranker, edit `vendor/search-ranker/search.js`, measure with
+`npm run kpi:compare` (never by the summary alone — read the per-query deltas), then commit
+**inside the submodule** and commit the moved pointer here. `scripts/search-kpi/README.md`
+has the numbers and the rejected experiments.
 
 ## Build
 

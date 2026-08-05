@@ -41,6 +41,13 @@ jobs:
           # file would appear to have been added by it and the check would fail on
           # every run.
           fetch-depth: 0
+          # REQUIRED: the search ranker is the imqueue/search-ranker submodule at
+          # vendor/search-ranker. Without this the checkout leaves it empty and the
+          # build throws (scripts/lib/asset-manifest.js) — which is the designed
+          # behaviour, but it means every run here fails rather than checking
+          # anything. Every workflow in this repo that runs `npm test` or
+          # `npm run build:all` needs it, and all of them do.
+          submodules: true
 
       - uses: actions/setup-node@v7
         with:

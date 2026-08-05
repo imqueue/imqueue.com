@@ -27,6 +27,8 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 
+const { RANKER_FILE, RANKER_REL, MISSING, exists } = require("./ranker.js");
+
 // 8 hex chars of sha256. Collision risk across a handful of files is nil, and it
 // keeps the URLs readable in devtools and in the link checker's output.
 const HASH_LEN = 8;
@@ -46,6 +48,12 @@ function hashFile(absPath) {
  * and both land in the same output directory — so the edition's own files can
  * shadow a shared name, which is how theme-<skin>.css works. Later sources win,
  * matching the passthrough-copy order in eleventy.config.js.
+ *
+ * One JS file comes from outside src/ entirely: the search ranker is a git submodule
+ * (see scripts/lib/ranker.js). It is handled by name rather than by adding its
+ * directory to the scan below, and that is the whole point — an unpopulated submodule
+ * is an EMPTY DIRECTORY, so a directory scan would find no *.js, report nothing, and
+ * emit a site with no search.js in it. Naming the file lets its absence throw.
  *
  * @param {string} root Repository root.
  * @param {string} edition "org" | "com".
@@ -79,6 +87,34 @@ function buildAssetManifest(root, edition) {
       }
     }
   }
+
+  // The submodule LAST, and it refuses to be shadowed. Both halves are deliberate.
+  //
+  // Last, so that if anything above claimed /js/search.js the collision is visible
+  // here rather than decided by iteration order. And a hard failure rather than
+  // "later wins", because a src/**/js/search.js reappearing is not a local override
+  // worth honouring — it is the second copy of the ranker that this repo split the
+  // ranker out to make impossible, and it would be served in preference to the
+  // pinned one with nothing saying so.
+  if (manifest["/js/search.js"]) {
+    throw new Error(
+      `A second search.js exists in src/: ${copies.find((c) => c[1].startsWith("js/search."))[0]}\n\n` +
+        "The ranker is a submodule now (see scripts/lib/ranker.js). Delete the copy in\n" +
+        "src/ and edit vendor/search-ranker/search.js instead, or the site would serve the\n" +
+        "copy while the MCP server serves the submodule — which is the drift the split ended.",
+    );
+  }
+
+  if (!exists()) {
+    // Loud, at eleventy config load, before a single page is written. The alternative
+    // is a complete-looking build whose search button does nothing.
+    throw new Error(MISSING);
+  }
+
+  const hashed = `search.${hashFile(RANKER_FILE)}.js`;
+
+  manifest["/js/search.js"] = `/js/${hashed}`;
+  copies.push([RANKER_REL, `js/${hashed}`]);
 
   return { manifest, copies };
 }
