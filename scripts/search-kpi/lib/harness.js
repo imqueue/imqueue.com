@@ -23,14 +23,21 @@ const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..', '..', '..');
 
-function load(dir) {
+// `rankerFile` measures a DIFFERENT copy of the ranker — a snapshot from another commit — which
+// is what compare.js uses to diff two versions in one process. Left undefined it measures the
+// working tree.
+function load(dir, rankerFile) {
   const indexDir = dir || path.join(ROOT, '_site-org');
-  const ranker = require(path.join(ROOT, 'src', '_shared', 'js', 'search.js'));
+  const ranker = require(rankerFile || path.join(ROOT, 'src', '_shared', 'js', 'search.js'));
 
-  const read = (name) => {
+  const read = (name, optional) => {
     const file = path.join(indexDir, name);
 
     if (!fs.existsSync(file)) {
+      if (optional) {
+        return null;
+      }
+
       throw new Error(`${file} is missing — run \`npm run build:org\` first`);
     }
 
@@ -39,6 +46,21 @@ function load(dir) {
 
   ranker.state.t1 = ranker.prepare(read('search-index.json'));
   ranker.state.t2 = ranker.prepareSections(read('search-text.json'));
+
+  // The PEER tiers, which this harness ignored for its first three months — and that omission is
+  // the plan's own biggest risk, not a detail. imqueue.com reaches the ranker only through these,
+  // so without them `pricing commercial license` scores against imqueue.org's `/license/` alone:
+  // a plausible answer, from the wrong edition, with nothing anywhere reporting a problem. The
+  // one question with revenue attached was the half being measured least.
+  //
+  // Optional, because a local `npm run build:org` produces no peer feed and that is a supported
+  // state — evaluate() already scores an `external` hit as a miss, so a measurement without them
+  // is pessimistic rather than wrong.
+  const peerIndex = read('search-peer-index.json', true);
+  const peerText = read('search-peer-text.json', true);
+
+  ranker.state.x1 = peerIndex ? ranker.prepare(peerIndex) : null;
+  ranker.state.x2 = peerText ? ranker.prepareSections(peerText) : null;
 
   return ranker;
 }
@@ -122,6 +144,11 @@ function summarise(results) {
     top1: (count((r) => r.position === 1) / total) * 100,
     top3: (count((r) => r.position >= 1 && r.position <= 3) / total) * 100,
     top5: (count((r) => r.position >= 1 && r.position <= 5) / total) * 100,
+    // recall@6 — the AGENT metric, and deliberately not position-decayed. search_docs returns six
+    // results and an agent reads all six, so whether the page is in the set is the whole question
+    // and its rank inside the set is noise. For a human the opposite holds, which is why accuracy
+    // above exists too. Same runs, two readers.
+    top6: (count((r) => r.position >= 1 && r.position <= 6) / total) * 100,
     top10: (count((r) => r.position >= 1 && r.position <= 10) / total) * 100,
     absent: (count((r) => r.position === 0) / total) * 100,
     mrr: mrr * 100,
@@ -148,6 +175,7 @@ function table(label, summary) {
     `  #1 exactly       ${pct(summary.top1)}`,
     `  in top 3         ${pct(summary.top3)}`,
     `  in top 5         ${pct(summary.top5)}`,
+    `  recall@6         ${pct(summary.top6)}`,
     `  in top 10        ${pct(summary.top10)}`,
     `  never found      ${pct(summary.absent)}`,
     `  MRR              ${pct(summary.mrr)}`,
