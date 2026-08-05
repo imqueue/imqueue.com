@@ -100,6 +100,52 @@ eleventyExcludeFromCollections: true
   X-Robots-Tag: noindex
   Cache-Control: public, max-age=0, must-revalidate
 
+{%- comment -%}
+The search corpus (scripts/gen-search-index.js). Same treatment as llms.txt and for
+the same two reasons: it is regenerated on every deploy, and it is not a page.
+
+`max-age=0, must-revalidate` rather than the year-long immutable that /js/* gets,
+because these are NOT content-hashed — the filenames are stable so js/search.js can
+fetch them without being told a hash. Revalidation is a conditional request that
+comes back 304 with no body, which is the right trade for a file whose whole job is
+to describe the current state of the site: an index cached for four hours points
+search results at content that may have moved, and there is no way to bust it.
+
+noindex because these are the same content as the pages they index, in a form built
+for a fetch() rather than for a reader — exactly the duplicate-content argument that
+put the header on the markdown mirrors.
+{%- endcomment %}
+# There is deliberately NO Access-Control-Allow-Origin here. Cross-site search reads the
+# OTHER edition's index from `/search-peer-*.json` on THIS origin — copied in at build
+# time by scripts/copy-peer-index.js — so no cross-origin request is ever made and no
+# header has to permit one. That file explains why copying beat both CORS and a symlink.
+/search-index.json
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
+
+/search-text.json
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
+
+# The peer copies get identical treatment: regenerated every deploy, not a page, and
+# stale-cached they would point search at content that has moved.
+/search-peer-index.json
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
+
+/search-peer-text.json
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
+
+# /search/ is a results page: unbounded URL space (`?q=` takes anything), no content of
+# its own, and every link on it exists on a real page. The meta tag says the same thing —
+# both, because a header covers the case where a crawler reads only the response.
+#
+# Deliberately NOT a robots.txt Disallow: that would stop the page being fetched, and a
+# page that is never fetched is a page whose noindex is never read.
+/search/*
+  X-Robots-Tag: noindex, nofollow
+
 # ---- security ------------------------------------------------------------
 # Not ranking factors, but cheap and worth having. Left out on purpose:
 #   * Strict-Transport-Security — a year-long max-age is effectively

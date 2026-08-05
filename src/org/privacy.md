@@ -57,7 +57,13 @@ On top of that the pages *offer* two analytics services — neither of which run
 unless you have accepted them:
 
 - **Google Analytics 4** — aggregate audience measurement: which pages are read,
-  which links bring people here, roughly which country and which browser.
+  which links bring people here, roughly which country and which browser. It also
+  receives **what you type into the site's search box**, with the number of results
+  it returned, because a search that finds nothing is how we learn which page is
+  missing. The search itself runs entirely in your browser — the whole index is
+  downloaded and queried locally, so the query is never *needed* on a server; the
+  measurement is the only thing that leaves your machine, and it does not leave it
+  at all unless you have accepted analytics.
 - **Microsoft Clarity** — usage analytics with heatmaps and **session replay**: it
   records clicks, scrolling and mouse movement so a page that confuses readers can be
   found and fixed. Clarity **masks text typed into form fields by default and we have

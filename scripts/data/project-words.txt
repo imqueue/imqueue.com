@@ -1,0 +1,137 @@
+# Vocabulary this project uses that WordNet does not have, plus words WordNet gets
+# wrong for a technical corpus.
+#
+# Consumed by scripts/lib/lemma.js. An entry here does two things:
+#
+#   1. It counts as a valid lemma, so a suffix detachment that produces it is
+#      accepted — "namespaces" reaches "namespace" only because `namespace` is below.
+#   2. It is never itself rewritten. That is the override channel: WordNet's noun
+#      exceptions map `data` to `datum` and `media` to `medium`, which is correct Latin
+#      and wrong here.
+#
+# HOW TO ADD TO THIS LIST, AND HOW NOT TO
+#
+# `npm run check:search-index` prints the stems that a detachment produced, that the
+# dictionary rejected, and that the corpus itself uses as a word. Every line of that
+# report is a candidate — and roughly one in seven is a TRAP, because the report
+# cannot tell "WordNet is missing a technical term" from "the rule produced a
+# fragment that happens to also appear in the corpus". Copying it in wholesale
+# reintroduces the exact bugs the dictionary was chosen to prevent.
+#
+# Rejected from the first run of that report, with the damage each would have done:
+#
+#   str    <- "string"   the original defect: `string` would stop being itself
+#   stat   <- "states"   "states" would reach `stat` instead of `state`
+#   guid   <- "guides"   "guides" would reach `guid` instead of `guide`
+#   ord    <- "order"    "order" would be truncated
+#   com    <- "comes"    "comes" would reach `com`, the domain suffix
+#   diff   <- "differ"   "differ" would be truncated
+#   our    <- "ours"     correct, but both are stopwords and never lemma-matched
+#   your   <- "yours"    same
+#
+# The test is not "is this a real word" but "does making it a lemma change any OTHER
+# word's outcome". scripts/check-search-ranking.js pins the four that matter.
+#
+# Declare a rejected candidate with a leading `!` and the report stops offering it, so
+# what remains in the report is always something nobody has looked at yet.
+
+# ---- WordNet is wrong for this corpus -------------------------------------
+data                    # not datum
+media                   # not medium
+schema                  # not schemata
+
+# ---- rejected candidates, so the report stays quiet ----------------------
+!str
+!stat
+!guid
+!ord
+!com
+!diff
+!our
+!your
+
+# ---- computing vocabulary WordNet predates or omits -----------------------
+ack
+addon
+admin
+api
+app
+arg
+backend
+benchmark
+callee
+codebase
+config
+coordinate
+datagram
+datastore
+deduplicate
+dep
+deregister
+dockerize
+email
+endpoint
+enqueue
+gitignore
+ide
+inline
+jwt
+keyword
+microservice
+namespace
+org
+param
+pdf
+reconfigure
+reconnect
+repo
+resolver
+restart
+scm
+sdk
+timeout
+timestamp
+timezone
+troubleshoot
+unicast
+uninstall
+validator
+vpc
+walkthrough
+websocket
+workflow
+workload
+
+# ---- @imqueue's own vocabulary --------------------------------------------
+# Not from the report — these are the terms the framework itself introduces, added so
+# their plurals and participles merge. `imqueue` matters most: it is in a third of the
+# corpus and appears as "imqueue", "imqueues" and "@imqueue" alike.
+imqueue
+imq
+pubsub
+prisma
+sequelize
+redis
+typescript
+javascript
+nodejs
+npm
+cli
+mcp
+rpc
+json
+yaml
+toml
+uuid
+dto
+orm
+idl
+sla
+geo
+llm
+mutex
+serialize
+deserialize
+middleware
+backpressure
+scaffold

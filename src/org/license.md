@@ -4,7 +4,7 @@ title: "GPL-3.0 open-source license terms"
 docLabel: LICENSE
 lead: "@imqueue is free and open source under the GNU GPL-3.0. A commercial license is available for teams that cannot meet GPL's copyleft terms — for example, shipping @imqueue inside a closed-source product."
 description: "@imqueue is GPL-3.0 open source. What the copyleft condition requires, when it applies to your project, and when you need a commercial license instead."
-keywords: "@imqueue license, imqueue GPL-3.0, GPL commercial license, dual license Node.js framework, closed-source license, copyleft, imqueue commercial licensing"
+keywords: "@imqueue license, imqueue GPL-3.0, GPL commercial license, dual license Node.js framework, closed-source license, copyleft, imqueue commercial licensing, is imqueue free, imqueue free and open source"
 relatedTopics: [architecture]
 ---
 
