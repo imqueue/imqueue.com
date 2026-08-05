@@ -200,8 +200,25 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
 /* ---- responsive (media queries) ---- */
 /* Nav collapses to the burger *before* its items would run out of room and wrap.
    The com (Flux) nav carries more items than org (Terminal), so each edition
-   switches at its own measured width. */
-@media (max-width: 1000px) {
+   switches at its own measured width — and until now only org's was actually
+   measured. Both sat at 1000px, which is org's number.
+
+   Measured with the webfonts loaded, at a width where nothing is compressed: com
+   is brand 184 + links 343 + actions 456, plus the two 20px flex gaps, = 1023px of
+   content, and the container's 2 x 32px padding puts the fit boundary at 1087px.
+   So every viewport from 1001 to 1087 laid out a bar that does not fit. Nothing
+   wrapped, because nothing in there can wrap — flex shrank the brand lockup
+   instead, from 184px down to 128px, and "@imqueue" printed straight over
+   "Pricing": 25px of overlap at 1040px, 36px at 1001px.
+
+   1100px is that boundary plus a cushion: an inner page's active nav link is bold
+   and costs a pixel or two more than the home page's, and no common laptop or
+   tablet width falls between 1100 and 1180 (where the container stops growing),
+   so the cushion costs nobody a burger they would not otherwise get.
+
+   org's own number is 868 + 64 = 932px, leaving its 1000px 68px of slack, so it
+   stays where it is. */
+@media (max-width: 1100px) {
   [data-skin="flux"] .nav-links, [data-skin="flux"] .nav-actions { display: none; }
   [data-skin="flux"] .burger { display: inline-flex; }
 }
