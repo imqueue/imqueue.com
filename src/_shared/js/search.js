@@ -259,6 +259,24 @@
   // little evidence, and a query made only of common words must still rank something.
   var IDF_FLOOR = 0.12;
 
+  // Rarity is evidence, and it was being read as proof. Raw log-IDF spreads an 86-page,
+  // 719-section corpus over a range wide enough that the rarest word in a query effectively
+  // decided the result, and on a corpus this small the rarest word a reader types is very
+  // often one the right page does not use at all — "api gateway nodejs" is answered here by
+  // /tutorial/api-service/, which never says "gateway".
+  //
+  // So the curve is flattened toward 1 without being removed. Measured over both KPI sets
+  // (npm run kpi:search), exponent against natural macro / artificial macro, versus 1.0:
+  //
+  //   0.75  +0.8 / +0.6     0.5  +1.0 / +1.1     0.25  +0.4 / +1.3
+  //   0.6   +1.1 / +1.0     0.4  +0.8 / +1.2     0     -1.4 / +1.2
+  //
+  // 0.6 is the macro peak, at 75 natural queries improved against 36 worsened, and the two
+  // sets agree — which is the only reason to believe it, since they disagree readily (see
+  // scripts/search-kpi/README.md). 0 is the control: switching rarity off entirely is the
+  // worst result on natural macro, so the signal is real and only its strength was wrong.
+  var IDF_POWER = 0.6;
+
   var STOP_WEIGHT = 0.15;
   var STOP = {};
 
@@ -540,7 +558,7 @@
     // Normalised by log(N) so the result is 0..1 regardless of corpus size, then floored.
     var idf = Math.log(t2.docs / (1 + df)) / Math.log(t2.docs);
 
-    return Math.max(IDF_FLOOR, Math.min(1, idf));
+    return Math.max(IDF_FLOOR, Math.pow(Math.min(1, idf), IDF_POWER));
   }
 
   function lemmatize(q) {
