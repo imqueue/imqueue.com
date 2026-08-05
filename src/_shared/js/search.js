@@ -278,7 +278,19 @@
   var IDF_POWER = 0.6;
 
   var STOP_WEIGHT = 0.15;
-  var STOP = {};
+  // Object.create(null), NOT {} — and the same applies to every map in this file keyed by a
+  // word rather than by an internal name.
+  //
+  // `({}).constructor` is inherited from Object.prototype and is a truthy function, so
+  // `STOP["constructor"]` was true and the word was silently treated as an English stopword:
+  // weight 0.15, whole-word-only, and excluded from the content-term count. Typing the exact
+  // word therefore made results WORSE than typing a prefix of it — "rpc imqdelay constructo"
+  // returned the constructor page at #1, "rpc imqdelay constructor" dropped it out of 17
+  // results entirely. It also poisoned the arithmetic: `t2.df["constructor"]` returned that
+  // same function, so `Math.log(docs / (1 + fn))` was NaN and every score for such a query
+  // was NaN. 19 of the 21 pages the ranker could not retrieve at all were `_constructor_`
+  // pages — one prototype chain, not nineteen ranking defects.
+  var STOP = Object.create(null);
 
   ("a an and are as at be been but by can could did do does for from had has have how i if in into is it its "
     + "must my no not of on or should so than that the their then there these they this to was we what when where "
@@ -1989,7 +2001,7 @@
     }
 
     var words = folded.split(/[^a-z0-9]+/);
-    var seen = {};
+    var seen = Object.create(null);
     var out = [];
 
     for (var i = 0; i < words.length; i++) {
@@ -2006,11 +2018,23 @@
 
   function prepareSections(index) {
     {
-      var map = index.lemmas;
+      // Sanitised onto a null prototype and written back, so both readers — parseQuery's
+      // `state.t2.lemmas` and lemmaStringOf below — are safe. JSON.parse builds ordinary
+      // objects, so `lemmas["constructor"]` inherited a function that lemmaStringOf would
+      // have joined into a section's lemma text as "function Object() { [native code] }".
+      var map = Object.create(null);
+
+      for (var key in index.lemmas) {
+        if (Object.prototype.hasOwnProperty.call(index.lemmas, key)) {
+          map[key] = index.lemmas[key];
+        }
+      }
+
+      index.lemmas = map;
       // Document frequency: in how many SECTIONS a term appears at all. Presence per
       // section, not total occurrences — that is what makes it a measure of how
       // discriminating a word is rather than of how chatty a page is.
-      var df = {};
+      var df = Object.create(null);
 
       for (var i = 0; i < index.sections.length; i++) {
         var section = index.sections[i];
@@ -2027,7 +2051,7 @@
         section[S_LEMEMPH] = lemmaStringOf(emphasis, map);
         section[S_LEMBODY] = lemmaStringOf(folded, map);
 
-        var seenHere = {};
+        var seenHere = Object.create(null);
         var words = (folded + " " + fold(section[S_HEAD])).split(/[^a-z0-9]+/);
 
         for (var w = 0; w < words.length; w++) {
