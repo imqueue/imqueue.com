@@ -111,6 +111,12 @@ function plainText(md) {
  * @returns {{title: string, url: string, body: string}|null} null when the file
  *   is not a mirror (no `# ` title, or no `Source:` line to take the URL from).
  */
+// The shape of every feed this module writes. The ranker declares the shape it READS
+// (FEED_V in src/_shared/js/search.js) and check-search-index.js fails when the two disagree —
+// which is what stops a pinned, submoduled ranker from silently misreading live feeds it was
+// never written for. Bump both when a tuple position or a top-level key changes.
+const FEED_V = 1;
+
 function parseMirror(text) {
   const lines = String(text).split("\n");
   let title = null;
@@ -642,12 +648,12 @@ function buildCorpus(outputDir) {
   const lemmas = lemmaMap(vocabulary);
 
   return {
-    tier1: { v: 1, records: [...faq, ...docs, ...api] },
-    tier2: { v: 1, pages, sections, lemmas },
+    tier1: { v: FEED_V, records: [...faq, ...docs, ...api] },
+    tier2: { v: FEED_V, pages, sections, lemmas },
     // Anchor -> line range into each page's markdown mirror. Its own feed rather than a field of
     // tier 2, because tier 2 is fetched by every visitor who searches and this is for readers that
     // fetch the mirrors instead — no browser has any use for it.
-    sectionRanges: { v: 1, pages: ranges },
+    sectionRanges: { v: FEED_V, pages: ranges },
     stats: {
       docs: docs.length,
       faq: faq.length,
@@ -676,5 +682,6 @@ module.exports = {
   parseMirror,
   plainText,
   splitSections,
+  FEED_V,
   summarize,
 };

@@ -271,6 +271,35 @@ for (const name of ['search-peer-index.json', 'search-peer-text.json']) {
   }
 }
 
+// ---- the ranker and the feeds agree about the shape ----------------------------
+// Two independent declarations, compared here on purpose. The ranker is about to live in its own
+// repository and be pinned as a submodule, while the feeds it reads are fetched LIVE — so a
+// pinned ranker reads today's feeds. Move a tuple position without moving the version and every
+// score is computed off the wrong field, with nothing to report: no exception, no empty result,
+// just quietly wrong answers. Failing the build is the only place this is cheap to catch.
+{
+  const ranker = require(path.join(__dirname, '..', 'src', '_shared', 'js', 'search.js'));
+  const { FEED_V } = require(path.join(__dirname, 'lib', 'search-corpus.js'));
+
+  if (ranker.FEED_V !== FEED_V) {
+    fail(`the ranker reads feed v${ranker.FEED_V} but the corpus writes v${FEED_V} `
+      + '— bump both, or one of them is reading the wrong shape');
+  } else {
+    const feeds = ['search-index.json', 'search-text.json', 'search-sections.json'];
+    const wrong = feeds.filter((name) => {
+      const file = path.join(OUT, name);
+
+      return fs.existsSync(file) && JSON.parse(fs.readFileSync(file, 'utf8')).v !== FEED_V;
+    });
+
+    if (wrong.length) {
+      fail(`${wrong.join(', ')} carry a version other than v${FEED_V} as built`);
+    } else {
+      pass(`ranker and all ${feeds.length} feeds agree on feed v${FEED_V}`);
+    }
+  }
+}
+
 // ---- the section range map addresses the mirrors correctly ---------------------
 // A range is line numbers into <page>/index.md, which is the most brittle way to reference
 // text there is: the numbers are right or they silently hand back the wrong section. Nothing
