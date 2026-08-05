@@ -169,6 +169,62 @@ for (const [re, ok, why] of JS_CASES) {
   else fail(`js/site.js: ${why}`);
 }
 
+// ---- what search reports ----------------------------------------------------
+// The measurement is the only route to improving relevance with real readers instead of
+// hand-written ground truth (scripts/search-kpi/), so it is worth a few cases of its own.
+const searchJs = read(path.join(ROOT, 'src', '_shared', 'js', 'search.js'));
+
+// A settle window is the difference between "queries people asked" and a report full of
+// their own prefixes. Asserted as a NUMBER, not a mention: `var SETTLE = 0` would satisfy
+// any regex looking for the name while restoring exactly the behaviour it guards against.
+const settle = /var SETTLE = (\d+)/.exec(searchJs);
+
+if (!settle) {
+  fail('js/search.js: no SETTLE window — the dialog searches on every keystroke, so the ' +
+    'report fills with "ide", "idem", "idemp" instead of what anybody typed');
+} else if (Number(settle[1]) < 500) {
+  fail(`js/search.js: SETTLE is ${settle[1]}ms, short enough that ordinary typing pauses ` +
+    'still report prefixes');
+} else {
+  pass(`search: reporting waits ${settle[1]}ms for the query to settle`);
+}
+
+const SEARCH_CASES = [
+  [
+    /queueReport\(q, hits\.length/,
+    'the dialog reports through the settle path',
+    'the dialog calls report() directly again, which sends one event per render — a ' +
+    'query typed at normal speed arrives as a dozen prefixes of itself',
+  ],
+  [
+    /"search_select"[\s\S]{0,300}?position:/,
+    'a taken result is reported with its position',
+    'nothing reports WHICH result was chosen, so the data says what was asked and ' +
+    'never whether the ranking was right — the one signal worth collecting',
+  ],
+  [
+    /watchClicks\(el\.results\)/,
+    'dialog results are watched for clicks',
+    'clicks in the dialog are not reported',
+  ],
+  [
+    /watchClicks\(pageEl\(pageHost, "results"\)\)/,
+    '/search/ results are watched for clicks',
+    'clicks on the /search/ page are not reported — that is where shared links land',
+  ],
+  [
+    /addEventListener\("close"[\s\S]{0,400}?flushReport\(\)/,
+    'closing the dialog flushes an abandoned query',
+    'a query typed and abandoned without a click is never reported, which is exactly ' +
+    'the outcome that means search failed',
+  ],
+];
+
+for (const [re, ok, why] of SEARCH_CASES) {
+  if (re.test(searchJs)) pass(`search: ${ok}`);
+  else fail(`js/search.js: ${why}`);
+}
+
 console.log(
   failures
     ? `\n${failures} search-UI check(s) failed.`

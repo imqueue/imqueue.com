@@ -1676,7 +1676,7 @@
         : "Nothing matched yet — still loading the full text of the docs.";
       el.results.appendChild(empty);
       el.status.textContent = "No results";
-      report(q, 0);
+      queueReport(q, 0, "");
 
       return;
     }
@@ -1694,23 +1694,113 @@
 
     el.status.textContent = state.results.length + (state.results.length === 1 ? " result" : " results");
     move(0);
-    report(q, hits.length);
+    queueReport(q, hits.length, state.results[0] && state.results[0].record.u);
   }
 
+  // ---- what gets measured -------------------------------------------------
+  //
   // Zero-result queries are the most valuable output here: they are a ranked list
   // of documentation nobody has written yet. gtag only exists after a visitor has
   // accepted analytics (see _includes/consent.html), so this is consent-gated by
   // construction — there is no fallback path that sends anything without it.
-  var reported = "";
+  //
+  // Truncated at the length GA4 would truncate at anyway, but done here so it reads as
+  // a decision rather than a side effect: a search box is where people paste stack
+  // traces, and nothing longer than a query is needed to learn from one.
+  var MAX_TERM = 100;
 
-  function report(q, count) {
-    if (!window.gtag || q.raw.length < 3 || q.raw === reported) {
+  // How still the field must be before what is in it counts as a question somebody
+  // asked. The dialog searches on every keystroke, so without this GA4 receives "ide",
+  // "idem", "idemp", "idempo" — a report of prefixes nobody typed on purpose, with the
+  // real query buried among its own fragments. The 110ms render debounce is about
+  // feeling responsive and is deliberately far shorter than this.
+  var SETTLE = 1200;
+
+  var reported = "";
+  var pending = null;
+  var settleTimer = null;
+
+  // The query whose results are on screen, so a click can be attributed to it.
+  // Deliberately not named `shown`: renderPage has a local of that name.
+  var onScreen = null;
+
+  function capped(value) {
+    return String(value === null || value === undefined ? "" : value).slice(0, MAX_TERM);
+  }
+
+  function send(entry) {
+    if (!window.gtag || entry.raw.length < 3 || entry.raw === reported) {
       return;
     }
-    reported = q.raw;
-    window.gtag("event", count ? "search" : "search_no_results", {
-      search_term: q.raw,
-      results: count,
+    reported = entry.raw;
+    window.gtag("event", entry.count ? "search" : "search_no_results", {
+      search_term: capped(entry.raw),
+      results: entry.count,
+      // What was offered, so a query nobody clicked is still interpretable: a wrong
+      // top result and an empty result set are different failures.
+      top_result: capped(entry.top),
+    });
+  }
+
+  // /search/ reports immediately. That query arrived by form submit or in the URL, so
+  // it is settled by definition and there are no prefixes to wait out.
+  function report(q, count, top) {
+    onScreen = { raw: q.raw, count: count, top: top };
+    send(onScreen);
+  }
+
+  function queueReport(q, count, top) {
+    onScreen = { raw: q.raw, count: count, top: top };
+    pending = onScreen;
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(flushReport, SETTLE);
+  }
+
+  function flushReport() {
+    clearTimeout(settleTimer);
+
+    if (pending) {
+      send(pending);
+      pending = null;
+    }
+  }
+
+  // Which result was taken, and from what position. This is the only signal here that
+  // says whether the RANKING was right rather than merely what was asked, and it is
+  // what would let real readers replace hand-written ground truth in
+  // scripts/search-kpi/. Acting on a query settles it whatever the timer thinks, so
+  // the search event is flushed first and always precedes its own click.
+  function reportSelect(position, url) {
+    flushReport();
+
+    if (!window.gtag || !onScreen || onScreen.raw.length < 3) {
+      return;
+    }
+    window.gtag("event", "search_select", {
+      search_term: capped(onScreen.raw),
+      results: onScreen.count,
+      position: position,
+      result_url: capped(url),
+    });
+  }
+
+  // Delegated, so it covers every group and survives a re-render. Position is counted
+  // over `.s-hit` in DOM order, which is the order the reader actually saw — the
+  // "All N results" links carry `.s-more` and are correctly not results.
+  function watchClicks(container) {
+    if (!container) {
+      return;
+    }
+
+    container.addEventListener("click", function (event) {
+      var hit = event.target.closest ? event.target.closest(".s-hit") : null;
+
+      if (hit) {
+        reportSelect(
+          Array.prototype.indexOf.call(container.querySelectorAll(".s-hit"), hit) + 1,
+          hit.getAttribute("href")
+        );
+      }
     });
   }
 
@@ -1930,6 +2020,8 @@
     el.hint = dialog.querySelector(".s-hint");
     el.status = dialog.querySelector(".s-status");
 
+    watchClicks(el.results);
+
     var timer = null;
 
     el.input.addEventListener("input", function () {
@@ -1949,6 +2041,7 @@
 
         if (rows.length && state.active >= 0) {
           event.preventDefault();
+          reportSelect(state.active + 1, rows[state.active].href);
           window.location.href = rows[state.active].href;
         }
       }
@@ -1962,8 +2055,13 @@
       }
     });
 
+    // Typing something and closing without clicking is an ABANDONED query, and that is
+    // a result worth having — it is the shape of a search that returned nothing useful.
+    // Without this flush it would be the one outcome that never reaches the report,
+    // because it is exactly the case where the settle timer may not have fired yet.
     dialog.addEventListener("close", function () {
       document.documentElement.classList.remove("s-open");
+      flushReport();
     });
 
     return dialog;
@@ -2191,7 +2289,7 @@
         "Try a symbol name (RedisQueue, callTimeout), a shorter phrase, or narrow with pkg:rpc.";
       status.textContent = "Nothing matched “" + raw + "”.";
       results.appendChild(empty);
-      report(q, 0);
+      report(q, 0, "");
 
       return;
     }
@@ -2207,7 +2305,7 @@
     }
 
     host.appendChild(pager(page, pages, key, raw));
-    report(q, hits.length);
+    report(q, hits.length, shown[0] && shown[0].record.u);
   }
 
   var peerMeta = document.querySelector('meta[name="search-peer"]');
@@ -2228,6 +2326,10 @@
     Promise.all([loadTier1(), loadTier2(), loadPeer()]).then(function () {
       renderPage(pageHost);
     });
+
+    // Attached to the container rather than to the rows, so it survives every
+    // re-render this page does — a tab switch, a page of the pager, a refined query.
+    watchClicks(pageEl(pageHost, "results"));
 
     pageHost.addEventListener("submit", function (event) {
       event.preventDefault();
