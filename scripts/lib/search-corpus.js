@@ -559,7 +559,30 @@ function buildCorpus(outputDir) {
       // BELOW it is generated reference and comes from /api/search-index.json.
       // Excluding the whole prefix left the /api/ landing page — a sitemap URL —
       // unsearchable.
-      if (!mirror || /^\/api\/.+/.test(mirror.url)) {
+      //
+      // WITH ONE EXCEPTION, and it was measured: the 16 PACKAGE INDEX pages,
+      // /api/<pkg>/latest/. They are not symbol pages. Each one carries an
+      // overview naming the entry points, a Remarks section stating the
+      // behaviours no signature shows, and worked code examples — the best page
+      // in the reference for anyone who does not already know what to call.
+      //
+      // All of that was invisible to search. The feed gives these URLs ONE record
+      // whose entire searchable text is a title and a one-line summary, so
+      // "protect an HTTP gateway from too many requests per IP" returned four
+      // HttpProtect *property* pages — each with its own summary mentioning
+      // requests and IPs — while the page holding `app.use(new
+      // HttpProtect().jsonMiddleware())` never appeared at all. Measured over a
+      // scratch build against 14 packages, this was the single largest source of
+      // unanswerable questions: the `hardening` topic of the question KPI scored
+      // 0% on BOTH rankers, because what answers it was not in the corpus.
+      //
+      // Sections only, NOT a page record: the feed already contributes a `package`
+      // record for this exact URL with the right title, kind and package name.
+      // Pushing a second record for the same URL would put two spellings of one
+      // page in the index and leave the ranker's URL dedupe to pick between them.
+      const isPackageIndex = mirror && /^\/api\/[^/]+\/latest\/$/.test(mirror.url);
+
+      if (!mirror || (/^\/api\/.+/.test(mirror.url) && !isPackageIndex)) {
         continue;
       }
 
@@ -588,8 +611,14 @@ function buildCorpus(outputDir) {
         record.w = meta.k;
       }
 
-      docs.push(record);
+      if (!isPackageIndex) {
+        docs.push(record);
+      }
 
+      // faqRecords is driven by heading SHAPE, so it contributes nothing from a
+      // package index today (its headings are Remarks, Example 1, Classes). Left
+      // running rather than skipped: if one of those pages ever grows a
+      // question-shaped heading, that heading is a good answer.
       faq.push(...faqRecords(parts, mirror));
 
       const pageIdx = pages.length;
