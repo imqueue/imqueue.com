@@ -115,13 +115,20 @@ function parseMirror(text) {
   const lines = String(text).split("\n");
   let title = null;
   let url = null;
+  // File line index of each line kept in `body`, so a section's range can be reported in the
+  // coordinates of the FILE an agent fetches rather than of this substring. The header block is
+  // a variable number of lines — title, Source, blanks, META_LINE metadata — so the offset
+  // cannot be assumed, and assuming it would slice the wrong text silently instead of erroring.
+  const at = [];
   // Metadata is only recognised in the header block — the run of lines between
   // the `# ` title and the first line of prose. Matching it anywhere would delete
   // real content: "Note: …" and "Version: …" open paragraphs in this corpus.
   let inHeader = true;
   const body = [];
 
-  for (const line of lines) {
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
     if (title === null) {
       const h1 = line.match(/^#\s+(.+?)\s*$/);
 
@@ -145,13 +152,30 @@ function parseMirror(text) {
     }
 
     body.push(line);
+    at.push(i);
   }
 
   if (title === null || url === null) {
     return null;
   }
 
-  return { title, url, body: body.join("\n").replace(/^\s+/, "") };
+  // The leading-whitespace trim is preserved, but done by DROPPING whole blank lines first so the
+  // file offset stays exact. `.replace(/^\s+/, "")` on the joined string would have eaten leading
+  // newlines invisibly, and every range after them would be short by that many lines.
+  let first = 0;
+
+  while (first < body.length && body[first].trim() === "") {
+    first++;
+  }
+
+  return {
+    title,
+    url,
+    body: body.slice(first).join("\n").replace(/^\s+/, ""),
+    // 0-based file line index of the body's first line. Add it to a section range to get the
+    // range within the mirror file itself.
+    bodyLine: first < at.length ? at[first] : 0,
+  };
 }
 
 /**
@@ -170,8 +194,12 @@ function parseMirror(text) {
 function splitSections(body) {
   const sections = [];
   const seen = new Map();
-  let current = { heading: "", level: 0, anchor: "", lines: [] };
+  let current = { heading: "", level: 0, anchor: "", lines: [], start: 0 };
   let fence = null;
+  // Line index within `body`, so each section can report the range it occupies. A range, not the
+  // text: search-text.json already carries section text, but plainText()-normalised with code
+  // fences stripped, which is useless for handing back markdown.
+  let at = 0;
 
   // Every heading is emitted, INCLUDING one with no prose of its own. A `## FAQ`
   // that goes straight into `### Does @imqueue retry…?` has an empty body, and
@@ -184,6 +212,11 @@ function splitSections(body) {
       heading: current.heading,
       level: current.level,
       anchor: current.anchor,
+      // [start, end) within `body`, half-open so end - start is the line count. `start` is the
+      // heading's own line, because a slice that omitted its heading would hand an agent a
+      // fragment with no idea what it is about.
+      start: current.start,
+      end: at,
       text: plainText(raw),
       // Extracted from the RAW markdown, before plainText() deletes the markers
       // that identify it. See emphasized().
@@ -210,7 +243,10 @@ function splitSections(body) {
   // markdown, not a rule. Every real break in this corpus has a blank line before it.
   let previousBlank = true;
 
-  for (const line of body.split("\n")) {
+  const lines = body.split("\n");
+
+  for (at = 0; at < lines.length; at++) {
+    const line = lines[at];
     const fenceMark = line.match(/^\s{0,3}(```+|~~~+)/);
 
     if (fenceMark) {
@@ -226,7 +262,8 @@ function splitSections(body) {
 
     if (fence === null && previousBlank && /^ {0,3}(?:-{3,}|\*{3,}|_{3,})\s*$/.test(line)) {
       flush();
-      current = { heading: "", level: 0, anchor: "", lines: [] };
+      // The thematic break itself is consumed, so the next section starts after it.
+      current = { heading: "", level: 0, anchor: "", lines: [], start: at + 1 };
       previousBlank = true;
       continue;
     }
@@ -255,6 +292,7 @@ function splitSections(body) {
       level: heading[1].length,
       anchor: n === 0 ? base : `${base}-${n}`,
       lines: [],
+      start: at,
     };
   }
   flush();
@@ -483,6 +521,8 @@ function buildCorpus(outputDir) {
   const faq = [];
   const pages = [];
   const sections = [];
+  // url -> { anchor: [startLine, endLine) } into the markdown mirror. See the walk below.
+  const ranges = {};
   const vocabulary = new Set();
 
   const frontmatter = takeFrontmatter(outputDir);
@@ -556,6 +596,23 @@ function buildCorpus(outputDir) {
         if (part.text) {
           sections.push([pageIdx, part.anchor, part.heading, part.text, part.emphasis]);
         }
+
+        // The RANGE map, in the coordinates of the mirror FILE. Published so a reader that
+        // fetched /page/index.md can return one section of it instead of the whole page, without
+        // re-deriving heading boundaries: a `#` at the start of a line inside a bash fence is
+        // indistinguishable from a heading, and this corpus is full of them, so a regex slicer
+        // eventually cuts inside a fence and emits an unbalanced one. These come from the parsed
+        // walk that already knows where the fences are.
+        //
+        // Ranges rather than text, because search-text.json's text is plainText()-normalised with
+        // fences stripped — correct for scoring, useless for handing back markdown.
+        if (part.anchor) {
+          ranges[mirror.url] = ranges[mirror.url] || {};
+          ranges[mirror.url][part.anchor] = [
+            part.start + mirror.bodyLine,
+            part.end + mirror.bodyLine,
+          ];
+        }
       }
     }
   };
@@ -587,6 +644,10 @@ function buildCorpus(outputDir) {
   return {
     tier1: { v: 1, records: [...faq, ...docs, ...api] },
     tier2: { v: 1, pages, sections, lemmas },
+    // Anchor -> line range into each page's markdown mirror. Its own feed rather than a field of
+    // tier 2, because tier 2 is fetched by every visitor who searches and this is for readers that
+    // fetch the mirrors instead — no browser has any use for it.
+    sectionRanges: { v: 1, pages: ranges },
     stats: {
       docs: docs.length,
       faq: faq.length,

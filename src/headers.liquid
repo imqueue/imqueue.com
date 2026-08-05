@@ -127,6 +127,14 @@ put the header on the markdown mirrors.
   X-Robots-Tag: noindex
   Cache-Control: public, max-age=0, must-revalidate
 
+# Anchor -> line range into each page's markdown mirror. Same treatment for the same reason
+# it applies to the mirrors themselves: it addresses them by LINE NUMBER, so a stale copy
+# does not merely point somewhere out of date, it slices the wrong text out of a page that
+# has since changed — and reports no error while doing it.
+/search-sections.json
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
+
 # The peer copies get identical treatment: regenerated every deploy, not a page, and
 # stale-cached they would point search at content that has moved.
 /search-peer-index.json

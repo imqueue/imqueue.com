@@ -271,6 +271,86 @@ for (const name of ['search-peer-index.json', 'search-peer-text.json']) {
   }
 }
 
+// ---- the section range map addresses the mirrors correctly ---------------------
+// A range is line numbers into <page>/index.md, which is the most brittle way to reference
+// text there is: the numbers are right or they silently hand back the wrong section. Nothing
+// downstream can detect that, so it is asserted here, against the real files, every build.
+{
+  const rangesFile = path.join(OUT, 'search-sections.json');
+
+  if (!fs.existsSync(rangesFile)) {
+    fail('search-sections.json was not written');
+  } else {
+    const map = JSON.parse(fs.readFileSync(rangesFile, 'utf8')).pages;
+    let checked = 0;
+    let noMirror = 0;
+    let notHeading = 0;
+    let unbalanced = 0;
+    let empty = 0;
+
+    for (const [url, anchors] of Object.entries(map)) {
+      const mirror = path.join(OUT, url, 'index.md');
+
+      if (!fs.existsSync(mirror)) {
+        noMirror++;
+        continue;
+      }
+
+      const lines = fs.readFileSync(mirror, 'utf8').split('\n');
+
+      for (const [anchor, range] of Object.entries(anchors)) {
+        const [start, end] = range;
+
+        checked++;
+
+        // The first line of a slice must be the heading the anchor names, or the range is
+        // off by however many lines the mirror's header block happens to occupy.
+        if (!/^#{2,3}\s+/.test(lines[start] || '')) {
+          notHeading++;
+          continue;
+        }
+
+        if (end <= start) {
+          empty++;
+          continue;
+        }
+
+        // An odd number of fence markers means the slice opens a code block it never closes,
+        // which is what a regex-based slicer would eventually produce. Ranges from the parsed
+        // walk should never be able to.
+        const slice = lines.slice(start, end).join('\n');
+
+        if ((slice.match(/^\s{0,3}(?:```+|~~~+)/gm) || []).length % 2 !== 0) {
+          unbalanced++;
+        }
+      }
+    }
+
+    for (const [n, what] of [
+      [noMirror, 'page(s) in the range map have no markdown mirror'],
+      [notHeading, 'range(s) do not start on the heading their anchor names'],
+      [empty, 'range(s) are empty or inverted'],
+      [unbalanced, 'range(s) slice an unbalanced code fence'],
+    ]) {
+      if (n) fail(`${n} ${what}`);
+    }
+
+    if (!noMirror && !notHeading && !empty && !unbalanced) {
+      pass(`${checked} section range(s) start on their own heading and close every fence`);
+    }
+
+    // Every anchor the search index links to should be sliceable, or get_doc has to fall back
+    // to the whole page for a section the index just pointed at.
+    const missing = sections.filter((s) => s[1] && map[pages[s[0]][0]] && !map[pages[s[0]][0]][s[1]]);
+
+    if (missing.length) {
+      fail(`${missing.length} indexed anchor(s) have no range, e.g. ${pages[missing[0][0]][0]}#${missing[0][1]}`);
+    } else {
+      pass('every indexed anchor resolves to a range');
+    }
+  }
+}
+
 const counts = { docs: docUrls.size, api: apiUrls.size, answers: records.filter((r) => r.g === 2).length };
 
 console.log(`        ${EDITION_DIR}: ${counts.docs} pages, ${counts.api} symbols, ${counts.answers} answers, ${sections.length} sections`);
