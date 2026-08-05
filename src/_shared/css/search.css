@@ -416,6 +416,12 @@
 
 @media (max-width: 900px) {
   .nav-search { display: none; }
+
+  /* …and back on for the drawer copy. The rule above hides both triggers, and the
+     `.mobile-nav .nav-search` block at the top of this file restyles this one but
+     never re-declares `display` — so the drawer row rendered 0x0 and a phone had no
+     way into search at all: no header icon, no drawer row, and `/` needs a keyboard. */
+  .mobile-nav .nav-search { display: inline-flex; }
 }
 
 /* Phones get the whole screen. `inset: 0` with `margin: 0` is the part that
