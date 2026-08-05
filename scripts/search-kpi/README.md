@@ -99,12 +99,12 @@ edition, which is the right shape for that risk rather than an average.
 
 | | natural | artificial | question |
 |---|---|---|---|
-| micro | **94.3%** | 90.8% | 64.5% |
-| macro | **89.1%** | 95.3% | **61.5%** |
-| nDCG@10 | 90.7% | 86.6% | 60.1% |
+| micro | **95.0%** | 91.4% | 65.7% |
+| macro | **89.2%** | 95.4% | **62.7%** |
+| nDCG@10 | 91.6% | 87.2% | 60.8% |
 | recall@6 | — | — | 66.1% (micro) / 62.9% (macro) |
-| never found | — | — | 18.3% |
-| typos (reported apart) | — | **55.2%** | — |
+| never found | 0.9% | 1.9% | 18.3% |
+| typos (reported apart) | — | **57.8%** | — |
 
 ## Is that delta real?
 
@@ -144,13 +144,15 @@ Measured, and it is good news that was not guaranteed:
 
 | set | fit | holdout | gap |
 |---|---|---|---|
-| natural (55 topics) | 87.8% | **90.3%** | −2.5 |
-| artificial (1,237 pages) | 98.5% | 98.5% | +0.0 |
-| question (18 topics) | 62.4% | 60.6% | +1.8 |
+| natural (55 topics) | 88.1% | **90.5%** | −2.4 |
+| artificial (1,237 pages) | 98.7% | 98.6% | +0.0 |
+| question (18 topics) | 64.4% | 61.1% | +3.3 |
 
 Natural's holdout is *better* than its fit, and artificial's halves are identical. **There is no
 detectable overfitting** in twenty rounds of hand-tuning — the weights generalise across topics they
-were not fitted on. The question set's +1.8 is inside the noise of 56 queries.
+were not fitted on. The question set's gap is the one to keep an eye on: 9 topics of 56 queries per
+side is small enough that it moves several points on a change that touches nothing topic-specific,
+which is a statement about the set's size rather than about the ranker.
 
 The question set's weakest topics, and they point the same way the diagnosis above does — every
 one of them is answered by an API symbol page, which has no question-shaped text to compete with:
@@ -168,9 +170,48 @@ serves both.
 
 ## What has been changed, and what was tried and rejected
 
-One ranker change has been made on the strength of these numbers: `IDF_POWER = 0.6` in
-`vendor/search-ranker/search.js`, flattening the rarity curve toward 1. Natural macro 87.8% →
-88.9%, artificial macro 93.5% → 94.5%, 75 natural queries improved against 36 worsened.
+### Content terms are anchored to word starts
+
+Content terms used to match as free substrings, so `net` matched kuber**net**es and inter**net**,
+`cli` matched **cli**ent, and `log` matched b**log** and cata**log** — inflating coverage, density
+and the corpus's own `df` table together. It is also why `+ là gì` returned 111 hits: folding strips
+the diacritics to `la` and `gi`, which sit inside a third of the words on the site.
+
+A term is now scored by where in a word it lands: full weight at a word start, `INFIX_WEIGHT` (0.75)
+inside a word, and nothing inside a word for terms shorter than `INFIX_MIN_TERM` (5). The coverage
+*floors* still accept either, so this changed what things score without changing what is admitted.
+
+**Every setting swept beat the unanchored control on every metric** — all three sets and the typo
+bucket agreeing, which is rare enough here to be worth stating. Tested with `kpi:compare`:
+
+| set | micro | macro |
+|---|---|---|
+| natural | **+0.72** CI [0.41, 1.09] p < 0.0001 | +0.19 CI [−0.76, 1.09] p 0.17 |
+| artificial | **+0.59** CI [0.49, 0.70] p < 0.0001 | **+0.13** CI [0.04, 0.24] p 0.014 |
+| question | **+1.13** CI [0.35, 2.00] p 0.008 | **+1.26** CI [0.31, 2.58] p 0.024 |
+
+**The cost, stated plainly: the `cron` topic went 67.5% → 51.5%** across its 20 queries, which is
+why natural *macro* is the one average that does not clear zero. The mechanism was traced rather
+than guessed — for "cron job node js example", every page that lost 12–16% scores through tier-2
+prose sections and every page that lost 0% scores through a tier-1 record, so anchoring moves weight
+from long prose to short labels. Interior matches live in long text.
+
+That asymmetry is a symptom of length normalisation being effectively `b = 1` (density divides by
+raw section length, with no `avgdl`), and it belongs to the scoring-core work rather than to another
+constant here. It was kept because three sets improve significantly and one topic of twenty queries
+regresses, with the article still inside the top ten.
+
+Rejected on the way: **a third bucket for a term that ENDS a word** without starting it — the
+camelCase case, `queue` of `redisQueue`. Built and swept at 0.6/0.75/0.9/1.0: +0.18 natural macro at
+best against −0.19 question macro, −0.06 artificial and −0.5 on typos. A wash traded between sets,
+and the direction refuted the hypothesis — the best suffix weight is *below* the interior weight, so
+the bucket was damping short noisy suffixes (`log` of `blog`) rather than crediting camelCase.
+
+### IDF
+
+`IDF_POWER = 0.6` in `vendor/search-ranker/search.js`, flattening the rarity curve toward 1. Natural
+macro 87.8% → 88.9%, artificial macro 93.5% → 94.5%, 75 natural queries improved against 36
+worsened.
 
 Two intuitive fixes were measured **and rejected**, both aimed at the symptom that a common
 word derails a rare one (`idempotency` is #1 alone; `idempotency microservices` was absent):
