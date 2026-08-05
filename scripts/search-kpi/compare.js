@@ -115,7 +115,13 @@ function main() {
 
     return data ? data[key] : null;
   };
+  // FIRST, because it is the high-importance set: 19 queries really sent to search_docs while
+  // building an app, where a miss means an agent invented an API rather than scrolled. It is also
+  // the smallest set, so it will call almost everything unmeasured — read the moves, not the
+  // average. `intent.js` is the full report; this is the regression check.
+  const HIGH = new Set(['intent']);
   const sets = {
+    intent: setOf('intent-queries.json', 'queries'),
     natural: setOf('natural-judged.json', 'judged'),
     artificial: setOf('artificial-queries.json', 'main'),
     // The chat-shaped set was measured only by questions.js --ref, so a comparison run reported
@@ -125,6 +131,7 @@ function main() {
   };
 
   let dirty = false;
+  let highDirty = false;
 
   for (const [name, cases] of Object.entries(sets)) {
     if (!cases) {
@@ -166,7 +173,9 @@ function main() {
     const micro = verdict(deltas);
     const macro = verdict(topicDeltas);
 
-    console.log(`\n=== ${name} (n = ${cases.length}, ${byTopic.size} topics) vs ${REF} ===`);
+    const flag = HIGH.has(name) ? '  [HIGH IMPORTANCE]' : '';
+
+    console.log(`\n=== ${name} (n = ${cases.length}, ${byTopic.size} topics) vs ${REF} ===${flag}`);
     console.log(`  accuracy micro   ${micro.line}`);
     console.log(`  accuracy macro   ${macro.line}`);
     console.log(`  nDCG@10 micro    ${verdict(ndcgDeltas).line}`);
@@ -183,6 +192,7 @@ function main() {
     }
 
     dirty = true;
+    if (HIGH.has(name)) highDirty = true;
 
     console.log(`\n  WORSE (before -> after, 0 = absent from the result set):`);
 
@@ -199,7 +209,11 @@ function main() {
 
   // Not an exit failure: a change that trades some queries for more of others can still be right,
   // and only a person can decide that. This is a flag, not a verdict.
-  if (dirty) {
+  if (highDirty) {
+    console.log('\nA HIGH IMPORTANCE query got worse. On the intent set that is an agent losing the');
+    console.log('page it needed to avoid inventing an API — a stronger objection than the same move');
+    console.log('on any other set. Run `npm run kpi:intent` for the full picture before keeping it.');
+  } else if (dirty) {
     console.log('\nSome queries got worse. Read them before keeping the change.');
   } else {
     console.log('\nNo query got worse.');
