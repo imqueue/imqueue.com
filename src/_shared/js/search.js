@@ -1087,6 +1087,9 @@
   // inttoip" matches `intToIp` exactly, and the qualifier stops that page losing to twenty
   // sibling pages whose only claim is the shared word "net".
   var PKG_QUALIFIER = 2.2;
+  // A member beat its own class by 1238 to 1033 — a ratio of 1.20 — so an exact title match has
+  // to clear 2.2 x 1.20 = 2.64 to win. 3.0 leaves margin without being a free-for-all.
+  var PKG_EXACT = 3;
 
   function pkgQualifier(record, q) {
     if (!record.p || q.content < 2) {
@@ -1132,7 +1135,16 @@
     // the query is prose that happens to contain a package name. Requiring only *some* segment
     // to match left all three of those natural queries worse off; requiring all of them left
     // none.
-    var segments = record._l ? record._l.split(/[^a-z0-9]+/) : [];
+    var segments = [];
+    var raw = record._l ? record._l.split(/[^a-z0-9]+/) : [];
+
+    for (var e = 0; e < raw.length; e++) {
+      if (raw[e]) {
+        segments.push(raw[e]);
+      }
+    }
+
+    var seenSeg = [];
     var matched = 0;
 
     for (var j = 0; j < q.terms.length; j++) {
@@ -1140,24 +1152,41 @@
         continue;
       }
 
-      var isSegment = false;
+      var at = -1;
 
       for (var s = 0; s < segments.length; s++) {
-        if (segments[s] && (segments[s] === q.terms[j] || segments[s] === q.lemmas[j])) {
-          isSegment = true;
+        if (segments[s] === q.terms[j] || segments[s] === q.lemmas[j]) {
+          at = s;
           break;
         }
       }
-      if (!isSegment) {
+      if (at === -1) {
         return 1;
       }
 
+      seenSeg[at] = true;
       matched++;
     }
 
-    if (matched) {
-      return PKG_QUALIFIER;
+    if (!matched) {
+      return 1;
     }
+
+    // Both directions, and the second one is what stops a class losing to its own members.
+    // Above: every query term is a title segment. Here: every title SEGMENT was named, so the
+    // query and the title are the same thing rather than a prefix of it.
+    //
+    // "net networks" put six members of `Networks` in the window — networks.ipv4 at 1238,
+    // networks.tojson at 1191 — and the class page itself at #7 on 1033, because
+    // "networks.ipv4" contains the segment `networks` too AND carries extra title content on
+    // top. Whoever names a class exactly wants the class, not its sixth property.
+    for (var k = 0; k < segments.length; k++) {
+      if (!seenSeg[k]) {
+        return PKG_QUALIFIER;
+      }
+    }
+
+    return PKG_EXACT;
 
     return 1;
   }
