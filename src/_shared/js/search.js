@@ -277,6 +277,19 @@
   // worst result on natural macro, so the signal is real and only its strength was wrong.
   var IDF_POWER = 0.6;
 
+  // The feed shape this ranker was written against, declared so a mismatch is loud.
+  //
+  // Needed because the ranker and the generator are about to stop sharing a repository: the
+  // ranker becomes a submodule pinned to a commit, while the feeds it reads are fetched LIVE from
+  // imqueue.org. A pinned ranker therefore reads today's feeds, and a tuple that gained a field or
+  // moved one would be read as the old shape — wrong scores, no error. So the corpus states what
+  // it emits (FEED_V in scripts/lib/search-corpus.js), this states what it understands, and
+  // check-search-index.js fails when they disagree.
+  //
+  // Bump BOTH when a tuple position or a top-level key changes. Adding a record FIELD that older
+  // code ignores does not need a bump; moving or removing one does.
+  var FEED_V = 1;
+
   var STOP_WEIGHT = 0.15;
   // Object.create(null), NOT {} — and the same applies to every map in this file keyed by a
   // word rather than by an internal name.
@@ -2319,6 +2332,7 @@
       search: search,
       groupKey: groupKey,
       state: state,
+      FEED_V: FEED_V,
     };
 
     return;
