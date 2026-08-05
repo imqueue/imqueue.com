@@ -26,7 +26,7 @@ dialog also splits results into Answers/Docs/API groups, so a hit at flat positi
 the first row of its own group there. Flat position is the pessimistic reading and the one
 that stays comparable when grouping changes.
 
-## Two sets, because they answer different questions
+## Three sets, because they answer different questions
 
 **Natural** (`data/natural-queries.json`, 3,367 harvested → 2,281 scored). Real completions
 from Google's suggest endpoint, seeded from the site's topics and expanded a–z so the wording
@@ -38,18 +38,75 @@ keeping whatever came back.
 the site's own titles, headings, `keywords` front matter, summaries, API identifiers and
 prose. Ground truth is free: a query built from page P should return P.
 
+**Question** (`data/question-queries.json`, 115 across 18 topics — `npm run kpi:questions`).
+Whole spoken questions: *"how do I make a method callable from another service?"* Written by an
+assistant from the page inventory, because that is the population being measured — a developer
+asks an assistant, and the assistant sends this to `search_docs`.
+
 The artificial set is optimistic by construction — every query uses the site's own
 vocabulary, so it cannot measure the thing that actually breaks a site search, which is a
 reader who does not know the words. **Read natural as the real number and artificial as a
 regression detector.**
 
+### Why the question set had to exist
+
+The first two sets cover two query *shapes*, and both were blind to a third. Neither contains a
+single question word: natural is autocomplete keywords (2–5 words), artificial is identifiers.
+
+That blindness had a cost. When `@imqueue/mcp` was moved onto this ranker, recall@6 on the
+agent-shaped slice went **83.9% → 99.5%** and natural did not move — and on chat-shaped
+questions the new ranker scored **65.8% against the 73.3%** of the ranker it replaced. A
+regression that neither set could see, found only because the MCP server's smoke test happens to
+hard-code two such questions.
+
+What it measures: a long question is mostly words the corpus shares — *how, do, I, a, service,
+imqueue* — so the one discriminating word has to carry it. When it does not, records whose
+headings are themselves questions win on the question **template**. `rpc.expose` scores 1020 and
+ranks **#1** for `expose`, 258 and #9 for "expose a method on a service", and **88 and #108** for
+"How do I expose a method on an @imqueue service?".
+
+**Why its labels can be trusted**, which is the hard part of any generated set:
+
+1. Written from the **page inventory**, never from a ranker's output — the rule
+   `judge-natural.js` states. A label taken from what the ranker returned would agree with the
+   ranker by construction.
+2. **Validated**: every `expect` URL must exist in the built index, and `questions.js` fails if
+   one does not. A renamed page is a loud error instead of a permanent zero that reads as a
+   ranking regression.
+3. **Committed**, unlike `artificial-queries.json` — that set is reproducible from the index plus
+   a fixed seed, so committing it would duplicate its input. An assistant's phrasings are not
+   reproducible, so the file *is* the record.
+4. **Macro-averaged over 18 topics**: `cli` alone has 16 queries, so without it one area could
+   carry the score.
+
+Known limit: the harness scores `!hit.external`, so a question answered on imqueue.com cannot
+score here and none are included. The commercial half is asserted by
+`scripts/check-search-ranking.js` instead — three named queries that must reach the commercial
+edition, which is the right shape for that risk rather than an average.
+
 ## Current baseline
 
-| | natural | artificial |
-|---|---|---|
-| micro | **94.0%** | 89.9% |
-| macro | **88.9%** | 94.5% |
-| typos (reported apart) | — | 36.4% |
+| | natural | artificial | question |
+|---|---|---|---|
+| micro | **94.0%** | 89.9% | 64.1% |
+| macro | **88.9%** | 94.5% | **61.1%** |
+| recall@6 | — | — | 66.1% (micro) / 62.9% (macro) |
+| never found | — | — | 19.1% |
+| typos (reported apart) | — | 36.4% | — |
+
+The question set's weakest topics, and they point the same way the diagnosis above does — every
+one of them is answered by an API symbol page, which has no question-shaped text to compete with:
+
+| topic | n | accuracy | recall@6 |
+|---|---|---|---|
+| hardening | 3 | 0.0% | 0% |
+| service definition | 7 | 20.0% | 29% |
+| caching | 4 | 22.5% | 25% |
+| postgres | 4 | 25.0% | 25% |
+| observability | 5 | 28.0% | 20% |
+
+**This is a real, live defect on imqueue.org, not only in the MCP server** — the same ranker
+serves both.
 
 ## What has been changed, and what was tried and rejected
 

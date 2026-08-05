@@ -37,7 +37,7 @@
     "check:search-index": "node scripts/check-search-index.js _site-org && node scripts/check-search-index.js _site-com",
     "check:search-ranking": "node scripts/check-search-ranking.js",
     "check:search-ui": "node scripts/check-search-ui.js",
-    "kpi:search": "node scripts/search-kpi/measure.js",
+    "kpi:search": "node scripts/search-kpi/measure.js && node scripts/search-kpi/questions.js",
     "kpi:search:worst": "node scripts/search-kpi/measure.js --worst 40",
     "kpi:search:harvest": "node scripts/search-kpi/harvest-natural.js && node scripts/search-kpi/judge-natural.js",
     "kpi:search:gen": "node scripts/search-kpi/gen-artificial.js --count 10000",
@@ -72,7 +72,8 @@
     "gen-syndication": "node scripts/gen-syndication.js",
     "gen-social": "node scripts/gen-social-preview.js",
     "kpi:recall": "node scripts/search-kpi/recall.js",
-    "kpi:compare": "node scripts/search-kpi/compare.js"
+    "kpi:compare": "node scripts/search-kpi/compare.js",
+    "kpi:questions": "node scripts/search-kpi/questions.js"
   },
   "repository": {
     "type": "git",
