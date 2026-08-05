@@ -1060,6 +1060,96 @@
     return q.topic === -1 || covers(q, q.topic, texts) ? 1 : TOPIC_MISS;
   }
 
+  // The package name amplifies a title match; it can never create one.
+  //
+  // urlScore() returns 0 for generated reference DELIBERATELY — a package segment is a bare
+  // English word (`job`, `net`, `core`), and crediting it lifted every @imqueue/job symbol
+  // above the article written for "nodejs job queue", #3 to #10. That reasoning holds only
+  // while the package word is the ONLY thing matching. An agent names the package and the
+  // symbol together — `net inttoip`, `rpc lock`, `job jobqueue` — and there it is the most
+  // specific evidence in the query: 69 such queries had the right page at rank 18 or absent
+  // from the set entirely, while the MCP server's own ranker put nearly all of them first.
+  //
+  // So the boost is gated on the title ALREADY matching a different term. "nodejs job queue"
+  // matches no symbol title, gets nothing, and keeps the ordering that fix bought. "net
+  // inttoip" matches `intToIp` exactly, and the qualifier stops that page losing to twenty
+  // sibling pages whose only claim is the shared word "net".
+  var PKG_QUALIFIER = 2.2;
+
+  function pkgQualifier(record, q) {
+    if (!record.p || q.content < 2) {
+      return 1;
+    }
+
+    var pkg = fold(record.p).split("/").pop();
+
+    if (!pkg) {
+      return 1;
+    }
+
+    var named = -1;
+
+    for (var i = 0; i < q.terms.length; i++) {
+      if (q.terms[i] === pkg || q.lemmas[i] === pkg) {
+        named = i;
+        break;
+      }
+    }
+    if (named === -1) {
+      return 1;
+    }
+
+    // A DIFFERENT term has to equal a whole SEGMENT of the title — `intToIp`, `logger`/`log`
+    // of "logger.log", `imqdelay`/`constructor` of "imqdelay.(constructor)". Segment equality
+    // is the gate, and each weaker test was measured and rejected:
+    //
+    //   covers()      substring — "queue" matched inside `JobQueue`, so "nodejs job queue"
+    //                 put three job symbols above the article, the exact regression this
+    //                 avoids.
+    //   whole token   still too loose — "options" is a token of `JobOptions`, which cost
+    //                 "bullmq job options" its #1 and moved two more natural queries.
+    //
+    // A segment is the unit a caller actually names. "options" is not a segment of
+    // `JobOptions`, so a generic word riding along with a package name earns nothing, while
+    // `net inttoip` and `rpc imqdelay constructor` — where the caller named the symbol —
+    // earn the boost.
+    // And EVERY other term has to be such a segment — the query has to be nothing but a
+    // package-qualified symbol reference. One unaccounted word is enough to deny the boost,
+    // which is what separates `job jobqueue` from "bullmq job options" and "delayed start date
+    // for new job": there, `bullmq`, `start`, `date` and `new` name nothing in the symbol, so
+    // the query is prose that happens to contain a package name. Requiring only *some* segment
+    // to match left all three of those natural queries worse off; requiring all of them left
+    // none.
+    var segments = record._l ? record._l.split(/[^a-z0-9]+/) : [];
+    var matched = 0;
+
+    for (var j = 0; j < q.terms.length; j++) {
+      if (j === named) {
+        continue;
+      }
+
+      var isSegment = false;
+
+      for (var s = 0; s < segments.length; s++) {
+        if (segments[s] && (segments[s] === q.terms[j] || segments[s] === q.lemmas[j])) {
+          isSegment = true;
+          break;
+        }
+      }
+      if (!isSegment) {
+        return 1;
+      }
+
+      matched++;
+    }
+
+    if (matched) {
+      return PKG_QUALIFIER;
+    }
+
+    return 1;
+  }
+
   function scoreRecord(record, q) {
     if (q.filters.pkg && fold(record.p || "").indexOf(q.filters.pkg) === -1) {
       return 0;
@@ -1112,6 +1202,7 @@
 
     if (record.g === G_API) {
       score += KIND_BONUS[record.k] || 0;
+      score *= pkgQualifier(record, q);
       // A question is almost never answered by a signature page.
       if (q.question) score *= 0.6;
       if (record.d) score *= 0.35;
