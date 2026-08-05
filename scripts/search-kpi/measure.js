@@ -28,6 +28,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { load, evaluate, summarise, table, median } = require('./lib/harness.js');
+const { halves } = require('./lib/split.js');
 
 const DATA = path.join(__dirname, 'data');
 const CAP = 40;
@@ -76,6 +77,22 @@ function balanced(results, keyOf, cap) {
 
     return n <= cap;
   });
+}
+
+/**
+ * The fit/holdout line. Printed by default, not behind a flag, because a training score that
+ * looks like a measurement is the failure this exists to prevent — and a flag nobody passes
+ * prevents nothing. See lib/split.js for why the cut is by topic.
+ */
+function splitLine(results, keyOf) {
+  const { fit, holdout } = halves(results, keyOf);
+  const gap = fit.accuracy - holdout.accuracy;
+
+  return `\nfit / holdout (macro, split by topic — every constant was tuned against the whole set)\n`
+    + `  fit      ${fit.accuracy.toFixed(1)}%  (${fit.topics} topics, n = ${fit.n})\n`
+    + `  holdout  ${holdout.accuracy.toFixed(1)}%  (${holdout.topics} topics, n = ${holdout.n})\n`
+    + `  gap      ${gap >= 0 ? '+' : ''}${gap.toFixed(1)} pts`
+    + `${Math.abs(gap) > 5 ? '   ← large; suspect fitting to the sets' : ''}`;
 }
 
 function topicTable(label, rows, limit) {
@@ -136,6 +153,7 @@ function main() {
     console.log(`  accuracy (KPI)   ${byTopic.accuracy.toFixed(1)}%`);
     console.log(`\nbalanced (max ${CAP} per topic, n = ${balancedResults.length})`);
     console.log(`  accuracy (KPI)   ${summarise(balancedResults).accuracy.toFixed(1)}%`);
+    console.log(splitLine(results, (r) => r.label));
     console.log(`\n${topicTable('weakest topics', byTopic.rows, 15)}`);
     console.log(`\n${topicTable('strongest topics', [...byTopic.rows].reverse(), 8)}`);
 
@@ -178,6 +196,17 @@ function main() {
       'micro above is queries answered by the right page but the wrong section of it'
     );
     console.log(`  accuracy         ${summarise(strict).accuracy.toFixed(1)}%`);
+    // Split by TARGET PAGE, not by generator bucket. A bucket is a query SHAPE — title-salient,
+    // body-salient — and half the queries live in 7 of the 31 buckets, so a bucket split produces
+    // two halves made of different shapes and reports their difference as a fitting gap: it read
+    // +5.6 points on a ranker nobody had tuned against this set at all.
+    //
+    // The page is the right unit for the same reason the topic is for the natural set: queries
+    // generated from one page are near-duplicates of each other, and near-duplicates on both
+    // sides of a split make the holdout agree with the fit by construction.
+    console.log(splitLine(results, (r) => String(
+      Array.isArray(r.expect) ? r.expect[0] : r.expect,
+    ).split('#')[0]));
     console.log(`\n${topicTable('by generator bucket', byBucket.rows, 30)}`);
 
     const typoResults = evaluate(ranker, data.typos);

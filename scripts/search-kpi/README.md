@@ -4,8 +4,9 @@ A number that says whether a change to the ranker made search better or worse, m
 before we have any query logs of our own.
 
 ```bash
-npm run kpi:search          # the numbers
+npm run kpi:search          # the numbers — all three sets
 npm run kpi:search:worst    # plus the 40 worst misses, with what was expected
+npm run kpi:compare         # this working tree's ranker vs the pinned one, with significance
 ```
 
 Both query sets are committed, so the measurement is reproducible and a change in the number
@@ -20,6 +21,16 @@ npm run kpi:search:gen      # regenerate the 10,000 artificial queries from curr
 
 Position 1 scores 100%, and every position below it costs 10 points, so position 11 and
 "not returned at all" both score 0. Nobody scrolls to the eleventh row of a site search.
+
+**nDCG@10 is reported next to it**, and is the standard one. The linear −10 metric above is this
+project's own and it overstates the difference between #5 and #7 while understating #1 against #2;
+nDCG's log discount is closer to how clicks actually fall off. Both are printed because they
+disagree in a useful direction: a change that lifts a query from #4 to #2 is +20 of 100 in accuracy
+terms and a large nDCG move.
+
+One relevant document per query, deliberately — `expect` lists *alternatives*, so the ideal ranking
+puts one of them first, not all of them. Summing gains over the alternatives (textbook DCG) would
+reward a ranker for returning three spellings of the same answer.
 
 Position is read from the flat merged list — what `/search/` renders as "Everything". The
 dialog also splits results into Answers/Docs/API groups, so a hit at flat position 4 can be
@@ -88,11 +99,58 @@ edition, which is the right shape for that risk rather than an average.
 
 | | natural | artificial | question |
 |---|---|---|---|
-| micro | **94.0%** | 89.9% | 64.1% |
-| macro | **88.9%** | 94.5% | **61.1%** |
+| micro | **94.3%** | 90.8% | 64.5% |
+| macro | **89.1%** | 95.3% | **61.5%** |
+| nDCG@10 | 90.7% | 86.6% | 60.1% |
 | recall@6 | — | — | 66.1% (micro) / 62.9% (macro) |
-| never found | — | — | 19.1% |
-| typos (reported apart) | — | 36.4% | — |
+| never found | — | — | 18.3% |
+| typos (reported apart) | — | **55.2%** | — |
+
+## Is that delta real?
+
+A change of 0.1–0.5 macro points has been enough to keep or drop a ranker change here, and the
+section below records one that moved the mean by **+0.0** while 260 queries churned. So every
+comparison now reports the same per-query deltas three ways (`lib/stats.js`):
+
+- a **paired bootstrap 95% CI** on the mean delta, seeded so it is reproducible — if it straddles
+  zero the change is *unmeasured*, whatever the point estimate says;
+- a **Wilcoxon signed-rank** p-value, non-parametric because the per-query metric is discrete,
+  bounded and mostly exactly zero, which is where a t-test misbehaves;
+- the same test **over topic means**, because the headline is a macro average and a claim about a
+  macro has to be tested over topics rather than over queries.
+
+Paired is the load-bearing word: both rankers see the same queries, so the variance that matters is
+the variance of the *differences*. Comparing two independent CIs on the means would call almost
+everything a tie.
+
+Calibration worth keeping in mind: **19 better / 7 worse out of 2,281, at equal magnitudes, is
+p = 0.019** — significant. The churn count was a better signal than it looked. **12 better / 10
+worse is p = 0.68** and means nothing.
+
+## Fit and holdout
+
+Every constant in the ranker was chosen by sweeping it against these sets, which makes every number
+above a **training** score. Each set is therefore cut in two and both halves are printed by default
+(`lib/split.js`).
+
+The cut is **by topic, never by query**: the natural harvest expands each seed a–z, so
+`imqueue rpc` and `imqueue rpc example` are near-twins answered by the same page, and splitting by
+query would put twins on both sides and make the holdout agree with the fit by construction. The
+artificial set is cut by **target page** for the same reason — its `bucket` field is a query *shape*
+(title-salient, body-salient), and cutting on shape produced two halves made of different
+populations and read their difference as a 5.6-point fitting gap on a ranker never tuned against it.
+
+Measured, and it is good news that was not guaranteed:
+
+| set | fit | holdout | gap |
+|---|---|---|---|
+| natural (55 topics) | 87.8% | **90.3%** | −2.5 |
+| artificial (1,237 pages) | 98.5% | 98.5% | +0.0 |
+| question (18 topics) | 62.4% | 60.6% | +1.8 |
+
+Natural's holdout is *better* than its fit, and artificial's halves are identical. **There is no
+detectable overfitting** in twenty rounds of hand-tuning — the weights generalise across topics they
+were not fitted on. The question set's +1.8 is inside the noise of 56 queries.
 
 The question set's weakest topics, and they point the same way the diagnosis above does — every
 one of them is answered by an API symbol page, which has no question-shaped text to compete with:
@@ -195,6 +253,47 @@ additionally a family of ion-channel genes.
 - **Google autocomplete is not our traffic.** It is web-search intent, scored here as if it
   were site-search intent. Real logs will disagree.
 - **The natural set is skewed** toward whatever Google has many completions for.
-- **Typos are reported separately** and never folded into the headline, because the ranker
-  has no fuzzy matching at all — mixing them in would move the KPI for a reason unrelated to
-  relevance weighting.
+- **Typos are reported separately** and never folded into the headline. They are now partly
+  answered — see below — but a spelling correction moves the number for a reason unrelated to
+  relevance weighting, so mixing them in would make the headline mean two things.
+
+## The relaxation pass, and why it could not regress anything
+
+A query that returns **nothing** gets a second attempt: dotted compounds the corpus does not
+contain are split into parts it does (`nestjs.microservices` → `nestjs microservices`), and unknown
+words are corrected against the corpus vocabulary by restricted Damerau-Levenshtein distance —
+restricted, because the measured typo class is one transposed key, which plain Levenshtein scores as
+two edits.
+
+**The gate is the whole safety argument.** It runs only when the ranked list is empty, so any query
+that returns at least one result today is scored by byte-identical code and cannot move. Measured
+against that prediction:
+
+| | before | after |
+|---|---|---|
+| typo accuracy | 36.2% | **55.2%** |
+| typo empty result set | 29.1% | **5.8%** |
+| typo never found | 54.3% | 34.3% |
+| natural | 94.2% | 94.3% (2 queries improved, 0 worse) |
+| artificial | 90.8% | 90.8% (**0 queries changed**) |
+| question | 64.5% | 64.5% (0 changed) |
+
+The two natural queries that moved were returning nothing before. `check-search-ranking.js` asserts
+the gate, because the safety argument is worth exactly as much as that assertion.
+
+Two design notes that cost a measurement each:
+
+1. **Confident rewrites are tried before guesses.** `nestjs.microservices cqrs` is answered by
+   splitting alone. A single combined pass also "corrected" `cqrs` to `cars` — one substitution, and
+   `cars` is in five sections — and announced a query about CQRS as a query about cars.
+2. **A df floor does not separate good corrections from bad ones.** `cars` has df 5, and 67% of the
+   prose vocabulary has df ≤ 5, so any threshold that rejects `cars` rejects most legitimate
+   corrections too. The ordering above is what fixes it.
+
+Corrections are **announced** (`3 results for “nestjs microservices cqrs”` in the status line, which
+is already an aria-live region) and the highlighter marks the corrected term, not the misspelling.
+A search that quietly answers a different question is worse than one that finds nothing.
+
+What this deliberately does **not** fix: a typo whose query still returned something irrelevant.
+That is the larger half of the typo gap (34.3% still never found) and it needs a change that can
+regress, so it needs to be measured rather than argued.
