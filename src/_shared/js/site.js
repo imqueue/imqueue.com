@@ -30,22 +30,47 @@
     });
   }
 
+  // One place that moves the drawer, because `aria-expanded` on the burger is the only
+  // thing that tells a screen reader it moved. The markup ships it as "false" and every
+  // path that opens or closes the drawer has to keep it honest.
+  function setDrawer(open) {
+    var drawer = document.querySelector('[data-mobile-nav]');
+    var burger = document.querySelector('[data-nav-toggle]');
+
+    if (drawer) { drawer.classList.toggle('open', open); }
+    if (burger) { burger.setAttribute('aria-expanded', String(open)); }
+  }
+
+  function drawerIsOpen() {
+    var drawer = document.querySelector('[data-mobile-nav]');
+
+    return !!drawer && drawer.classList.contains('open');
+  }
+
   document.addEventListener('click', function (e) {
     var setBtn = e.target.closest('[data-theme-set]');
     if (setBtn) { apply(setBtn.getAttribute('data-theme-set')); return; }
 
     var burger = e.target.closest('[data-nav-toggle]');
-    if (burger) {
-      var drawer = document.querySelector('[data-mobile-nav]');
-      if (drawer) { drawer.classList.toggle('open'); }
-      return;
+    if (burger) { setDrawer(!drawerIsOpen()); return; }
+
+    // Close the drawer when a tap inside it leads somewhere else: a link, or the search
+    // trigger — that one opens a dialog on top, and without this the drawer is still
+    // sitting there once the dialog is dismissed. The theme buttons are deliberately not
+    // in this list: changing skin is something you do and then stay put.
+    if (e.target.closest('[data-mobile-nav] a, [data-mobile-nav] [data-search-open]')) {
+      setDrawer(false);
     }
-    // close mobile nav when a link inside it is tapped
-    var mlink = e.target.closest('[data-mobile-nav] a');
-    if (mlink) {
-      var d = document.querySelector('[data-mobile-nav]');
-      if (d) { d.classList.remove('open'); }
-    }
+  });
+
+  // The burger is the only way to close the drawer, so when the viewport widens past the
+  // point where the nav collapses, an open drawer is stranded: expanded over the desktop
+  // nav with no visible control to dismiss it. Testing whether the burger still renders
+  // keeps the breakpoint in css/base.css and stops it being duplicated here.
+  window.addEventListener('resize', function () {
+    var burger = document.querySelector('[data-nav-toggle]');
+
+    if (drawerIsOpen() && burger && !burger.getClientRects().length) { setDrawer(false); }
   });
 
   // keep "system" pages in sync when OS theme flips
