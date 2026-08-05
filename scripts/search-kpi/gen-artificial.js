@@ -121,7 +121,7 @@ function loadContent(dir) {
   // Section document frequency: in how many sections a word appears at all, matching how
   // search.js measures it. A Map, not an object — `df.constructor` on a plain object is a
   // truthy function, which is exactly the bug that hid nineteen unreachable pages in the
-  // ranker (see STOP in src/_shared/js/search.js).
+  // ranker (see STOP in vendor/search-ranker/search.js).
   const df = new Map();
 
   for (const section of sections) {
