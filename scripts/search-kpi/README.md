@@ -43,10 +43,40 @@ vocabulary, so it cannot measure the thing that actually breaks a site search, w
 reader who does not know the words. **Read natural as the real number and artificial as a
 regression detector.**
 
+## Current baseline
+
+| | natural | artificial |
+|---|---|---|
+| micro | **94.0%** | 89.9% |
+| macro | **88.9%** | 94.5% |
+| typos (reported apart) | — | 36.4% |
+
+## What has been changed, and what was tried and rejected
+
+One ranker change has been made on the strength of these numbers: `IDF_POWER = 0.6` in
+`src/_shared/js/search.js`, flattening the rarity curve toward 1. Natural macro 87.8% →
+88.9%, artificial macro 93.5% → 94.5%, 75 natural queries improved against 36 worsened.
+
+Two intuitive fixes were measured **and rejected**, both aimed at the symptom that a common
+word derails a rare one (`idempotency` is #1 alone; `idempotency microservices` was absent):
+
+| attempt | natural macro | verdict |
+|---|---|---|
+| discount a page record that never mentions the query's rarest term | **−4.7** (438 worse / 76 better) | rejected |
+| sharpen IDF (`idf^1.5`, `^2`, `^3`) | −1.2 / −1.5 / −1.7 | rejected, monotonic |
+| flatten IDF (`idf^0.6`) | **+1.1** | shipped |
+| remove IDF entirely (`idf^0`) | −1.4 | rejected — the control |
+
+The first is worth remembering because it sounds obviously right and is not: on a corpus this
+small, the rarest word a reader types is often absent from the page that best answers them —
+"api gateway nodejs" is answered by `/tutorial/api-service/`, which never says "gateway". The
+diagnosis that rarity was *underweighted* was exactly backwards; it was overweighted.
+
 ## Do not tune against the artificial set
 
 Flattening every element weight to one value — destroying the URL > keywords > title >
-header > emphasis > body hierarchy on purpose — moves the two sets in *opposite* directions:
+header > emphasis > body hierarchy on purpose — moves the two sets in *opposite* directions
+(measured before the `IDF_POWER` change, so against a 93.7% / 89.7% baseline):
 
 | | natural | artificial |
 |---|---|---|
