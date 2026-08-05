@@ -37,7 +37,13 @@ dialog also splits results into Answers/Docs/API groups, so a hit at flat positi
 the first row of its own group there. Flat position is the pessimistic reading and the one
 that stays comparable when grouping changes.
 
-## Three sets, because they answer different questions
+## Four sets, because they answer different questions
+
+**Intent** (`data/intent-queries.json`, 19 queries across 12 topics — `npm run kpi:intent`).
+**Flagged HIGH IMPORTANCE**, and the only set whose queries were not written to be a test: every
+one was really sent to `search_docs` while building a working @imqueue application, in the order
+it was sent, because the next line of code could not be written without the answer. See *The
+intent set* below.
 
 **Natural** (`data/natural-queries.json`, 3,367 harvested → 2,281 scored). Real completions
 from Google's suggest endpoint, seeded from the site's topics and expanded a–z so the wording
@@ -95,16 +101,81 @@ score here and none are included. The commercial half is asserted by
 `scripts/check-search-ranking.js` instead — three named queries that must reach the commercial
 edition, which is the right shape for that risk rather than an average.
 
+### The intent set, and why it is flagged high importance
+
+The other three sets are three ways of *guessing* what someone would type. This one is a
+transcript. On 2026-08-05 an @imqueue application was built end to end through the MCP server —
+a car-wash fleet deliberately stretched across **14 of the 17 packages** — and every
+`search_docs` call it took is here verbatim, including the four clumsy ones and the four that
+were retries.
+
+It is high importance for one reason, and it is not that the queries are more realistic. The
+server's own instruction #1 is *"Call `search_docs` before writing or changing @imqueue code…
+Never infer an API name or signature"*. An agent obeying that asks by **describing** what it
+needs, because it does not yet know the name. When the description misses, the agent does not
+scroll and it does not retry — **it infers, and the inference compiles.** In that build, seven of
+the fourteen packages were wired from guesses: a `new Logger()` and a `ttl` option key that exist
+in no signature. A miss on this set is wrong code in someone's repository, and nothing else here
+measures that.
+
+The defect it isolates, in the two lines that name it:
+
+```
+expose                                               -> rpc.expose  #1
+expose a service method so it can be called remotely -> rpc.expose  #7   (invisible: six are returned)
+```
+
+**Describing a symbol instead of naming it buries the symbol under prose.** The six that come
+back instead are all reasonable pages for a human learning the framework, and not one carries
+the signature.
+
+Design points specific to this set:
+
+- **17 of 19 queries want a reference page.** The other three sets are weakest on exactly the
+  topics those pages cover, so this set agrees with them from the other direction.
+- **A prose page is not accepted where a signature was needed.** That exclusion *is* the
+  measurement — "six tutorial sections and no signature" is the failure, not a partial success.
+- **`attempt: 2` marks the four retries** that only worked once the package or class was named,
+  each paired to the intent-shaped query it replaced. `intent.js` prints the pairs. Discovery by
+  name works, discovery by intent does not; when that is fixed, the gap in those four pairs
+  closes.
+- **`log` records what the two rankers returned during the build** — provenance only. Nothing in
+  the harness reads it. Tuning toward it would make the metric agree with a ranker by
+  construction.
+- **It gates.** `floor.recall6` (78.9%, the value measured when the set was committed) makes
+  `intent.js` exit non-zero below it, and `compare.js` prints a distinct warning when a query on
+  this set regresses. A high-importance label with no consequence is decoration.
+
+Its honest limit is size: 19 queries will call almost any change *unmeasured*, and the
+significance line says so rather than pretending. It is a **named-case check**, closer to
+`check-search-ranking.js` than to the 2,281-query average — read the moves, not the mean.
+
+The set's own numbers are not comparable to the build log's "13 of 19": the log counted what
+`search_docs` returned in six slots after its own filtering, while the harness scores the flat
+merged list against a label that also accepts a package index page.
+
 ## Current baseline
 
-| | natural | artificial | question |
-|---|---|---|---|
-| micro | **95.0%** | 91.4% | 65.7% |
-| macro | **89.2%** | 95.4% | **62.7%** |
-| nDCG@10 | 91.6% | 87.2% | 60.8% |
-| recall@6 | — | — | 66.1% (micro) / 62.9% (macro) |
-| never found | 0.9% | 1.9% | 18.3% |
-| typos (reported apart) | — | **57.8%** | — |
+| | intent (high) | natural | artificial | question |
+|---|---|---|---|---|
+| micro | 71.6% | **95.0%** | 91.4% | 65.7% |
+| macro | 74.3% | **89.2%** | 95.4% | **62.7%** |
+| nDCG@10 | 56.5% | 91.6% | 87.2% | 60.8% |
+| recall@6 | **78.9%** | — | — | 66.1% (micro) / 62.9% (macro) |
+| never found | 5.3% | 0.9% | 1.9% | 18.3% |
+| typos (reported apart) | — | — | **57.8%** | — |
+
+Intent-set detail at that baseline: **attempt 1 scores 66.7% and the four named retries score
+90.0%** — the gap is the defect, measured. `expose a service method so it can be called remotely`
+sits at **#7** and `classType property decorators complex return type over RPC` at **#9**, both
+outside the six an agent sees, and `write structured JSON logs from a service to a file` is
+absent from the first fifty.
+
+**Phase 0 and Phase 1 did not move this set.** recall@6 is 78.9% at every ranker commit from
+`2d999d9` (the extraction) to `05b81ad`; micro accuracy went 69.5% → 71.6%, entirely from
+`3a43ea0`'s page-focus change, and unmeasured at n = 19. Anchoring (`365e21e`) moved nothing
+here, and the two flagship failures above are exactly the ones the build log named. That is the
+argument for Phase 2 and Phase 3 rather than another constant.
 
 ## Is that delta real?
 
