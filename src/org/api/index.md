@@ -109,7 +109,7 @@ tocPin:
 
 [[toc]]
 
-Know what you want to *do* but not which symbol does it? The [**FAQ**](/api/faq/) answers that shape of question directly — exposing a method, returning a complex type, generating a typed client, validating arguments, invalidating a cache from a table change, delaying and retrying a job, tracing every RPC, rate limiting by IP — and every answer links into the generated reference for the symbols it names.
+Know what you want to *do* but not which symbol does it? The [**FAQ**](/api/faq/) answers that shape of question directly — exposing a method, returning a complex type, generating a typed client, validating arguments, invalidating a cache from a table change, delaying and retrying a job, tracing every RPC, auto-scaling on queue depth, rate limiting by IP — and every answer links into the generated reference for the symbols it names.
 
 ## Full API Reference
 
