@@ -83,6 +83,12 @@ const CASES = [
     regression: 'the article devoted to the topic did not appear at all, because the site writes "back-pressure" and nobody types the hyphen',
   },
   {
+    query: 'How do I expose a method on an @imqueue service?',
+    url: '/tutorial/user-service/',
+    protects: 'a sigil-prefixed term is not scored as the rarest word in the corpus',
+    regression: 'four blog FAQ sections ranked above the tutorial that answers it. `terms()` keeps the `@` and the section df map splits on it, so `@imqueue` was in no document, IDF read that as maximum rarity, it took the topic slot from `expose`, and TOPIC_MISS cut every candidate that did not spell the scope out. Deleting one character from the query moved this page from #5 to #1',
+  },
+  {
     query: 'does @imqueue retry a failed call?',
     url: '/blog/rpc-over-redis-nodejs/#does-imqueue-retry-a-failed-rpc-call',
     protects: 'question-shaped sections are promoted for an interrogative query',
