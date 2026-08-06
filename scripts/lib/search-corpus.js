@@ -582,7 +582,7 @@ function buildCorpus(outputDir) {
       // page in the index and leave the ranker's URL dedupe to pick between them.
       const isPackageIndex = mirror && /^\/api\/[^/]+\/latest\/$/.test(mirror.url);
       // /api/faq/ is authored prose that happens to live under /api/, and it is
-      // the page most directly aimed at this corpus: nineteen question-shaped
+      // the page most directly aimed at this corpus: twenty-one question-shaped
       // headings, each of which faqRecords() below turns into a direct answer with
       // its own anchor. Excluding it by prefix would have dropped exactly the
       // records the questions were written to produce.

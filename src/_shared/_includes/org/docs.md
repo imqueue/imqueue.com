@@ -4,7 +4,7 @@ Source: {{ siteUrl }}/docs/
 
 Everything you need to build, run and scale @imqueue services — from a two-minute
 quickstart to the full API reference. Arrived with one specific question? The
-[FAQ]({{ siteUrl }}/api/faq/) answers nineteen of the most common ones
+[FAQ]({{ siteUrl }}/api/faq/) answers twenty-one of the most common ones
 directly, each on its own anchor at `{{ siteUrl }}/api/faq/#<question-slug>`.
 [markdown]({{ siteUrl }}/api/faq/index.md)
 

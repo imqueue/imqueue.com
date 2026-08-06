@@ -19,7 +19,7 @@ Packaging follows nesting, so importing @imqueue/rpc re-exports everything from
 @imqueue/core.
 
 For task-shaped questions rather than symbol lookups, start at the
-[FAQ]({{ siteUrl }}/api/faq/) — nineteen answered questions, each linking the
+[FAQ]({{ siteUrl }}/api/faq/) — twenty-one answered questions, each linking the
 generated pages for the symbols it names, and each addressable on its own at
 `{{ siteUrl }}/api/faq/#<question-slug>`.
 [markdown]({{ siteUrl }}/api/faq/index.md)
