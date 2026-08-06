@@ -44,6 +44,15 @@ const run = (query) => ranker.search(ranker.parseQuery(query));
 // ---- top-result cases ------------------------------------------------------
 // `url` must be the FIRST result. Anything less than first is not what a reader
 // experiences: they read the top row.
+//
+// Optional `keepsTop: { url, within }` covers the case where a case's original
+// target is no longer the best answer to its query but is still what the case
+// exists to protect. Two of these queries were written against a corpus that had
+// no direct answer to them; /api/faq/ now answers both by name, and the ranker
+// putting a verbatim question heading first is the ranker working. The mechanic
+// each case guards is unchanged, so the target moves to `keepsTop` with a rank
+// bound loose enough to allow the answer above it and tight enough to still catch
+// the bug — both regressions pushed their page to #5 or lower.
 const CASES = [
   {
     query: 'watcherCheckDelay',
@@ -84,7 +93,8 @@ const CASES = [
   },
   {
     query: 'How do I expose a method on an @imqueue service?',
-    url: '/tutorial/user-service/',
+    url: '/api/faq/#how-do-i-expose-a-service-method-so-it-can-be-called-remotely',
+    keepsTop: { url: '/tutorial/user-service/', within: 3 },
     protects: 'a sigil-prefixed term is not scored as the rarest word in the corpus',
     regression: 'four blog FAQ sections ranked above the tutorial that answers it. `terms()` keeps the `@` and the section df map splits on it, so `@imqueue` was in no document, IDF read that as maximum rarity, it took the topic slot from `expose`, and TOPIC_MISS cut every candidate that did not spell the scope out. Deleting one character from the query moved this page from #5 to #1',
   },
@@ -108,7 +118,8 @@ const CASES = [
   },
   {
     query: 'validate method arguments with decorators before the method runs',
-    url: '/api/validation/latest/validation.validated/',
+    url: '/api/faq/#how-do-i-validate-method-arguments-with-decorators-before-the-method-runs',
+    keepsTop: { url: '/api/validation/latest/validation.validated/', within: 3 },
     protects: 'a long descriptive query reaches a symbol page through its SUMMARY',
     regression: 'IMQMethodDescription.arguments was first, on the single word "arguments". A record has four scoring elements and an API record has two of them empty — no curated keywords, and urlScore refuses a generated path on purpose — so eight content words had one 20-word summary to match, scored at the same E.body a 400-token section body gets, and a short title matching one common word beat it. See SUMMARY_LONG_WEIGHT. The query deliberately never names the decorator: `Validated` appears nowhere in it, so the summary is the only route to the right page',
   },
@@ -140,6 +151,22 @@ for (const testCase of CASES) {
       `        protects: ${testCase.protects}\n` +
       `        top 3: ${hits.slice(0, 3).map((h) => `${Math.round(h.score)} ${h.record.u}`).join(' | ')}`
     );
+    continue;
+  }
+  if (testCase.keepsTop) {
+    const { url, within } = testCase.keepsTop;
+    const at = hits.findIndex((h) => h.record.u === url);
+
+    if (at < 0 || at >= within) {
+      fail(
+        `"${testCase.query}" put ${url} at ${at < 0 ? 'no rank at all' : `#${at + 1}`}, ` +
+        `expected within the top ${within}\n` +
+        `        protects: ${testCase.protects}\n` +
+        `        top ${within}: ${hits.slice(0, within).map((h) => `${Math.round(h.score)} ${h.record.u}`).join(' | ')}`
+      );
+      continue;
+    }
+    pass(`"${testCase.query}" -> ${testCase.url}, with ${url} still at #${at + 1}`);
     continue;
   }
   pass(`"${testCase.query}" -> ${testCase.url}`);

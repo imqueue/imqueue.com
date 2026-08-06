@@ -126,6 +126,31 @@
     sync();
   })();
 
+  // ---- FAQ accordion: open the item a deep link points at ----
+  // Search results, the "On this page" index and llms.txt all hand out
+  // <page>#<question-slug>, and the fragment names a collapsed <details> — see the
+  // faqAccordion filter in eleventy.config.js. Without this the browser scrolls to
+  // the right place and shows a closed question, which reads as the answer having
+  // gone missing. Re-scrolled after opening so the CSS scroll-margin applies to
+  // the summary's final position rather than to where it sat while closed.
+  (function () {
+    function openTarget() {
+      var frag = location.hash.slice(1);
+      if (!frag) return;
+      // Same two-step lookup the scroll-spy above uses, and for the same reason:
+      // markdown-it-anchor writes the encodeURIComponent'd slug into the id.
+      var el = document.getElementById(frag);
+      if (!el) {
+        try { el = document.getElementById(decodeURIComponent(frag)); } catch (e) {}
+      }
+      if (!el || el.tagName !== 'DETAILS' || el.open) return;
+      el.open = true;
+      el.scrollIntoView();
+    }
+    openTarget();
+    window.addEventListener('hashchange', openTarget);
+  })();
+
   // ---- Flux commercial-license lead form (imqueue.com /pricing/) ----
   (function () {
     var wrap = document.querySelector('[data-license-form]');

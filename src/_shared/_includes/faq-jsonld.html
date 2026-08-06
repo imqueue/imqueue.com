@@ -15,7 +15,7 @@ Included by post.html and docs.html. NOT by mcp.html: mcp/security.md keeps its
 own hand-written block because its questions sit under ordinary section headings
 rather than in an `## FAQ`, which the filter deliberately does not match.
 {%- endcomment -%}
-{%- assign faqList = page.rawInput | faqPairs -%}
+{%- assign faqList = page.rawInput | faqPairs: faqPage -%}
 {%- if faqList.size > 1 -%}
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{% for pair in faqList %}{"@type":"Question","name":{{ pair.q | json }},"acceptedAnswer":{"@type":"Answer","text":{{ pair.a | json }}}}{% unless forloop.last %},{% endunless %}{% endfor %}]}

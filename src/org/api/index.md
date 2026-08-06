@@ -112,6 +112,8 @@ Browse the complete generated reference for the latest release — every class, 
 
 Looking a symbol up by name rather than browsing? [`/api/search-index.json`](/api/search-index.json) lists every exported symbol of the current majors as `{name, kind, package, url, summary}`, with `deprecated: true` on obsolete members — one fetch instead of a crawl. `llms.txt` has advertised it for a while; this page had never mentioned it, which meant the mirror the MCP server's `get_doc` returns for `/api/` did not either.
 
+Know what you want to *do* but not which symbol does it? The [**API FAQ**](/api/faq/) answers that shape of question directly — exposing a method, generating a typed client, invalidating a cache from a table change, delaying and retrying a job, tracing every RPC, rate limiting by IP — and every answer links back into the reference pages below.
+
 <div class="api-ref-cards">
   <a href="/api/rpc/latest/" class="api-ref-card">
     <span class="api-ref-top"><span class="api-ref-name">@imqueue/rpc</span><span class="api-ref-ver">v{{ latest_rpc }}</span></span>

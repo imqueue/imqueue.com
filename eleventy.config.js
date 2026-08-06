@@ -188,7 +188,16 @@ module.exports = function (eleventyConfig) {
   // agent reads. src/org/mirrors/api.liquid mirrors it by hand instead, on the
   // same model as the other authored mirrors, and includes the same guide
   // partials the HTML page and llms-full.txt do.
+  // /api/faq/ is the exception to the exception: hand-written prose, not a
+  // template and not generated reference, so `rawInput` IS the page and the
+  // ordinary mirror machinery produces exactly the right file. It is also the one
+  // page under /api/ whose whole point is being fetched a section at a time — see
+  // the anchors in src/org/api/faq.md — so leaving it unmirrored would put the
+  // answers to nineteen common questions out of reach of every agent. Kept in step
+  // with NO_MIRROR in lib/markdown-link.js and the coverage filter in
+  // scripts/check-sitemap.js, which state the same rule for their own consumers.
   const API_MIRRORED = /^\/api\/[^/]+\/latest\//;
+  const API_AUTHORED = /^\/api\/faq\/$/;
   eleventyConfig.addCollection("contentMd", (api) =>
     api.getAll().filter((item) => {
       const url = item.url || "";
@@ -197,7 +206,9 @@ module.exports = function (eleventyConfig) {
         return false;
       }
 
-      return url.includes("/api/") ? API_MIRRORED.test(url) : true;
+      return url.includes("/api/")
+        ? API_MIRRORED.test(url) || API_AUTHORED.test(url)
+        : true;
     })
   );
 
@@ -227,6 +238,13 @@ module.exports = function (eleventyConfig) {
     "/glossary/",
     "/using-ai-assistants/",
     "/compare/",
+    // Named here rather than left to the append-anything-unclaimed rule below,
+    // because it is under /api/ and so is excluded by the filter's prefix test —
+    // which is right for the 1,150 generated symbol pages and wrong for this one
+    // hand-written page. Early, deliberately: a retrieval system that truncates
+    // keeps the beginning, and nineteen answered questions is the densest thing
+    // in the corpus.
+    "/api/faq/",
   ];
   const LLMS_FULL_SECTIONS = ["/tutorial/", "/cli/", "/mcp/", "/agents/"];
   const LLMS_FULL_TAIL = [
@@ -244,7 +262,7 @@ module.exports = function (eleventyConfig) {
 
       return item.inputPath.endsWith(".md")
         && !item.data.draft
-        && !url.includes("/api/");
+        && (!url.includes("/api/") || url === "/api/faq/");
     });
 
     const byUrl = new Map(eligible.map((item) => [item.url, item]));
@@ -517,9 +535,17 @@ module.exports = function (eleventyConfig) {
       .replace(/\s+/g, " ")
       .trim();
 
-  eleventyConfig.addFilter("faqPairs", (raw) => {
+  // `wholePage` comes from the `faqPage: true` front matter, via
+  // faq-jsonld.html. The section gate below asks "is this heading inside an FAQ
+  // section", which is the right question for a page that merely CONTAINS an FAQ
+  // — /license/, the comparison posts. /api/faq/ is an FAQ from its H1 down, and
+  // its H2s group the questions by subject (caching, tracing, …) rather than
+  // announcing an FAQ, so under the section gate that page emitted no FAQPage at
+  // all. The flag says the page itself is the FAQ; nothing else changes, and the
+  // "answer is the first paragraph, question mark required" rules still apply.
+  eleventyConfig.addFilter("faqPairs", (raw, wholePage = false) => {
     const pairs = [];
-    let inFaq = false;
+    let inFaq = !!wholePage;
     let question = null;
     let answer = [];
 
@@ -535,7 +561,7 @@ module.exports = function (eleventyConfig) {
       // Any H2 ends the previous answer and decides whether we are in the section.
       if (/^##\s/.test(line) && !/^###/.test(line)) {
         flush();
-        inFaq = /^##\s+(FAQ|Frequently asked)/i.test(line);
+        inFaq = wholePage || /^##\s+(FAQ|Frequently asked)/i.test(line);
         continue;
       }
       if (!inFaq) continue;
@@ -560,6 +586,90 @@ module.exports = function (eleventyConfig) {
     flush();
 
     return pairs.filter((p) => p.q.endsWith("?"));
+  });
+
+  // ---- FAQ accordion, from the same headings ------------------------------
+  // Turns `### Question?` + everything under it into <details>/<summary>, applied
+  // by docs.html to a page whose front matter says `faqPage: true`.
+  //
+  // It runs on the RENDERED HTML rather than being written in the markdown, and
+  // that is the whole point. This repo has already paid for the other way round:
+  // one post authored its FAQ as <details>/<summary> pairs, and the raw HTML
+  // landed verbatim in the page's markdown mirror and in llms-full.txt — the two
+  // files agents actually read — so it was converted back to plain headings. A
+  // build-time wrap keeps both: markdown source and mirror carry ordinary `###`
+  // questions, the browser gets an accordion.
+  //
+  // Consequences worth knowing rather than rediscovering:
+  //
+  //   * The id moves from the <h3> to the <details>, because a deep link has to
+  //     land on the element that can be opened. Both search-corpus.js (which
+  //     verifies every anchor it indexes against the ids in the built page) and
+  //     the "On this page" index look for the id, not for which tag carries it.
+  //   * The answer stays in the DOM while the item is closed, so it is still
+  //     visible to a crawler and still satisfies check-jsonld.js's assertion that
+  //     every FAQPage answer appears in the page text.
+  //   * A `##` heading ends any run of questions, so each subject group gets its
+  //     own .faq list and the H2 stays an ordinary heading.
+  eleventyConfig.addFilter("faqAccordion", (html) => {
+    const source = String(html == null ? "" : html);
+    // Only h2/h3, only the ones markdown-it emitted: a heading inside a fenced
+    // code block arrives with its angle brackets escaped and cannot match.
+    const HEADING = /<(h2|h3)\b([^>]*)>([\s\S]*?)<\/\1>/g;
+    const blocks = [];
+    let found;
+
+    while ((found = HEADING.exec(source))) {
+      blocks.push({
+        tag: found[1],
+        attrs: found[2],
+        inner: found[3],
+        start: found.index,
+        end: HEADING.lastIndex,
+      });
+    }
+
+    if (!blocks.length) {
+      return source;
+    }
+
+    let out = source.slice(0, blocks[0].start);
+    let open = false;
+    const closeList = () => {
+      if (open) {
+        out += "</div>\n";
+        open = false;
+      }
+    };
+
+    blocks.forEach((block, i) => {
+      const bodyEnd = i + 1 < blocks.length ? blocks[i + 1].start : source.length;
+      const text = block.inner.replace(/<[^>]+>/g, "").trim();
+      // The same gate faqPairs uses: a question mark is what makes a heading a
+      // question. An H2 is never one of these — it groups them.
+      const isQuestion = block.tag === "h3" && text.endsWith("?");
+
+      if (!isQuestion) {
+        closeList();
+        out += source.slice(block.start, bodyEnd);
+
+        return;
+      }
+
+      const id = (block.attrs.match(/\sid="([^"]*)"/) || [])[1] || "";
+
+      if (!open) {
+        out += '<div class="faq">\n';
+        open = true;
+      }
+      out += `<details${id ? ` id="${id}"` : ""}>`
+        + `<summary><h3>${block.inner}</h3></summary>`
+        + `<div class="faq-a">${source.slice(block.end, bodyEnd).trim()}</div>`
+        + "</details>\n";
+    });
+    closeList();
+
+    return out;
   });
 
   // The same slugifier markdown-it-anchor writes `id` attributes with, exposed

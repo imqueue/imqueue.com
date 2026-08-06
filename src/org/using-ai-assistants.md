@@ -178,6 +178,12 @@ serve the documentation in machine-friendly form:
 - **[/api/](/api/)** — the full generated API reference for every documented
   `@imqueue` package, and [`/api/search-index.json`](/api/search-index.json) to
   resolve a symbol name to its page.
+- **[/api/faq/](/api/faq/)** — task-shaped questions answered directly, for when
+  the question is "how do I do X" rather than "what does Y do". Every question is a
+  `###` heading with a stable slug in both the page and
+  [its mirror](/api/faq/index.md), so `/api/faq/#<slug>` addresses one answer
+  instead of the whole page — worth returning in place of the full document when
+  only one answer is wanted.
 
 ## Agent recipes
 
