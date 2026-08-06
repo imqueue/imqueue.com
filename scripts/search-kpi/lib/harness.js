@@ -19,7 +19,9 @@
 'use strict';
 
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 
 const ROOT = path.join(__dirname, '..', '..', '..');
 
@@ -65,6 +67,39 @@ function load(dir, rankerFile) {
   ranker.state.x2 = peerText ? ranker.prepareSections(peerText) : null;
 
   return ranker;
+}
+
+/**
+ * Extract a past ranker from the submodule's history and return the file path, ready to hand
+ * to `load()` as `rankerFile`. That is the whole shape of a before/after run: two `load()`
+ * calls in one process, one of them reading a commit.
+ *
+ * It lives here rather than in each runner because three scripts had grown their own copy —
+ * the same duplication `scripts/lib/ranker.js` exists to prevent for the path itself. The ref
+ * names a commit in the RANKER's history, which is not this repo's history, so `git show` has
+ * to run inside the submodule; getting that wrong reports "unknown revision" for a commit that
+ * plainly exists, which is why the error message says so out loud.
+ */
+function baseline(ref) {
+  const { RANKER_DIR } = require(path.join(ROOT, 'scripts', 'lib', 'ranker.js'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kpi-baseline-'));
+  const file = path.join(dir, 'search.js');
+
+  try {
+    fs.writeFileSync(file, execFileSync('git', ['show', `${ref}:search.js`], {
+      cwd: RANKER_DIR,
+      encoding: 'utf8',
+      maxBuffer: 8 * 1024 * 1024,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }));
+  } catch (error) {
+    console.error(`Cannot read ranker ref \`${ref}\` from ${RANKER_DIR}`);
+    console.error(`  git: ${String(error.stderr || error.message).trim()}`);
+    console.error('\n`--ref` names a commit in the ranker submodule, not in this repo.');
+    process.exit(1);
+  }
+
+  return file;
 }
 
 const page = (url) => String(url).split('#')[0];
@@ -226,4 +261,6 @@ function table(label, summary) {
   return lines.join('\n');
 }
 
-module.exports = { load, evaluate, summarise, table, accuracyFor, ndcgFor, page, median };
+module.exports = {
+  load, baseline, evaluate, summarise, table, accuracyFor, ndcgFor, page, median,
+};

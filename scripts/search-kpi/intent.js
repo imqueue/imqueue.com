@@ -51,12 +51,9 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const os = require('node:os');
-const { execFileSync } = require('node:child_process');
 
-const { load, evaluate, summarise, table, accuracyFor } = require('./lib/harness');
+const { load, baseline, evaluate, summarise, table, accuracyFor } = require('./lib/harness');
 const { verdict } = require('./lib/stats.js');
-const { RANKER_DIR } = require('../lib/ranker.js');
 
 const ROOT = path.join(__dirname, '..', '..');
 const FILE = path.join(__dirname, 'data', 'intent-queries.json');
@@ -71,28 +68,6 @@ const DIR = arg('--dir', path.join(ROOT, '_site-org'));
 const WORST = Number(arg('--worst', 20));
 const REF = arg('--ref', null);
 const GATE = !process.argv.includes('--no-gate');
-
-/** Load a past ranker out of the submodule's history, for a before/after run. */
-function baselineRanker(ref) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kpi-intent-'));
-  const file = path.join(dir, 'search.js');
-
-  try {
-    fs.writeFileSync(file, execFileSync('git', ['show', `${ref}:search.js`], {
-      cwd: RANKER_DIR,
-      encoding: 'utf8',
-      maxBuffer: 8 * 1024 * 1024,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    }));
-  } catch (error) {
-    console.error(`Cannot read ranker ref \`${ref}\` from ${RANKER_DIR}`);
-    console.error(`  git: ${String(error.stderr || error.message).trim()}`);
-    console.error('\n`--ref` names a commit in the ranker submodule, not in this repo.');
-    process.exit(1);
-  }
-
-  return file;
-}
 
 /**
  * Every expected page must exist, or the label is unresolvable and scores 0 for ever —
@@ -215,7 +190,7 @@ function main() {
   breakdown('by topic', byTopic);
 
   if (REF) {
-    const before = evaluate(load(DIR, baselineRanker(REF)), data.queries);
+    const before = evaluate(load(DIR, baseline(REF)), data.queries);
     const beforeBy = new Map(before.map((r) => [r.query, r]));
     const deltas = [];
     const moved = [];
