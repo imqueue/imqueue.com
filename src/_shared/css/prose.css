@@ -199,17 +199,36 @@
 .prose .api-pkg-note { flex: 1 1 100%; font-size: 14px; color: var(--muted); line-height: 1.55; padding-left: 10px; border-left: 2px solid var(--line); }
 @media (max-width: 620px) { .prose .api-ref-cards { grid-template-columns: 1fr; } }
 
-/* FAQ accordion */
+/* FAQ accordion.
+   Generated from `### Question?` headings by the faqAccordion filter in
+   eleventy.config.js, not authored as markup — see that filter for why the wrap
+   happens at render time and why the id ends up on the <details>. */
 .prose .faq { display: flex; flex-direction: column; gap: 10px; margin: 22px 0; }
-.prose .faq details { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; transition: border-color .15s ease; }
+/* scroll-margin so a deep link clears the sticky nav, on the <details> because
+   that is the element the fragment now names. */
+.prose .faq details { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; transition: border-color .15s ease; scroll-margin-top: 92px; }
 .prose .faq details[open], .prose .faq details:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
-.prose .faq summary { cursor: pointer; padding: 15px 18px; font-family: var(--font-display); font-weight: 600; font-size: 16.5px; color: var(--ink); list-style: none; display: flex; align-items: flex-start; gap: 12px; transition: color .15s ease; }
+.prose .faq summary { cursor: pointer; padding: 15px 18px; list-style: none; display: flex; align-items: flex-start; gap: 12px; }
 .prose .faq summary::-webkit-details-marker { display: none; }
 .prose .faq summary::before { content: "+"; color: var(--accent); font-family: var(--font-mono); font-size: 19px; line-height: 1.35; width: 14px; flex: none; }
 .prose .faq details[open] summary::before { content: "\2212"; }
-.prose .faq summary:hover, .prose .faq details[open] summary { color: var(--accent); }
-.prose .faq-a { padding: 0 18px 16px 44px; color: var(--muted); line-height: 1.7; }
-.prose .faq-a p { margin: 0; }
+/* The question stays a real h3 — it is one in the markdown, in the mirror and in
+   the "On this page" index — so the summary's typography is applied through it. */
+.prose .faq summary h3 { margin: 0; font-size: 16.5px; font-weight: 600; line-height: 1.45; color: var(--ink); scroll-margin-top: 0; transition: color .15s ease; }
+.prose .faq summary:hover h3, .prose .faq details[open] summary h3 { color: var(--accent); }
+.prose .faq-a { padding: 0 18px 18px 44px; color: var(--muted); line-height: 1.7; }
+/* An answer is several paragraphs, usually a code block and sometimes a table, so
+   the rhythm is set on the children rather than left to each element's own bottom
+   margin — the old `p { margin: 0 }` assumed one paragraph and nothing else. */
+.prose .faq-a > * { margin-top: 0; margin-bottom: 0; }
+.prose .faq-a > * + * { margin-top: 15px; }
+/* The card is already --surface; a code block on the same fill has no edge left. */
+.prose .faq-a pre { background: var(--surface2); font-size: 14.5px; }
+.prose .faq-a table { font-size: 15px; }
+@media (max-width: 620px) {
+  .prose .faq summary { padding: 13px 14px; }
+  .prose .faq-a { padding: 0 14px 15px; }
+}
 
 /* API reference layout: scrollable symbol sidebar + content */
 .api-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 44px; align-items: start; }

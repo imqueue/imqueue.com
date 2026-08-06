@@ -101,6 +101,14 @@ ranks **#1** for `expose`, 258 and #9 for "expose a method on a service", and **
 4. **Macro-averaged over 18 topics**: `cli` alone has 16 queries, so without it one area could
    carry the score.
 
+When a new page answers a question this set already asks, the label is what changes — not the
+page. `/api/faq/` shipped on 2026-08-06 answering nineteen questions directly, and it is now
+listed on the 14 queries whose answer it genuinely carries, judged by reading the answers. Two
+guards keep that from turning into a metric that congratulates the corpus. It is added **only**
+where the page answers, never merely where it ranks: four queries it now leads are deliberately
+unlabelled, listed with their reasons in the file's own `rules`. And it is **not** accepted by
+the intent set at all, where the reference page has to be the thing found — see below.
+
 Known limit: the harness scores `!hit.external`, so a question answered on imqueue.com cannot
 score here and none are included. The commercial half is asserted by
 `scripts/check-search-ranking.js` instead — three named queries that must reach the commercial
@@ -147,9 +155,16 @@ Design points specific to this set:
 - **`log` records what the two rankers returned during the build** — provenance only. Nothing in
   the harness reads it. Tuning toward it would make the metric agree with a ranker by
   construction.
-- **It gates.** `floor.recall6` (78.9%, the value measured when the set was committed) makes
-  `intent.js` exit non-zero below it, and `compare.js` prints a distinct warning when a query on
-  this set regresses. A high-importance label with no consequence is decoration.
+- **`/api/faq/` is not an accepted answer here**, though the page was written from these 19
+  queries and now leads 18 of them. Accepting it would score near 100% and retire the only
+  measurement of whether the *reference page* is reachable — the thing that decides whether an
+  agent writes a real signature or invents one. The cost is visible and deliberate: micro accuracy
+  fell about ten points when the page shipped, because the FAQ answer takes position 1 and pushes
+  the reference down a slot. recall@6 did not move. Read that drop as the page working.
+- **It gates.** `floor.recall6` (raised to 100% on 2026-08-06 — every raise is logged in
+  `floor.note`) makes `intent.js` exit non-zero below it, and `compare.js` prints a distinct
+  warning when a query on this set regresses. A high-importance label with no consequence is
+  decoration.
 
 Its honest limit is size: 19 queries will call almost any change *unmeasured*, and the
 significance line says so rather than pretending. It is a **named-case check**, closer to

@@ -17,7 +17,12 @@ layout: base.html
       </header>
       {% endif %}
       <article class="prose">
-        {{ content }}
+        {%- comment -%}
+        A page that declares itself an FAQ gets its question headings wrapped into
+        an accordion — see the faqAccordion filter in eleventy.config.js for why
+        that happens here, on rendered HTML, rather than in the markdown source.
+        {%- endcomment -%}
+        {% if faqPage %}{{ content | faqAccordion }}{% else %}{{ content }}{% endif %}
       </article>
         {% include "doc-updated.html" %}
         {% include "mirror-link.html" %}

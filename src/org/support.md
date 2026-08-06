@@ -21,6 +21,9 @@ Most questions are answered on this site:
 - **[Tutorial](/tutorial/)** — build a working service and a typed client end to end.
 - **[CLI manual](/cli/)** — every `imq` command and flag.
 - **[API reference](/api/)** — every exported symbol of every documented package.
+- **[API FAQ](/api/faq/)** — direct answers to the questions asked most often, from
+  exposing a method to invalidating a cache, each one linking the reference pages
+  for the symbols it names.
 - **[MCP server](/mcp/)** — let your AI coding assistant read these docs directly.
 
 Using an AI assistant? Point it at **[imqueue.org/llms.txt](/llms.txt)** or connect

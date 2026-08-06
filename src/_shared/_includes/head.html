@@ -32,8 +32,14 @@ WebSite and BreadcrumbList. They get APIReference (a TechArticle subtype) rather
 than TechArticle, and stay og:type=website: a generated symbol page has no
 editorial date, so article:published_time would have nothing true to say.
 {%- endcomment -%}
+{%- comment -%}
+/api/faq/ is the one page under /api/ that is NOT reference: hand-written prose,
+with an editorial date in pageDates.json and no package to be `about`. It is tested
+before the /api/ branch for that reason — APIReference would have made it claim to
+document a package, which check-jsonld.js catches, and rightly.
+{%- endcomment -%}
 {%- assign articleType = "" -%}
-{%- if page.url contains "/tutorial/" or page.url contains "/cli/" or page.url contains "/mcp/" or page.url contains "/get-started/" or page.url contains "/intro/" or page.url contains "/using-ai-assistants/" or page.url contains "/agents/" or page.url contains "/docs/" -%}
+{%- if page.url == "/api/faq/" or page.url contains "/tutorial/" or page.url contains "/cli/" or page.url contains "/mcp/" or page.url contains "/get-started/" or page.url contains "/intro/" or page.url contains "/using-ai-assistants/" or page.url contains "/agents/" or page.url contains "/docs/" -%}
 {%- assign articleType = "TechArticle" -%}
 {%- elsif page.url contains "/api/" -%}
 {%- assign articleType = "APIReference" -%}

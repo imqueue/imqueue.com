@@ -25,6 +25,12 @@ name, fetch {{ siteUrl }}/api/search-index.json: every exported symbol of the
 current majors as `{name, kind, package, url, summary}`, with `deprecated: true`
 on obsolete members.
 
+For task-shaped questions rather than symbol lookups, start at the
+[API FAQ]({{ siteUrl }}/api/faq/) — nineteen answered questions, each linking the
+generated pages for the symbols it names, and each addressable on its own at
+`{{ siteUrl }}/api/faq/#<question-slug>`.
+[markdown]({{ siteUrl }}/api/faq/index.md)
+
 ## Generated reference — framework spine
 
 - [@imqueue/rpc {{ apiVersions.rpc.latest }}]({{ siteUrl }}/api/rpc/latest/) —

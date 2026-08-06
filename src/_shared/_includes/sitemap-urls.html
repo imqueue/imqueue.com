@@ -43,6 +43,13 @@ Params:
     {%- assign prio = "0.7" -%}
     {%- assign freq = "monthly" -%}
     {%- if item.url == "/" -%}{%- assign prio = "1.0" -%}{%- assign freq = "weekly" -%}
+    {%- comment -%}
+    /api/faq/ is in the api bucket by URL but it is not generated reference: it is
+    hand-written prose that changes when the docs change, so it takes the human-docs
+    priority and the default monthly changefreq rather than the 0.3/yearly the
+    generated trees get.
+    {%- endcomment -%}
+    {%- elsif item.url == "/api/faq/" -%}{%- assign prio = "0.8" -%}
     {%- elsif item.url contains "/api/" -%}{%- assign prio = "0.3" -%}{%- assign freq = "yearly" -%}
     {%- elsif item.url contains "/blog/" -%}{%- assign prio = "0.8" -%}{%- assign freq = "weekly" -%}
     {%- elsif item.url contains "/docs" or item.url contains "/tutorial" or item.url contains "/cli" or item.url contains "/get-started" or item.url contains "/intro" -%}{%- assign prio = "0.8" -%}
