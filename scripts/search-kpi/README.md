@@ -76,6 +76,11 @@ questions the new ranker scored **65.8% against the 73.3%** of the ranker it rep
 regression that neither set could see, found only because the MCP server's smoke test happens to
 hard-code two such questions.
 
+That 12-case figure is now superseded, and this set is what superseded it: over 115 labelled
+questions the switch is a **10.4-point gain**, not a loss. See *Both rankers, side by side* below
+— the direction reversed, which is the whole reason a set of twelve is not allowed to decide
+anything.
+
 What it measures: a long question is mostly words the corpus shares — *how, do, I, a, service,
 imqueue* — so the one discriminating word has to carry it. When it does not, records whose
 headings are themselves questions win on the question **template**. `rpc.expose` scores 1020 and
@@ -153,6 +158,72 @@ significance line says so rather than pretending. It is a **named-case check**, 
 The set's own numbers are not comparable to the build log's "13 of 19": the log counted what
 `search_docs` returned in six slots after its own filtering, while the harness scores the flat
 merged list against a label that also accepts a package index page.
+
+## Both rankers, side by side
+
+`recall.js` scores this ranker **and the ranker `@imqueue/mcp` publishes today** on one corpus, so
+"would the switch help?" has an answer instead of an opinion:
+
+```
+npm run kpi:recall              # ~3,400 agent-shaped identifier queries (the default)
+npm run kpi:recall:question     # 115 chat-shaped questions, per topic
+npm run kpi:recall:intent       # 19 real search_docs calls, per topic
+```
+
+Scoring the MCP side needs its **old** ranker, which no longer exists on its working branch —
+Phase 2 replaced `rankEntries` with this one, so a build of `search/shared-ranker` would have the
+script compare this ranker against itself and report a flawless dead heat. It refuses instead of
+guessing; point `--mcp` at a checkout of the server's `main`:
+
+```
+git -C ../mcp worktree add /tmp/mcp-main main
+ln -s "$PWD/../mcp/node_modules" /tmp/mcp-main/node_modules
+npm --prefix /tmp/mcp-main run build
+node scripts/search-kpi/recall.js --set question --mcp /tmp/mcp-main --list
+```
+
+Measured 2026-08-06 against a frozen snapshot, this ranker at `05b81ad`, MCP at `main` (`46eebe2`):
+
+| set | this ranker | MCP's | delta | paired |
+|---|---|---|---|---|
+| agent-shaped (n = 3,657) | **99.5%** | 83.9% | +15.6 | p < 0.0001 · 569 better / **0 worse** |
+| question (n = 115) | **66.1%** | 55.7% | +10.4 | p = 0.0241 · 20 better / 8 worse |
+| intent (n = 19, high) | **78.9%** | 73.7% | +5.3 | unmeasured · 4 better / 3 worse |
+
+Identical at `--ref 2d999d9`, so none of Phase 1's five ranker commits moved either labelled set's
+recall@6 — the pin does not change this decision.
+
+**Read the third row, not the average.** The three intent queries the switch loses are the three
+the build log named as the framework's worst failures, and MCP answers all three near the top:
+
+| query | MCP | this ranker |
+|---|---|---|
+| `expose a service method so it can be called remotely` | **#1** | #7 |
+| `classType property decorators complex return type over RPC` | **#1** | #9 |
+| `run a job later with a delay and retry it if it fails` | **#3** | #7 |
+
+All three are the described-not-named shape that the MCP server's instruction #1 *requires* an
+agent to produce, and this ranker's answer for the first is four blog sections and a tutorial:
+
+```
+How do I expose a method on an @imqueue service?
+  1. /blog/load-balancing-microservices-without-a-load-balancer/#how-do-i-scale-an-imqueue-service
+  2. /blog/versioning-microservices-without-breaking-callers/#can-i-run-two-versions-…
+  3. /blog/imqueue-vs-nestjs/#does-nestjs-s-redis-transporter-do-the-same-thing-as-imqueue
+  4. /compare/#can-i-use-imqueue-alongside-grpc-or-nats
+  5. /tutorial/user-service/
+  6. /blog/imqueue-vs-trpc/#what-imqueue-is-for
+```
+
+MCP returns `rpc.expose` at #1 and `/tutorial/user-service/` at #2 for the same query. Its corpus
+holds no section anchors and only 112 curated pages, so it cannot make this mistake — and it also
+cannot answer anything a section anchor answers, which is where its 27% *neither* comes from. The
+two rankers fail in **opposite directions**, and the aggregate hides that.
+
+Generalised over the sets: of the 71 questions whose answer is not a blog page, **17 get a blog
+post at #1 and 13 of those lose the answer from the top 6 entirely**. Blog FAQ headings are
+themselves questions, so they win the question *template*. This is live on imqueue.org today, and
+it is the same defect from the other side of the corpus.
 
 ## Current baseline
 
