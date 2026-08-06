@@ -1,28 +1,18 @@
 ---
 layout: docs.html
 section: api
-title: "API FAQ: how to do the common things with @imqueue"
-docLabel: API FAQ
-lead: "Direct answers to the questions developers actually type — exposing a method, generating a client, caching, validating, scheduling jobs, tracing, logging, rate limiting — each one linking the generated reference for the symbols it names."
-description: "@imqueue API FAQ: expose a method, generate a typed client, cache and invalidate, validate arguments, delay and retry jobs, trace, log and rate-limit."
+title: "FAQ: how to do the common things with @imqueue"
+docLabel: FAQ
+crumbLeaf: FAQ
+heading: Frequently Asked Questions
+lead: "Direct answers to the questions developers are actually asking — each one linking the reference for the symbols it names."
+description: "@imqueue FAQ: expose a method, generate a typed client, cache and invalidate, validate arguments, delay and retry jobs, trace, log and rate-limit."
 keywords: "imqueue faq, expose service method, imqueue generate typed client, classType property decorators, removeComments false imqueue, pg-cache cacheBy, imqueue job delay retry, PgPubSub singleListener, graphql N+1 microservices, ImqueueInstrumentation, LOGGER_TRANSPORTS, HttpProtect express middleware, CIDR membership Node.js"
 relatedTopics: [rpc, dx, patterns, jobs]
 faqPage: true
 ---
 
 [[toc]]
-
-One question per thing people search for, answered in the first paragraph and
-then shown in code. Every answer ends with links into the generated
-[API reference](/api/) for the symbols it names, and those links always point at
-a package's `/latest/` tree — the URL that serves the current major — so nothing
-here sends you to an archived API surface.
-
-Reading this as a machine? Every question carries a stable anchor, so
-`https://imqueue.org/api/faq/#<slug>` addresses one answer rather than the whole
-page, and the plain-markdown mirror at
-[`/api/faq/index.md`](https://imqueue.org/api/faq/index.md) carries the same
-questions as `###` headings, in the same order, slugified the same way.
 
 ## Services, methods and typed clients
 

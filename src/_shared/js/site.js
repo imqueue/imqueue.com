@@ -90,6 +90,11 @@
     if (toc && slot && toc.querySelector('a')) {
       slot.appendChild(toc);
       layout.classList.add('has-toc');
+    } else if (layout.querySelector('.doc-toc-pin')) {
+      // A pinned link (tocPin in front matter, see docs.html) is reason enough to
+      // show the sidebar. Without this the CSS that hides an empty menu would hide
+      // the pin too, on any page that pins one without an [[toc]].
+      layout.classList.add('has-toc');
     }
 
     // Scroll-spy: highlight the section currently in view (like the tutorial's
@@ -149,6 +154,91 @@
     }
     openTarget();
     window.addEventListener('hashchange', openTarget);
+  })();
+
+  // ---- roll down / roll up: every disclosure on the site, one behaviour ----
+  // <details> cannot be animated natively: the body is not rendered at all while the
+  // element is closed, so there is no height to transition from or to, and the browser
+  // flips the state the instant the summary is clicked, leaving nothing on screen to
+  // animate out. So the open flag is driven by hand. Opening sets it first and animates
+  // the body up from zero; closing animates down and only then clears it, which is what
+  // keeps the content visible for the length of the roll-up.
+  //
+  // This lived inline on /api/ and covered that page's two disclosures only, so the FAQ
+  // accordion snapped open while the package groups next to it rolled. Expanding and
+  // collapsing is one interaction on this site, so it is one implementation, here.
+  //
+  // Each kind names its own body, because the element that grows is the one whose height
+  // is animated and a <details> has no single "content" child to find generically.
+  (function () {
+    // Every disclosure on either edition, and the only place the list lives. A new
+    // kind of collapsible needs one line here; the alternative — the page it appears
+    // on animating its own — is what let /api/ roll while the FAQ snapped.
+    var ROLLS = [
+      { group: '.api-pkg-group', body: '.api-pkg-list' },   // /api/ package groups
+      { group: '.api-older', body: '.api-older-body' },     // /api/ "Older versions"
+      { group: '.faq details', body: '.faq-a' },            // /api/faq/ accordion
+      { group: '.fx-acc', body: '.fx-acc-body' },           // imqueue.com pricing/licence Q&A
+    ];
+
+    var DURATION = 200;
+    var reduced = window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : { matches: false };
+
+    function roll(el, body) {
+      var summary = el.querySelector('summary');
+
+      if (!summary || !body || !body.animate) { return; }
+
+      summary.addEventListener('click', function (e) {
+        // Honour the OS setting by doing nothing and letting <details> behave
+        // natively — the state still changes, just without the movement.
+        if (reduced.matches) { return; }
+        // Ignore a click that lands mid-roll rather than queueing or reversing it.
+        if (el.hasAttribute('data-rolling')) { e.preventDefault(); return; }
+
+        e.preventDefault();
+        var opening = !el.open;
+
+        // The value, not just the presence, so a marker can flip at the start of a
+        // roll-up instead of waiting for `open` to clear at the end of it.
+        el.setAttribute('data-rolling', opening ? 'open' : 'close');
+
+        if (opening) { el.open = true; }
+
+        // Measured while open, so the target is the real laid-out height rather than a
+        // guess. Padding and margin ride along with it, or a body that has either would
+        // leave its spacing behind at zero height.
+        var box = getComputedStyle(body);
+        var end = {
+          height: body.scrollHeight + 'px',
+          marginBottom: box.marginBottom,
+          paddingTop: box.paddingTop,
+          paddingBottom: box.paddingBottom,
+          opacity: 1,
+        };
+        var start = { height: '0px', marginBottom: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0 };
+        var frames = opening ? [start, end] : [end, start];
+
+        body.style.overflow = 'hidden';
+
+        var anim = body.animate(frames, { duration: DURATION, easing: 'ease' });
+
+        anim.onfinish = anim.oncancel = function () {
+          body.style.overflow = '';
+          // Only now, so the body was on screen for the whole roll-up.
+          if (!opening) { el.open = false; }
+          el.removeAttribute('data-rolling');
+        };
+      });
+    }
+
+    ROLLS.forEach(function (kind) {
+      [].forEach.call(document.querySelectorAll(kind.group), function (el) {
+        roll(el, el.querySelector(kind.body));
+      });
+    });
   })();
 
   // ---- Flux commercial-license lead form (imqueue.com /pricing/) ----

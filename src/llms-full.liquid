@@ -76,7 +76,12 @@ the document count in the header (69).
 
 ---
 
-# {{ item.data.title | default: item.url }}
+{%- comment -%}
+`heading` before `title`, matching mirror-body.md and docs.html: where a page's H1
+differs from its search-engine title, every markdown rendering of that page has to
+open with the H1 the page shows. See src/org/api/faq.md.
+{%- endcomment %}
+# {{ item.data.heading | default: item.data.title | default: item.url }}
 
 Source: {{ siteUrl }}{{ item.url }}
 {%- include "mirror-meta.md", doc: item %}
@@ -151,7 +156,7 @@ into the file — so do not name the tags here.
 2. {{ site.definitionShort }} — {{ siteUrl }}/intro/
 3. Documentation: guides, tutorial & API reference — {{ siteUrl }}/docs/
 {%- for item in collections.llmsFull %}
-{{ forloop.index | plus: 3 }}. {{ item.data.title | default: item.url }} — {{ siteUrl }}{{ item.url }}
+{{ forloop.index | plus: 3 }}. {{ item.data.heading | default: item.data.title | default: item.url }} — {{ siteUrl }}{{ item.url }}
 {%- endfor %}
 {{ docCount }}. API guide — {{ siteUrl }}/api/
 {{ allDocs }}

@@ -558,7 +558,13 @@ Home > Section > [Package >] Leaf; other titled pages get Home > Leaf.
 {%- when "docs" -%}{%- assign bcLabel = "Documentation" -%}{%- assign bcRoot = "/docs/" -%}
 {%- when "agents" -%}{%- assign bcLabel = "Agent recipes" -%}{%- assign bcRoot = "/agents/" -%}
 {%- endcase -%}
-{%- assign bcLeaf = title | split: " · " | first -%}
+{%- comment -%}
+`crumbLeaf` is honoured here as well as in breadcrumbs.html, because a page whose
+title is a sentence wants a short last crumb — and a trail that says one thing in
+the markup and another on the screen is worth less than either. /api/faq/ is the
+case: "FAQ: how to do the common things with @imqueue" is a title, not a crumb.
+{%- endcomment -%}
+{%- assign bcLeaf = crumbLeaf | default: title | split: " · " | first -%}
 {%- comment -%}
 Blog pages used to be excluded wholesale, on the assumption post.html and
 topics.html covered them. They cover posts and topic hubs only, so the blog index,

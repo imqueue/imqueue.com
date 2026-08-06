@@ -4,7 +4,12 @@ src/md-mirror.liquid (<page>/index.md) and src/md-mirror-flat.liquid (<page>.md)
 Expects `doc` — the page being mirrored.
 {%- endcomment -%}
 {%- assign body = doc.rawInput | replace: "[[toc]]", "" | agentMarkdown -%}
-# {{ doc.data.title | default: doc.url }}
+{%- comment -%}
+`heading` first, for the same reason docs.html renders it: where a page's H1 differs
+from its search-engine `title`, the mirror has to say what the HTML twin says. Two
+artefacts of one page that name it differently is a contradiction a machine can see.
+{%- endcomment -%}
+# {{ doc.data.heading | default: doc.data.title | default: doc.url }}
 
 Source: {{ siteUrl }}{{ doc.url }}
 {%- include "mirror-meta.md", doc: doc %}
