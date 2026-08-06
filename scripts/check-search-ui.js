@@ -175,6 +175,12 @@ for (const [re, ok, why] of JS_CASES) {
 // Read as TEXT, not required: these cases assert on source strings, which is the only way to
 // check a constant that never leaves the IIFE. From the submodule — see scripts/lib/ranker.js,
 // and check its presence first so a plain clone gets the instruction rather than an ENOENT.
+//
+// The UI half specifically. Every case below is about what the site REPORTS — the settle window,
+// the click watchers, the flush on close — and all of it lives in search.js; ranker.js is the
+// engine and has no analytics in it at all. Point this at the engine and all six cases fail with
+// "nothing reports which result was chosen", which reads as a regression rather than as a check
+// looking in the wrong file.
 const rankerLib = require('./lib/ranker.js');
 
 if (!rankerLib.exists()) {
@@ -182,7 +188,7 @@ if (!rankerLib.exists()) {
   process.exit(1);
 }
 
-const searchJs = read(rankerLib.RANKER_FILE);
+const searchJs = read(rankerLib.UI_FILE);
 
 // A settle window is the difference between "queries people asked" and a report full of
 // their own prefixes. Asserted as a NUMBER, not a mention: `var SETTLE = 0` would satisfy

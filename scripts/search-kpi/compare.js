@@ -22,21 +22,23 @@
 'use strict';
 
 const fs = require('node:fs');
-const os = require('node:os');
 const path = require('node:path');
-const { execFileSync } = require('node:child_process');
 
-const { load, page, accuracyFor, ndcgFor } = require('./lib/harness');
+const { load, baseline, page, accuracyFor, ndcgFor } = require('./lib/harness');
 const { verdict } = require('./lib/stats.js');
 
 const ROOT = path.join(__dirname, '..', '..');
-const { RANKER_DIR } = require('../lib/ranker.js');
 
 // `--ref` names a commit in the RANKER's repository, not this one. The ranker is a submodule
 // (github.com/imqueue/search-ranker), so its history is not in this repo's history at all and
 // `git show HEAD:...` here would resolve to whatever this repo's HEAD says — which for a
-// submodule path is the pinned SHA, not a file. Every git call below therefore runs with
-// cwd = the submodule, and `HEAD` means "the ranker commit currently checked out".
+// submodule path is the pinned SHA, not a file. Extraction therefore runs with cwd = the
+// submodule, and `HEAD` means "the ranker commit currently checked out".
+//
+// It is harness.baseline() that does it, not a copy here: this file grew its own extractor and
+// so did two others, which is what harness.baseline() was factored out to end, and the copy
+// here outlived the factoring. It also only knew the name `search.js` — so after the engine was
+// split out on 2026-08-06 it could no longer read a modern ref at all.
 
 const arg = (name, fallback) => {
   const i = process.argv.indexOf(name);
@@ -47,38 +49,6 @@ const arg = (name, fallback) => {
 const REF = arg('--ref', 'HEAD');
 const DIR = arg('--dir', path.join(ROOT, '_site-org'));
 const WORST = Number(arg('--worst', 40));
-
-function baselineRanker() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kpi-baseline-'));
-  const file = path.join(dir, 'search.js');
-  let source;
-
-  // maxBuffer: the ranker is ~100 kB and execFileSync's default is 1 MB, so this is comfortable —
-  // but it is the kind of limit that fails only after the file has grown, so it is stated.
-  try {
-    source = execFileSync('git', ['show', `${REF}:search.js`], {
-      cwd: RANKER_DIR,
-      encoding: 'utf8',
-      maxBuffer: 8 * 1024 * 1024,
-      // execFileSync sends the child's stderr to ours unless stdio says otherwise, so without
-      // this git's own message prints BEFORE the handler below explains it — twice, out of order.
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-  } catch (error) {
-    // Both plausible causes name the same fix, and git's own message names neither: a submodule
-    // checked out with `--init` but never fetched has no HEAD to show, and `git show` run against
-    // a directory that is not a repository at all says only "does not exist in 'HEAD'".
-    console.error(`Cannot read ranker ref \`${REF}\` from ${RANKER_DIR}\n`);
-    console.error(`  git: ${String(error.stderr || error.message).trim()}\n`);
-    console.error('`--ref` names a commit in the ranker submodule, not in this repo. If the\n'
-      + 'submodule is not fully checked out:\n\n    git submodule update --init\n');
-    process.exit(1);
-  }
-
-  fs.writeFileSync(file, source);
-
-  return file;
-}
 
 function rankOf(ranker, query, expect) {
   let hits;
@@ -99,7 +69,7 @@ function rankOf(ranker, query, expect) {
 }
 
 function main() {
-  const baselineFile = baselineRanker();
+  const baselineFile = baseline(REF);
   // Order matters only in that both must see the same corpus; load() prepares it per ranker, so
   // neither can be measured against a corpus the other did not have.
   const before = load(DIR, baselineFile);
