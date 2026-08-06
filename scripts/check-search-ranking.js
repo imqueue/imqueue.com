@@ -107,6 +107,12 @@ const CASES = [
     regression: 'the docs had no answer at all until 31a1a54 — this is the query that found the gap',
   },
   {
+    query: 'validate method arguments with decorators before the method runs',
+    url: '/api/validation/latest/validation.validated/',
+    protects: 'a long descriptive query reaches a symbol page through its SUMMARY',
+    regression: 'IMQMethodDescription.arguments was first, on the single word "arguments". A record has four scoring elements and an API record has two of them empty — no curated keywords, and urlScore refuses a generated path on purpose — so eight content words had one 20-word summary to match, scored at the same E.body a 400-token section body gets, and a short title matching one common word beat it. See SUMMARY_LONG_WEIGHT. The query deliberately never names the decorator: `Validated` appears nowhere in it, so the summary is the only route to the right page',
+  },
+  {
     query: 'pkg:rpc lock',
     url: '/api/rpc/latest/rpc.lock/',
     protects: 'the pkg: filter, and the decorator outranking its options interface',
