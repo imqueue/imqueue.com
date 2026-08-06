@@ -251,6 +251,7 @@ async function main() {
       ['/', true, 'the home page'],
       ['/blog/', true, 'the blog index — its mirror is hand-written, and an earlier rule missed it'],
       ['/api/', true, 'the API landing page is mirrored by hand'],
+      ['/api/faq/', true, 'authored prose under /api/, mirrored from its own markdown'],
       ['/api/rpc/latest/', true, 'a current-major API tree is mirrored'],
       ['/api/rpc/latest/rpc.imqservice/', true, 'including every symbol page in it'],
       ['/agents/delayed-scheduled-work/', true, 'noindex does not mean unmirrored — this page has a mirror'],

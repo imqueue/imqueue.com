@@ -11,7 +11,8 @@
     "`kind` is the page type that answers — `reference` or `guide`. 17 of 19 want reference, which is where the other three sets are weakest.",
     "`attempt` is 2 on a query that was itself a retry after the intent-shaped attempt in `retryOf` failed, and naming the package or class is what made it work. Those four pairs are the finding, not noise: discovery by name works, discovery by intent does not.",
     "`log` records what the two rankers returned during the build. It is PROVENANCE, not a label — nothing in the harness reads it, and tuning towards it would make the metric agree with a ranker by construction.",
-    "imqueue.org only. The harness scores `!hit.external`, so a query answered on imqueue.com could not score here; none is."
+    "imqueue.org only. The harness scores `!hit.external`, so a query answered on imqueue.com could not score here; none is.",
+    "`/api/faq/` is deliberately NOT accepted here, even though /api/faq/ was written from these 19 queries on 2026-08-06 and now ranks #1 for 18 of them. Accepting it would score close to 100% and retire the only measurement this project has of whether the reference page itself is reachable — which is what seven of fourteen packages were wired from guesses for. The visible cost is that micro accuracy fell about 10 points when the page shipped, because the FAQ answer takes position 1 and pushes the reference page down one slot; recall@6 did not move, which is why the floor below still holds at 100. That drop is the page working, not the ranker regressing. The question set is where /api/faq/ counts as an answer."
   ],
   "floor": {
     "recall6": 100,

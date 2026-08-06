@@ -43,7 +43,9 @@ module.exports = class SearchFrontmatter {
     for (const item of data.collections.all || []) {
       const url = item.url || "";
 
-      if (!url || url.startsWith("/api/")) {
+      // `/api/faq/` is the exception: hand-authored prose with a curated
+      // description and keyword list of its own, not a generated summary.
+      if (!url || (url.startsWith("/api/") && url !== "/api/faq/")) {
         continue;
       }
 

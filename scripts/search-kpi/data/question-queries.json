@@ -5,6 +5,7 @@
     "A query must be a question a developer would type to an assistant, not a heading.",
     "A query must NOT reuse its target page's title verbatim — that is the exact-match case, and the artificial set already covers it.",
     "`expect` lists every page that genuinely answers, drawn from the page inventory. Anchors are not used: the harness compares page URLs.",
+    "`/api/faq/` is listed on the 14 queries the FAQ page genuinely answers, added 2026-08-06 when the page shipped — judged by reading the answers, not by reading a ranker's output. For several of them it is now the best answer on the site, so leaving it off reported a total miss for a question answered at position 1. Deliberately NOT added where the page merely ranks well: `how do I tail the output of several services together?` (it says nothing about `imq log`), `how do I close postgres listeners cleanly on shutdown?` (nothing on enableGracefulShutdown), `do I have to expose REST between my own services?` (that argument is the blog post's, not the FAQ's), and `why did my method argument end up typed as any?` — which the FAQ answers exactly under `#why-must-removecomments-be-false-in-a-project-that-uses-imqueue`, except the ranker surfaces the *validation* answer instead and the right anchor is nowhere in the top six, so page-level credit would hide a real defect. Anchor precision is asserted in scripts/check-search-ranking.js, which compares full URLs; this set stays page-level.",
     "imqueue.org only. The harness skips `external` hits, so a question whose answer lives on imqueue.com cannot score here — those are asserted by scripts/check-search-ranking.js instead.",
     "`label` is the topic, for the macro average. One topic must not be able to carry the score."
   ],
@@ -14,7 +15,8 @@
       "expect": [
         "/get-started/",
         "/tutorial/user-service/",
-        "/cli/creating-services/"
+        "/cli/creating-services/",
+        "/api/faq/"
       ],
       "label": "getting started"
     },
@@ -197,7 +199,8 @@
       "expect": [
         "/api/rpc/latest/rpc.expose/",
         "/tutorial/user-service/",
-        "/glossary/"
+        "/glossary/",
+        "/api/faq/"
       ],
       "label": "service definition"
     },
@@ -213,7 +216,8 @@
       "query": "how do I return a class instance over RPC?",
       "expect": [
         "/api/rpc/latest/rpc.classtype/",
-        "/tutorial/user-service/"
+        "/tutorial/user-service/",
+        "/api/faq/"
       ],
       "label": "service definition"
     },
@@ -222,7 +226,8 @@
       "expect": [
         "/api/rpc/latest/rpc.property/",
         "/api/rpc/latest/rpc.classtype/",
-        "/tutorial/user-service/"
+        "/tutorial/user-service/",
+        "/api/faq/"
       ],
       "label": "service definition"
     },
@@ -247,7 +252,8 @@
       "query": "how do I describe a method so the client knows its shape?",
       "expect": [
         "/api/rpc/latest/rpc.expose/",
-        "/tutorial/user-service/"
+        "/tutorial/user-service/",
+        "/api/faq/"
       ],
       "label": "service definition"
     },
@@ -415,7 +421,8 @@
       "expect": [
         "/api/rpc/latest/rpc.cachedecorator/",
         "/api/rpc/latest/rpc.icache/",
-        "/api/pg-cache/latest/pg-cache.cacheby/"
+        "/api/pg-cache/latest/pg-cache.cacheby/",
+        "/api/faq/"
       ],
       "label": "caching"
     },
@@ -424,7 +431,8 @@
       "expect": [
         "/api/pg-cache/latest/pg-cache.cacheby/",
         "/api/pg-cache/latest/pg-cache.cachewith/",
-        "/api/tag-cache/latest/tag-cache.tagcache/"
+        "/api/tag-cache/latest/tag-cache.tagcache/",
+        "/api/faq/"
       ],
       "label": "caching"
     },
@@ -448,14 +456,16 @@
       "expect": [
         "/api/pg-pubsub/latest/pg-pubsub.listen/",
         "/api/pg-pubsub/latest/pg-pubsub.notify/",
-        "/blog/postgres-notify-duplicate-listeners/"
+        "/blog/postgres-notify-duplicate-listeners/",
+        "/api/faq/"
       ],
       "label": "postgres"
     },
     {
       "query": "every replica gets the same postgres notification, how do I stop that?",
       "expect": [
-        "/blog/postgres-notify-duplicate-listeners/"
+        "/blog/postgres-notify-duplicate-listeners/",
+        "/api/faq/"
       ],
       "label": "postgres"
     },
@@ -480,7 +490,8 @@
       "expect": [
         "/api/opentelemetry/latest/opentelemetry.tracestart/",
         "/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation/",
-        "/cli/package-catalog/"
+        "/cli/package-catalog/",
+        "/api/faq/"
       ],
       "label": "observability"
     },
@@ -496,7 +507,8 @@
       "query": "how do I get structured json logs out of a service?",
       "expect": [
         "/api/async-logger/latest/async-logger.logger/",
-        "/tutorial/user-service/"
+        "/tutorial/user-service/",
+        "/api/faq/"
       ],
       "label": "observability"
     },
@@ -519,14 +531,16 @@
       "query": "how do I reject bad input before it reaches my method?",
       "expect": [
         "/api/validation/latest/validation.validatable/",
-        "/api/validation/latest/validation.schemaof/"
+        "/api/validation/latest/validation.schemaof/",
+        "/api/faq/"
       ],
       "label": "hardening"
     },
     {
       "query": "how do I rate limit callers by ip address?",
       "expect": [
-        "/api/http-protect/latest/http-protect.httpprotect/"
+        "/api/http-protect/latest/http-protect.httpprotect/",
+        "/api/faq/"
       ],
       "label": "hardening"
     },
@@ -534,7 +548,8 @@
       "query": "how do I check whether an address is inside a subnet?",
       "expect": [
         "/api/net/latest/net.inttoip/",
-        "/api/net/latest/net.validate/"
+        "/api/net/latest/net.validate/",
+        "/api/faq/"
       ],
       "label": "hardening"
     },
