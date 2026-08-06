@@ -270,5 +270,5 @@ Two things worth knowing before you scale this up:
 
 <div class="callout">
   <p><strong>That's it — you've built and called your first @imqueue service.</strong></p>
-  <p><strong>Ready for more?</strong> Work through the <a href="/tutorial/">Tutorial</a> for a complete example application, or dive into the <a href="/api/">API reference</a>.</p>
+  <p><strong>Ready for more?</strong> Work through the <a href="/tutorial/">Tutorial</a> for a complete example application, or dive into the <a href="/api/">API reference</a>. Stuck on one specific thing — caching a result, retrying a job, validating arguments, tracing a call? The <a href="/api/faq/">FAQ</a> answers those one at a time.</p>
 </div>

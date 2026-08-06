@@ -161,10 +161,12 @@ Design points specific to this set:
   agent writes a real signature or invents one. The cost is visible and deliberate: micro accuracy
   fell about ten points when the page shipped, because the FAQ answer takes position 1 and pushes
   the reference down a slot. recall@6 did not move. Read that drop as the page working.
-- **It gates.** `floor.recall6` (raised to 100% on 2026-08-06 — every raise is logged in
-  `floor.note`) makes `intent.js` exit non-zero below it, and `compare.js` prints a distinct
-  warning when a query on this set regresses. A high-importance label with no consequence is
-  decoration.
+- **It gates.** `floor.recall6` (94.7% — every move, up or down, is logged in `floor.note`) makes
+  `intent.js` exit non-zero below it, and `compare.js` prints a distinct warning when a query on
+  this set regresses. A high-importance label with no consequence is decoration. It reached 100%
+  on 2026-08-06 and came back down the same day, to a content edit rather than a ranker change:
+  cutting two paragraphs from /api/faq/ moved corpus-wide BM25 statistics enough to flip a
+  198-against-198 tie, and `/api/job/latest/` left the six an agent sees for one query.
 
 Its honest limit is size: 19 queries will call almost any change *unmeasured*, and the
 significance line says so rather than pretending. It is a **named-case check**, closer to

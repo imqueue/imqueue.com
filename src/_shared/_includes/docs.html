@@ -5,6 +5,20 @@ layout: base.html
   <div class="doc-layout">
     <aside class="doc-toc">
       <div class="doc-toc-title">On this page</div>
+      {%- comment -%}
+      A page may pin ONE off-page link to the top of its contents menu. /api/ pins
+      the FAQ, because a reader in the reference is usually chasing a "how do
+      I…" question and the answer to that shape of question is a different page —
+      leaving it findable only in the prose put it below the fold.
+
+      The pin is styled as leaving the page (accent, arrow, rule beneath) so it is
+      not mistaken for a section of this one, and site.js counts it when deciding
+      whether the sidebar has anything to show — a page that pinned a link but has
+      no [[toc]] would otherwise hide the pin along with the empty menu.
+      {%- endcomment -%}
+      {%- if tocPin %}
+      <a class="doc-toc-pin" href="{{ tocPin.url }}">{{ tocPin.label }} <span aria-hidden="true">→</span></a>
+      {%- endif %}
       <div data-toc-slot></div>
     </aside>
     <div class="doc-main">
@@ -12,7 +26,13 @@ layout: base.html
       {% include "breadcrumbs.html" %}
       <header style="margin-bottom:30px;">
         {% if docLabel %}<div class="section-label" style="margin-bottom:14px;">// {{ docLabel }}</div>{% endif %}
-        {% if title %}<h1 style="font-family:var(--font-display);font-size:40px;line-height:1.1;letter-spacing:-.03em;margin:0 0 12px;">{{ title }}</h1>{% endif %}
+        {%- comment -%}
+        `heading` overrides the visible H1 while `title` stays the search-engine
+        title, the same split `crumbLeaf` makes for the breadcrumb: a title that
+        earns the click ("FAQ: how to do the common things with @imqueue") is not
+        what a reader who has already arrived wants to read at the top of the page.
+        {%- endcomment -%}
+        {% if title %}<h1 style="font-family:var(--font-display);font-size:40px;line-height:1.1;letter-spacing:-.03em;margin:0 0 12px;">{{ heading | default: title }}</h1>{% endif %}
         {% if lead %}<p class="muted" style="font-size:17px;line-height:1.65;max-width:680px;margin:0;">{{ lead }}</p>{% endif %}
       </header>
       {% endif %}

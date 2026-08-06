@@ -104,6 +104,12 @@
 .doc-toc .table-of-contents ul ul a { padding-left: 24px; font-size: 14px; }
 .doc-toc .table-of-contents a.active { background: var(--accent-fill, var(--accent)); color: var(--on-accent-fill, var(--on-accent)); font-weight: 600; }
 .doc-toc .table-of-contents a.active:hover { color: var(--on-accent); }
+/* Pinned off-page link at the top of the menu (tocPin in front matter). Accent
+   and an arrow, with a rule under it, so it reads as leaving this page rather
+   than as the page's first section. */
+.doc-toc-pin { display: block; font-family: var(--font-mono); font-size: 14.5px; padding: 8px 12px; border-radius: 8px; color: var(--accent); }
+.doc-toc-pin:hover { background: var(--surface2); text-decoration: none; }
+.doc-toc-pin + [data-toc-slot] { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
 @media (max-width: 900px) {
   .doc-layout.has-toc { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .doc-toc { position: static; margin-bottom: 28px; }
@@ -212,6 +218,10 @@
 .prose .faq summary::-webkit-details-marker { display: none; }
 .prose .faq summary::before { content: "+"; color: var(--accent); font-family: var(--font-mono); font-size: 19px; line-height: 1.35; width: 14px; flex: none; }
 .prose .faq details[open] summary::before { content: "\2212"; }
+/* `open` is held for the length of a roll-up (see the roll block in site.js), so the
+   marker flips from the roll state — otherwise it stays at − until the movement ends,
+   half a beat after the click asked for +. Same rule as .api-older/.api-pkg-group. */
+.prose .faq details[data-rolling="close"] summary::before { content: "+"; }
 /* The question stays a real h3 — it is one in the markdown, in the mirror and in
    the "On this page" index — so the summary's typography is applied through it. */
 .prose .faq summary h3 { margin: 0; font-size: 16.5px; font-weight: 600; line-height: 1.45; color: var(--ink); scroll-margin-top: 0; transition: color .15s ease; }
