@@ -18,18 +18,18 @@ Application programming interface documentation for the @imqueue packages.
 Packaging follows nesting, so importing @imqueue/rpc re-exports everything from
 @imqueue/core.
 
+For task-shaped questions rather than symbol lookups, start at the
+[FAQ]({{ siteUrl }}/api/faq/) — nineteen answered questions, each linking the
+generated pages for the symbols it names, and each addressable on its own at
+`{{ siteUrl }}/api/faq/#<question-slug>`.
+[markdown]({{ siteUrl }}/api/faq/index.md)
+
 Every page below, and every per-symbol page under it, is also published as plain
 markdown at `<page-url>index.md` and at `<page>.md`, byte-identical — same content,
 no HTML. To look a symbol up by
 name, fetch {{ siteUrl }}/api/search-index.json: every exported symbol of the
 current majors as `{name, kind, package, url, summary}`, with `deprecated: true`
 on obsolete members.
-
-For task-shaped questions rather than symbol lookups, start at the
-[API FAQ]({{ siteUrl }}/api/faq/) — nineteen answered questions, each linking the
-generated pages for the symbols it names, and each addressable on its own at
-`{{ siteUrl }}/api/faq/#<question-slug>`.
-[markdown]({{ siteUrl }}/api/faq/index.md)
 
 ## Generated reference — framework spine
 

@@ -7,6 +7,9 @@ lead: "Application programming interface documentation for the @imqueue packages
 description: "API reference for @imqueue: the RPC API, decorators, doc-blocks, the Messaging API and adapters, plus the generated per-package reference."
 keywords: "@imqueue API reference, imqueue core, imqueue rpc, RPC decorators, TypeScript RPC API, message queue API, IMQService, IMQClient, @expose decorator"
 relatedTopics: [rpc, queue, types, delivery]
+tocPin:
+  url: /api/faq/
+  label: FAQ
 ---
 {% assign latest_core = apiVersions.core.latest %}
 {% assign latest_rpc = apiVersions.rpc.latest %}
@@ -106,13 +109,13 @@ relatedTopics: [rpc, queue, types, delivery]
 
 [[toc]]
 
+Know what you want to *do* but not which symbol does it? The [**FAQ**](/api/faq/) answers that shape of question directly — exposing a method, returning a complex type, generating a typed client, validating arguments, invalidating a cache from a table change, delaying and retrying a job, tracing every RPC, rate limiting by IP — and every answer links into the generated reference for the symbols it names.
+
 ## Full API Reference
 
 Browse the complete generated reference for the latest release — every class, interface, decorator and function, with signatures and types. These pages always live at `/latest/`, so a bookmark or link keeps working across releases.
 
 Looking a symbol up by name rather than browsing? [`/api/search-index.json`](/api/search-index.json) lists every exported symbol of the current majors as `{name, kind, package, url, summary}`, with `deprecated: true` on obsolete members — one fetch instead of a crawl. `llms.txt` has advertised it for a while; this page had never mentioned it, which meant the mirror the MCP server's `get_doc` returns for `/api/` did not either.
-
-Know what you want to *do* but not which symbol does it? The [**API FAQ**](/api/faq/) answers that shape of question directly — exposing a method, generating a typed client, invalidating a cache from a table change, delaying and retrying a job, tracing every RPC, rate limiting by IP — and every answer links back into the reference pages below.
 
 <div class="api-ref-cards">
   <a href="/api/rpc/latest/" class="api-ref-card">
@@ -227,82 +230,10 @@ Know what you want to *do* but not which symbol does it? The [**API FAQ**](/api/
     } catch (e2) {}
   }, true);
 
-  // ---- roll down / roll up ------------------------------------------------
-  // <details> cannot be animated natively: the body is not rendered at all while
-  // the element is closed, so there is no height to transition from or to. The
-  // browser also flips the state the instant the summary is clicked, which leaves
-  // nothing on screen to animate out.
-  //
-  // So the open flag is driven by hand. Opening sets it first and animates the
-  // list up from zero; closing animates down and only then clears it, which is
-  // what keeps the content visible for the length of the roll-up.
-  var DURATION = 200;
-  var reduced = window.matchMedia
-    ? window.matchMedia('(prefers-reduced-motion: reduce)')
-    : { matches: false };
-
-  // Both disclosures on this page roll: the package groups and the "Older versions"
-  // list above them. Each needs its body named, because the element that grows is the
-  // one whose height is animated — a <details> has no single "content" child to find
-  // generically.
-  var ROLLS = [
-    { group: '.api-pkg-group', body: '.api-pkg-list' },
-    { group: '.api-older', body: '.api-older-body' },
-  ];
-
-  function roll(el, body) {
-    var summary = el.querySelector('summary');
-
-    if (!summary || !body || !body.animate) { return; }
-
-    summary.addEventListener('click', function (e) {
-      // Honour the OS setting by doing nothing and letting <details> behave
-      // natively — the state still changes, just without the movement.
-      if (reduced.matches) { return; }
-      // Ignore a click that lands mid-roll rather than queueing or reversing it.
-      if (el.hasAttribute('data-rolling')) { e.preventDefault(); return; }
-
-      e.preventDefault();
-      var opening = !el.open;
-
-      // The value, not just the presence, so the marker can flip at the start of a
-      // roll-up instead of waiting for `open` to clear at the end of it.
-      el.setAttribute('data-rolling', opening ? 'open' : 'close');
-
-      if (opening) { el.open = true; }
-
-      // Measured while open, so the target is the real laid-out height rather than
-      // a guess. Padding and margin ride along with it, or a body that has either
-      // would leave its spacing behind at zero height.
-      var box = getComputedStyle(body);
-      var end = {
-        height: body.scrollHeight + 'px',
-        marginBottom: box.marginBottom,
-        paddingTop: box.paddingTop,
-        paddingBottom: box.paddingBottom,
-        opacity: 1,
-      };
-      var start = { height: '0px', marginBottom: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0 };
-      var frames = opening ? [start, end] : [end, start];
-
-      body.style.overflow = 'hidden';
-
-      var anim = body.animate(frames, { duration: DURATION, easing: 'ease' });
-
-      anim.onfinish = anim.oncancel = function () {
-        body.style.overflow = '';
-        // Only now, so the body was on screen for the whole roll-up.
-        if (!opening) { el.open = false; }
-        el.removeAttribute('data-rolling');
-      };
-    });
-  }
-
-  ROLLS.forEach(function (kind) {
-    [].forEach.call(document.querySelectorAll(kind.group), function (el) {
-      roll(el, el.querySelector(kind.body));
-    });
-  });
+  // The roll-down/roll-up animation for these groups and for "Older versions" is
+  // NOT here: expanding and collapsing is one interaction across the site, so it
+  // lives in site.js with the FAQ accordion and everything else that discloses.
+  // This script only remembers which groups a visitor left closed.
 })();
 </script>
 
