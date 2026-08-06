@@ -14,8 +14,8 @@
     "imqueue.org only. The harness scores `!hit.external`, so a query answered on imqueue.com could not score here; none is."
   ],
   "floor": {
-    "recall6": 84.2,
-    "note": "recall@6 measured at ranker 05b81ad on 2026-08-06 (15 of 19), RAISED from 78.9 to 84.2 (16 of 19) the same day when BM25 length normalisation earned it — 5 queries better, 0 worse, and `expose a service method so it can be called remotely` finally crossed into the six an agent sees, from #7 to #5. intent.js exits non-zero below this. A high-importance set with no consequence is decoration; this is the consequence. Raise it when a change earns it; lower it only deliberately, with the reason written here."
+    "recall6": 94.7,
+    "note": "recall@6 measured at ranker 05b81ad on 2026-08-06 (15 of 19), raised to 84.2 (16 of 19) the same day when BM25 length normalisation earned it — 5 queries better, 0 worse, and `expose a service method so it can be called remotely` finally crossed into the six an agent sees, from #7 to #5. RAISED AGAIN to 94.7 (18 of 19) the same day when the record-summary weight for long descriptive queries earned it: 11 better, 2 worse, and the one query with no answer anywhere in the result set — `write structured JSON logs from a service to a file` — arrived at #1. intent.js exits non-zero below this. A high-importance set with no consequence is decoration; this is the consequence. Raise it when a change earns it; lower it only deliberately, with the reason written here."
   },
   "queries": [
     {
