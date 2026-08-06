@@ -85,6 +85,12 @@ plans/
 # read it — see takeFrontmatter() for why deleting it was a correctness bug.
 .search-frontmatter-*.json
 
+# Build intermediate: the ranker's two halves — vendor/search-ranker/ranker.js and
+# search.js — concatenated into the one asset the site serves. Written by
+# scripts/lib/asset-manifest.js on every eleventy config load, because
+# addPassthroughCopy takes a path rather than bytes. Never edited; edit the submodule.
+.search-bundle.js
+
 # The artificial KPI query set: 1.2 MB, and regenerated exactly by
 # `npm run kpi:search:gen` from the built index plus a fixed PRNG seed, so committing it
 # would only duplicate the content it is derived from. The NATURAL set beside it IS

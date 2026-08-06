@@ -27,18 +27,24 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 
-const { RANKER_FILE, RANKER_REL, MISSING, exists } = require("./ranker.js");
+const { MISSING, exists, bundle } = require("./ranker.js");
+
+// Where the concatenated ranker lands. Repo root and gitignored, following
+// .search-frontmatter-*.json: a build intermediate, regenerated on every config load,
+// and never a file anybody edits. It exists at all because addPassthroughCopy takes a
+// PATH, not bytes, so the one asset the site serves has to be a real file somewhere.
+const BUNDLE_REL = ".search-bundle.js";
 
 // 8 hex chars of sha256. Collision risk across a handful of files is nil, and it
 // keeps the URLs readable in devtools and in the link checker's output.
 const HASH_LEN = 8;
 
+function hash(bytes) {
+  return crypto.createHash("sha256").update(bytes).digest("hex").slice(0, HASH_LEN);
+}
+
 function hashFile(absPath) {
-  return crypto
-    .createHash("sha256")
-    .update(fs.readFileSync(absPath))
-    .digest("hex")
-    .slice(0, HASH_LEN);
+  return hash(fs.readFileSync(absPath));
 }
 
 /**
@@ -49,11 +55,12 @@ function hashFile(absPath) {
  * shadow a shared name, which is how theme-<skin>.css works. Later sources win,
  * matching the passthrough-copy order in eleventy.config.js.
  *
- * One JS file comes from outside src/ entirely: the search ranker is a git submodule
- * (see scripts/lib/ranker.js). It is handled by name rather than by adding its
- * directory to the scan below, and that is the whole point — an unpopulated submodule
- * is an EMPTY DIRECTORY, so a directory scan would find no *.js, report nothing, and
- * emit a site with no search.js in it. Naming the file lets its absence throw.
+ * One JS asset comes from outside src/ entirely: the search ranker is a git submodule
+ * of TWO files, engine and UI, concatenated here into one (see scripts/lib/ranker.js).
+ * It is handled by name rather than by adding its directory to the scan below, and that
+ * is the whole point — an unpopulated submodule is an EMPTY DIRECTORY, so a directory
+ * scan would find no *.js, report nothing, and emit a site with no search.js in it.
+ * Naming the files lets their absence throw.
  *
  * @param {string} root Repository root.
  * @param {string} edition "org" | "com".
@@ -100,8 +107,9 @@ function buildAssetManifest(root, edition) {
     throw new Error(
       `A second search.js exists in src/: ${copies.find((c) => c[1].startsWith("js/search."))[0]}\n\n` +
         "The ranker is a submodule now (see scripts/lib/ranker.js). Delete the copy in\n" +
-        "src/ and edit vendor/search-ranker/search.js instead, or the site would serve the\n" +
-        "copy while the MCP server serves the submodule — which is the drift the split ended.",
+        "src/ and edit vendor/search-ranker/ instead — ranker.js for anything that scores,\n" +
+        "search.js for anything a reader sees — or the site would serve the copy while the\n" +
+        "MCP server serves the submodule, which is the drift the split ended.",
     );
   }
 
@@ -111,12 +119,21 @@ function buildAssetManifest(root, edition) {
     throw new Error(MISSING);
   }
 
-  const hashed = `search.${hashFile(RANKER_FILE)}.js`;
+  // The ranker is TWO files — engine then UI — and the site serves them as one. The
+  // hash is over the concatenation rather than over either half, which is the whole
+  // point: an edit to the engine alone still changes the URL, so the `immutable`
+  // caching this manifest exists to make safe stays safe. Hashing one half would
+  // silently serve a stale pairing of the two.
+  const source = bundle();
+  const hashed = `search.${hash(source)}.js`;
+  const bundleAbs = path.join(root, BUNDLE_REL);
+
+  fs.writeFileSync(bundleAbs, source);
 
   manifest["/js/search.js"] = `/js/${hashed}`;
-  copies.push([RANKER_REL, `js/${hashed}`]);
+  copies.push([BUNDLE_REL, `js/${hashed}`]);
 
   return { manifest, copies };
 }
 
-module.exports = { buildAssetManifest, HASH_LEN };
+module.exports = { buildAssetManifest, HASH_LEN, BUNDLE_REL };
