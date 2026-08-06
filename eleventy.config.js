@@ -789,6 +789,13 @@ module.exports = function (eleventyConfig) {
   // paths to imqueue.org; imqueue.org 301s retired versioned API URLs to /latest/.
   eleventyConfig.addPassthroughCopy({ [`src/${EDITION}/_redirects`]: "_redirects" });
 
+  // Context7 ownership proof. Context7 already indexes imqueue.org's llms.txt as a
+  // corpus; claiming it means serving this file verbatim from the domain root so the
+  // public key can be matched. org only — the claim is over imqueue.org's corpus.
+  if (!isCom) {
+    eleventyConfig.addPassthroughCopy({ "src/org/context7.json": "context7.json" });
+  }
+
   // API reference (current + kept archives) is now generated as native Eleventy
   // pages under src/org/api/**; the old standalone TypeDoc HTML passthrough is
   // gone. Regenerate with `npm run build-docs` (latest) / `gen-api-archive` (old).
