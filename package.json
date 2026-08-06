@@ -74,8 +74,9 @@
     "gen-syndication": "node scripts/gen-syndication.js",
     "gen-social": "node scripts/gen-social-preview.js",
     "kpi:recall": "node scripts/search-kpi/recall.js",
-    "kpi:compare": "node scripts/search-kpi/compare.js",
-    "kpi:questions": "node scripts/search-kpi/questions.js"
+    "kpi:recall:question": "node scripts/search-kpi/recall.js --set question",
+    "kpi:recall:intent": "node scripts/search-kpi/recall.js --set intent",
+    "kpi:compare": "node scripts/search-kpi/compare.js"
   },
   "repository": {
     "type": "git",
