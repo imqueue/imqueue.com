@@ -83,20 +83,40 @@ function load(dir, rankerFile) {
 function baseline(ref) {
   const { RANKER_DIR } = require(path.join(ROOT, 'scripts', 'lib', 'ranker.js'));
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kpi-baseline-'));
-  const file = path.join(dir, 'search.js');
+
+  const show = (name) => execFileSync('git', ['show', `${ref}:${name}`], {
+    cwd: RANKER_DIR,
+    encoding: 'utf8',
+    maxBuffer: 8 * 1024 * 1024,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  // ranker.js FIRST, then search.js — the engine was split out of the single file on 2026-08-06,
+  // so which name holds the scorer depends on how old the ref is. Both names are tried rather
+  // than one chosen from a date because a comparison across the split is exactly the comparison
+  // worth being able to run: the split had to move all four sets by zero, and proving that means
+  // measuring a two-file working tree against a one-file commit. Under Node the UI half is not
+  // needed either way — it exports nothing and requires a DOM.
+  let file;
 
   try {
-    fs.writeFileSync(file, execFileSync('git', ['show', `${ref}:search.js`], {
-      cwd: RANKER_DIR,
-      encoding: 'utf8',
-      maxBuffer: 8 * 1024 * 1024,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    }));
-  } catch (error) {
-    console.error(`Cannot read ranker ref \`${ref}\` from ${RANKER_DIR}`);
-    console.error(`  git: ${String(error.stderr || error.message).trim()}`);
-    console.error('\n`--ref` names a commit in the ranker submodule, not in this repo.');
-    process.exit(1);
+    file = path.join(dir, 'ranker.js');
+    fs.writeFileSync(file, show('ranker.js'));
+  } catch {
+    try {
+      file = path.join(dir, 'search.js');
+      fs.writeFileSync(file, show('search.js'));
+    } catch (error) {
+      // Both plausible causes name the same fix, and git's own message names neither: a submodule
+      // checked out with `--init` but never fetched has no HEAD to show, and `git show` run against
+      // a directory that is not a repository at all says only "does not exist in 'HEAD'".
+      console.error(`Cannot read ranker ref \`${ref}\` from ${RANKER_DIR}\n`);
+      console.error(`  git: ${String(error.stderr || error.message).trim()}\n`);
+      console.error('Neither ranker.js nor search.js exists at that ref.\n');
+      console.error('`--ref` names a commit in the ranker submodule, not in this repo. If the\n'
+        + 'submodule is not fully checked out:\n\n    git submodule update --init\n');
+      process.exit(1);
+    }
   }
 
   return file;
