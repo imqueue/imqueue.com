@@ -102,7 +102,7 @@ ranks **#1** for `expose`, 258 and #9 for "expose a method on a service", and **
    carry the score.
 
 When a new page answers a question this set already asks, the label is what changes — not the
-page. `/api/faq/` shipped on 2026-08-06 answering nineteen questions directly, and it is now
+page. `/api/faq/` shipped on 2026-08-06 answering twenty-one questions directly, and it is now
 listed on the 14 queries whose answer it genuinely carries, judged by reading the answers. Two
 guards keep that from turning into a metric that congratulates the corpus. It is added **only**
 where the page answers, never merely where it ranks: four queries it now leads are deliberately

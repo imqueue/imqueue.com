@@ -6,8 +6,8 @@ docLabel: FAQ
 crumbLeaf: FAQ
 heading: Frequently Asked Questions
 lead: "Direct answers to the questions developers are actually asking — each one linking the reference for the symbols it names."
-description: "@imqueue FAQ: expose a method, generate a typed client, cache and invalidate, validate arguments, delay and retry jobs, trace, log and rate-limit."
-keywords: "imqueue faq, expose service method, imqueue generate typed client, classType property decorators, removeComments false imqueue, pg-cache cacheBy, imqueue job delay retry, PgPubSub singleListener, graphql N+1 microservices, ImqueueInstrumentation, LOGGER_TRANSPORTS, HttpProtect express middleware, CIDR membership Node.js"
+description: "@imqueue FAQ: expose a method, generate a typed client, cache and invalidate, validate arguments, delay and retry jobs, trace, log, auto-scale and rate-limit."
+keywords: "imqueue faq, expose service method, imqueue generate typed client, classType property decorators, removeComments false imqueue, pg-cache cacheBy, imqueue job delay retry, PgPubSub singleListener, graphql N+1 microservices, ImqueueInstrumentation, LOGGER_TRANSPORTS, imqueue metrics server queue_length, kubernetes HPA queue length autoscaling, redis-broker-promoter, redis-broker-unicaster, UDPClusterManager, HttpProtect express middleware, CIDR membership Node.js"
 relatedTopics: [rpc, dx, patterns, jobs]
 faqPage: true
 ---
@@ -609,6 +609,150 @@ Reference: [`TransportOptions.type`](/api/async-logger/latest/async-logger.trans
 [`TransportOptions.enabled`](/api/async-logger/latest/async-logger.transportoptions.enabled/) ·
 [`AsyncLoggerOptions.transports`](/api/async-logger/latest/async-logger.asyncloggeroptions.transports/) ·
 [`Logger`](/api/async-logger/latest/async-logger.logger/)
+
+## Scaling out
+
+### How do I auto-scale @imqueue services?
+
+Scale on queue depth, and let the service report it. Every `IMQService` can serve
+`GET /metrics` with the number of messages waiting in its queue — one option
+away, no exporter to install — which is the signal an autoscaler actually wants:
+work waiting for this service, rather than the CPU it happens to be burning.
+
+~~~typescript
+import { IMQService, expose } from '@imqueue/rpc';
+
+export class UserService extends IMQService {
+    // ...exposed methods
+}
+
+const service = new UserService({
+    metricsServer: {
+        enabled: true,   // off by default
+        port: 9090,      // the default
+    },
+});
+
+await service.start();   // the listener comes up with it
+~~~
+
+The listener answers exactly one route, in Prometheus exposition format, and 404
+for anything else:
+
+~~~bash
+$ curl -s localhost:9090/metrics
+queue_length{} 17
+~~~
+
+Point Prometheus at it, expose `queue_length` as an external metric through
+prometheus-adapter, and a HorizontalPodAutoscaler reads it like any other:
+
+~~~yaml
+metrics:
+  - type: External
+    external:
+      metric:
+        name: queue_length
+      target:
+        type: Value
+        value: "20"      # scale out while more than 20 wait
+~~~
+
+Four properties of the number decide whether that loop behaves. It counts
+messages *waiting in the queue's main list*: delayed messages not yet due, and
+messages already leased to a worker under `safeDelivery`, are not included, so it
+is a backlog gauge and not the amount of outstanding work. It is **0 while the
+queue's writer is disconnected**, which makes a broker outage indistinguishable
+from an empty queue — keep `minReplicas` above zero so a Redis blip cannot scale
+the service to nothing. Every replica of the service reads the same queue and so
+reports the same figure, which is why an `External` target on the value is a
+better fit than a per-pod average. And every process that starts the service
+binds the port, so under `multiProcess` the primary plus N workers all try:
+either leave it off there or expect N of the N+1 binds to fail. On a
+`ClusteredRedisQueue` the figure is summed across every broker in the fleet.
+
+One shutdown detail: the signal handlers close the listener on `SIGINT`/`SIGTERM`,
+but [`destroy()`](/api/rpc/latest/rpc.imqservice.destroy/) does not — close
+`service.metricsServer` yourself there, or the open listener keeps the process
+alive.
+
+Reference: [`IMQServiceOptions.metricsServer`](/api/rpc/latest/rpc.imqserviceoptions.metricsserver/) ·
+[`IMQMetricsServerOptions`](/api/rpc/latest/rpc.imqmetricsserveroptions/) ·
+[`IMQMetricsServerOptions.enabled`](/api/rpc/latest/rpc.imqmetricsserveroptions.enabled/) ·
+[`IMQMetricsServerOptions.port`](/api/rpc/latest/rpc.imqmetricsserveroptions.port/) ·
+[`IMQMetricsServerOptions.queueLengthFormatter`](/api/rpc/latest/rpc.imqmetricsserveroptions.queuelengthformatter/) ·
+[`DEFAULT_IMQ_METRICS_SERVER_OPTIONS`](/api/rpc/latest/rpc.default_imq_metrics_server_options/) ·
+[`IMQService.metricsServer`](/api/rpc/latest/rpc.imqservice.metricsserver/) ·
+[`IMessageQueue.queueLength()`](/api/core/latest/core.imessagequeue.queuelength/) ·
+[`ClusteredRedisQueue.queueLength()`](/api/core/latest/core.clusteredredisqueue.queuelength/) ·
+[`IMQServiceOptions.multiProcess`](/api/rpc/latest/rpc.imqserviceoptions.multiprocess/)
+
+### How do I auto-scale the @imqueue broker?
+
+Run each Redis with one of the two announcer modules and give every service and
+client a `UDPClusterManager`. The module makes a broker announce itself over UDP;
+the manager folds announced brokers into a `ClusteredRedisQueue` round-robin as
+they appear and drops them when they stop announcing. Starting or stopping a
+`redis-server` then *is* the scaling operation — nothing is restarted or
+reconfigured.
+
+Which module depends on one question: does your network deliver broadcast?
+
+~~~bash
+# L2 segment — bare metal, VMs, a docker bridge, your laptop
+REDIS_BROADCAST_NAME=imq-broker \
+REDIS_BROADCAST_INTERVAL=1 \
+redis-server --port 6379 --loadmodule $PWD/promoter.so
+
+# Kubernetes on GCP or any cloud VPC, where broadcast is dropped:
+# the same datagram, unicast to every pod the K8s API lists
+DEPLOYMENT_ENV=production \
+SELECTED_INTERFACES=10. \
+redis-server --port 6379 --loadmodule $PWD/unicaster.so
+~~~
+
+The client side does not care which one is running, because both emit the same
+datagram to the same port:
+
+~~~typescript
+import { IMQService, UDPClusterManager } from '@imqueue/rpc';
+
+const options = +(process.env.DISABLE_CLUSTER_MANAGER || 0)
+    ? { cluster: [{ host: 'localhost', port: 6379 }] }  // static
+    : { clusterManagers: [new UDPClusterManager()] };  // discovery
+
+const service = new UserService(options);
+~~~
+
+Apply those same options to **every service and every client** in the fleet.
+Replies travel back through whichever broker the request round-robined onto, so a
+client pinned to one Redis silently misses responses that landed elsewhere.
+
+The announce protocol is worth knowing because it sets the timings you observe. A
+broker announces `up` every `REDIS_BROADCAST_INTERVAL` seconds (default 1) to
+port 63000, and `down` on graceful shutdown, which removes it at once; a broker
+that dies silently is dropped when its advertised liveness timeout plus
+`aliveTimeoutCorrection` (5 s by default) passes without an announcement. So a
+join takes about one interval, a graceful exit is immediate, and a crash costs a
+few seconds during which sends may still be routed at it. Announcements are not
+filtered by queue name — every cluster registered with a manager on that address
+and port receives every server announced there, so unrelated fleets need distinct
+addresses or ports. The datagrams are plain, unauthenticated UDP: keep port 63000
+inside the cluster, and give every broker the same credentials, since any service
+may connect to any broker it discovers.
+
+The full recipes — building both modules, the RBAC a unicaster pod needs, and how
+the fleet behaves as brokers come and go — are in
+[Auto-scaling Redis broker: with and without broadcast](/blog/horizontally-scalable-redis-broker/).
+
+Reference: [`UDPClusterManager`](/api/core/latest/core.udpclustermanager/) ·
+[`UDPClusterManagerOptions`](/api/core/latest/core.udpclustermanageroptions/) ·
+[`UDPClusterManagerOptions.port`](/api/core/latest/core.udpclustermanageroptions.port/) ·
+[`UDPClusterManagerOptions.useAliveCheck`](/api/core/latest/core.udpclustermanageroptions.usealivecheck/) ·
+[`UDPClusterManagerOptions.aliveTimeoutCorrection`](/api/core/latest/core.udpclustermanageroptions.alivetimeoutcorrection/) ·
+[`IMQOptions.clusterManagers`](/api/core/latest/core.imqoptions.clustermanagers/) ·
+[`IMQOptions.cluster`](/api/core/latest/core.imqoptions.cluster/) ·
+[`ClusteredRedisQueue`](/api/core/latest/core.clusteredredisqueue/)
 
 ## Hardening an HTTP gateway
 
