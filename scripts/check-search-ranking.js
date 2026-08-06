@@ -95,6 +95,12 @@ const CASES = [
     regression: 'the answer was returned as an ordinary article hit with the Answers group empty, because a prose section for the same heading outscored it and won the dedupe',
   },
   {
+    query: 'what do you mean by competing consumers?',
+    url: '/glossary/',
+    protects: 'provenance trust reaches a blog FAQ record, and survives the 1.55x answer boost',
+    regression: 'a blog FAQ anchor scored 315 against the glossary definition\'s 225. It was the one candidate the blog de-weighting could not touch: `EDITORIAL[record.k]` sits in an else-if after the G_ANSWER branch, and for an answer record the generator puts the PAGE TITLE in `k` rather than a group label, so the test could never have matched either. Trust now applies by URL and the anchor scores 190. Paired with the case above, which must STILL win at 1.55 x 0.6 — these two assert both directions of the same rule',
+  },
+  {
     query: 'circuit breaker',
     url: '/blog/rpc-over-redis-nodejs/#is-there-a-circuit-breaker',
     protects: 'a two-word phrase reaches the answer written for it',
