@@ -113,6 +113,12 @@ const CASES = [
     regression: 'IMQMethodDescription.arguments was first, on the single word "arguments". A record has four scoring elements and an API record has two of them empty — no curated keywords, and urlScore refuses a generated path on purpose — so eight content words had one 20-word summary to match, scored at the same E.body a 400-token section body gets, and a short title matching one common word beat it. See SUMMARY_LONG_WEIGHT. The query deliberately never names the decorator: `Validated` appears nowhere in it, so the summary is the only route to the right page',
   },
   {
+    query: 'load http',
+    url: '/blog/backpressure-nodejs-services/#why-http-struggles-under-load',
+    protects: 'two query words inside ONE heading, which is a claim no term-frequency sum can make',
+    regression: 'broke while the scorer was being replaced, and it is the whole reason spanBonus exists. Term-at-a-time BM25F accumulates each term across the fields and saturates the sum, so "both of these words are in this heading" stops being expressible — this query fell from #1 to #12 and 147 of the 953 heading-subset queries went with it. Not fixable by weighting the heading field (swept 3 to 12: artificial macro moved 0.06, because each term saturates into [0,1) regardless) and not caused by length normalisation (B swept 0 to 0.75: 147 worse at every value). Intra-field proximity is what restores it',
+  },
+  {
     query: 'pkg:rpc lock',
     url: '/api/rpc/latest/rpc.lock/',
     protects: 'the pkg: filter, and the decorator outranking its options interface',
