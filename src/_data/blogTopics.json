@@ -55,7 +55,7 @@
   "jobs": {
     "label": "Jobs & scheduling",
     "title": "Background jobs and scheduled work",
-    "description": "Articles on background jobs and scheduled work in Node.js: delayed calls, retry backoff, recurring sweeps, and how @imqueue/job compares with BullMQ."
+    "description": "Articles on background jobs and background tasks in Node.js and nodejs services: delayed calls, scheduled work, retry backoff, recurring sweeps, and how @imqueue/job compares with BullMQ."
   },
   "clients": {
     "label": "Typed clients",

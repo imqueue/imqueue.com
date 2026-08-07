@@ -5,7 +5,7 @@ templateEngineOverride: md
 title: "How Node.js services talk to each other in 2026: the honest options"
 summary: "REST, gRPC, tRPC, NATS, a framework like NestJS or Moleculer, or RPC over a message queue. Six real approaches, what each one costs, and the two questions that actually decide it — including when @imqueue is the wrong answer."
 description: "A neutral survey of service-to-service communication for Node.js and TypeScript back-ends in 2026: REST, gRPC, tRPC, NATS, full frameworks and message-queue RPC, with the trade-offs of each."
-keywords: "Node.js service communication, microservices communication 2026, REST vs gRPC vs tRPC, service to service Node.js, internal API design, message queue RPC, TypeScript microservices architecture"
+keywords: "Node.js service communication, nodejs microservices communication, microservices communication 2026, REST vs gRPC vs tRPC, gRPC vs REST, gRPC vs REST vs GraphQL, tRPC vs gRPC, how microservices communicate with each other, service to service Node.js, internal API design, message queue RPC, TypeScript microservices architecture"
 date: 2026-08-03
 author: mykhailo-stadnyk
 illustration: rest-vs-rpc
@@ -147,6 +147,32 @@ The honest costs, in order of how often they matter:
 
 **Right when:** your services are all Node and TypeScript, they call each other a
 lot, and you would rather run Redis than design and maintain a contract layer.
+
+## Not on the list: GraphQL, Kafka, WebSockets
+
+Three things get named in this comparison constantly and are missing above,
+because they answer a different question.
+
+**GraphQL** is a query language for a *client-facing* API. Its whole value is
+letting a front-end ask for the shape it wants across several resources — which is
+a problem your browser has and your services do not. Put it at the edge, in front
+of the fleet, and let the gateway make ordinary typed calls behind it: that is
+exactly what the [GraphQL gateway chapter](/tutorial/api-service/) builds. Using
+GraphQL *between* services means writing resolvers, a schema and a loader layer to
+replace a function call, and it is where the
+[N+1 problem](/api/graphql-dependency/latest/) comes from. So "gRPC vs REST vs
+GraphQL" is really two comparisons: gRPC against REST for internal calls, and
+GraphQL against REST for the edge.
+
+**Kafka** is a partitioned, replayable log rather than a transport for
+request/reply. It is the right answer for event streams, audit trails and anything
+you want to re-read later, and the wrong one for "call this service and give me
+the result" — there is no reply channel and no per-message acknowledgement. Plenty
+of fleets run both.
+
+**WebSockets** and SSE are for pushing to a browser. They are a delivery mechanism
+at the edge, not a service contract; behind the gateway you still need one of the
+six.
 
 ## The two questions
 
