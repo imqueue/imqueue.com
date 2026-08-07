@@ -64,10 +64,17 @@ function sizesOf(results, keyOf) {
 }
 
 /**
- * Macro accuracy per half, plus the gap.
+ * Macro score per half, plus the gap.
  *
  * Macro on each side rather than micro, for the reason measure.js gives: the harvest is skewed and
  * a micro mean over half of it is mostly a report on that half's biggest topic.
+ *
+ * BOTH metrics are returned, and which one the caller reads matters. `accuracy` is this project's
+ * linear position score and was the only thing computed here for months — which meant the one
+ * guard against overfitting was measuring a metric the headline no longer used. The gold set's
+ * headline is P@1, so an overfitting check that reports `accuracy` can call a fit/holdout gap
+ * clean while P@1 diverges. `p1` is now computed alongside it and is what gold.js reads; the
+ * legacy runners keep reading `accuracy` and are unaffected.
  */
 function halves(results, keyOf) {
   const side = assign(sizesOf(results, keyOf));
@@ -87,13 +94,15 @@ function halves(results, keyOf) {
       byTopic.get(key).push(result);
     }
 
-    const perTopic = [...byTopic.values()]
-      .map((rs) => rs.reduce((s, r) => s + r.accuracy, 0) / rs.length);
+    const perTopic = (score) => [...byTopic.values()]
+      .map((rs) => rs.reduce((s, r) => s + score(r), 0) / rs.length);
+    const mean = (values) => values.reduce((a, b) => a + b, 0) / (values.length || 1);
 
     return {
-      topics: perTopic.length,
+      topics: byTopic.size,
       n: list.length,
-      accuracy: perTopic.reduce((a, b) => a + b, 0) / (perTopic.length || 1),
+      accuracy: mean(perTopic((r) => r.accuracy)),
+      p1: mean(perTopic((r) => (r.targetPosition === 1 ? 100 : 0))),
     };
   };
 
