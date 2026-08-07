@@ -1,5 +1,15 @@
 {
  "fingerprint": "12336a824b18",
+ "provenance": {
+  "ranker": {
+   "sha": "64c0d5f",
+   "dirty": false
+  },
+  "site": {
+   "sha": "e02b754",
+   "dirty": false
+  }
+ },
  "minTopic": 5,
  "source": null,
  "macro": {
