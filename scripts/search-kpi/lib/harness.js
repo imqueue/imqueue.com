@@ -161,49 +161,151 @@ function ndcgFor(position, gain, maxGain) {
 // One case = one query plus the URL(s) that would be a correct top result. `expect` may be
 // a string or an array: several pages can be equally right (a topic index and the article
 // it lists), and pretending otherwise would score a good answer as a miss.
+//
+// A case may instead carry `target` plus optional `also` — the gold set's shape, where one page
+// is named as the page that should be #1 and the rest are merely acceptable. Then `position` is
+// still the first acceptable hit (so recall and MRR read as before) and `targetPosition` is
+// where the named best answer landed, which is what P@1 is measured on. Grades follow from the
+// same fields, so nDCG credits an `also` hit at a third of a `target` hit rather than equally.
+const TARGET_GAIN = 3;
+
+function expectationsFor(testCase, targetGain) {
+  if (!testCase.target) {
+    return {
+      expect: Array.isArray(testCase.expect) ? testCase.expect : [testCase.expect],
+      grades: testCase.grades || null,
+      target: null,
+    };
+  }
+
+  const also = testCase.also || [];
+  const grades = { [testCase.target]: targetGain || TARGET_GAIN };
+
+  for (const url of also) {
+    if (!(url in grades)) grades[url] = 1;
+  }
+
+  return { expect: [testCase.target, ...also], grades, target: testCase.target };
+}
+
+// THE SCORING WINDOW AND THE DIAGNOSTIC WINDOW ARE DIFFERENT, AND THAT MATTERS.
+//
+// Everything scored — accuracy, nDCG, recall@6, MRR — is bounded at `limit` (50), because that is
+// what the numbers have always meant and a comparison against a stored baseline has to stay
+// comparable. But the SCAN is unbounded, and the target's true rank is kept beside the bounded
+// one, because the bounded reading cannot tell three very different failures apart:
+//
+//   target at #23   the page is reachable and the ranker mis-ordered it. A ranking defect.
+//   target at #180  the page is retrievable but effectively invisible. Still a ranking defect,
+//                   and a much larger one.
+//   target absent   the query does not match the page at all. An INDEXING defect — no amount of
+//                   weight tuning will fix it, and it needs different work.
+//
+// Reported as one "never found" figure, those three were 1.5% and looked like a rounding error.
+// Separated, 7.6% of the set has its best page outside the top ten.
 function evaluate(ranker, cases, options) {
   const strict = Boolean(options && options.strict);
   const limit = (options && options.limit) || 50;
+  const targetGain = (options && options.targetGain) || TARGET_GAIN;
   const results = [];
 
   for (const testCase of cases) {
-    const expected = (Array.isArray(testCase.expect) ? testCase.expect : [testCase.expect])
-      .map((url) => (strict ? url : page(url)));
+    const spec = expectationsFor(testCase, targetGain);
+    const expected = spec.expect.map((url) => (strict ? url : page(url)));
+    const wanted = spec.target && !strict ? page(spec.target) : spec.target;
 
     let hits;
 
     try {
-      hits = ranker.search(ranker.parseQuery(testCase.query)).slice(0, limit);
+      hits = ranker.search(ranker.parseQuery(testCase.query));
     } catch (error) {
-      results.push({ ...testCase, position: 0, accuracy: 0, ndcg: 0, error: String(error.message) });
+      results.push({
+        ...testCase,
+        position: 0,
+        targetPosition: 0,
+        targetRank: 0,
+        accuracy: 0,
+        ndcg: 0,
+        returned: 0,
+        error: String(error.message),
+      });
       continue;
     }
 
-    let position = 0;
-    let gain = 0;
+    const maxGain = spec.grades
+      ? Math.max(...Object.values(spec.grades).map(Number))
+      : 1;
 
-    for (let i = 0; i < hits.length; i++) {
-      const url = strict ? hits[i].record.u : page(hits[i].record.u);
+    // THE EDITION HAS TO MATCH, BOTH WAYS ROUND, AND THE RANK IS COUNTED INSIDE ITS OWN EDITION.
+    //
+    // A peer hit — imqueue.com through the PEER tiers — counts only for a case that asked for one,
+    // or every .org query could be answered by the commercial site. A case that DID ask for one is
+    // not satisfied by a local hit either: /license/, /support/, /contact/, /terms/, /privacy/ and
+    // / exist on BOTH editions, so matching on path alone would let imqueue.org answer "do I need a
+    // commercial license" and score it correct.
+    //
+    // And the position has to be counted within the matching edition, because the ranker sorts
+    // "local before peer, unconditionally" — a commercial page can never outrank a local one in the
+    // merged list, and /search/ renders the two as separate groups anyway. Scored against the
+    // merged list, all 13 commercial cases read P@1 0% and would look like a ranking failure to
+    // fix; they were in fact measuring a design decision. Within its own group the question becomes
+    // answerable: when the reader looks at the commercial results, is the right one first?
+    //
+    // For the 647 local cases this is a no-op — external hits already sort last — which is the
+    // property that makes it safe to apply to everything rather than only to peer cases.
+    const candidates = hits.filter((h) => Boolean(h.external) === Boolean(testCase.peer));
 
-      if (!hits[i].external && expected.includes(url)) {
-        position = i + 1;
-        gain = testCase.grades ? Number(testCase.grades[url]) || 1 : 1;
-        break;
-      }
+    // `mustReach` is a page that has to be FINDABLE even when it is not the best answer — on the
+    // intent cases it is the API reference page the build needed, which the FAQ legitimately
+    // outranks. Tracked separately from `target` on purpose: the first version of those labels put
+    // this requirement INTO `target`, which made 14 correct results score as misses and made P@1
+    // read 5.3% on a set that was working. Two requirements, two numbers.
+    const mustReach = testCase.mustReach && !strict ? page(testCase.mustReach) : testCase.mustReach;
+
+    let rank = 0;
+    let targetRank = 0;
+    let mustReachRank = 0;
+    let ndcg = 0;
+
+    for (let i = 0; i < candidates.length; i++) {
+      const url = strict ? candidates[i].record.u : page(candidates[i].record.u);
+
+      if (mustReach && !mustReachRank && url === mustReach) mustReachRank = i + 1;
+      if (!expected.includes(url)) continue;
+
+      const gain = spec.grades ? Number(spec.grades[url]) || 1 : 1;
+
+      if (!rank) rank = i + 1;
+      if (wanted && !targetRank && url === wanted) targetRank = i + 1;
+
+      // The BEST contribution wins, not the first hit's. With graded labels the first acceptable
+      // hit is not necessarily the most valuable one: an `also` page at #1 and the target at #2
+      // would otherwise score below the target at #2 on its own, which says the extra good answer
+      // made the ranking worse.
+      // ndcgFor() returns 0 beyond rank 10, so an unbounded scan cannot leak gain into nDCG.
+      ndcg = Math.max(ndcg, ndcgFor(i + 1, gain, maxGain));
     }
 
-    const maxGain = testCase.grades
-      ? Math.max(...Object.values(testCase.grades).map(Number))
-      : 1;
+    const position = rank && rank <= limit ? rank : 0;
+    const bounded = targetRank && targetRank <= limit ? targetRank : 0;
 
     results.push({
       ...testCase,
       position,
+      // Without a named target, "did the expected page lead" is the same question as "was the
+      // first acceptable hit at #1", so the two agree and every existing runner is unaffected.
+      targetPosition: wanted ? bounded : position,
+      // The UNBOUNDED rank of the named best page: 0 means the ranker never returns it at all.
+      targetRank: wanted ? targetRank : rank,
+      mustReachRank,
       accuracy: accuracyFor(position),
-      ndcg: ndcgFor(position, gain, maxGain) * 100,
-      returned: hits.length,
-      top: hits.length ? hits[0].record.u : null,
-      topScore: hits.length ? Math.round(hits[0].score) : 0,
+      ndcg: ndcg * 100,
+      // All three read the CANDIDATE list, so "what came back on top" is what came back on top of
+      // the edition being scored. Identical to the merged list for every local case.
+      returned: candidates.length,
+      top: candidates.length ? candidates[0].record.u : null,
+      topScore: candidates.length ? Math.round(candidates[0].score) : 0,
+      merged: hits.length,
     });
   }
 
@@ -235,6 +337,11 @@ function summarise(results) {
     total,
     accuracy: sum((r) => r.accuracy) / total,
     ndcg: sum((r) => r.ndcg || 0) / total,
+    // P@1 — the share of queries whose NAMED BEST page is #1. On a set with no named target this
+    // equals top1; on the gold set it is stricter, because an acceptable-but-second-best page at
+    // position 1 counts here as a miss. It is the headline: "which page should lead" is the only
+    // question a site search has to get right.
+    p1: (count((r) => r.targetPosition === 1) / total) * 100,
     top1: (count((r) => r.position === 1) / total) * 100,
     top3: (count((r) => r.position >= 1 && r.position <= 3) / total) * 100,
     top5: (count((r) => r.position >= 1 && r.position <= 5) / total) * 100,
@@ -245,7 +352,20 @@ function summarise(results) {
     top6: (count((r) => r.position >= 1 && r.position <= 6) / total) * 100,
     top10: (count((r) => r.position >= 1 && r.position <= 10) / total) * 100,
     absent: (count((r) => r.position === 0) / total) * 100,
+    // WHERE THE NAMED BEST PAGE ACTUALLY IS, in four exclusive buckets that sum to 100%. The one
+    // number these replace ("never found", 1.5%) was measured on the first ACCEPTABLE hit, so a
+    // query whose second-best page ranked #2 and whose best page ranked #400 counted as found.
+    // These four are all measured on the target, and the last two name different kinds of work:
+    // buried and deep are ranking defects, unreachable is an indexing defect.
+    targetTop10: (count((r) => r.targetRank >= 1 && r.targetRank <= 10) / total) * 100,
+    targetBuried: (count((r) => r.targetRank > 10 && r.targetRank <= 50) / total) * 100,
+    targetDeep: (count((r) => r.targetRank > 50) / total) * 100,
+    targetUnreachable: (count((r) => !r.targetRank) / total) * 100,
+    targetMedianRank: median(results.filter((r) => r.targetRank > 0).map((r) => r.targetRank)),
     mrr: mrr * 100,
+    // MRR over the NAMED BEST page rather than the first acceptable one. Same reason as p1: this
+    // is the number that moves when the target climbs from #4 to #2, and the one to tune on.
+    targetMrr: (sum((r) => (r.targetPosition ? 1 / r.targetPosition : 0)) / total) * 100,
     medianRank: median(ranked.map((r) => r.position)),
     zeroResults: (count((r) => r.returned === 0) / total) * 100,
   };

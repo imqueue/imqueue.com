@@ -1,45 +1,46 @@
 #!/usr/bin/env node
-// measure.js — the KPI. Runs both query sets through the real ranker and prints the numbers.
+// measure.js — THE TRIPWIRE, not the KPI. `npm run kpi` (gold.js) is the KPI.
 //
-//   node scripts/search-kpi/measure.js                    both sets, summary
+//   node scripts/search-kpi/measure.js                    the artificial set
 //   node scripts/search-kpi/measure.js --index DIR        measure a snapshot instead
 //   node scripts/search-kpi/measure.js --worst 40         list the worst misses
 //   node scripts/search-kpi/measure.js --json FILE        write the full result for diffing
 //   node scripts/search-kpi/measure.js --compare FILE     diff against an earlier --json run
 //
-// THREE AVERAGES, AND WHY THE HEADLINE IS THE MACRO ONE
+// WHAT IT MEASURES, AND WHY IT IS NOT A RELEVANCE NUMBER
 //
-// The natural set is skewed: Google returns far more completions for "mcp server" than for
-// "back-pressure", so a third of the harvest is about MCP. A plain mean over queries
-// therefore mostly reports how well MCP pages rank, and a change that helped MCP alone
-// would look like a site-wide win.
+// The artificial set is 10,000 queries generated from the site's OWN titles, headings, `keywords`
+// front matter, summaries and prose, so ground truth is free: a query built from page P should
+// return P. That also makes it optimistic by construction — every query uses the site's vocabulary,
+// which is the one thing a real reader does not have. It cannot measure relevance, so it is not
+// asked to. A failure here means a page cannot be found by its own title, which is an INDEXING
+// defect, not a weighting one.
 //
-//   micro     mean over every query. What a visitor experiences, given this query mix.
-//   macro     mean over TOPICS, each weighted equally. What the site does across subjects,
-//             and the number to watch when tuning, because it cannot be gamed by the one
-//             topic that happens to dominate the sample.
-//   balanced  micro over a set capped at CAP queries per topic. A cross-check on macro.
+// It is also why nothing may be tuned against it. Flattening every element weight to one value —
+// destroying the URL > keywords > title > header > emphasis > body hierarchy on purpose — moves this
+// set and the real one in OPPOSITE directions, because a third of it is generated from prose and so
+// raising body weight helps it by construction. A set generated from content rewards whatever scores
+// that content.
 //
-// A regression that shows in micro but not macro is a change to one popular topic. One that
-// shows in macro but not micro is a change to the long tail. Both are worth knowing.
+//   micro     mean over every query.
+//   macro     mean over generator BUCKETS, each weighted equally.
+//   strict    the exact #anchor must match, not just the page.
+//   typos     499 one-transposed-key variants, reported apart from all of the above.
 
 'use strict';
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { load, evaluate, summarise, table, median } = require('./lib/harness.js');
+const { load, evaluate, summarise, table } = require('./lib/harness.js');
 const { halves } = require('./lib/split.js');
 
 const DATA = path.join(__dirname, 'data');
-const CAP = 40;
 
 const arg = (name, fallback) => {
   const i = process.argv.indexOf(name);
 
   return i === -1 ? fallback : process.argv[i + 1];
 };
-
-const has = (name) => process.argv.includes(name);
 
 function macro(results, keyOf) {
   const groups = new Map();
@@ -64,19 +65,6 @@ function macro(results, keyOf) {
     accuracy: rows.reduce((a, r) => a + r.accuracy, 0) / rows.length,
     topics: rows.length,
   };
-}
-
-function balanced(results, keyOf, cap) {
-  const seen = new Map();
-
-  return results.filter((result) => {
-    const key = keyOf(result);
-    const n = (seen.get(key) || 0) + 1;
-
-    seen.set(key, n);
-
-    return n <= cap;
-  });
 }
 
 /**
@@ -127,56 +115,32 @@ function worst(results, limit) {
   return lines.join('\n');
 }
 
+// This file used to run a NATURAL set beside the artificial one, and that half is gone rather than
+// demoted. Its labels were LISTS of acceptable pages, so a ranker that returned the topic hub above
+// the article the hub lists scored a perfect 100: the set read 92% and had nothing left to say.
+// Worse than saturated — asked to judge the three 2026-08-07 fixes it called them a SIGNIFICANT
+// regression (-2.59 micro, p < 0.05), and resolving that query by query found 67 of the moved
+// queries were quarantined negatives that should never have been scored, 31 were gold-set queries
+// that got BETTER, 19 were content gaps, and 4 were real. A set that is 96% artefact on the one
+// change it was asked to judge does not get to keep a floor. Its 3,367 queries were re-judged from
+// page content into the gold set instead; see judged/ and gold.js.
 function main() {
   const ranker = load(arg('--index', null));
   const out = { generated: arg('--stamp', ''), sets: {} };
 
   const section = (title) => `\n${'='.repeat(74)}\n${title}\n${'='.repeat(74)}`;
 
-  // ---- step 1: natural ----------------------------------------------------
-  const judgedFile = path.join(DATA, 'natural-judged.json');
-
-  if (fs.existsSync(judgedFile)) {
-    const data = JSON.parse(fs.readFileSync(judgedFile, 'utf8'));
-    const results = evaluate(ranker, data.judged);
-    const byTopic = macro(results, (r) => r.label);
-    const balancedResults = balanced(results, (r) => r.label, CAP);
-
-    console.log(section('STEP 1 — NATURAL QUERIES (Google autocomplete, judged by hand-written topic rules)'));
-    console.log(
-      `harvested ${data.judged.length + data.unmapped.length + data.outOfScope.length}, ` +
-      `scored ${data.judged.length}, ` +
-      `${data.unmapped.length} on-topic-but-unmapped, ${data.outOfScope.length} out of scope\n`
-    );
-    console.log(table('micro (every query)', summarise(results)));
-    console.log(`\nmacro (${byTopic.topics} topics, equal weight)`);
-    console.log(`  accuracy (KPI)   ${byTopic.accuracy.toFixed(1)}%`);
-    console.log(`\nbalanced (max ${CAP} per topic, n = ${balancedResults.length})`);
-    console.log(`  accuracy (KPI)   ${summarise(balancedResults).accuracy.toFixed(1)}%`);
-    console.log(splitLine(results, (r) => r.label));
-    console.log(`\n${topicTable('weakest topics', byTopic.rows, 15)}`);
-    console.log(`\n${topicTable('strongest topics', [...byTopic.rows].reverse(), 8)}`);
-
-    out.sets.natural = {
-      summary: summarise(results),
-      macro: byTopic.accuracy,
-      balanced: summarise(balancedResults).accuracy,
-      topics: byTopic.rows,
-      results: results.map((r) => ({ q: r.query, p: r.position, l: r.label })),
-    };
-  }
-
-  // ---- step 2: artificial -------------------------------------------------
+  // ---- the artificial tripwire --------------------------------------------
   const artificialFile = path.join(DATA, 'artificial-queries.json');
 
   // Said out loud rather than skipped in silence. This file is gitignored (it is 1.2 MB and
   // regenerates exactly), so on a fresh checkout it is absent — and half a KPI printed
   // without comment reads like the whole one.
   if (!fs.existsSync(artificialFile)) {
-    console.log(section('STEP 2 — ARTIFICIAL QUERIES: NOT GENERATED'));
+    console.log(section('ARTIFICIAL QUERIES: NOT GENERATED'));
     console.log(
-      'scripts/search-kpi/data/artificial-queries.json is missing, so only the natural set\n' +
-      'above was measured. It is gitignored by design; generate it with:\n\n' +
+      'scripts/search-kpi/data/artificial-queries.json is missing, so nothing was measured.\n' +
+      'It is gitignored by design; generate it with:\n\n' +
       '    npm run kpi:search:gen\n'
     );
   }
@@ -187,7 +151,7 @@ function main() {
     const byBucket = macro(results, (r) => r.bucket);
     const strict = evaluate(ranker, data.main, { strict: true });
 
-    console.log(section('STEP 2 — ARTIFICIAL QUERIES (generated from the site\'s own content)'));
+    console.log(section('ARTIFICIAL QUERIES (generated from the site\'s own content)'));
     console.log(table('micro (every query)', summarise(results)));
     console.log(`\nmacro (${byBucket.topics} buckets, equal weight)`);
     console.log(`  accuracy (KPI)   ${byBucket.accuracy.toFixed(1)}%`);
@@ -227,42 +191,14 @@ function main() {
     };
   }
 
-  // ---- headline -----------------------------------------------------------
-  if (out.sets.natural && out.sets.artificial) {
-    const n = out.sets.natural;
-    const a = out.sets.artificial;
-
-    console.log(section('NATURAL vs ARTIFICIAL'));
-    console.log('                       natural      artificial     gap');
-    const row = (label, x, y) => console.log(
-      `  ${label.padEnd(20)} ${`${x.toFixed(1)}%`.padStart(7)}      ` +
-      `${`${y.toFixed(1)}%`.padStart(7)}   ${`${(y - x).toFixed(1)}`.padStart(7)} pts`
-    );
-
-    row('accuracy (micro)', n.summary.accuracy, a.summary.accuracy);
-    row('accuracy (macro)', n.macro, a.macro);
-    row('#1 exactly', n.summary.top1, a.summary.top1);
-    row('in top 3', n.summary.top3, a.summary.top3);
-    row('never found', n.summary.absent, a.summary.absent);
-    row('empty result set', n.summary.zeroResults, a.summary.zeroResults);
-  }
-
   // ---- worst misses -------------------------------------------------------
   const limit = Number(arg('--worst', 0));
 
-  if (limit) {
-    if (out.sets.natural) {
-      const data = JSON.parse(fs.readFileSync(judgedFile, 'utf8'));
+  if (limit && out.sets.artificial) {
+    const data = JSON.parse(fs.readFileSync(artificialFile, 'utf8'));
 
-      console.log(section(`WORST NATURAL MISSES (${limit})`));
-      console.log(worst(evaluate(ranker, data.judged), limit));
-    }
-    if (out.sets.artificial) {
-      const data = JSON.parse(fs.readFileSync(artificialFile, 'utf8'));
-
-      console.log(section(`WORST ARTIFICIAL MISSES (${limit})`));
-      console.log(worst(evaluate(ranker, data.main), limit));
-    }
+    console.log(section(`WORST ARTIFICIAL MISSES (${limit})`));
+    console.log(worst(evaluate(ranker, data.main), limit));
   }
 
   // ---- persistence & comparison ------------------------------------------
@@ -277,19 +213,19 @@ function main() {
 
   if (compare && fs.existsSync(compare)) {
     const before = JSON.parse(fs.readFileSync(compare, 'utf8'));
+    const b = before.sets && before.sets.artificial;
+    const a = out.sets.artificial;
 
     console.log(section(`COMPARED WITH ${compare}`));
 
-    for (const set of ['natural', 'artificial']) {
-      if (!before.sets[set] || !out.sets[set]) continue;
-
-      const b = before.sets[set];
-      const a = out.sets[set];
+    if (!b || !a) {
+      console.log('  one of the two runs has no artificial set — nothing to compare');
+    } else {
       const delta = a.summary.accuracy - b.summary.accuracy;
       const macroDelta = a.macro - b.macro;
 
       console.log(
-        `  ${set.padEnd(11)} micro ${b.summary.accuracy.toFixed(1)}% -> ${a.summary.accuracy.toFixed(1)}% ` +
+        `  artificial  micro ${b.summary.accuracy.toFixed(1)}% -> ${a.summary.accuracy.toFixed(1)}% ` +
         `(${delta >= 0 ? '+' : ''}${delta.toFixed(1)})   ` +
         `macro ${b.macro.toFixed(1)}% -> ${a.macro.toFixed(1)}% ` +
         `(${macroDelta >= 0 ? '+' : ''}${macroDelta.toFixed(1)})`

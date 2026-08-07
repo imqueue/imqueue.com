@@ -172,6 +172,97 @@ function wilcoxon(deltas) {
 }
 
 /**
+ * McNemar's test — the right test for a BINARY paired outcome, which is what P@1 is.
+ *
+ * The bootstrap and Wilcoxon above both operate on a continuous per-query delta, so neither fits
+ * the headline metric: P@1 is a yes/no per query, and its delta is one of exactly three values
+ * (-1, 0, +1). McNemar throws away the agreements — the queries the target led both before and
+ * after carry no information about whether the change helped — and asks only whether the two
+ * DISAGREEMENT counts are balanced. That is the whole reason this is so much more sensitive than
+ * comparing two independent proportions: at n = 647 and p ≈ 0.57 the unpaired standard error of
+ * P@1 is 1.95 points, so a 2-point move is one standard error and unfalsifiable, while the same
+ * move as 93 gains against 16 losses is p < 1e-11. Same data, two orders of magnitude of power,
+ * and for three months the harness used the weaker reading by not testing at all.
+ *
+ * @param {Array<[boolean, boolean]>} pairs [wasHit, isHit] per query, INCLUDING the agreements.
+ * @returns {{b: number, c: number, n: number, chi2: number, p: number, exact: boolean}}
+ *   `b` lost (hit before, miss after), `c` gained.
+ */
+function mcnemar(pairs) {
+  let b = 0;
+  let c = 0;
+  let both = 0;
+  let neither = 0;
+
+  for (const [was, is] of pairs) {
+    if (was && !is) b++;
+    else if (!was && is) c++;
+    else if (was && is) both++;
+    else neither++;
+  }
+
+  const discordant = b + c;
+
+  if (!discordant) {
+    return { b, c, both, neither, n: pairs.length, chi2: 0, p: 1, exact: true };
+  }
+
+  // Below ~25 disagreements the chi-square approximation is optimistic, so use the exact
+  // two-sided binomial instead. Not a nicety: a set with n = 19 (the intent source) can only ever
+  // land here, and the approximation would report a p-value it has no right to.
+  if (discordant < 25) {
+    let tail = 0;
+
+    for (let k = 0; k <= Math.min(b, c); k++) {
+      let logC = 0;
+
+      for (let i = 0; i < k; i++) logC += Math.log(discordant - i) - Math.log(i + 1);
+      tail += Math.exp(logC - discordant * Math.LN2);
+    }
+
+    return {
+      b, c, both, neither, n: pairs.length, chi2: 0, p: Math.min(1, 2 * tail), exact: true,
+    };
+  }
+
+  // Edwards' continuity correction — toward the null, matching wilcoxon() above.
+  const chi2 = ((Math.abs(b - c) - 1) ** 2) / discordant;
+
+  return {
+    b, c, both, neither, n: pairs.length, chi2, p: normalTwoSided(Math.sqrt(chi2)), exact: false,
+  };
+}
+
+/** One actionable line for a binary paired outcome, phrased like verdict() below. */
+function mcnemarLine(pairs, label) {
+  const m = mcnemar(pairs);
+  const net = m.c - m.b;
+  const sign = net >= 0 ? '+' : '';
+
+  return `${label} ${sign}${net} net  (${m.c} gained / ${m.b} lost, `
+    + `${m.both + m.neither} unchanged)  `
+    + `${m.exact ? 'exact binomial' : `chi2 ${m.chi2.toFixed(1)}`} `
+    + `p ${m.p < 0.0001 ? '< 0.0001' : m.p.toFixed(4)}  `
+    + `${m.p < 0.05 ? 'SIGNIFICANT' : 'unmeasured'}`;
+}
+
+/**
+ * Cluster bootstrap on a MACRO mean: resample the GROUPS, not the queries.
+ *
+ * The macro headline is a mean over topics, and its noise comes from the topics, not from the
+ * queries inside them — 11 of 56 topics hold three queries or fewer, so one query flipping in an
+ * n=2 topic moves the macro mean by 0.89 points on its own. Resampling queries would report a
+ * confidence interval far narrower than the number's real stability. Resampling topics reports
+ * what the macro mean would do if the site's subject mix had been drawn differently, which is the
+ * question a topic-weighted average is asking.
+ *
+ * @param {number[]} perGroup one value per group (already averaged within the group).
+ */
+function macroCI(perGroup, options) {
+  return bootstrapCI(perGroup, { seed: 0x901d, ...(options || {}) });
+}
+
+/**
  * One line a person can act on: the point estimate, the interval, and whether it clears zero.
  *
  * The verdict wording is deliberate. "unmeasured" is not "no change" — it means this harness
@@ -194,4 +285,6 @@ function verdict(deltas, options) {
   };
 }
 
-module.exports = { bootstrapCI, wilcoxon, verdict, rng, normalTwoSided };
+module.exports = {
+  bootstrapCI, wilcoxon, verdict, rng, normalTwoSided, mcnemar, mcnemarLine, macroCI,
+};

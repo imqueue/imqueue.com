@@ -16,9 +16,13 @@
 // a-z so the suggestions travel well past the seed wording. The seed decides the subject;
 // Google decides the words.
 //
-// Output is a deduplicated JSON array of raw query strings. Ground truth is assigned
-// separately by judge-natural.js — harvesting and judging must not be the same step, or
-// the temptation is to keep the queries that happen to work.
+// Output is a deduplicated JSON array of raw query strings, and it is the harvest OF RECORD:
+// check-kpi.js asserts that judged/*.js decides every query in this file exactly once, so a query
+// cannot quietly leave the measurement by being dropped from a list.
+//
+// Ground truth is assigned separately, in judged/*.js, by reading the page that answers each query
+// — harvesting and judging must not be the same step, or the temptation is to keep the queries that
+// happen to work.
 
 'use strict';
 
