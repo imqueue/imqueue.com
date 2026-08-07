@@ -55,7 +55,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const {
-  load, baseline, evaluate, summarise, median,
+  load, baseline, provenance, evaluate, summarise, median,
 } = require('./lib/harness.js');
 const { halves } = require('./lib/split.js');
 const {
@@ -620,6 +620,11 @@ function main() {
   if (jsonOut) {
     fs.writeFileSync(jsonOut, `${JSON.stringify({
       fingerprint: fingerprint(gold.queries),
+      // Which ranker and which content produced these numbers — see harness.provenance(). The
+      // fingerprint above pins the QUERIES; without this a baseline read months from now says what
+      // moved and not what it moved from. `jsonOut` is excluded from the dirty check because writing
+      // this file is what dirties the tree, and a run cannot be evidence against itself.
+      provenance: provenance(jsonOut),
       minTopic,
       source: source || null,
       macro: {
@@ -657,6 +662,28 @@ function main() {
     const row = (name, a, b) => console.log(
       `  ${name.padEnd(20)} ${pct(a).padStart(7)}   ${pct(b).padStart(7)}   ${signed(b - a).padStart(6)} pts`,
     );
+
+    // Say what the `before` WAS, not just what it scored. A stored baseline is the thing every
+    // future delta is measured from, so an unidentifiable one quietly turns "this change gained 2
+    // points" into a claim about an unknown amount of accumulated work.
+    const now = provenance();
+    const stamp = (p) => (p ? `${p.sha}${p.dirty ? ' (DIRTY)' : ''}` : 'unknown');
+
+    if (before.provenance) {
+      const moved = (a, b) => (stamp(a) === stamp(b) ? '' : `  ->  ${stamp(b)}`);
+
+      console.log(`  ranker   ${stamp(before.provenance.ranker)}${moved(before.provenance.ranker, now.ranker)}`);
+      console.log(`  content  ${stamp(before.provenance.site)}${moved(before.provenance.site, now.site)}\n`);
+
+      if ((before.provenance.ranker && before.provenance.ranker.dirty)
+        || (before.provenance.site && before.provenance.site.dirty)) {
+        console.log('  NOTE  the stored run was frozen from an UNCOMMITTED tree, so nobody can'
+          + '\n        reproduce it. Re-freeze from a clean tree before trusting a delta against it.\n');
+      }
+    } else {
+      console.log('  NOTE  the stored run predates provenance recording, so which ranker and which'
+        + '\n        content produced it is unknown. Re-freeze to fix that.\n');
+    }
 
     console.log('                        before     after      delta');
     row('P@1 (macro)', before.macro.p1, all.byTopic.p1);
