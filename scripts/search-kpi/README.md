@@ -172,6 +172,89 @@ A floor is a tripwire, not a target. Moving one is a deliberate act that belongs
 
 ## The metrics, and which one to tune on
 
+### What the names mean
+
+Standard information-retrieval abbreviations. The `@k` suffix means "computed over the first *k*
+results only" — `P@1` looks at position 1, `recall@6` at the first six, `nDCG@10` at the first ten.
+
+**`P@1` — Precision at 1.** Precision@k is normally "what fraction of the top *k* results are
+relevant". At k = 1 there is one result and one correct answer, so per query it is simply **1 if the
+`target` is the very first result, 0 otherwise**, and the reported figure is the percentage of queries
+that scored 1. `P@1 = 61.6%` means the page we judged best was literally first for 61.6% of queries.
+
+An `also` page at #1 scores **zero** here. That is deliberate: `also` means "defensible, but not the
+best answer", and a site search has one job at position 1.
+
+**`MRR` — Mean Reciprocal Rank.** The reciprocal rank of one query is `1 / rank`: first place is 1.0,
+second 0.5, third 0.333, tenth 0.1, and **0 if the page never appears**. MRR is the mean of that over
+every query, printed as a percentage. Ours is strictly **MRR@target** — the rank of the *named best*
+page, not of the first merely-acceptable one.
+
+This is the number to tune on, because it moves continuously. Lifting a page from #4 to #2 takes it
+from 0.25 to 0.5 — a large move that `P@1` cannot see at all, since neither rank is 1.
+
+**`r@6` — recall at 6.** Recall@k asks "did we find the answer within the first *k*", ignoring where
+inside those *k* it landed. Per query it is **1 if any acceptable page — the `target` or any `also` —
+is in the first six**, else 0.
+
+Six, because `search_docs` returns six results and an agent reads all six. For that reader membership
+in the set is the whole question and rank inside it is noise, which is why this one is not
+position-decayed. `r@6 = 90.4%` means an acceptable answer was somewhere in the first six for 90.4% of
+queries.
+
+**`nDCG@10` — normalized Discounted Cumulative Gain at 10.** The only metric here that grades
+part-credit rather than scoring pass/fail. Three ideas stacked up:
+
+- **Gain** — each page carries a relevance grade: `target` = 3, `also` = 1, anything else 0.
+- **Discounted** — a hit at position *i* is divided by `log₂(i + 1)`, so later positions are worth
+  less, on a curve much gentler than a linear penalty. Beyond rank 10 the gain is dropped entirely.
+- **normalized** — divided by the best achievable score, so 100% means "the `target`, at #1".
+
+**One caveat, because anyone who knows nDCG will assume otherwise: ours is not cumulative.** Textbook
+DCG *sums* the discounted gains of every relevant hit in the window; this takes the single best
+contribution (`Math.max` in `lib/harness.js`). That is on purpose — `also` lists *alternatives*, so
+the ideal ranking puts **one** of them first, not all of them, and summing would reward a ranker for
+returning three spellings of the same answer. Read it as a graded, discounted "how good was the best
+hit and how high was it", not as a textbook nDCG.
+
+### What each one gives for a single target at each rank
+
+Computed from `lib/harness.js`, not from the textbook, so this is what the report really does:
+
+| target lands at | P@1 | MRR@target | r@6 | nDCG@10 |
+|---|---|---|---|---|
+| **#1** | **100** | **100.0** | **100** | **100.0** |
+| #2 | 0 | 50.0 | 100 | 63.1 |
+| #3 | 0 | 33.3 | 100 | 50.0 |
+| #4 | 0 | 25.0 | 100 | 43.1 |
+| #6 | 0 | 16.7 | 100 | 35.6 |
+| #7 | 0 | 14.3 | **0** | 33.3 |
+| #10 | 0 | 10.0 | 0 | 28.9 |
+| #11 | 0 | 9.1 | 0 | **0.0** |
+| #51 or never returned | 0 | 0.0 | 0 | 0.0 |
+
+Read the discontinuities, because they are where each metric goes blind: **r@6** falls off a cliff
+between #6 and #7 and says nothing about anything below; **nDCG@10** goes to zero after #10;
+**MRR@target** keeps counting to rank 50 and then stops, which is the window `evaluate()` scores. Only
+the four target-position buckets below see past 50, and that is why they exist.
+
+An `also` page scores a third of the target's nDCG at the same rank — 33.3% at #1, 21.0% at #2 — which
+is the 3:1 gain ratio doing its job.
+
+### Two more labels you will see in the tables
+
+**`lost`** — the share of queries where the `target` is either **never returned at all, or returned
+but beyond rank 50**. It is the sum of the *deep* and *unreachable* buckets, i.e. the queries no amount
+of position-tweaking will rescue.
+
+**micro and macro** — two ways to average. **micro** is the plain mean over every query, so it reports
+what a visitor gets given this query mix. **macro** is the mean over topic groups, each weighted
+equally, so one popular subject cannot carry the score. Macro is the headline; see
+[Macro is the headline](#macro-is-the-headline-over-pooled-groups-rather-than-raw-topics) for how the
+groups are pooled and why the two differ by nine points.
+
+### Which one to tune on
+
 | | what it asks | why |
 |---|---|---|
 | **P@1** | is the `target` at #1 | the headline. A site search has one job at position 1. An `also` page at #1 scores **zero** here, deliberately |
