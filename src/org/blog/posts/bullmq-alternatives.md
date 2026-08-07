@@ -5,7 +5,7 @@ templateEngineOverride: md
 title: "BullMQ alternatives for Node.js: an honest 2026 guide"
 summary: "BullMQ is the default Redis job queue for Node.js — but it isn't the only choice. Here's an even-handed map of the alternatives (Bee-Queue, pg-boss, Agenda, @imqueue/job and more), what each is actually good at, and how to pick."
 description: "An honest 2026 guide to BullMQ alternatives for Node.js: Bee-Queue, pg-boss, Agenda, @imqueue/job and cloud queues, with a comparison and decision guide."
-keywords: "bullmq alternatives, bullmq alternative, nodejs job queue, redis job queue, pg-boss vs bullmq, bee-queue vs bullmq, agenda job queue, background jobs nodejs, typescript job queue, bull vs bullmq"
+keywords: "bullmq alternatives, bullmq alternative, nodejs job queue, redis job queue, pg-boss vs bullmq, bee-queue vs bullmq, agenda job queue, background jobs nodejs, typescript job queue, bull vs bullmq, bullmq vs kafka, bullmq vs rabbitmq, bullmq vs sqs, bullmq vs redis pub sub, postgres job queue"
 date: 2026-07-22
 author: mykhailo-stadnyk
 illustration: compare-frameworks
@@ -57,6 +57,16 @@ BullMQ is an excellent default. You'd reasonably shop around when:
 
 **Trade-off:** Postgres-backed queues top out at lower throughput than a Redis queue under very heavy load, and you're leaning on your primary database for queue traffic. For most application workloads that's a fine bargain; for extreme fan-out it may not be.
 
+**pg-boss vs Graphile Worker.** These two are the Postgres options, and they differ
+in emphasis rather than capability. [Graphile Worker](https://github.com/graphile/worker)
+leans on Postgres harder — `LISTEN`/`NOTIFY` for latency in the low milliseconds,
+jobs enqueued from SQL functions so you can schedule work inside a transaction you
+were writing anyway. pg-boss gives you more of the surrounding job system:
+archiving, a richer scheduling model, singleton keys, a maintained migration path.
+Pick Graphile Worker when the queue should be an extension of your SQL, pg-boss
+when you want a job library that happens to store rows in Postgres. Both use
+`SKIP LOCKED`, and neither will match Redis throughput.
+
 ### Agenda — MongoDB-based scheduling
 
 [Agenda](https://github.com/agenda/agenda) uses MongoDB and is oriented toward **cron-like recurring scheduling**. If your stack already runs Mongo and your need is "run this job every night / every 5 minutes" more than "process a firehose of jobs," Agenda fits naturally without introducing a new datastore.
@@ -82,6 +92,35 @@ If you'd rather not operate a queue at all, managed services like **AWS SQS** or
 [Bull](https://github.com/OptimalBits/bull) is BullMQ's older sibling. It isn't deprecated and still powers plenty of production systems, but **BullMQ is the recommended path for new projects** — it's the actively evolved successor with the modern API. If you're already on Bull and it works, there's no emergency; if you're starting fresh, start on BullMQ.
 
 > **Skip:** **Kue** is officially deprecated and unmaintained — don't reach for it in new projects. You'll still see it in old tutorials; use one of the options above instead.
+
+## What about Kafka, RabbitMQ or Redis pub/sub?
+
+They come up constantly in this comparison, and none of them is a BullMQ
+alternative — they're a different layer. BullMQ is a **job queue**: a library that
+gives you a typed job record, retries with backoff, delayed and repeatable jobs,
+concurrency limits and a dashboard. Kafka, RabbitMQ, NATS and Redis pub/sub are
+**message transports**: they move bytes between processes and leave the job
+semantics to you.
+
+- **RabbitMQ** gets closest. It has durable queues, acknowledgements, dead-letter
+  exchanges and delayed delivery via a plugin, so you *can* build a job system on
+  it — and teams that already run it often do. What you don't get is the job model
+  itself: progress, attempts, backoff strategies and a UI are yours to write.
+- **Kafka** is a partitioned, replayable log. It's excellent for event streams and
+  a poor fit for jobs: there is no per-message acknowledgement, no selective
+  retry, and no delayed delivery. Reaching for Kafka to run background work means
+  reimplementing a scheduler on top of an offset.
+- **Redis pub/sub** is fire-and-forget broadcast. A subscriber that isn't
+  connected simply misses the message, so it cannot be the substrate for work that
+  must happen. Redis **streams** and **lists** can be — which is exactly what
+  BullMQ and Bee-Queue build on.
+
+So the honest answer to "BullMQ or Kafka?" is that they rarely compete. If the
+question is *how do I run background work in Node*, stay in this list. If it's
+*how do my services talk to each other*, that's a
+[different comparison](/blog/nodejs-service-communication-options-2026/) — and
+[RPC over a message queue](/blog/rpc-over-message-queue-nodejs/) is the option
+this site is about.
 
 ## How to choose
 

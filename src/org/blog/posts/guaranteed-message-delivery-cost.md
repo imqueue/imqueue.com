@@ -5,7 +5,7 @@ templateEngineOverride: md
 title: "Guaranteed message delivery: cost and when to use it"
 summary: "\"Will I lose messages if a worker dies?\" is the right question — and the answer is a trade-off, not a yes/no. Here's how guaranteed delivery works, what it costs, and how to choose per workload."
 description: "How guaranteed (safe) message delivery works versus fast unreliable delivery, the throughput cost, and a decision guide for choosing per workload with @imqueue."
-keywords: "guaranteed message delivery nodejs, at-least-once delivery, reliable messaging, safe delivery, message loss, imqueue"
+keywords: "guaranteed message delivery nodejs, at-least-once delivery, at-most-once delivery, exactly-once delivery, message delivery semantics, delivery guarantees, is exactly once delivery possible, idempotent consumer, reliable messaging, safe delivery, message loss, imqueue"
 date: 2026-07-07
 author: mykhailo-stadnyk
 illustration: delivery
@@ -14,6 +14,18 @@ ogType: article
 ---
 
 The first serious question anyone asks about a message-based system is: "if a worker grabs a message and then crashes, is that message lost?" It's the right question. The answer isn't a simple yes or no — it's a trade-off you should make deliberately, per workload, with your eyes open about the cost.
+
+## The three delivery semantics, and the one that doesn't exist
+
+Every broker's documentation uses the same three names, so it's worth being precise about what each one promises before choosing.
+
+- **At-most-once.** The message is delivered zero or one times. Send it, don't track it, accept that a crash loses it. Cheapest, and honest for telemetry or cache warmups.
+- **At-least-once.** The message is delivered one or more times. Delivery is tracked until the consumer confirms, and an unconfirmed message is redelivered — which means duplicates are not an edge case, they are the guarantee. This is what "guaranteed delivery" means, here and in RabbitMQ, SQS, NATS JetStream and Kafka alike.
+- **Exactly-once.** The message is processed once, no more and no less. **As a delivery guarantee this is not achievable**, and no broker provides it however the marketing is worded.
+
+The reason is worth stating plainly, because it decides how you write consumers. Delivery involves two separate actions — doing the work, and recording that the work was done — on two different machines, and a crash can land between them. Whichever order you pick, you get at-most-once (record first) or at-least-once (record last). There is no third order. This is the [Two Generals problem](https://en.wikipedia.org/wiki/Two_Generals%27_Problem), and it does not yield to a better library.
+
+What *is* achievable is **exactly-once processing**, and the distinction is the useful part: you get it by making the *effect* idempotent rather than the delivery unique. Kafka's transactions and SQS FIFO deduplication are both this — deduplication at the consumer, given an at-least-once transport underneath. So the practical rule is: pick at-least-once for anything that matters, then make the handler safe to run twice. The rest of this post is about what that costs.
 
 ## Two honest modes
 
