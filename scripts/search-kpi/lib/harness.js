@@ -80,6 +80,59 @@ function load(dir, rankerFile) {
  * to run inside the submodule; getting that wrong reports "unknown revision" for a commit that
  * plainly exists, which is why the error message says so out loud.
  */
+/**
+ * WHICH RANKER AND WHICH CONTENT produced a set of numbers, for storing in a --json run.
+ *
+ * The label fingerprint already pins which QUERIES were scored and pins nothing about the code that
+ * scored them, so a stored baseline could be compared against months later with no way to identify
+ * what the `before` actually was. Two commits answer that: the ranker submodule's, and this repo's.
+ *
+ * Deliberately NOT a timestamp. A date from `new Date()` made a no-op re-run produce a diff, which
+ * is why gold.json carries none either — and a commit sha only moves when the thing it names moves,
+ * so it cannot churn.
+ *
+ * `dirty` is the field that matters most, and it counts untracked files too: a baseline frozen from
+ * an uncommitted tree is not reproducible by anyone else, and comparing against one silently is how
+ * a delta gets attributed to the wrong change. Freeze from a clean tree.
+ *
+ * `ignore` exists for one specific case: WRITING the baseline dirties the tree, so a re-freeze would
+ * otherwise record `dirty: true` about its own output file and raise an alarm about nothing. The
+ * output of a measurement cannot be part of that measurement's provenance. Callers pass the path
+ * they are about to write. False alarms train people to ignore the real ones.
+ */
+function provenance(ignore) {
+  const { RANKER_DIR } = require(path.join(ROOT, 'scripts', 'lib', 'ranker.js'));
+  const skip = (Array.isArray(ignore) ? ignore : [ignore]).filter(Boolean)
+    .map((p) => path.relative(ROOT, path.resolve(p)));
+
+  const at = (cwd, ignoring) => {
+    const git = (args) => execFileSync('git', args, {
+      cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+    });
+
+    try {
+      // Porcelain v1 lines are `XY <path>`: two status columns, one space, then the path — so the
+      // path starts at index 3 and NOT at the first non-space character. An unstaged modification
+      // reads " M path", with a leading space, which is why this must not be trimmed before slicing:
+      // trimming the whole output ate that space on the FIRST line only, slice(3) then ate a
+      // character of the path, and the exclusion below silently never matched. A rename reads
+      // "old -> new"; the destination is the part that has to match.
+      const changed = git(['status', '--porcelain']).split('\n').filter(Boolean)
+        .map((line) => line.slice(3))
+        .map((file) => (file.includes(' -> ') ? file.split(' -> ')[1] : file))
+        .filter((file) => !ignoring.includes(file));
+
+      return { sha: git(['rev-parse', '--short', 'HEAD']).trim(), dirty: changed.length > 0 };
+    } catch {
+      // Not a repository, or git is unavailable. Recorded as unknown rather than guessed, because a
+      // provenance field that is sometimes a lie is worse than one that is sometimes absent.
+      return null;
+    }
+  };
+
+  return { ranker: at(RANKER_DIR, []), site: at(ROOT, skip) };
+}
+
 function baseline(ref) {
   const { RANKER_DIR } = require(path.join(ROOT, 'scripts', 'lib', 'ranker.js'));
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kpi-baseline-'));
@@ -402,5 +455,5 @@ function table(label, summary) {
 }
 
 module.exports = {
-  load, baseline, evaluate, summarise, table, accuracyFor, ndcgFor, page, median,
+  load, baseline, provenance, evaluate, summarise, table, accuracyFor, ndcgFor, page, median,
 };

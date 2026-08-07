@@ -463,6 +463,18 @@ Written to `data/gold-baseline.json` by `npm run kpi:baseline`. Compare with
 `node scripts/search-kpi/gold.js --compare scripts/search-kpi/data/gold-baseline.json`, or against
 another ranker commit with `--ref <sha>`.
 
+**The baseline records its own provenance, and `--compare` prints it.** The label fingerprint pins
+which *queries* were scored and says nothing about the code that scored them, so the file also stores
+the ranker submodule's commit and this repo's, each with a `dirty` flag — otherwise a comparison read
+months from now tells you what moved and not what it moved from. There is deliberately no timestamp: a
+date from `new Date()` made a no-op re-run produce a diff, and a commit sha only moves when the thing
+it names moves.
+
+**Freeze from a clean tree.** `dirty` counts untracked files too, because a baseline frozen from an
+uncommitted working tree is not reproducible by anyone else; `--compare` says so out loud rather than
+letting a delta be attributed to the wrong change. A baseline written before provenance existed reports
+itself as unknown and asks to be re-frozen.
+
 **Not comparable with the 58.3% macro recorded before the rebuild**, and neither number is wrong.
 Three things moved: the natural labels went 517 → 1,083 as the dropped queries came back, 18 of the
 19 agent queries were retargeted from a reference page to the FAQ section that actually answers them,
