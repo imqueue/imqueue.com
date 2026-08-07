@@ -1,24 +1,40 @@
-// compare.js — the working tree's ranker against another commit's, query by query.
+// compare.js — the ARTIFICIAL TRIPWIRE, working tree against another ranker commit, query by query.
 //
 //   node scripts/search-kpi/compare.js [--ref HEAD] [--dir _site-org] [--worst 40]
 //
 // `--ref` is a commit in the ranker's own repository (the vendor/search-ranker submodule), so
 // `HEAD` means the pinned ranker and the working tree means your unstaged edits to it.
 //
-// WHY, and it is the whole reason this file exists: an aggregate can hold still while the results
-// churn underneath it, and it has hidden a real regression twice.
+// THE DIVISION OF LABOUR, because there are two comparison paths and picking the wrong one wastes a
+// measurement:
 //
-//   * A change that read -0.2 on natural macro turned out to be three named queries moving, one of
-//     them out of the top ten. The macro alone looked like rounding.
-//   * A change that read 0.0 on natural — genuinely unmoved — was simultaneously dropping 13
-//     artificial queries, two of them from #1 to #11 and #10 to #24. It was reverted on the
-//     strength of this list, and nothing in measure.js's output would have objected.
+//   gold.js --ref SHA    the KPI. 985 labels judged from page content, P@1, McNemar. Read this one
+//                        to decide whether a ranker change is an improvement.
+//   compare.js --ref SHA this file. 10,000 queries generated from the site's own titles, so it
+//                        cannot say anything about relevance — only whether a page stopped being
+//                        findable by its own name. A tripwire, at a sample size the gold set will
+//                        never have.
+//
+// WHY IT IS PER-QUERY, and it is the whole reason this file exists: an aggregate can hold still
+// while the results churn underneath it, and it has hidden a real regression twice.
+//
+//   * A change that read -0.2 on macro turned out to be three named queries moving, one of them out
+//     of the top ten. The macro alone looked like rounding.
+//   * A change that read 0.0 — genuinely unmoved on the relevance sets — was simultaneously dropping
+//     13 artificial queries, two of them from #1 to #11 and #10 to #24. It was reverted on the
+//     strength of this list, and nothing in measure.js's summary would have objected.
 //
 // So: never judge a ranker change by the summary. Read who won and who lost.
 //
 // Both rankers are loaded in ONE process over ONE prepared corpus, so the only variable is the
 // code. The baseline comes out of git rather than a hand-kept copy, which means it cannot drift
 // from what it claims to be.
+//
+// This file used to score four sets. Three are gone: the natural and legacy-intent labels were
+// list-valued (`expect` as a list of acceptable pages), which is exactly the defect that made them
+// unable to see a real regression, and all three populations were re-judged from page content into
+// the gold set — where gold.js scores them against ONE expected #1 with a paired test. Comparing
+// them here as well would have meant reporting the superseded labels beside the current ones.
 'use strict';
 
 const fs = require('node:fs');
@@ -69,54 +85,36 @@ function rankOf(ranker, query, expect) {
 }
 
 function main() {
+  const file = path.join(__dirname, 'data', 'artificial-queries.json');
+
+  // Said out loud rather than skipped in silence. The file is gitignored — it is 1.2 MB and
+  // regenerates exactly from the index plus a fixed seed — so on a fresh checkout it is absent,
+  // and a comparison that quietly measured nothing would read like one that found nothing.
+  if (!fs.existsSync(file)) {
+    console.log('scripts/search-kpi/data/artificial-queries.json is missing, so NOTHING was');
+    console.log('compared. It is gitignored by design; generate it with `npm run kpi:search:gen`.');
+    process.exit(1);
+  }
+
+  const data = JSON.parse(fs.readFileSync(file, 'utf8'));
   const baselineFile = baseline(REF);
   // Order matters only in that both must see the same corpus; load() prepares it per ranker, so
   // neither can be measured against a corpus the other did not have.
   const before = load(DIR, baselineFile);
   const after = load(DIR);
 
-  const readJson = (file) => {
-    const at = path.join(__dirname, 'data', file);
-
-    return fs.existsSync(at) ? JSON.parse(fs.readFileSync(at, 'utf8')) : null;
-  };
-  const setOf = (file, key) => {
-    const data = readJson(file);
-
-    return data ? data[key] : null;
-  };
-  // FIRST, because it is the high-importance set: 19 queries really sent to search_docs while
-  // building an app, where a miss means an agent invented an API rather than scrolled. It is also
-  // the smallest set, so it will call almost everything unmeasured — read the moves, not the
-  // average. `intent.js` is the full report; this is the regression check.
-  const HIGH = new Set(['intent']);
-  const sets = {
-    intent: setOf('intent-queries.json', 'queries'),
-    natural: setOf('natural-judged.json', 'judged'),
-    artificial: setOf('artificial-queries.json', 'main'),
-    // The chat-shaped set was measured only by questions.js --ref, so a comparison run reported
-    // two of the three populations. It is the one that caught a real regression the other two
-    // could not see, which makes leaving it out of the default comparison the wrong default.
-    question: setOf('question-queries.json', 'queries'),
-  };
-
-  let dirty = false;
-  let highDirty = false;
-
-  for (const [name, cases] of Object.entries(sets)) {
-    if (!cases) {
-      console.log(`\n=== ${name}: SET NOT PRESENT, not measured ===`);
-      continue;
-    }
-
+  // The typo bucket is compared as its own population, never folded in. The ranker has no fuzzy
+  // matching, so its 499 one-transposed-key variants are answered by the relaxation pass or not at
+  // all — a spelling change moves them for a reason unrelated to weighting.
+  for (const [name, cases] of [['artificial', data.main], ['typos', data.typos]]) {
     const better = [];
     const worse = [];
-    // Per-query deltas, INCLUDING the zeros — see lib/stats.js. `byTopic` carries the same deltas
-    // grouped, because the headline number is a macro average and a claim about a macro has to be
-    // tested over topics rather than over queries.
+    // Per-query deltas, INCLUDING the zeros — see lib/stats.js. `byBucket` carries the same deltas
+    // grouped, because the set's macro is a mean over generator buckets and a claim about a macro
+    // has to be tested over buckets rather than over queries.
     const deltas = [];
     const ndcgDeltas = [];
-    const byTopic = new Map();
+    const byBucket = new Map();
 
     for (const testCase of cases) {
       const expect = (Array.isArray(testCase.expect) ? testCase.expect : [testCase.expect])
@@ -124,70 +122,65 @@ function main() {
       const b = rankOf(before, testCase.query, expect);
       const a = rankOf(after, testCase.query, expect);
       const delta = accuracyFor(a) - accuracyFor(b);
-      const topic = testCase.label || testCase.bucket || '(none)';
+      const bucket = testCase.bucket || '(none)';
 
       deltas.push(delta);
       ndcgDeltas.push((ndcgFor(a, 1, 1) - ndcgFor(b, 1, 1)) * 100);
 
-      if (!byTopic.has(topic)) byTopic.set(topic, []);
-      byTopic.get(topic).push(delta);
+      if (!byBucket.has(bucket)) byBucket.set(bucket, []);
+      byBucket.get(bucket).push(delta);
 
       if (delta > 0) better.push({ ...testCase, b, a });
       if (delta < 0) worse.push({ ...testCase, b, a });
     }
 
-    // One number per topic, so each topic weighs the same as every other — the macro definition.
-    const topicDeltas = [...byTopic.values()]
+    // One number per bucket, so each bucket weighs the same as every other — the macro definition.
+    const bucketDeltas = [...byBucket.values()]
       .map((list) => list.reduce((x, y) => x + y, 0) / list.length);
 
     const micro = verdict(deltas);
-    const macro = verdict(topicDeltas);
+    const macro = verdict(bucketDeltas);
 
-    const flag = HIGH.has(name) ? '  [HIGH IMPORTANCE]' : '';
+    const buckets = `${byBucket.size} bucket${byBucket.size === 1 ? '' : 's'}`;
 
-    console.log(`\n=== ${name} (n = ${cases.length}, ${byTopic.size} topics) vs ${REF} ===${flag}`);
+    console.log(`\n=== ${name} (n = ${cases.length}, ${buckets}) vs ${REF} ===`);
     console.log(`  accuracy micro   ${micro.line}`);
-    console.log(`  accuracy macro   ${macro.line}`);
+    // A macro over one bucket IS the micro, and printing it produces a zero-width CI and a p-value
+    // over a sample of one — which reads as a result rather than as the tautology it is.
+    if (byBucket.size > 1) console.log(`  accuracy macro   ${macro.line}`);
     console.log(`  nDCG@10 micro    ${verdict(ndcgDeltas).line}`);
 
     // The honest reading, spelled out because "unmeasured" is the result most likely to be
     // misread as "safe". It means this set cannot tell, not that nothing happened.
-    if (!micro.significant && !macro.significant && (better.length || worse.length)) {
+    if (!micro.significant && (byBucket.size === 1 || !macro.significant)
+      && (better.length || worse.length)) {
       console.log(`  → ${better.length + worse.length} queries moved and neither average clears `
         + 'zero: this change is UNMEASURED on this set, not neutral.');
     }
 
     if (!worse.length) {
+      console.log('  no query got worse.');
       continue;
     }
 
-    dirty = true;
-    if (HIGH.has(name)) highDirty = true;
-
-    console.log(`\n  WORSE (before -> after, 0 = absent from the result set):`);
+    console.log('\n  WORSE (before -> after, 0 = absent from the result set):');
 
     worse
       .sort((x, y) => (accuracyFor(y.b) - accuracyFor(y.a)) - (accuracyFor(x.b) - accuracyFor(x.a)))
       .slice(0, WORST)
       .forEach((w) => console.log(`    ${String(w.b).padStart(3)} -> ${String(w.a).padStart(3)}  `
-        + `${w.query.slice(0, 52).padEnd(52)} [${w.label || w.bucket}]`));
+        + `${w.query.slice(0, 52).padEnd(52)} [${w.bucket}]`));
 
     if (worse.length > WORST) {
       console.log(`    … and ${worse.length - WORST} more (pass --worst N)`);
     }
   }
 
-  // Not an exit failure: a change that trades some queries for more of others can still be right,
-  // and only a person can decide that. This is a flag, not a verdict.
-  if (highDirty) {
-    console.log('\nA HIGH IMPORTANCE query got worse. On the intent set that is an agent losing the');
-    console.log('page it needed to avoid inventing an API — a stronger objection than the same move');
-    console.log('on any other set. Run `npm run kpi:intent` for the full picture before keeping it.');
-  } else if (dirty) {
-    console.log('\nSome queries got worse. Read them before keeping the change.');
-  } else {
-    console.log('\nNo query got worse.');
-  }
+  // Not an exit failure, and deliberately no verdict: a page losing its own title is a strong
+  // signal, but this set cannot say whether the change was worth it. `npm run kpi` decides that.
+  console.log('\nThis set cannot tell you whether the change is an improvement — it shares the');
+  console.log('site\'s vocabulary by construction. Read `npm run kpi` for that, and read the list');
+  console.log('above for pages that stopped being findable by their own name.');
 }
 
 main();
