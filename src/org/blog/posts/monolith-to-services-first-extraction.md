@@ -5,7 +5,7 @@ templateEngineOverride: md
 title: "From monolith to services: a low-risk first extraction"
 summary: "You don't migrate a monolith by rewriting it. You extract one capability, keep everything else in place, and repeat. Here's a concrete, low-risk first step for a Node.js team."
 description: "A low-risk approach to starting a monolith-to-microservices migration in Node.js: extract one capability behind a typed service call, then iterate."
-keywords: "monolith to microservices nodejs, extract first microservice, strangler fig nodejs, incremental migration, imqueue"
+keywords: "monolith to microservices nodejs, monolithic to microservices migration, monolith to microservices steps, migration patterns, extract first microservice, strangler fig nodejs, incremental migration, imqueue"
 date: 2026-06-24
 author: andrii
 illustration: monolith-split
