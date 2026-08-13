@@ -37,6 +37,11 @@
   "delivery": [
     { "title": "IMQDelay (API)", "url": "/api/rpc/latest/rpc.imqdelay/" }
   ],
+  "observability": [
+    { "title": "@imqueue/opentelemetry API reference", "url": "/api/opentelemetry/latest/" },
+    { "title": "ImqueueInstrumentation (API)", "url": "/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation/" },
+    { "title": "@imqueue/datadog API reference", "url": "/api/datadog/latest/" }
+  ],
   "resilience": [
     { "title": "IMQLock (API)", "url": "/api/rpc/latest/rpc.lock/" },
     { "title": "IMQDelay (API)", "url": "/api/rpc/latest/rpc.imqdelay/" }

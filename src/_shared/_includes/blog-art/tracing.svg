@@ -1,0 +1,25 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="60" y="34" width="384" height="34" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="72" y="56" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">imq.request</text>
+    <text x="432" y="56" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">caller</text>
+
+    <path d="M 76 68 L 76 88" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="3 4"/>
+    <rect x="88" y="88" width="340" height="34" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="100" y="110" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">imq.response</text>
+    <text x="416" y="110" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">order</text>
+
+    <path d="M 104 122 L 104 142" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="3 4"/>
+    <rect x="116" y="142" width="296" height="34" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="128" y="164" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">imq.request</text>
+    <text x="400" y="164" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">order</text>
+
+    <path d="M 132 176 L 132 196" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="3 4"/>
+    <rect x="144" y="196" width="252" height="34" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="156" y="218" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">imq.response</text>
+    <text x="384" y="218" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">billing</text>
+
+    <path d="M 36 34 L 36 230" stroke="var(--muted)" stroke-width="1.6"/>
+    <text x="28" y="136" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none" transform="rotate(-90 28 136)">one trace</text>
+  </g>
+</svg>
