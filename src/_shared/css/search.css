@@ -120,6 +120,68 @@
 
 .s-close:hover { color: var(--ink); border-color: var(--accent); }
 
+/* ---- the topic chips --------------------------------------------------- */
+
+/* One row of on/off switches per surface: here between the field and the list, and on
+   /search/ under the form. `flex: none` matters — .s-form is a column flex box whose
+   .s-results takes the slack, and without it a wrapped row of chips on a narrow screen
+   is compressed instead of being given its two lines. */
+.s-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+
+/* `hidden` is set on the row until a query has something to filter, and `display: flex`
+   above would otherwise win against the UA's `display: none`. */
+.s-topics[hidden] { display: none; }
+
+.s-topic {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 13px;
+  background: none;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+/* A leading glyph, not colour alone. Which topics are showing is information, and a tint
+   plus a border tint is a thin thing to hang it on for anyone who cannot separate the two.
+   Both glyphs are one character wide in the mono face, so toggling a chip never reflows
+   the row — and "+" is the honest label for an off chip, which is a topic you can add back
+   rather than one that found nothing. */
+.s-topic::before { content: "+"; opacity: .75; }
+.s-topic[aria-pressed="true"]::before { content: "✓"; opacity: 1; }
+
+/* Being ON is the quiet state. Every chip starts on, and four solid accent blocks above
+   the results would be a banner rather than a control; switching one OFF is the change the
+   reader made, so that is what has to be legible at a glance. */
+.s-topic[aria-pressed="true"] {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.s-topic:hover { color: var(--ink); border-color: var(--accent); }
+.s-topic:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Tabular figures so a count changing width — 9 to 10 — does not shuffle the chips beside
+   it, which happens on every peer index that lands after the first render. */
+.s-topic__count {
+  font-size: 12px;
+  opacity: .7;
+  font-variant-numeric: tabular-nums;
+}
+
 .s-results {
   flex: 1 1 auto;
   min-height: 0;
@@ -349,28 +411,14 @@
   cursor: pointer;
 }
 
-.s-page__tabs {
+/* The same chips as the dialog's — see `.s-topic` above — in the page's own row, which
+   sits in the document rather than in a panel and so needs margin instead of the dialog's
+   padding and rule. */
+.s-page__topics {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 18px;
-}
-
-.s-tab {
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 5px 13px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--muted);
-  border-bottom: 1px solid var(--line);
-}
-
-.s-tab:hover { color: var(--ink); border-color: var(--accent); }
-.s-tab.is-active {
-  color: var(--on-accent);
-  background: var(--accent);
-  border-color: transparent;
 }
 
 .s-page .s-page__status {
@@ -447,6 +495,13 @@
   /* The hint is two lines of instructions on a screen that has room for two more
      results instead. It is still shown before anything is typed. */
   .s-results:not(:empty) ~ .s-hint { display: none; }
+
+  /* Tightened, not scrolled sideways. At 375px the four labels wrap to three lines and
+     that row is the only place the filter exists — putting it in a horizontal scroller
+     would hide chips off the edge of exactly the screen where the API reference most needs
+     switching off. This buys back about 20px of result list instead. */
+  .s-topics { padding: 9px 12px; gap: 6px; }
+  .s-topic { padding: 4px 10px; font-size: 12.5px; gap: 6px; }
 
   .s-page__form { flex-wrap: wrap; }
   .s-page__submit { width: 100%; padding: 12px 20px; }

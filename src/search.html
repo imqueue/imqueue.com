@@ -52,7 +52,13 @@ the dialog and this page cannot disagree about what matches.
       <button class="s-page__submit" type="submit">Search</button>
     </form>
 
-    <div class="s-page__tabs"></div>
+    {%- comment -%}
+    Filled by the ranker with one on/off chip per topic — Answers, Guides & articles, API
+    reference, and the other edition. `role="group"` rather than a list: the chips are a
+    set of independent switches with one purpose between them, and the label is what makes
+    a bare row of buttons mean "these filter the results below".
+    {%- endcomment %}
+    <div class="s-page__topics" role="group" aria-label="Show results from these topics"></div>
     <p class="s-page__status" role="status" aria-live="polite"></p>
     <div class="s-page__results"></div>
 
