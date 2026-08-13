@@ -87,6 +87,7 @@
     "title": "Node.js microservice frameworks",
     "description": "Articles comparing Node.js microservice frameworks — @imqueue, Moleculer and NestJS microservices — and where a focused RPC transport fits instead."
   },
+  "observability": { "label": "Observability" },
   "backpressure": { "label": "Back-pressure" },
   "performance": { "label": "Performance" },
   "benchmark": { "label": "Benchmarks" },

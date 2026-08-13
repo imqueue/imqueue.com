@@ -531,6 +531,10 @@ at different tree depths — the patch lands on the wrong singletons and no span
 appear at all. Note also that this package only *produces* spans; exporting them
 is the host application's job.
 
+For what that produces — a measured three-process trace, how to read queue wait
+out of it, and the failure modes that leave a trace starting one hop in — see
+[distributed tracing over a message queue](/blog/distributed-tracing-nodejs-message-queue/).
+
 Reference: [`ImqueueInstrumentation`](/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation/) ·
 [`traced()`](/api/opentelemetry/latest/opentelemetry.traced/) ·
 [`traceStart()`](/api/opentelemetry/latest/opentelemetry.tracestart/) ·
