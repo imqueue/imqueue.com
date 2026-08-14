@@ -37,6 +37,11 @@
   "delivery": [
     { "title": "IMQDelay (API)", "url": "/api/rpc/latest/rpc.imqdelay/" }
   ],
+  "graphql": [
+    { "title": "@imqueue/graphql-dependency API reference", "url": "/api/graphql-dependency/latest/" },
+    { "title": "GraphQLDependency.load() (API)", "url": "/api/graphql-dependency/latest/graphql-dependency.graphqldependency.load/" },
+    { "title": "@imqueue/type-graphql-dependency API reference", "url": "/api/type-graphql-dependency/latest/" }
+  ],
   "observability": [
     { "title": "@imqueue/opentelemetry API reference", "url": "/api/opentelemetry/latest/" },
     { "title": "ImqueueInstrumentation (API)", "url": "/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation/" },
