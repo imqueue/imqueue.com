@@ -492,6 +492,11 @@ can serve another request's stale data. On a `type-graphql` schema use
 hook in `schemaHooks` after building the schema, because nothing else does, and
 missing that step leaves the dependency fields silently empty.
 
+For what that is worth in measured calls — the same query at 26 and at 3, why the
+difference does not show up in latency until the system is busy, and the two ways
+a dependency comes back silently empty — see
+[the N+1 problem when GraphQL resolvers call microservices](/blog/graphql-n-plus-1-microservices/).
+
 Reference: [`Dependency`](/api/graphql-dependency/latest/graphql-dependency.dependency/) ·
 [`defineLoader()`](/api/graphql-dependency/latest/graphql-dependency.graphqldependency.defineloader/) ·
 [`require()`](/api/graphql-dependency/latest/graphql-dependency.graphqldependency.require/) ·
