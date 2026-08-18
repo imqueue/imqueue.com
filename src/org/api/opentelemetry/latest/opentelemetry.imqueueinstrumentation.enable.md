@@ -22,5 +22,7 @@ void
 
 ## Remarks
 
-A no-op if `@imqueue/rpc` cannot be resolved — nothing throws, so an app that registers this instrumentation without using IMQ still starts. That also means a silent failure looks identical to success from here; if no spans appear, an unresolvable or duplicated `rpc` install is the first thing to check.
+Does nothing when the module has already been patched — which is the case when the instrumentation came from [imqueueInstrumentation()](/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation_1/)<!-- -->, whose whole purpose is to hand over the same module instance the application imported.
+
+Resolution here is a synchronous `require`<!-- -->, and that is the one thing this cannot always get right. Under plain Node an ESM package required this way is the very module the application imported, so the hooks land where they are needed. Under a loader that evaluates ESM and CJS separately — `tsx`<!-- -->, for one — it is a \*second\* instance, and patching it traces nothing while looking like success. This used to be silent; it now warns, and [imqueueInstrumentation()](/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation_1/) avoids the problem entirely.
 

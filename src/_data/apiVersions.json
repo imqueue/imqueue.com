@@ -30,7 +30,7 @@
     "archives": []
   },
   "pg-prisma": {
-    "latest": "1.0.1",
+    "latest": "1.0.2",
     "archives": []
   },
   "async-logger": {
@@ -38,7 +38,7 @@
     "archives": []
   },
   "opentelemetry": {
-    "latest": "4.0.0",
+    "latest": "4.1.0",
     "archives": []
   },
   "datadog": {

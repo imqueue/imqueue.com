@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "opentelemetry",
-  "apiVersion": "4.0.0",
+  "apiVersion": "4.1.0",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-01T16:25:19.895Z",
+  "apiReleased": "2026-08-09T16:23:41.603Z",
   "apiNav": [
     {
       "group": "Classes",
@@ -36,6 +36,10 @@
     {
       "group": "Functions",
       "items": [
+        {
+          "name": "imqueueInstrumentation(config)",
+          "url": "/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation_1/"
+        },
         {
           "name": "traced(options)",
           "url": "/api/opentelemetry/latest/opentelemetry.traced/"

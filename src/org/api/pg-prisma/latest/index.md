@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/pg-prisma 1.0.1 · API reference"
+title: "@imqueue/pg-prisma 1.0.2 · API reference"
 description: "Prisma and Postgres building blocks for @imqueue services."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"}]
 ---
@@ -162,6 +162,19 @@ Run `fn` with SQL logging suppressed.
 </td><td>
 
 Build the query extension that turns deletes into `deletedAt` stamps and hides stamped rows from reads.
+
+
+</td></tr>
+<tr><td>
+
+[toIsoDates(value)](/api/pg-prisma/latest/pg-prisma.toisodates/)
+
+
+</td><td>
+
+Recursively replace every `Date` with its ISO-8601 string, structure intact.
+
+Exported so it can be tested without a database, like `accessWhere`<!-- -->: what it does to a shape is the whole of this extension, and the interesting cases — a buffer, a nested date, an array of rows — are all reachable from here.
 
 
 </td></tr>
