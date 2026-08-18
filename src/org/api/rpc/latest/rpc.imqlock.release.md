@@ -14,7 +14,7 @@ Releases a previously acquired lock for a given key.
 **Signature:**
 
 ```typescript
-static release<T, E>(key: string, value?: T, err?: E): void;
+static release<T, E>(key: string, value?: T, err?: E, token?: number): void;
 ```
 
 ## Parameters
@@ -83,9 +83,31 @@ _(Optional)_ error to reject pending calls with
 
 
 </td></tr>
+<tr><td>
+
+token
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ token from [IMQLock.token()](/api/rpc/latest/rpc.imqlock.token/) proving this release is the holder's own
+
+
+</td></tr>
 </tbody></table>
 
 **Returns:**
 
 void
+
+## Remarks
+
+Pass the `token` [IMQLock.token()](/api/rpc/latest/rpc.imqlock.token/) gave you when you acquired the lock, and the release is ignored unless the key is still yours. Without it the release is applied unconditionally, which is what this did for every caller: the deadlock timeout frees a key while its holder is still running, so the holder's eventual release landed on whichever call had acquired the key in the meantime — resolving that call's waiters with a result computed for nobody and freeing a lock still in use, which let a third call in behind it.
+
+The token is optional only to keep the signature compatible. A release without one cannot be checked, and stays as unsafe as it was.
 

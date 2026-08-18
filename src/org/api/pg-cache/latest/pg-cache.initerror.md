@@ -1,6 +1,6 @@
 ---
 title: "initError() function · @imqueue/pg-cache"
-description: "Reports that a cached method ran before the cache existed — the service was decorated but start() has not completed, so there is nothing to read or write."
+description: "Reports that a cached method ran while the cache was absent — either start() has not completed, or invalidation could not be established and caching was…"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-cache","url":"/api/pg-cache/latest/"},{"name":"initError","url":"/api/pg-cache/latest/pg-cache.initerror/"}]
 ---
 
@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-cache","
 
 # initError() function
 
-Reports that a cached method ran before the cache existed — the service was decorated but `start()` has not completed, so there is nothing to read or write. The method still executes; it is simply not cached.
+Reports that a cached method ran while the cache was absent — either `start()` has not completed, or invalidation could not be established and caching was therefore left off. The method still executes; it is simply not cached.
 
 **Signature:**
 

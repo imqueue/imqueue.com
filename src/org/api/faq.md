@@ -263,6 +263,13 @@ established in `start()`, so a service that never starts is never cached. And a
 the operations named in it are the ones that do not invalidate — which reads the
 opposite way round from how it looks.
 
+Since 5.1.0, `start()` also waits for those triggers and subscriptions before it
+resolves, so awaiting it is enough — up to 5.0.6 it was not, and a row changed in
+the ~35ms after it could go unnoticed until the next change to that table or the
+TTL. For that measured, along with how long invalidation actually takes after a
+row changes, see
+[cache invalidation across services](/blog/cache-invalidation-nodejs-microservices/).
+
 Reference: [`PgCache()`](/api/pg-cache/latest/pg-cache.pgcache/) ·
 [`cacheWith()`](/api/pg-cache/latest/pg-cache.cachewith/) ·
 [`CacheWithOptions`](/api/pg-cache/latest/pg-cache.cachewithoptions/) ·
@@ -326,6 +333,13 @@ return value, so an outage degrades to cache misses instead of taking the caller
 down. Two consequences worth holding on to: `get()` returning `null` means "not
 cached *or* the lookup failed", and `invalidate()` resolves once the work is
 issued, not once the keys are gone.
+
+One rule that is easy to miss: entries sharing a tag should share a TTL. `set()`
+expires the tag set along with the entry, so a shorter-lived write removes the
+only record that a longer-lived entry was ever tagged — after which
+`invalidate()` cannot reach it and still returns `true`. That, and what
+invalidating a tag costs as the tag space grows, are measured in
+[cache invalidation across services](/blog/cache-invalidation-nodejs-microservices/).
 
 Reference: [`TagCache`](/api/tag-cache/latest/tag-cache.tagcache/) ·
 [`TagCache.set()`](/api/tag-cache/latest/tag-cache.tagcache.set/) ·

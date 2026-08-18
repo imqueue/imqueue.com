@@ -7,7 +7,7 @@
     ]
   },
   "rpc": {
-    "latest": "3.5.3",
+    "latest": "3.6.0",
     "archives": [
       "2.1.0",
       "1.17.1"
@@ -18,7 +18,7 @@
     "archives": []
   },
   "pg-cache": {
-    "latest": "5.0.6",
+    "latest": "5.1.0",
     "archives": []
   },
   "tag-cache": {
@@ -26,7 +26,7 @@
     "archives": []
   },
   "pg-sequelize": {
-    "latest": "4.2.0",
+    "latest": "4.2.1",
     "archives": []
   },
   "pg-prisma": {
