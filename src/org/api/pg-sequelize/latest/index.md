@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/pg-sequelize 4.2.0 · API reference"
+title: "@imqueue/pg-sequelize 4.2.1 · API reference"
 description: "Sequelize and sequelize-typescript, refined for @imqueue services."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-sequelize","url":"/api/pg-sequelize/latest/"}]
 ---

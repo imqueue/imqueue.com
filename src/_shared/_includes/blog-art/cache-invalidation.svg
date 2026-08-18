@@ -1,0 +1,47 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- three ways the same cached entry dies -->
+
+    <!-- 1: a clock -->
+    <circle cx="84" cy="70" r="30" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 84 70 L 84 52 M 84 70 L 99 78" stroke="var(--accent)" stroke-width="2"/>
+    <circle cx="84" cy="70" r="39" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="2 5"/>
+
+    <!-- 2: three unrelated events -->
+    <g fill="var(--muted)" stroke="none">
+      <circle cx="212" cy="46" r="4"/><circle cx="240" cy="40" r="4"/><circle cx="268" cy="46" r="4"/>
+    </g>
+    <path d="M 212 50 L 240 96 M 240 44 L 240 96 M 268 50 L 240 96" stroke="var(--muted)" stroke-width="1.2"/>
+    <circle cx="240" cy="100" r="5" fill="var(--accent)" stroke="none"/>
+
+    <!-- 3: the table itself -->
+    <path d="M 364 50 L 364 88" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 428 50 L 428 88" stroke="var(--accent)" stroke-width="2"/>
+    <ellipse cx="396" cy="50" rx="32" ry="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 364 88 A 32 10 0 0 0 428 88" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 364 69 A 32 10 0 0 0 428 69" stroke="var(--muted)" stroke-width="1.2"/>
+
+    <!-- the entries -->
+    <rect x="24" y="130" width="120" height="32" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="84" y="151" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--accent)" stroke="none">ttl: 60000</text>
+
+    <rect x="180" y="130" width="120" height="32" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="240" y="151" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--accent)" stroke="none">tag: user:7</text>
+
+    <rect x="336" y="130" width="120" height="32" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="396" y="151" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--accent)" stroke="none">table: orders</text>
+
+    <!-- what drops it -->
+    <path d="M 84 109 L 84 128" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="3 4"/>
+    <path d="M 240 106 L 240 128" stroke="var(--muted)" stroke-width="1.4"/>
+    <path d="M 396 96 L 396 108 L 388 112 L 400 118 L 396 128" stroke="var(--accent)" stroke-width="1.6"/>
+
+    <text x="84" y="188" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="var(--muted)" stroke="none">dies on a clock</text>
+    <text x="240" y="188" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="var(--muted)" stroke="none">dies on an event</text>
+    <text x="396" y="188" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="var(--muted)" stroke="none">dies with the row</text>
+
+    <text x="84" y="212" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="14" fill="var(--accent)" stroke="none">a guess</text>
+    <text x="240" y="212" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="14" fill="var(--accent)" stroke="none">your call</text>
+    <text x="396" y="212" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="14" fill="var(--accent)" stroke="none">6.6ms</text>
+  </g>
+</svg>

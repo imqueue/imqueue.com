@@ -16,3 +16,8 @@ Tagged redis cache holding the memoised method results. Each entry is tagged wit
 ```typescript
 taggedCache: TagCache;
 ```
+
+## Remarks
+
+Absent until invalidation is live: `start()` publishes it once the triggers are installed and the channels subscribed, and does not resolve before then. If that setup fails it is published anyway, so behaviour is unchanged for a service that cannot subscribe — unless [PgCacheOptions.requireInvalidation](/api/pg-cache/latest/pg-cache.pgcacheoptions.requireinvalidation/) says otherwise, in which case it stays absent and the method decorators simply run the method, uncached.
+

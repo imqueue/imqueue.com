@@ -22,6 +22,8 @@ These are not distributed locks. The lock table is a set of plain static objects
 
 Keys are used verbatim, with no prefixing or namespacing, so they are global to the process and unrelated call sites sharing a string share a lock.
 
+Exclusion is not absolute, and [IMQLock.deadlockTimeout](/api/rpc/latest/rpc.imqlock.deadlocktimeout/) is why. A waiter that times out frees the key so that a holder which never releases cannot poison it for the life of the process — but the holder is still running, so the next call acquires and runs alongside it. Pass the [IMQLock.token()](/api/rpc/latest/rpc.imqlock.token/) to [IMQLock.release()](/api/rpc/latest/rpc.imqlock.release/)<!-- -->, as the example does and as [lock()](/api/rpc/latest/rpc.lock/) does for you, and the damage stops there: the overtaken holder can no longer resolve the new holder's waiters or free a lock still in use. Set `deadlockTimeout` to `0` if you would rather have strict exclusion and let waiters wait forever.
+
 ## Example
 
 
@@ -34,6 +36,10 @@ async function doSomething(): Promise<number | AcquiredLock<number>> {
 
     // locked() is the only reliable way to tell holder from waiter
     if (IMQLock.locked('doSomething')) {
+        // read the token straight after acquiring and pass it to every
+        // release, so a release cannot land on a later holder's lock
+        const token = IMQLock.token('doSomething');
+
         // always wrap locked work in try/catch and release on both paths,
         // otherwise waiters hang until the deadlock timeout fires
         try {
@@ -41,12 +47,12 @@ async function doSomething(): Promise<number | AcquiredLock<number>> {
             // resolves with this same value
             const res = Math.random();
 
-            IMQLock.release('doSomething', res);
+            IMQLock.release('doSomething', res, undefined, token);
 
             return res;
         } catch (err) {
             // reject every waiter with the same error
-            IMQLock.release('doSomething', null, err);
+            IMQLock.release('doSomething', null, err, token);
             throw err;
         }
     }
@@ -178,7 +184,7 @@ Returns true if the given key is locked, false otherwise.
 </td></tr>
 <tr><td>
 
-[release(key, value, err)](/api/rpc/latest/rpc.imqlock.release/)
+[release(key, value, err, token)](/api/rpc/latest/rpc.imqlock.release/)
 
 
 </td><td>
@@ -189,6 +195,22 @@ Returns true if the given key is locked, false otherwise.
 </td><td>
 
 Releases a previously acquired lock for a given key.
+
+
+</td></tr>
+<tr><td>
+
+[token(key)](/api/rpc/latest/rpc.imqlock.token/)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Returns the token identifying the current holder of a given key, or `undefined` when the key is not locked.
 
 
 </td></tr>

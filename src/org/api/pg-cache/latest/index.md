@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/pg-cache 5.0.6 · API reference"
+title: "@imqueue/pg-cache 5.1.0 · API reference"
 description: "PostgreSQL-managed cache on Redis for @imqueue service methods: results are memoised, and PostgreSQL itself says when to drop them."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-cache","url":"/api/pg-cache/latest/"}]
 ---
@@ -77,6 +77,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[awaitInvalidation(ready, timeout, onTimeout)](/api/pg-cache/latest/pg-cache.awaitinvalidation/)
+
+
+</td><td>
+
+Waits for invalidation to be confirmed, but never longer than `timeout`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [cacheBy(model, options)](/api/pg-cache/latest/pg-cache.cacheby/)
 
 
@@ -148,7 +159,7 @@ Reports a failed cache read at warning level. The caller then falls through to t
 
 </td><td>
 
-Reports that a cached method ran before the cache existed — the service was decorated but `start()` has not completed, so there is nothing to read or write. The method still executes; it is simply not cached.
+Reports that a cached method ran while the cache was absent — either `start()` has not completed, or invalidation could not be established and caching was therefore left off. The method still executes; it is simply not cached.
 
 
 </td></tr>
@@ -198,6 +209,8 @@ class UserService extends IMQService {
 }
 ```
 Applied to the class, it wraps `start()`<!-- -->: the subscription and the triggers are established there, after any existing `start()` implementation has run. So the cache is inert until the service is started, and a service that never calls `start()` is never cached.
+
+Awaiting `start()` is enough — it does not resolve until the triggers exist and the channels are subscribed, so a row changed immediately afterwards cannot go unnoticed. That costs a few tens of milliseconds at boot. If the setup fails, or is not confirmed within [PgCacheOptions.invalidationTimeout](/api/pg-cache/latest/pg-cache.pgcacheoptions.invalidationtimeout/)<!-- -->, the service still caches and reports the failure loudly; pass [PgCacheOptions.requireInvalidation](/api/pg-cache/latest/pg-cache.pgcacheoptions.requireinvalidation/) to have it run uncached instead.
 
 Works both as a standard (TC39) decorator and as a legacy (`experimentalDecorators`<!-- -->) one, matching `@imqueue/rpc`<!-- -->, so it can be applied in either compilation mode.
 
@@ -368,6 +381,17 @@ Description
 Default lifetime of a cached entry, in milliseconds — 24 hours.
 
 A TTL is a backstop, not the primary invalidation mechanism: entries are normally dropped by a PostgreSQL change notification long before it expires. It exists so an entry cannot outlive its data indefinitely if a notification is ever missed.
+
+
+</td></tr>
+<tr><td>
+
+[DEFAULT\_INVALIDATION\_TIMEOUT](/api/pg-cache/latest/pg-cache.default_invalidation_timeout/)
+
+
+</td><td>
+
+Default time `start()` waits for the change-notify triggers and the channel subscriptions to be confirmed, in milliseconds.
 
 
 </td></tr>

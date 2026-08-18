@@ -43,6 +43,25 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[invalidationTimeout?](/api/pg-cache/latest/pg-cache.pgcacheoptions.invalidationtimeout/)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ How long `start()` waits for the change-notify triggers and the channel subscriptions to be confirmed, in milliseconds. Defaults to [DEFAULT\_INVALIDATION\_TIMEOUT](/api/pg-cache/latest/pg-cache.default_invalidation_timeout/)<!-- -->; a non-positive value falls back to the same.
+
+
+</td></tr>
+<tr><td>
+
 [postgres](/api/pg-cache/latest/pg-cache.pgcacheoptions.postgres/)
 
 
@@ -133,6 +152,25 @@ RedisCache
 </td><td>
 
 _(Optional)_ Initialized redis cache instance. One of redis option or this redisCache option is required to be provided
+
+
+</td></tr>
+<tr><td>
+
+[requireInvalidation?](/api/pg-cache/latest/pg-cache.pgcacheoptions.requireinvalidation/)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Pass true to refuse to cache at all when invalidation could not be established. Off by default.
 
 
 </td></tr>

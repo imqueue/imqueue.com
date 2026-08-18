@@ -37,6 +37,11 @@
   "delivery": [
     { "title": "IMQDelay (API)", "url": "/api/rpc/latest/rpc.imqdelay/" }
   ],
+  "cache": [
+    { "title": "@imqueue/pg-cache API reference", "url": "/api/pg-cache/latest/" },
+    { "title": "@imqueue/tag-cache API reference", "url": "/api/tag-cache/latest/" },
+    { "title": "cache decorator (API)", "url": "/api/rpc/latest/rpc.cache/" }
+  ],
   "graphql": [
     { "title": "@imqueue/graphql-dependency API reference", "url": "/api/graphql-dependency/latest/" },
     { "title": "GraphQLDependency.load() (API)", "url": "/api/graphql-dependency/latest/graphql-dependency.graphqldependency.load/" },

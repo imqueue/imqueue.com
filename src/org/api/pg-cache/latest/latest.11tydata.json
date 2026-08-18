@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "pg-cache",
-  "apiVersion": "5.0.6",
+  "apiVersion": "5.1.0",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-04T15:37:04.000Z",
+  "apiReleased": "2026-08-18T10:53:35.297Z",
   "apiNav": [
     {
       "group": "Enumerations",
@@ -19,6 +19,10 @@
     {
       "group": "Functions",
       "items": [
+        {
+          "name": "awaitInvalidation(ready, timeout, onTimeout)",
+          "url": "/api/pg-cache/latest/pg-cache.awaitinvalidation/"
+        },
         {
           "name": "cacheBy(model, options)",
           "url": "/api/pg-cache/latest/pg-cache.cacheby/"
@@ -116,6 +120,10 @@
         {
           "name": "DEFAULT_CACHE_TTL",
           "url": "/api/pg-cache/latest/pg-cache.default_cache_ttl/"
+        },
+        {
+          "name": "DEFAULT_INVALIDATION_TIMEOUT",
+          "url": "/api/pg-cache/latest/pg-cache.default_invalidation_timeout/"
         },
         {
           "name": "PG_CACHE_DEBUG",

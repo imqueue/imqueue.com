@@ -26,6 +26,8 @@ class UserService extends IMQService {
 ```
 Applied to the class, it wraps `start()`<!-- -->: the subscription and the triggers are established there, after any existing `start()` implementation has run. So the cache is inert until the service is started, and a service that never calls `start()` is never cached.
 
+Awaiting `start()` is enough — it does not resolve until the triggers exist and the channels are subscribed, so a row changed immediately afterwards cannot go unnoticed. That costs a few tens of milliseconds at boot. If the setup fails, or is not confirmed within [PgCacheOptions.invalidationTimeout](/api/pg-cache/latest/pg-cache.pgcacheoptions.invalidationtimeout/)<!-- -->, the service still caches and reports the failure loudly; pass [PgCacheOptions.requireInvalidation](/api/pg-cache/latest/pg-cache.pgcacheoptions.requireinvalidation/) to have it run uncached instead.
+
 Works both as a standard (TC39) decorator and as a legacy (`experimentalDecorators`<!-- -->) one, matching `@imqueue/rpc`<!-- -->, so it can be applied in either compilation mode.
 
 Redis is resolved in order: `options.redisCache`<!-- -->, then `options.redis`<!-- -->, then a `cache` property already on the service. If none is available `start()` throws.
