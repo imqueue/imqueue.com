@@ -550,11 +550,34 @@ at different tree depths — the patch lands on the wrong singletons and no span
 appear at all. Note also that this package only *produces* spans; exporting them
 is the host application's job.
 
+Since 4.1.0 there is a second entry point for exactly that resolution question.
+`enable()` has to reach for `@imqueue/rpc` synchronously, which means `require`;
+`imqueueInstrumentation()` resolves it with `import()` instead, so the module it
+patches is the one the loader gave the application. It returns a promise, so it
+has to be awaited before `registerInstrumentations` sees it, and the
+instrumentation it hands back is already patched:
+
+~~~typescript
+import { imqueueInstrumentation } from '@imqueue/opentelemetry';
+
+registerInstrumentations({
+    instrumentations: [await imqueueInstrumentation()],
+});
+~~~
+
+The package recommends this form for an ESM application. It is insurance rather
+than a fix for something always broken: on Node 24.19 under `tsx`, `require` and
+`import` hand back different namespace objects but the *same* default-option
+singletons, so `new ImqueueInstrumentation()` patched what the application held
+and traced normally. Prefer the factory in ESM, and reach for it first if spans
+are missing under a loader that compiles TypeScript on the fly.
+
 For what that produces — a measured three-process trace, how to read queue wait
 out of it, and the failure modes that leave a trace starting one hop in — see
 [distributed tracing over a message queue](/blog/distributed-tracing-nodejs-message-queue/).
 
 Reference: [`ImqueueInstrumentation`](/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation/) ·
+[`imqueueInstrumentation()`](/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation_1/) ·
 [`traced()`](/api/opentelemetry/latest/opentelemetry.traced/) ·
 [`traceStart()`](/api/opentelemetry/latest/opentelemetry.tracestart/) ·
 [`traceEnd()`](/api/opentelemetry/latest/opentelemetry.traceend/)
