@@ -63,3 +63,5 @@ the same object, hooks applied in place
 
 Called by [ImqueueInstrumentation.enable()](/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation.enable/) with the resolved module. It is public so a test, or an app whose `rpc` copy this cannot resolve, can pass the module in explicitly.
 
+Idempotent: patching the same module twice attaches the hooks once.
+

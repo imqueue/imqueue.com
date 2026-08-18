@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/opentelemetry 4.0.0 · API reference"
+title: "@imqueue/opentelemetry 4.1.0 · API reference"
 description: "OpenTelemetry instrumentation for @imqueue/rpc — distributed traces across IMQ service calls, with no changes to service or client code."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/opentelemetry","url":"/api/opentelemetry/latest/"}]
 ---
@@ -127,6 +127,26 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[imqueueInstrumentation(config)](/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation_1/)
+
+
+</td><td>
+
+Build an [ImqueueInstrumentation](/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation/) already bound to the application's own `@imqueue/rpc`<!-- -->, ready to drop into an `instrumentations` array beside any other instrumentation:
+
+```typescript
+const sdk = new NodeSDK({
+    instrumentations: [
+        new PgInstrumentation(),
+        await imqueueInstrumentation(),
+    ],
+});
+```
+
+
+</td></tr>
+<tr><td>
 
 [traced(options)](/api/opentelemetry/latest/opentelemetry.traced/)
 

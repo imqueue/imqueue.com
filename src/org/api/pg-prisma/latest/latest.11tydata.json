@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "pg-prisma",
-  "apiVersion": "1.0.1",
+  "apiVersion": "1.0.2",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-01T08:29:44.766Z",
+  "apiReleased": "2026-08-16T14:21:48.746Z",
   "apiNav": [
     {
       "group": "Functions",
@@ -57,6 +57,10 @@
         {
           "name": "softDelete(input)",
           "url": "/api/pg-prisma/latest/pg-prisma.softdelete/"
+        },
+        {
+          "name": "toIsoDates(value)",
+          "url": "/api/pg-prisma/latest/pg-prisma.toisodates/"
         }
       ]
     },

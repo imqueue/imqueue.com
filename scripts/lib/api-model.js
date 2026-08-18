@@ -426,17 +426,33 @@ function disambiguateSiblings(model, notes) {
       for (const clashing of bySuffix.values()) {
         if (clashing.length < 2) continue;
 
-        if (!clashing.every(m => HAS_OVERLOAD_INDEX.has(m.kind))) {
+        // Only the parameter-bearing declarations can be moved. That is enough
+        // as long as at most one of the clashing declarations cannot: the
+        // immovable one keeps the unsuffixed page and the rest step aside. The
+        // Class + Function pair a package writes when it adds a factory
+        // alongside a class — `ImqueueInstrumentation` and
+        // `imqueueInstrumentation()` — is exactly that shape, and the class
+        // keeping its URL is what stops an existing link from moving.
+        const immovable = clashing.filter(m => !HAS_OVERLOAD_INDEX.has(m.kind));
+
+        if (immovable.length > 1) {
           notes.push(
             `CANNOT disambiguate ${key}: ${clashing.map(m => m.kind).join(' + ')} — ` +
             'api-documenter only suffixes filenames for parameter-bearing members, ' +
-            'so there is no lever here. Rename one declaration or mark it @internal.',
+            `and ${immovable.length} of these are not, so there is no lever here. ` +
+            'Rename one declaration or mark it @internal.',
           );
           continue;
         }
 
-        // Instance before static, so the instance keeps the unsuffixed URL.
-        const ordered = [...clashing].sort((a, b) => Number(!!a.isStatic) - Number(!!b.isStatic));
+        // What cannot move goes first; then instance before static, so the
+        // instance keeps the unsuffixed URL.
+        const ordered = [...clashing].sort((a, b) =>
+          Number(HAS_OVERLOAD_INDEX.has(a.kind)) - Number(HAS_OVERLOAD_INDEX.has(b.kind)) ||
+          Number(!!a.isStatic) - Number(!!b.isStatic));
+        const describe = (m) => (HAS_OVERLOAD_INDEX.has(m.kind) && m.isStatic !== undefined
+          ? `${m.isStatic ? 'static' : 'instance'} ${m.kind}`
+          : m.kind);
 
         for (const member of ordered.slice(1)) {
           let suffix = 1;
@@ -444,9 +460,8 @@ function disambiguateSiblings(model, notes) {
           used.add(suffix);
           member.overloadIndex = suffix + 1;
           notes.push(
-            `disambiguated ${key} (${member.isStatic ? 'static' : 'instance'} ` +
-            `${member.kind}) -> ${key}_${suffix}, so it stops overwriting the ` +
-            `${ordered[0].isStatic ? 'static' : 'instance'} declaration`,
+            `disambiguated ${key} (${describe(member)}) -> ${key}_${suffix}, ` +
+            `so it stops overwriting the ${describe(ordered[0])} declaration`,
           );
         }
       }
