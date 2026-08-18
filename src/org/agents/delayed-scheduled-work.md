@@ -134,7 +134,17 @@ key `<prefix>:<queue>:<id>:ttl` set with `PX <delay> NX`. That key's expiry
 fires a keyspace notification, and one elected watcher moves everything now due
 onto the ready list; failing that, workers sweep every `watcherCheckDelay`
 (default **5000 ms**). Default prefixes: `imq` for core/rpc, `imq-job` for jobs.
-Prompt promotion needs `notify-keyspace-events` to include `Ex`.
+
+**Keyspace flags.** Prompt promotion needs `notify-keyspace-events` to include
+`Ex`. From `@imqueue/core` **3.3.3** the watcher arranges that itself: it reads
+the current value, appends only the missing `E`/`x` (`A` already covers `x`), and
+skips `CONFIG SET` when the configuration suffices — so a flag an operator or
+another consumer set on that server survives. On `<= 3.3.2` it wrote the literal
+`Ex` on every connection establishment, dropping every other flag, and again
+after each reconnect. Where `CONFIG GET` is unavailable — ElastiCache disables
+`CONFIG` — 3.3.3 reports through `OnConfig` and changes nothing, because being
+unable to read the flags is exactly when writing a literal would do the damage.
+Enable it out of band there, or accept the sweep.
 
 **Accuracy is "no earlier than."** Pass whole integer milliseconds: a
 fractional delay fails to set the alarm key and waits for the next sweep, and an
@@ -262,7 +272,8 @@ you chose; and run the handler twice to prove it is idempotent.
 | TS2345, `IMQDelay` not assignable to `IMQMetadata` | delay passed in the metadata slot | keep the delay in the last position |
 | A skipped optional param arrives as `null` and its default never fires | `undefined` serializes to `null`; placeholders are dropped only on a *delayed* call, and on 3.3.1 only one was dropped | pass the real value, declare the param nullable, or upgrade to `>= 3.4.0` |
 | Delayed call never settles in the caller | caller restarted, or no `callTimeout` set | set `callTimeout`; never `await` a long delay in a request handler |
-| Everything arrives ~5 s late | keyspace notifications lack `Ex`, so the polling fallback is doing the work | enable `notify-keyspace-events Ex`, or accept the `watcherCheckDelay` sweep |
+| Everything arrives ~5 s late | keyspace notifications lack `Ex`, so the polling fallback is doing the work | on `>= 3.3.3` the watcher adds the missing flags itself unless `CONFIG` is unavailable (ElastiCache) — check the `OnConfig` report, then enable `notify-keyspace-events Ex` out of band, or accept the `watcherCheckDelay` sweep |
+| A flag another consumer needed disappeared from `notify-keyspace-events` | on `<= 3.3.2` the watcher wrote the literal `Ex` on every connection establishment | upgrade to `>= 3.3.3`, which appends only the missing `E`/`x` |
 | Delay ignored entirely | fractional milliseconds, or an unrecognised `IMQDelay` unit | pass whole integer ms and a valid unit |
 | Job dropped instead of retried | handler threw, and the job was pushed without a delay | catch the error and return a delay number |
 | Worker spins at 100% CPU | handler returned `0`, re-scheduling immediately | return a negative number or nothing to stop |
