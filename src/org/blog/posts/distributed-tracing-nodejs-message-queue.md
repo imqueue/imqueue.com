@@ -51,8 +51,35 @@ registerInstrumentations({
 ~~~
 
 No decorator on the service, no argument at the call site, no change to the
-generated client. One `place()` call, and the span log across all three processes
-reassembles into this:
+generated client.
+
+`@imqueue/opentelemetry` 4.1.0 added a second way to build that instrumentation,
+and on an ESM application it is the one to prefer:
+
+~~~typescript
+import { imqueueInstrumentation } from '@imqueue/opentelemetry';
+
+registerInstrumentations({
+    instrumentations: [await imqueueInstrumentation()],
+});
+~~~
+
+It matters because of *how* this package works, which is the subject of the
+failure modes further down: it patches `@imqueue/rpc`'s exported default option
+singletons, so it has to hold the same module object the application holds.
+`enable()` can only reach for that synchronously — `require` — while the factory
+resolves it with `import()`, asking the loader the application itself used. The
+returned instrumentation is already patched, so registering it costs nothing
+extra; it just has to be awaited.
+
+Worth calibrating before anyone rewrites a working bootstrap: on Node 24.19,
+under `tsx`, `require` and `import` handed back different namespace objects but
+the *same* default-option singletons, so `new ImqueueInstrumentation()` patched
+exactly what the application held and traced normally. The factory removes the
+dependency on that holding rather than fixing something you will always see.
+
+One `place()` call, and the span log across all three processes reassembles into
+this:
 
 ~~~
 trace d3ac295c867905ca628cd66e6ff21d16  (4 spans, 3 processes)
@@ -354,11 +381,17 @@ connection.
 
 Three causes, in the order worth checking. The client or service was constructed
 before the instrumentation was enabled, so it copied untraced defaults — register
-`ImqueueInstrumentation` at the top of the entry module, before anything builds a
+the instrumentation at the top of the entry module, before anything builds a
 client. Or no tracer provider is registered, in which case the package produces
 spans that go nowhere, since exporting them is the host application's job. Or
 there are duplicate `@imqueue/rpc` installs at different tree depths, so the
 patch landed on a copy the application never imported.
+
+All three are about the patch reaching the module the application holds. On
+4.1.0, `await imqueueInstrumentation()` takes the resolution half of that
+question off the table by resolving `@imqueue/rpc` through `import()` rather than
+`require`, which is worth trying before anything else if spans are missing under
+a loader that compiles TypeScript as it runs.
 
 ### Can I see how long a call waited in the queue?
 
@@ -403,7 +436,10 @@ npm i --save @imqueue/opentelemetry
 ~~~
 
 The [full API reference](/api/opentelemetry/latest/) covers
-[`ImqueueInstrumentation`](/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation/),
+[`ImqueueInstrumentation`](/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation/)
+and the
+[`imqueueInstrumentation()`](/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation_1/)
+factory,
 the [`traced()`](/api/opentelemetry/latest/opentelemetry.traced/) options,
 [`traceStart()`](/api/opentelemetry/latest/opentelemetry.tracestart/) and the
 full [attribute](/api/opentelemetry/latest/opentelemetry.attributenames/) and
