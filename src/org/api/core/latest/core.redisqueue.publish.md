@@ -83,5 +83,5 @@ TypeError when the queue has no writer connection
 
 Unlike [RedisQueue.send()](/api/core/latest/core.redisqueue.send/)<!-- -->, this does not start the queue implicitly, so [RedisQueue.start()](/api/core/latest/core.redisqueue.start/) must have completed first. It is allowed in any [IMQMode](/api/core/latest/core.imqmode/)<!-- -->, including `WORKER`<!-- -->.
 
-The payload is always plain JSON — [IMQOptions.useGzip](/api/core/latest/core.imqoptions.usegzip/) applies to queue messages only. Redis pub/sub drops the message silently when nobody is subscribed.
+The payload is always plain JSON — [IMQOptions.useGzip](/api/core/latest/core.imqoptions.usegzip/) applies to queue messages only. Redis pub/sub drops the message when nobody is subscribed; on entering that state the queue writes a warning through its logger, so the drop is no longer silent.
 

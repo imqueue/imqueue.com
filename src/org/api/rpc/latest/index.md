@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/rpc 3.6.1 · API reference"
+title: "@imqueue/rpc 3.7.0 · API reference"
 description: "Type-safe RPC over a message queue — services, clients and the decorators that describe them, built on @imqueue/core."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/latest/"}]
 ---
@@ -287,7 +287,7 @@ Creates a `@lock()` method decorator. Concurrent calls to the decorated method t
 
 </td><td>
 
-Creates a `@logged()` method decorator that wraps the decorated method in a try/catch and logs any error it throws. The logger is resolved in this order: an explicitly passed logger, then a `logger` defined on the instance or on the class, and finally the global `console`<!-- -->. By default the error is re-thrown after being logged; pass `{ doNotThrow: true }` to swallow it. The returned decorator is dual-mode: it works both as a standard (TC39) and as a legacy method decorator.
+Creates a `@logged()` method decorator that wraps the decorated method in a try/catch and logs any error it throws. The logged line names the class, the method and an allow-listed failure code — never the error object itself, whose message, stack and properties may carry application data. The logger is resolved in this order: an explicitly passed logger, then a `logger` defined on the instance or on the class, and finally the global `console`<!-- -->. By default the error is re-thrown after being logged; pass `{ doNotThrow: true }` to swallow it. The returned decorator is dual-mode: it works both as a standard (TC39) and as a legacy method decorator.
 
 
 </td></tr>
