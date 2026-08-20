@@ -7,7 +7,7 @@ crumbLeaf: FAQ
 heading: Frequently Asked Questions
 lead: "Direct answers to the questions developers are actually asking — each one linking the reference for the symbols it names."
 description: "@imqueue FAQ: expose a method, generate a typed client, cache and invalidate, validate arguments, delay and retry jobs, trace, log, auto-scale and rate-limit."
-keywords: "imqueue faq, expose service method, imqueue generate typed client, classType property decorators, removeComments false imqueue, pg-cache cacheBy, imqueue job delay retry, PgPubSub singleListener, graphql N+1 microservices, ImqueueInstrumentation, LOGGER_TRANSPORTS, imqueue metrics server queue_length, kubernetes HPA queue length autoscaling, redis-broker-promoter, redis-broker-unicaster, UDPClusterManager, HttpProtect express middleware, CIDR membership Node.js"
+keywords: "imqueue faq, expose service method, imqueue generate typed client, classType property decorators, removeComments false imqueue, pg-cache cacheBy, imqueue job delay retry, PgPubSub singleListener, graphql N+1 microservices, ImqueueInstrumentation, LOGGER_TRANSPORTS, imqueue send does not throw, JobQueue push error, imqueue silent failure logging, imqueue metrics server queue_length, kubernetes HPA queue length autoscaling, redis-broker-promoter, redis-broker-unicaster, UDPClusterManager, HttpProtect express middleware, CIDR membership Node.js"
 relatedTopics: [rpc, dx, patterns, jobs]
 faqPage: true
 ---
@@ -390,6 +390,12 @@ bounds how long a job stays worth re-scheduling, counted from the push. Delivery
 is at-least-once, so handlers must be idempotent, and job data travels as JSON —
 class instances, `Date` and `undefined` properties do not arrive as they left.
 
+Since 3.1.0 you do not have to reason the trap out from the table: every handler
+failure logs the decision it just made, as `retry in <ms>` or `no retry`, with
+the message id — along with a retry the `ttl` suppressed, and a re-schedule whose
+own write to redis failed. See
+[where a failed send() or push() shows up](#why-does-a-failed-send-or-push-not-throw-and-where-do-i-see-it).
+
 Reference: [`JobQueue`](/api/job/latest/job.jobqueue/) ·
 [`JobQueuePopHandler`](/api/job/latest/job.jobqueuepophandler/) ·
 [`PushOptions.delay`](/api/job/latest/job.pushoptions.delay/) ·
@@ -655,6 +661,57 @@ Reference: [`TransportOptions.type`](/api/async-logger/latest/async-logger.trans
 [`TransportOptions.enabled`](/api/async-logger/latest/async-logger.transportoptions.enabled/) ·
 [`AsyncLoggerOptions.transports`](/api/async-logger/latest/async-logger.asyncloggeroptions.transports/) ·
 [`Logger`](/api/async-logger/latest/async-logger.logger/)
+
+### Why does a failed send() or push() not throw, and where do I see it?
+
+Because neither waits for the broker. `send()` resolves with a locally generated
+message id *before* redis confirms the write, and `push()` returns synchronously
+— so the rejection has nowhere to go by the time the caller has moved on. That is
+the design, and it has not changed. What changed is that the failure is no longer
+invisible: since `@imqueue/core` **3.4.0**, `@imqueue/rpc` **3.7.0** and
+`@imqueue/job` **3.1.0** these paths report through the logger you already
+configured, with no `verbose` flag to turn on and no new API to call.
+
+Set `logger` in the queue's options — anything matching `ILogger`, so the
+[`@imqueue/async-logger`](/api/async-logger/latest/) default export drops in — and
+watch for:
+
+| Line | What it tells you |
+| --- | --- |
+| a write-failure episode on a queue | a `send()` was rejected by redis. The first rejection is logged with its operation, message id and code, further ones are counted, and the first success logs the recovery with that count |
+| `[JobQueue] push error:` at `error` level | a job never made it onto the queue — including a write rejected *after* `push()` returned. Carries the queue, the requested delay and ttl, and a code |
+| a handler failure stating `retry in <ms>` or `no retry` | whether that job is coming back. `no retry` is the [throw-without-a-delay drop](#how-do-i-run-a-job-later-with-a-delay-and-retry-it-if-it-fails) becoming provable rather than inferred |
+| `response to request … has no pending call` | a reply arrived for a call nobody is waiting for any more — a late answer, or a backlog left by a process that is gone. This is how you tell it from a service that never answered |
+| a subscription established, and restored after a reconnect | the *absence* of the restore line is what makes a lost subscription provable |
+| no subscribers on a channel, or no server to publish to at all | a `publish()` that resolved successfully while reaching nobody |
+
+Two properties are worth relying on. **Nothing is quoted from the error.** Only
+an allow-listed failure code is printed — an `IMQ_`-prefixed framework code, a
+system `E…` code, a small integer, a known redis reply code (`WRONGTYPE`,
+`NOSCRIPT`, `LOADING`, …) or one of a few known redis-client failure messages
+mapped to codes of the framework's own. Everything else, the error's message,
+stack and class name included, comes out as `unknown`, because an application
+error may carry personal data and an imq error carries the call arguments in its
+properties. No line carries a message payload, call arguments or a raw redis key
+either. **And a broken logger cannot change what the queue does** — every one of
+these lines goes through a writer that contains its own failures.
+
+The same reasoning changed `@logged()` in `@imqueue/rpc` 3.7.0: it now logs
+`Class.method() failed, code <code>` instead of handing the caught error to the
+logger. If you were parsing stacks out of those records, that is the one upgrade
+note in this wave. Everything else about it is unchanged — which logger is
+resolved, `doNotThrow`, and the value re-thrown.
+
+Repeating conditions are reported on *entering* the state rather than per
+occurrence, so an outage costs a bounded number of lines. Nothing here schedules
+work or adds a timer.
+
+Reference: [`IMQOptions.logger`](/api/core/latest/core.imqoptions.logger/) ·
+[`ILogger`](/api/core/latest/core.ilogger/) ·
+[`RedisQueue.send()`](/api/core/latest/core.redisqueue.send/) ·
+[`JobQueueOptions.logger`](/api/job/latest/job.jobqueueoptions.logger/) ·
+[`JobQueuePublisher.push()`](/api/job/latest/job.jobqueuepublisher.push/) ·
+[`logged()`](/api/rpc/latest/rpc.logged/)
 
 ## Scaling out
 
