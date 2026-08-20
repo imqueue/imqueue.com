@@ -103,9 +103,21 @@ arrives.
 
 **Enqueue is not a durability confirmation.** `send(toQueue, message, delay?,
 errorHandler?)` takes milliseconds and resolves with a locally generated UUID
-*before* the write is confirmed — pass `errorHandler` to learn about failures.
+*before* the write is confirmed — `errorHandler` is the only way to observe such
+a failure *programmatically*, because the returned promise does not reject for
+it. From `@imqueue/core` **3.4.0** it is also reported through the queue's
+logger, with no `verbose` needed: the first rejected write of a failure episode
+is logged with its operation, message id and code, further rejections are only
+counted, and the first write that succeeds again logs the recovery together with
+that count. On `<= 3.3.3` a caller that passed no `errorHandler` had no way at
+all to see the write fail.
+
 `push(job, { delay })` returns synchronously and takes no error handler, so a
-failed enqueue only reaches the queue's logger.
+failed enqueue only ever reaches the queue's logger — from `@imqueue/job`
+**3.1.0** as `[JobQueue] push error:` at `error` level, carrying the queue, the
+requested delay and ttl and a failure code, and covering the write rejected
+*after* `push()` returned as well as the enqueue that never started. One failed
+push writes one such line.
 
 **`@imqueue/job` handler return contract** — get this exactly right:
 
@@ -120,6 +132,13 @@ Catch handler errors explicitly and return a delay; do not rely on a throw.
 There is no declarative `attempts` policy and no dead-letter destination —
 carry the attempt counter in the job payload and write your own park-for-review
 table.
+
+From `@imqueue/job` **3.1.0** the decision itself is in the log, so a drop no
+longer has to be inferred: the handler-failure line states `retry in <ms>` or
+`no retry` with the message id, a retry suppressed because the job's `ttl`
+expired is reported with its message id, and a re-schedule whose write to redis
+failed is reported too — that last one is a retry that was promised and is not
+coming. Nothing carries the job body or an error text.
 
 **Delivery mode.** `safeDelivery` defaults to `false` in `@imqueue/core` and
 `@imqueue/rpc`, and to `true` through `@imqueue/job` (whose `safeLockTtl` maps
@@ -275,7 +294,10 @@ you chose; and run the handler twice to prove it is idempotent.
 | Everything arrives ~5 s late | keyspace notifications lack `Ex`, so the polling fallback is doing the work | on `>= 3.3.3` the watcher adds the missing flags itself unless `CONFIG` is unavailable (ElastiCache) — check the `OnConfig` report, then enable `notify-keyspace-events Ex` out of band, or accept the `watcherCheckDelay` sweep |
 | A flag another consumer needed disappeared from `notify-keyspace-events` | on `<= 3.3.2` the watcher wrote the literal `Ex` on every connection establishment | upgrade to `>= 3.3.3`, which appends only the missing `E`/`x` |
 | Delay ignored entirely | fractional milliseconds, or an unrecognised `IMQDelay` unit | pass whole integer ms and a valid unit |
-| Job dropped instead of retried | handler threw, and the job was pushed without a delay | catch the error and return a delay number |
+| Job dropped instead of retried | handler threw, and the job was pushed without a delay | catch the error and return a delay number; on `>= 3.1.0` the handler-failure line reads `no retry` and names the message id, so confirm there first |
+| Job never ran and nothing was logged | `push()` was rejected by redis after returning, on `<= 3.0.3` where that was not reported | upgrade to `>= 3.1.0` and look for `[JobQueue] push error:` at `error` level |
+| A retry that was promised never happened | the re-schedule's own write to redis failed | on `>= 3.1.0` this is logged with the message id and a code; treat a re-schedule as an enqueue that can fail |
+| A `send()` vanished with no error anywhere | the write to redis was rejected and no `errorHandler` was passed | on core `>= 3.4.0` the failure episode is in the log; otherwise pass `errorHandler` |
 | Worker spins at 100% CPU | handler returned `0`, re-scheduling immediately | return a negative number or nothing to stop |
 | N overlapping recurrences | every replica seeded the chain | seed out of band, or behind a `SET NX` lease |
 | Recurrence stopped silently | a re-arm failed and nothing restarts a broken chain | alert on the age of the last completed run, then re-seed |
