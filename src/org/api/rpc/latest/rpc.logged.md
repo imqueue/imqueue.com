@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":
 
 # logged() function
 
-Creates a `@logged()` method decorator that wraps the decorated method in a try/catch and logs any error it throws. The logger is resolved in this order: an explicitly passed logger, then a `logger` defined on the instance or on the class, and finally the global `console`<!-- -->. By default the error is re-thrown after being logged; pass `{ doNotThrow: true }` to swallow it. The returned decorator is dual-mode: it works both as a standard (TC39) and as a legacy method decorator.
+Creates a `@logged()` method decorator that wraps the decorated method in a try/catch and logs any error it throws. The logged line names the class, the method and an allow-listed failure code — never the error object itself, whose message, stack and properties may carry application data. The logger is resolved in this order: an explicitly passed logger, then a `logger` defined on the instance or on the class, and finally the global `console`<!-- -->. By default the error is re-thrown after being logged; pass `{ doNotThrow: true }` to swallow it. The returned decorator is dual-mode: it works both as a standard (TC39) and as a legacy method decorator.
 
 **Signature:**
 

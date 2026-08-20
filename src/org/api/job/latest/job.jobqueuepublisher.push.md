@@ -77,7 +77,7 @@ this queue, for chaining
 
 ## Remarks
 
-Fire-and-forget, and worth being deliberate about: this returns synchronously without waiting for the broker to accept the job, and a failed enqueue is reported only by logging `[JobQueue] push error:` through [JobQueueOptions.logger](/api/job/latest/job.jobqueueoptions.logger/)<!-- -->. It neither throws nor hands back anything to await, so a caller that must know the job was really enqueued cannot learn it from here — watch the log, or check for the job's effects.
+Fire-and-forget, and worth being deliberate about: this returns synchronously without waiting for the broker to accept the job, and a failed enqueue is reported only by logging `[JobQueue] push error:` at `error` level through [JobQueueOptions.logger](/api/job/latest/job.jobqueueoptions.logger/) — with the queue name, the requested delay and ttl and the failure code, but never the job body. Both causes are covered: the enqueue not starting at all, and the write to redis being rejected afterwards, and one failed push writes one such line (the underlying transport may add its own write-failure diagnostic). It neither throws nor hands back anything to await, so a caller that must know the job was really enqueued cannot learn it from here — watch the log, or check for the job's effects.
 
 There is no need to `start()` a publisher first; the underlying send opens the connection on demand.
 

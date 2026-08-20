@@ -81,5 +81,5 @@ TypeError propagated from any host that has no writer connection
 
 This is the opposite of [ClusteredRedisQueue.send()](/api/core/latest/core.clusteredredisqueue.send/)<!-- -->: the same payload goes to all hosts. A subscriber connected to several of them therefore receives one copy per host.
 
-Publication is not atomic — if any host has no writer connection the call rejects even though other hosts may already have published. On an empty cluster it resolves without publishing anything, and unlike `send()` it does not wait for a server to appear.
+Publication is not atomic — if any host has no writer connection the call rejects even though other hosts may already have published. On an empty cluster it resolves without publishing anything — reporting that through the logger on entering the state — and unlike `send()` it does not wait for a server to appear.
 

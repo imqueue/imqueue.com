@@ -95,7 +95,7 @@ errorHandler
 
 </td><td>
 
-_(Optional)_ invoked when the write to Redis fails; this is the only way to observe such a failure, since the returned promise does not reject for it
+_(Optional)_ invoked when the write to Redis fails; the returned promise does not reject for it, so this is the only programmatic way to observe such a failure. The failure is also reported through the queue's logger: the first rejected write of a failure episode is logged, the rest are counted, and the first successful write logs the recovery with that count
 
 
 </td></tr>

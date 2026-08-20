@@ -1,13 +1,13 @@
 {
   "core": {
-    "latest": "3.3.3",
+    "latest": "3.4.0",
     "archives": [
       "2.0.26",
       "1.15.0"
     ]
   },
   "rpc": {
-    "latest": "3.6.1",
+    "latest": "3.7.0",
     "archives": [
       "2.1.0",
       "1.17.1"
@@ -66,7 +66,7 @@
     "archives": []
   },
   "job": {
-    "latest": "3.0.3",
+    "latest": "3.1.0",
     "archives": []
   }
 }
