@@ -29,7 +29,7 @@
   },
   "src/org/agents/delayed-scheduled-work.md": {
     "published": "2026-07-25T16:15:02+02:00",
-    "modified": "2026-08-18T14:48:18+02:00"
+    "modified": "2026-08-20T16:05:02+02:00"
   },
   "src/org/agents/index.md": {
     "published": "2026-07-29T12:58:23+02:00",
@@ -41,7 +41,7 @@
   },
   "src/org/api/faq.md": {
     "published": "2026-08-06T21:22:12+02:00",
-    "modified": "2026-08-18T15:04:43+02:00"
+    "modified": "2026-08-20T16:05:02+02:00"
   },
   "src/org/api/index.md": {
     "published": "2026-07-19T22:58:50+02:00",
@@ -81,7 +81,7 @@
   },
   "src/org/cli/index.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-08-01T13:33:45Z"
+    "modified": "2026-08-01T13:33:45+00:00"
   },
   "src/org/cli/installation.md": {
     "published": "2026-07-21T23:38:34+02:00",
@@ -89,7 +89,7 @@
   },
   "src/org/cli/managing-local-services.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-08-01T13:33:45Z"
+    "modified": "2026-08-01T13:33:45+00:00"
   },
   "src/org/cli/package-catalog.md": {
     "published": "2026-07-21T23:38:34+02:00",
@@ -121,7 +121,7 @@
   },
   "src/org/docs/index.html": {
     "published": "2026-07-19T22:58:50+02:00",
-    "modified": "2026-08-06T22:30:10+02:00"
+    "modified": "2026-08-20T16:05:02+02:00"
   },
   "src/org/get-started.md": {
     "published": "2026-07-19T22:58:50+02:00",
