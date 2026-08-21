@@ -53,8 +53,18 @@ promotion/
 # purge happened — master's push chain is unbroken, so nothing was ever
 # force-pushed. They are absent from master because rebrand/dual-domain was
 # integrated without becoming an ancestor of it, and they still exist in that
-# branch's orphaned commits, which GitHub serves by SHA. CUTOVER.md and
-# docs/superpowers/ were untracked on 2026-08-02 and are in master's history.
+# branch's orphaned commits, which GitHub serves by SHA.
+#
+# CUTOVER.md and docs/superpowers/ WERE untracked on 2026-08-02 and stayed in
+# master's history until 2026-08-21, when master was rewritten with
+# git filter-branch to drop both paths from every commit and force-pushed. That
+# is the first rewrite this repo has had, so every SHA from 6e8592d onward
+# changed and five commits that carried nothing else disappeared. Two things it
+# does NOT do, so nobody reads this as more than it is: GitHub keeps unreachable
+# objects and still serves them by SHA until it garbage-collects, which only
+# GitHub Support can force, and it cannot touch the orphaned rebrand/dual-domain
+# commits described above. Anyone holding a clone must re-clone; a pull will
+# merge the old history straight back in.
 #
 # The patterns come last so a new plan or report is ignored by default rather
 # than by someone remembering to add it here.
