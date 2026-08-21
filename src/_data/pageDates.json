@@ -33,15 +33,19 @@
   },
   "src/org/agents/index.md": {
     "published": "2026-07-29T12:58:23+02:00",
-    "modified": "2026-08-03T18:06:56+02:00"
+    "modified": "2026-08-21T13:49:45+00:00"
   },
   "src/org/agents/isolated-imq-environments.md": {
     "published": "2026-07-23T10:18:53+02:00",
     "modified": "2026-07-30T18:50:39+02:00"
   },
+  "src/org/agents/silent-failures.md": {
+    "published": "2026-08-21T13:49:45+00:00",
+    "modified": "2026-08-21T13:49:45+00:00"
+  },
   "src/org/api/faq.md": {
     "published": "2026-08-06T21:22:12+02:00",
-    "modified": "2026-08-20T16:05:02+02:00"
+    "modified": "2026-08-21T13:49:45+00:00"
   },
   "src/org/api/index.md": {
     "published": "2026-07-19T22:58:50+02:00",

@@ -1,0 +1,25 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="24" y="30" width="150" height="44" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="42" y="58" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--accent)" stroke="none">send()</text>
+
+    <path d="M 174 52 L 286 52" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="4 5"/>
+    <path d="M 279 46 L 287 52 L 279 58" stroke="var(--muted)" stroke-width="1.6"/>
+
+    <rect x="292" y="30" width="164" height="44" rx="8" fill="var(--surface)" stroke="var(--line)" stroke-width="2"/>
+    <text x="310" y="58" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">redis</text>
+
+    <path d="M 219 40 L 241 64" stroke="var(--muted)" stroke-width="2"/>
+    <path d="M 241 40 L 219 64" stroke="var(--muted)" stroke-width="2"/>
+
+    <path d="M 99 74 L 99 104" stroke="var(--accent)" stroke-width="1.6"/>
+    <path d="M 93 97 L 99 105 L 105 97" stroke="var(--accent)" stroke-width="1.6"/>
+    <text x="112" y="110" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--code)" stroke="none">resolved with a message id</text>
+
+    <text x="24" y="150" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">nothing threw &#183; nothing arrived</text>
+
+    <rect x="24" y="170" width="432" height="62" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="42" y="196" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">write to queue Reports rejected on LPUSH,</text>
+    <text x="42" y="216" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">message 51ca140b, code WRONGTYPE</text>
+  </g>
+</svg>

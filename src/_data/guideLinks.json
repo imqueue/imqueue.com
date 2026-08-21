@@ -50,7 +50,9 @@
   "observability": [
     { "title": "@imqueue/opentelemetry API reference", "url": "/api/opentelemetry/latest/" },
     { "title": "ImqueueInstrumentation (API)", "url": "/api/opentelemetry/latest/opentelemetry.imqueueinstrumentation/" },
-    { "title": "@imqueue/datadog API reference", "url": "/api/datadog/latest/" }
+    { "title": "@imqueue/datadog API reference", "url": "/api/datadog/latest/" },
+    { "title": "@imqueue/async-logger API reference", "url": "/api/async-logger/latest/" },
+    { "title": "IMQOptions.logger (API)", "url": "/api/core/latest/core.imqoptions.logger/" }
   ],
   "resilience": [
     { "title": "IMQLock (API)", "url": "/api/rpc/latest/rpc.lock/" },

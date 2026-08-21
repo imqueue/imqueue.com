@@ -6,7 +6,7 @@ docLabel: AGENT RECIPES
 lead: "Machine-oriented, verifiable procedures an AI coding assistant can follow to make a change in an @imqueue codebase — each with the facts it relies on, the commands to prove it worked, and the ways it goes wrong."
 description: "Machine-oriented procedures for changing an @imqueue codebase: the contracts each step relies on, commands that prove it worked, and known failure modes."
 keywords: "imqueue agent recipes, ai coding agent nodejs, imqueue ai assistant, machine readable docs, llms.txt, mcp get_doc"
-relatedTopics: [tooling, dx, jobs]
+relatedTopics: [tooling, dx, jobs, observability]
 ---
 
 An **agent recipe** is written for a machine, not a reader. Where a blog article
@@ -54,14 +54,20 @@ Each recipe follows the same shape:
 - **[Isolated imq CLI environments](/agents/isolated-imq-environments/)** — running
   several @imqueue projects on one machine without collisions, using `IMQ_CLI_HOME`
   for a dedicated CLI home per fleet, plus disposable sandboxes for CI.
+- **[Diagnosing a lost message or a dropped job](/agents/silent-failures/)** — the
+  failures that produce no error at all: which log line proves a rejected `send()`,
+  a job that was never enqueued, a drop that should have been a retry or a reply
+  that arrived too late, the version each line requires, and the commands that
+  reproduce it.
 
 ## Why these pages are not in search results
 
 Each recipe deliberately covers the same ground as a human-facing article, so the
 recipes carry `noindex` to keep the two from competing for the same queries. The
 narrative versions are the ones written to be read and the ones that rank:
-[delayed and scheduled work](/blog/scheduled-work-without-a-job-system/) and
-[one isolated imq CLI home per project](/blog/isolated-imq-cli-environments/).
+[delayed and scheduled work](/blog/scheduled-work-without-a-job-system/),
+[one isolated imq CLI home per project](/blog/isolated-imq-cli-environments/) and
+[silent failures in a Node.js message queue](/blog/silent-failures-nodejs-message-queue/).
 
 Staying out of the search index does not make the recipes any less available to an
 agent. They are listed in [`/llms.txt`](/llms.txt), every page has a plain-markdown

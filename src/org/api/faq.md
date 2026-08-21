@@ -706,6 +706,10 @@ Repeating conditions are reported on *entering* the state rather than per
 occurrence, so an outage costs a bounded number of lines. Nothing here schedules
 work or adds a timer.
 
+Each of those lines is reproduced and measured in
+[silent failures in a Node.js message queue](/blog/silent-failures-nodejs-message-queue/),
+which also maps them onto what is worth alerting on.
+
 Reference: [`IMQOptions.logger`](/api/core/latest/core.imqoptions.logger/) ·
 [`ILogger`](/api/core/latest/core.ilogger/) ·
 [`RedisQueue.send()`](/api/core/latest/core.redisqueue.send/) ·
