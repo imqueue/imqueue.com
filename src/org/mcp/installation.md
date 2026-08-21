@@ -1,10 +1,10 @@
 ---
 chapter: 2
-title: "Add the MCP server to Claude, Cursor & VS Code"
+title: "Add the MCP server to Claude, ChatGPT, Cursor & VS Code"
 docLabel: "MCP SERVER — 02 / 05"
-lead: "Exact setup for Claude, Cursor, VS Code, Visual Studio, JetBrains and every other MCP client — with the config file path and paste-ready snippet for each."
-description: "Add the @imqueue MCP server to Claude Code, Claude Desktop, Cursor, VS Code, JetBrains, Windsurf or Zed — config file location and exact JSON for each."
-keywords: "add @imqueue mcp to claude, imqueue mcp cursor, imqueue mcp vs code, imqueue mcp jetbrains, imqueue mcp claude desktop, mcp.json mcpServers, npx @imqueue/mcp setup"
+lead: "Exact setup for Claude, ChatGPT, Codex, Cursor, VS Code, Visual Studio, JetBrains and every other MCP client — one click from OpenAI's plugin directory, or the config file path and paste-ready snippet for each."
+description: "Add the @imqueue MCP server to Claude Code, Claude Desktop, ChatGPT, Codex, Cursor, VS Code, JetBrains, Windsurf or Zed — install from OpenAI's plugin directory, or the config file location and exact JSON for each."
+keywords: "add @imqueue mcp to claude, imqueue chatgpt plugin, imqueue codex plugin, openai plugin directory imqueue, imqueue mcp cursor, imqueue mcp vs code, imqueue mcp jetbrains, imqueue mcp claude desktop, mcp.json mcpServers, npx @imqueue/mcp setup"
 ogType: article
 ---
 
@@ -13,6 +13,12 @@ ogType: article
 config file's location and exact shape differ between Claude Code, Claude
 Desktop, Cursor, VS Code, Visual Studio, JetBrains, Windsurf and Zed; this page
 gives the path and a paste-ready snippet for each.
+
+**ChatGPT and Codex users can skip all of that**: @imqueue is listed in OpenAI's
+plugin directory, so installing it there is one click and no config file at all.
+That route installs the hosted endpoint and its six read-only tools; Codex can
+*also* run the local server for the full thirteen, including the `imq` CLI bridge.
+[Both options, side by side](#chatgpt-codex).
 
 ## Before you start
 
@@ -33,7 +39,8 @@ its exact *shape* differ. The universal building block is:
 }
 ~~~
 
-Jump to your tool: [Claude Code](#claude-code) · [Claude Desktop](#claude-desktop)
+Jump to your tool: [ChatGPT & Codex](#chatgpt-codex)
+· [Claude Code](#claude-code) · [Claude Desktop](#claude-desktop)
 · [Cursor](#cursor) · [VS Code](#vs-code) · [Visual Studio](#visual-studio)
 · [JetBrains](#jetbrains) · [Windsurf](#windsurf) · [Zed](#zed)
 · [Other clients](#other-clients) · [Verify & troubleshoot](#verify-it-worked)
@@ -75,7 +82,83 @@ Clients that support remote (HTTP) MCP servers take a **`url`** instead of a
   ~~~
 - **Cursor, Windsurf, JetBrains and others:** the `url` form above (in place of `command`/`args`).
 
-Everything below is the **local** (stdio) setup — the full-power option.
+## ChatGPT & Codex: install from OpenAI's plugin directory {#chatgpt-codex}
+
+@imqueue is published in **OpenAI's plugin directory** — the one directory shared
+by ChatGPT and Codex (it replaced the App directory in July 2026). Installing from
+there writes no config file and needs no Node: the listing already points at the
+hosted endpoint above, so it works the moment you install it.
+
+**→ [Open the @imqueue listing in the plugin directory](https://chatgpt.com/plugins/plugin_asdk_app_6a6f945292888191a7d77db4893f8520)**
+
+**ChatGPT (web or desktop app).** Open the **Plugins** tab from the sidebar — or go
+straight to [`chatgpt.com/plugins`](https://chatgpt.com/plugins) — search for
+**@imqueue**, open the listing, and press the **+** button to install it.
+
+**Codex CLI.** Run the slash command:
+
+~~~
+/plugins
+~~~
+
+That opens the same directory inside the CLI, where you can switch sources, open
+**@imqueue** to inspect what it exposes, and install it.
+
+**Codex IDE extension.** Plugins are not supported in the IDE extension — install
+from the ChatGPT desktop app or the Codex CLI instead, or register the server
+yourself in `~/.codex/config.toml` (see [Codex: the local server](#codex-local)).
+
+### What the plugin gives you — and what it does not
+
+The listing installs the **hosted** endpoint, so you get its **six read-only
+tools**: `search_docs`, `get_doc`, `list_packages`, `scaffold_service`,
+`scaffold_client` and `local_install_guide`.
+
+The **CLI-bridge** tools are deliberately absent, exactly as they are for anyone
+else on `mcp.imqueue.org`: a hosted server cannot reach your filesystem or your
+`imq` config, so it does not advertise tools that would claim otherwise. Nothing
+in the plugin can create a service on disk, generate a client from a running
+service, or touch your fleet.
+
+That is the whole trade-off, and it is worth stating plainly:
+
+| | **Plugin directory** (hosted) | **Local install** (`npx`, stdio) |
+|---|---|---|
+| **Setup** | one click, no config file, no Node | one config entry, needs Node ≥ 18 |
+| **Tools** | 6 — docs + scaffolding | **13** — the same 6 plus the CLI bridge |
+| **Can write files / run `imq`** | no | yes (`create_service`, `generate_client`, `fleet`, `config`, `logs`, …) |
+| **Works in ChatGPT** | yes | no — ChatGPT connects to MCP servers over HTTP only |
+| **Works in Codex CLI** | yes | yes |
+| **Good for** | asking, reading, drafting code | actually building services |
+
+### Codex: the local server, with the CLI bridge {#codex-local}
+
+If you want Codex to *build* — scaffold a provider-wired service, generate a typed
+client by introspecting a running one, manage your local fleet — install the local
+server too. Codex reads `~/.codex/config.toml`, and MCP servers go under
+`mcp_servers` in TOML rather than the `mcpServers` JSON key every other client uses:
+
+~~~toml
+[mcp_servers.imqueue]
+command = "npx"
+args = ["-y", "@imqueue/mcp"]
+~~~
+
+Restart Codex; `/mcp` lists the servers it loaded. Pair it with
+[`@imqueue/cli`](/cli/) — `npm i -g @imqueue/cli` — since the CLI-bridge tools
+drive the real `imq` binary, and `cli_status` will tell you whether it found one.
+
+The two are **not** mutually exclusive: nothing stops you keeping the plugin for
+its zero-setup docs search and the local server for the work that touches disk. If
+you do run both, give them different names in the config so the tool lists stay
+distinguishable — the plugin's tools and the local server's overlap by design.
+
+**ChatGPT is hosted-only.** It connects to MCP servers by URL, so there is no local
+option there; the plugin is the whole story. Build with Codex, Claude Code, Cursor
+or any other client that launches a local subprocess.
+
+Everything below is the **local** (stdio) setup — the full-power option, client by
+client.
 
 ## Claude Code
 
@@ -268,12 +351,19 @@ command = "npx"
 args = ["-y", "@imqueue/mcp"]
 ~~~
 
+That TOML is the **local** server, with all 13 tools; see
+[Codex: the local server](#codex-local) above for what to pair it with. If the docs
+and scaffolding tools are all you need, Codex has a shorter path — install @imqueue
+[from OpenAI's plugin directory](#chatgpt-codex) and skip the file entirely.
+
 You can also find the server on the official MCP registry as **`org.imqueue/mcp`**
-if your client installs from there.
+if your client installs from there, and in
+[OpenAI's plugin directory](https://chatgpt.com/plugins/plugin_asdk_app_6a6f945292888191a7d77db4893f8520)
+for ChatGPT and Codex.
 
 ## Verify it worked
 
-1. **Restart the client** (or reload its MCP config). Desktop apps usually need a full restart.
+1. **Restart the client** (or reload its MCP config). Desktop apps usually need a full restart. Installing from [OpenAI's plugin directory](#chatgpt-codex) takes effect immediately — there is no config file to reload.
 2. Open the client's **tools / MCP** list — you should see **imqueue** with its tools (`search_docs`, `create_service`, `fleet`, …). Enable them if the client disables new tools by default (VS Code and Visual Studio do).
 3. Ask the agent to use one, e.g. *"use the imqueue MCP to search the docs for delayed jobs."*
 

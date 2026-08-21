@@ -130,10 +130,15 @@ const user = await client.get('42'); // fully typed, no hand-written client
 ## MCP server: give your agent live docs & scaffolding
 
 For agents that speak the [Model Context Protocol](https://modelcontextprotocol.io)
-(Claude Code, Claude Desktop, Cursor, VS Code, Visual Studio, JetBrains, …), the
-**`@imqueue/mcp`** server is the best integration. Instead of pasting the context
-above, your agent gets tools it can call directly — searching these docs live,
-scaffolding `IMQService` code, and driving the `imq` CLI.
+(Claude Code, Claude Desktop, ChatGPT, Codex, Cursor, VS Code, Visual Studio,
+JetBrains, …), the **`@imqueue/mcp`** server is the best integration. Instead of
+pasting the context above, your agent gets tools it can call directly — searching
+these docs live, scaffolding `IMQService` code, and driving the `imq` CLI.
+
+**ChatGPT & Codex:** install it from
+[OpenAI's plugin directory](https://chatgpt.com/plugins/plugin_asdk_app_6a6f945292888191a7d77db4893f8520)
+— the **Plugins** tab in ChatGPT, or `/plugins` in the Codex CLI. Nothing to
+configure; the listing points at the hosted endpoint.
 
 **Claude Code:**
 

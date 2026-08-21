@@ -38,3 +38,8 @@ https://vscode.dev/redirect/mcp/install
 # Unreachable from an unattended HEAD; loads in a browser. Cited from both privacy
 # policies as Clarity's data-processing statement, so it cannot simply be dropped.
 privacy.microsoft.com
+
+# The OpenAI plugin directory listing for @imqueue. chatgpt.com answers a browser
+# and returns 403 to every unattended request, HEAD or GET, from a datacentre IP;
+# the listing id is copied from the directory itself and cannot be a typo.
+chatgpt.com
