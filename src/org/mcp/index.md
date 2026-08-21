@@ -2,9 +2,9 @@
 chapter: 1
 title: "MCP server for AI coding agents"
 docLabel: "MCP SERVER — 01 / 05"
-lead: "Connect your AI coding agent to @imqueue: live documentation search, idiomatic service & client scaffolding, and control of your local fleet — as tools the agent calls directly."
-description: "The @imqueue MCP server gives Claude, Cursor, VS Code and JetBrains agents tools to search the docs, scaffold typed services and drive the imq CLI."
-keywords: "@imqueue mcp, imqueue mcp server, model context protocol imqueue, npx @imqueue/mcp, org.imqueue/mcp, ai coding agent microservices, mcp server nodejs typescript"
+lead: "Connect your AI coding agent to @imqueue: live documentation search, idiomatic service & client scaffolding, and control of your local fleet — as tools the agent calls directly. One click in ChatGPT and Codex, one line everywhere else."
+description: "The @imqueue MCP server gives Claude, ChatGPT, Codex, Cursor, VS Code and JetBrains agents tools to search the docs, scaffold typed services and drive the imq CLI. Listed in OpenAI's plugin directory."
+keywords: "@imqueue mcp, imqueue mcp server, model context protocol imqueue, npx @imqueue/mcp, org.imqueue/mcp, imqueue chatgpt plugin, imqueue codex plugin, openai plugin directory, ai coding agent microservices, mcp server nodejs typescript"
 ogType: article
 mcpApp: true
 demoVideo: true
@@ -15,8 +15,9 @@ demoVideo: true
 **`@imqueue/mcp`** is a [Model Context Protocol](https://modelcontextprotocol.io)
 server for @imqueue. MCP is the open standard that lets AI coding
 agents call external tools; this server gives any MCP-capable agent —
-**Claude Code, Claude Desktop, Cursor, VS Code, Visual Studio, JetBrains IDEs**
-and others — a set of @imqueue-specific tools it can invoke while you work.
+**Claude Code, Claude Desktop, ChatGPT, Codex, Cursor, VS Code, Visual Studio,
+JetBrains IDEs** and others — a set of @imqueue-specific tools it can invoke while
+you work.
 
 Instead of your agent guessing at the API from a stale training snapshot, it
 **searches the current docs**, **scaffolds idiomatic code**, and — when you have
@@ -68,6 +69,14 @@ https://mcp.imqueue.org/mcp
   }
 }
 ~~~
+
+**In ChatGPT or Codex you do not even need that URL.** @imqueue is listed in
+**[OpenAI's plugin directory](https://chatgpt.com/plugins/plugin_asdk_app_6a6f945292888191a7d77db4893f8520)**,
+the directory shared by both products: open the **Plugins** tab in ChatGPT, or run
+`/plugins` in the Codex CLI, find **@imqueue** and install it. The listing wires up
+the hosted endpoint for you — no config file, no Node. Codex can *also* run the
+local server alongside it, which is what unlocks the CLI bridge.
+→ **[Both options, side by side](/mcp/installation/#chatgpt-codex)**
 
 The hosted endpoint serves six tools over Streamable HTTP — instant, no Node, no npm,
 no account — and every one of them is read-only: the **documentation** and
@@ -146,6 +155,7 @@ CLI, touch your filesystem. The server is designed for that:
 |---|---|
 | **Package** | [`@imqueue/mcp`](https://www.npmjs.com/package/@imqueue/mcp) on npm |
 | **Registry ID** | `org.imqueue/mcp` (official MCP registry) |
+| **ChatGPT & Codex** | [OpenAI plugin directory listing](https://chatgpt.com/plugins/plugin_asdk_app_6a6f945292888191a7d77db4893f8520) — installs the hosted endpoint |
 | **Transport** | stdio (local) · Streamable HTTP (hosted) |
 | **Hosted endpoint** | [`https://mcp.imqueue.org/mcp`](https://mcp.imqueue.org/mcp) — 6 read-only tools (docs + scaffolding) |
 | **Local install** | 13 tools — the 5 above plus the 8 CLI-bridge tools |
