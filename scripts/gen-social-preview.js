@@ -84,6 +84,10 @@ const CARDS = [
   // unicaster sends direct unicast to discovered pods where broadcast is blocked.
   { repo: "redis-broker-promoter", name: "redis-broker-promoter", tagline: "Announces new Redis broker instances", tagline2: "for horizontal message-bus auto-scaling", tag: "UDP broadcast · Redis · auto-scaling" },
   { repo: "redis-broker-unicaster", name: "redis-broker-unicaster", tagline: "Unicasts new Redis brokers to cluster pods", tagline2: "where broadcast is blocked (e.g. GCP VPC)", tag: "UDP unicast · Kubernetes · auto-scaling" },
+  // The image that carries both of the two above. It is pulled rather than
+  // installed, so the command line is a `docker run` — the only entry here whose
+  // command is not npm, and the point of the card is that it is one pull.
+  { repo: "redis-broker", name: "redis-broker", tagline: "Redis that announces itself", tagline2: "both discovery modules, chosen at runtime", cmd: "docker run ghcr.io/imqueue/redis-broker:7.4" },
 ];
 
 // Fit the package name: shrink font so it never collides with the right edge.
