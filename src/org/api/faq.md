@@ -805,18 +805,30 @@ reconfigured.
 
 Which module depends on one question: does your network deliver broadcast?
 
+Both modules ship in one image,
+[`ghcr.io/imqueue/redis-broker`](https://github.com/imqueue/redis-broker), and
+`IMQ_BROKER_MODE` picks which one loads — so the answer changes one environment
+variable rather than the deployment:
+
 ~~~bash
 # L2 segment — bare metal, VMs, a docker bridge, your laptop
-REDIS_BROADCAST_NAME=imq-broker \
-REDIS_BROADCAST_INTERVAL=1 \
-redis-server --port 6379 --loadmodule $PWD/promoter.so
+docker run -p 6379:6379 -e IMQ_BROKER_MODE=promoter \
+    ghcr.io/imqueue/redis-broker:7.4
 
-# Kubernetes on GCP or any cloud VPC, where broadcast is dropped:
-# the same datagram, unicast to every pod the K8s API lists
-DEPLOYMENT_ENV=production \
-SELECTED_INTERFACES=10. \
-redis-server --port 6379 --loadmodule $PWD/unicaster.so
+# Kubernetes on GCP or any cloud VPC, where broadcast is dropped: the same
+# datagram, unicast to every pod the K8s API lists. DEPLOYMENT_ENV is the
+# NAMESPACE despite the name — take it from metadata.namespace, never type it.
+docker run -e IMQ_BROKER_MODE=unicaster \
+    -e DEPLOYMENT_ENV="$POD_NAMESPACE" -e SELECTED_INTERFACES=10. \
+    ghcr.io/imqueue/redis-broker:7.4
 ~~~
+
+The image also fixes the keyspace-event floor (`Ex`) in its config rather than
+leaving it to the first client that connects, denies `CONFIG SET` at runtime, and
+refuses to start on a misconfiguration that would otherwise discover nothing
+silently. `deploy/` in that repo carries the ServiceAccount, RBAC and
+NetworkPolicy. To compile the modules yourself instead, both repositories are a
+`make` away and remain the source of truth.
 
 The client side does not care which one is running, because both emit the same
 datagram to the same port:
