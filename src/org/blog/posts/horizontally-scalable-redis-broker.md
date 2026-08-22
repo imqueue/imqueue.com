@@ -249,9 +249,56 @@ to a single broker will miss responses that round-robin landed elsewhere.
 - **Auth.** Give every broker the same credentials (one shared ACL file works
   well), because any service may connect to any discovered broker.
 - **Security.** The datagrams are plain, unauthenticated UDP — anyone who can
-  reach the port can inject or evict brokers. Broadcast confines itself to the
-  L2 segment; for the unicaster, keep UDP `63000` cluster-internal with a
-  NetworkPolicy and treat the namespace boundary as the trust boundary.
+  reach the port can inject or evict brokers. That is a deliberate trade with
+  controls attached rather than an oversight, and it is worth stating in full
+  rather than as a caveat: the next section does that.
+
+## What the announcement channel exposes
+
+Anyone who can send a UDP datagram to port `63000` on the discovery address can
+announce a broker `up`, or announce a real one `down`. There is no signature and
+no shared secret; the datagram carries a name, a GUID, a status and a
+`host:port`, and any of them can be fabricated. Reaching the port is the whole
+of the attack.
+
+**Announcing a hostile broker** puts an attacker-controlled address into every
+discovering client's rotation, so a share of real requests — arguments included
+— lands on it, and the replies their callers are waiting for never arrive.
+**Announcing `down`** evicts a real broker at once, and clients that have moved
+on miss the replies still in flight on it.
+
+The amplifier is that **announcements are not filtered by queue name**. Every
+cluster registered with a manager on that address and port receives every
+announcement sent there — so two unrelated fleets sharing a segment and the
+default `REDIS_BROADCAST_NAME` discover each other's brokers with nobody
+attacking anything. The accident and the attack are the same mechanism, and the
+accident is far more likely.
+
+Four controls, and the first is the one that matters:
+
+1. A `NetworkPolicy` confining `63000/udp` and `6379/tcp` to the namespace.
+2. A distinct `REDIS_BROADCAST_NAME`, and preferably port, per fleet.
+3. `SELECTED_INTERFACES` pinned to the pod CIDR, so a broker never announces an
+   address the fleet cannot reach.
+4. RBAC scoped to `list` on `pods` in one namespace, for the unicaster.
+
+**Why this is an acceptable design.** The trust boundary is the namespace, and it
+is the same boundary that already protects Redis itself: an attacker who can send
+UDP to `63000` can almost always also open TCP to `6379`, where without a
+password they can read every queued message and run `FLUSHALL`. Discovery does not
+add a perimeter — it sits inside the one you already have to defend. Setting a
+password does not change that either: it protects the data path, while the
+datagram stays unauthenticated, so it turns "can read your queues" into "can
+disrupt your routing".
+
+There is **no signing or HMAC on the announcement today**, and it is not planned:
+it would need a secret distributed to every broker and client and kept in step
+with the Redis password, for a payoff bounded by the port having to be reachable
+at all. If your threat model puts an untrusted party inside the namespace, use a
+static `cluster: [...]` list instead — you give up automatic scaling and gain a
+fleet that cannot be changed from the network. The full write-up, including the
+manifests, lives in
+[THREAT-MODEL.md](https://github.com/imqueue/redis-broker/blob/master/THREAT-MODEL.md).
 
 ## Picking a recipe
 
