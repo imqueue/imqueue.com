@@ -115,6 +115,20 @@
   .doc-toc { position: static; margin-bottom: 28px; }
 }
 
+/* `wide: true` in front matter drops the reading measure for a page whose content
+   is tables rather than paragraphs (/status/). At 760px those tables sat in the
+   left two thirds of the column with a dead strip beside them; the measure is
+   there to keep prose readable, and a version/licence grid is not prose. */
+.doc-layout.doc-wide .prose { max-width: none; }
+/* `.prose table` is display:block so it can scroll in its own box; that also makes
+   the grid inside shrink-to-fit, which would rebuild the dead strip this class
+   exists to remove. A real table fills the column instead — restored to the
+   scrollable block below the layout breakpoint, where overflow matters again. */
+.doc-layout.doc-wide .prose table { display: table; width: 100%; }
+@media (max-width: 900px) {
+  .doc-layout.doc-wide .prose table { display: block; }
+}
+
 /* Full API Reference — latest-version package cards + older-versions disclosure */
 .prose .api-ref-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 0 0 18px; }
 .prose .api-ref-card { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; transition: border-color .15s ease; }
