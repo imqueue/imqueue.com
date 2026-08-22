@@ -1,36 +1,36 @@
 {
   "core": {
-    "latest": "3.4.0",
+    "latest": "3.4.2",
     "archives": [
       "2.0.26",
       "1.15.0"
     ]
   },
   "rpc": {
-    "latest": "3.7.0",
+    "latest": "3.7.1",
     "archives": [
       "2.1.0",
       "1.17.1"
     ]
   },
   "pg-pubsub": {
-    "latest": "3.0.5",
+    "latest": "3.0.6",
     "archives": []
   },
   "pg-cache": {
-    "latest": "5.1.0",
+    "latest": "5.1.1",
     "archives": []
   },
   "tag-cache": {
-    "latest": "3.0.3",
+    "latest": "3.0.4",
     "archives": []
   },
   "pg-sequelize": {
-    "latest": "4.2.1",
+    "latest": "4.2.2",
     "archives": []
   },
   "pg-prisma": {
-    "latest": "1.0.2",
+    "latest": "1.0.3",
     "archives": []
   },
   "async-logger": {
@@ -46,15 +46,15 @@
     "archives": []
   },
   "graphql-dependency": {
-    "latest": "3.1.0",
+    "latest": "3.1.1",
     "archives": []
   },
   "type-graphql-dependency": {
-    "latest": "3.0.3",
+    "latest": "3.0.4",
     "archives": []
   },
   "net": {
-    "latest": "3.0.2",
+    "latest": "3.0.3",
     "archives": []
   },
   "http-protect": {
@@ -62,11 +62,11 @@
     "archives": []
   },
   "validation": {
-    "latest": "1.1.0",
+    "latest": "1.1.1",
     "archives": []
   },
   "job": {
-    "latest": "3.1.0",
+    "latest": "3.1.1",
     "archives": []
   }
 }

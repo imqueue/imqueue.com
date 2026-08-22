@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/graphql-dependency 3.1.0 · API reference"
+title: "@imqueue/graphql-dependency 3.1.1 · API reference"
 description: "Declarative dependency loading for GraphQL schemas served by @imqueue services — describe how your types relate once, at start-up, and nested data arrives in…"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/graphql-dependency","url":"/api/graphql-dependency/latest/"}]
 ---
