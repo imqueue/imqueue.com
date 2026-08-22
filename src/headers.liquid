@@ -145,6 +145,20 @@ put the header on the markdown mirrors.
   X-Robots-Tag: noindex
   Cache-Control: public, max-age=0, must-revalidate
 
+{%- if edition == "org" %}
+# The package status feed. Same revalidate-always treatment as the search corpus,
+# and for a sharper version of the same reason: this file states what version each
+# package IS. A copy cached for four hours does not merely go out of date, it hands
+# an agent a version number the registry no longer agrees with — and an agent that
+# fetched it from the project's own domain has no reason to doubt it. `generated`
+# inside the file is the second line of defence, for a copy that got cached anyway.
+#
+# noindex because /status/ is the page; this is the same facts shaped for a fetch().
+/status.json
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=0, must-revalidate
+{%- endif %}
+
 # /search/ is a results page: unbounded URL space (`?q=` takes anything), no content of
 # its own, and every link on it exists on a real page. The meta tag says the same thing —
 # both, because a header covers the case where a crawler reads only the response.

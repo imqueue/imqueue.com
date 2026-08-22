@@ -33,11 +33,14 @@
     }
   },
   "scripts": {
-    "test": "npm run check:redirects && npm run check:agent-analytics && npm run check:dates && npm run check:links && npm run check:sitemap && npm run check:llms && npm run check:search-ranker && npm run check:search-index && npm run check:search-ranking && npm run check:kpi && npm run check:search-ui && npm run check:jsonld && npm run check:mermaid",
+    "test": "npm run check:redirects && npm run check:agent-analytics && npm run check:dates && npm run check:package-status && npm run check:links && npm run check:sitemap && npm run check:llms && npm run check:search-ranker && npm run check:search-index && npm run check:search-ranking && npm run check:kpi && npm run check:search-ui && npm run check:jsonld && npm run check:mermaid",
     "check:redirects": "node scripts/check-redirects.js",
     "check:agent-analytics": "node scripts/check-agent-analytics.js",
     "probe:agent-analytics": "node scripts/probe-agent-analytics.js",
     "check:dates": "node scripts/gen-page-dates.js --check",
+    "check:package-status": "node scripts/check-package-status.js",
+    "check:package-status:npm": "node scripts/gen-package-status.js --check",
+    "check:ranker-engine": "node scripts/check-ranker-engine.js",
     "check:sitemap": "node scripts/check-sitemap.js",
     "check:llms": "node scripts/check-llms.js",
     "check:search-ranker": "node scripts/check-search-ranker.js",
@@ -78,6 +81,7 @@
     "gen-og": "node scripts/gen-og-images.js",
     "gen-og-blog": "node scripts/gen-og-blog.js",
     "gen-page-dates": "node scripts/gen-page-dates.js",
+    "gen-package-status": "node scripts/gen-package-status.js",
     "build-docs": "node scripts/build-api-docs.js",
     "gen-api-crosslinks": "node scripts/gen-api-crosslinks.js",
     "backfill-api-descriptions": "node scripts/backfill-api-descriptions.js",

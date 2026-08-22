@@ -1,0 +1,402 @@
+{
+  "generated": "2026-08-22T03:32:35.570Z",
+  "framework": {
+    "license": "GPL-3.0-only",
+    "licenseNote": "GPL-3.0-only, or a commercial licence for closed-source distribution",
+    "commercial": "https://imqueue.com/license/",
+    "node": "22.12 or newer",
+    "redis": "3.2 or newer (6.2+ for safe delivery)"
+  },
+  "packages": [
+    {
+      "name": "core",
+      "scoped": "@imqueue/core",
+      "version": "3.4.0",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-08-20",
+      "firstRelease": "2018-06-15",
+      "releases": 87,
+      "majors": [
+        1,
+        2,
+        3
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/core",
+      "docs": "/api/core/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/core",
+      "repo": "https://github.com/imqueue/core",
+      "blurb": "The JSON messaging-queue engine, the IMQ factory, and the pluggable adapter interface."
+    },
+    {
+      "name": "rpc",
+      "scoped": "@imqueue/rpc",
+      "version": "3.7.0",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-08-20",
+      "firstRelease": "2018-06-15",
+      "releases": 117,
+      "majors": [
+        1,
+        2,
+        3
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/rpc",
+      "docs": "/api/rpc/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/rpc",
+      "repo": "https://github.com/imqueue/rpc",
+      "blurb": "Services, clients and decorators — @expose, @remote, @lock, @cache — and the RPC runtime."
+    },
+    {
+      "name": "pg-pubsub",
+      "scoped": "@imqueue/pg-pubsub",
+      "version": "3.0.5",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-08-01",
+      "firstRelease": "2019-12-28",
+      "releases": 53,
+      "majors": [
+        1,
+        2,
+        3
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/pg-pubsub",
+      "docs": "/api/pg-pubsub/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/pg-pubsub",
+      "repo": "https://github.com/imqueue/pg-pubsub",
+      "blurb": "Reliable PostgreSQL LISTEN/NOTIFY with inter-process lock support."
+    },
+    {
+      "name": "pg-cache",
+      "scoped": "@imqueue/pg-cache",
+      "version": "5.1.0",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-08-18",
+      "firstRelease": "2020-03-18",
+      "releases": 60,
+      "majors": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/pg-cache",
+      "docs": "/api/pg-cache/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/pg-cache",
+      "repo": "https://github.com/imqueue/pg-cache",
+      "blurb": "PostgreSQL-managed cache on Redis for @imqueue service methods."
+    },
+    {
+      "name": "tag-cache",
+      "scoped": "@imqueue/tag-cache",
+      "version": "3.0.3",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-07-31",
+      "firstRelease": "2019-10-31",
+      "releases": 27,
+      "majors": [
+        1,
+        2,
+        3
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/tag-cache",
+      "docs": "/api/tag-cache/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/tag-cache",
+      "repo": "https://github.com/imqueue/tag-cache",
+      "blurb": "Tagged cache implementation over Redis."
+    },
+    {
+      "name": "pg-sequelize",
+      "scoped": "@imqueue/pg-sequelize",
+      "version": "4.2.1",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-08-18",
+      "firstRelease": "2026-08-01",
+      "releases": 2,
+      "majors": [
+        4
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/pg-sequelize",
+      "docs": "/api/pg-sequelize/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/pg-sequelize",
+      "repo": "https://github.com/imqueue/pg-sequelize",
+      "blurb": "Turns a query described as data — filters, paging, ordering and the requested fields — into one efficient Sequelize statement, with database views as models."
+    },
+    {
+      "name": "pg-prisma",
+      "scoped": "@imqueue/pg-prisma",
+      "version": "1.0.2",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-08-16",
+      "firstRelease": "2026-07-22",
+      "releases": 3,
+      "majors": [
+        1
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/pg-prisma",
+      "docs": "/api/pg-prisma/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/pg-prisma",
+      "repo": "https://github.com/imqueue/pg-prisma",
+      "blurb": "Prisma query extensions — soft-delete, access scoping, authorship and audit trails — plus row archiving, change-notify triggers and down-migrations."
+    },
+    {
+      "name": "async-logger",
+      "scoped": "@imqueue/async-logger",
+      "version": "3.2.0",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-07-31",
+      "firstRelease": "2020-03-22",
+      "releases": 14,
+      "majors": [
+        1,
+        2,
+        3
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/async-logger",
+      "docs": "/api/async-logger/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/async-logger",
+      "repo": "https://github.com/imqueue/async-logger",
+      "blurb": "Non-blocking logger over winston, with file and HTTP transports configured from the environment."
+    },
+    {
+      "name": "opentelemetry",
+      "scoped": "@imqueue/opentelemetry",
+      "version": "4.1.0",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-08-09",
+      "firstRelease": "2026-08-01",
+      "releases": 2,
+      "majors": [
+        4
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/opentelemetry",
+      "docs": "/api/opentelemetry/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/opentelemetry",
+      "repo": "https://github.com/imqueue/opentelemetry",
+      "blurb": "OpenTelemetry instrumentation for @imqueue/rpc — every RPC traced, with no changes to service or client code."
+    },
+    {
+      "name": "datadog",
+      "scoped": "@imqueue/datadog",
+      "version": "3.2.0",
+      "license": "GPL-3.0-only",
+      "node": null,
+      "released": "2026-08-01",
+      "firstRelease": "2026-08-01",
+      "releases": 1,
+      "majors": [
+        3
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/datadog",
+      "docs": "/api/datadog/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/datadog",
+      "repo": "https://github.com/imqueue/datadog",
+      "blurb": "Datadog APM tracing for @imqueue/rpc — a drop-in replacement for Datadog's own dd-trace package that traces every RPC."
+    },
+    {
+      "name": "graphql-dependency",
+      "scoped": "@imqueue/graphql-dependency",
+      "version": "3.1.0",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-07-31",
+      "firstRelease": "2019-10-31",
+      "releases": 27,
+      "majors": [
+        1,
+        2,
+        3
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/graphql-dependency",
+      "docs": "/api/graphql-dependency/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/graphql-dependency",
+      "repo": "https://github.com/imqueue/graphql-dependency",
+      "blurb": "Declarative cross-service dependency loading for GraphQL — nested data in bulk instead of one call per resolved object."
+    },
+    {
+      "name": "type-graphql-dependency",
+      "scoped": "@imqueue/type-graphql-dependency",
+      "version": "3.0.3",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-07-31",
+      "firstRelease": "2021-03-04",
+      "releases": 15,
+      "majors": [
+        1,
+        2,
+        3
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/type-graphql-dependency",
+      "docs": "/api/type-graphql-dependency/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/type-graphql-dependency",
+      "repo": "https://github.com/imqueue/type-graphql-dependency",
+      "blurb": "The same dependency loading for type-graphql — declared on your decorated classes rather than on raw GraphQL types."
+    },
+    {
+      "name": "net",
+      "scoped": "@imqueue/net",
+      "version": "3.0.2",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-08-01",
+      "firstRelease": "2021-11-21",
+      "releases": 9,
+      "majors": [
+        1,
+        2,
+        3
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/net",
+      "docs": "/api/net/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/net",
+      "repo": "https://github.com/imqueue/net",
+      "blurb": "CIDR membership testing for IPv4 and IPv6 — sorted binary ranges searched in O(log n) rather than one comparison per network."
+    },
+    {
+      "name": "http-protect",
+      "scoped": "@imqueue/http-protect",
+      "version": "3.0.1",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-08-01",
+      "firstRelease": "2023-12-03",
+      "releases": 7,
+      "majors": [
+        1,
+        2,
+        3
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/http-protect",
+      "docs": "/api/http-protect/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/http-protect",
+      "repo": "https://github.com/imqueue/http-protect",
+      "blurb": "Per-IP rate limiting and banning for express-like servers, backed by Redis so every process sees one view of a client."
+    },
+    {
+      "name": "validation",
+      "scoped": "@imqueue/validation",
+      "version": "1.1.0",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-08-01",
+      "firstRelease": "2026-07-22",
+      "releases": 2,
+      "majors": [
+        1
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/validation",
+      "docs": "/api/validation/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/validation",
+      "repo": "https://github.com/imqueue/validation",
+      "blurb": "Zod-backed field- and method-level validation via native (TC39) decorators."
+    },
+    {
+      "name": "job",
+      "scoped": "@imqueue/job",
+      "version": "3.1.0",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-08-20",
+      "firstRelease": "2020-11-20",
+      "releases": 20,
+      "majors": [
+        1,
+        2,
+        3
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/job",
+      "docs": "/api/job/latest/",
+      "documented": true,
+      "npm": "https://www.npmjs.com/package/@imqueue/job",
+      "repo": "https://github.com/imqueue/job",
+      "blurb": "Safe-by-default Redis job queue — delayed and scheduled jobs, at-least-once delivery, and retries driven by the handler."
+    },
+    {
+      "name": "cli",
+      "scoped": "@imqueue/cli",
+      "version": "5.2.0",
+      "license": "GPL-3.0-only",
+      "node": ">=22.12.0",
+      "released": "2026-08-20",
+      "firstRelease": "2018-06-15",
+      "releases": 93,
+      "majors": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/cli",
+      "docs": "/cli/",
+      "documented": false,
+      "npm": "https://www.npmjs.com/package/@imqueue/cli",
+      "repo": "https://github.com/imqueue/cli",
+      "blurb": "Scaffolds services, generates typed clients, and runs a local fleet — the entry point."
+    },
+    {
+      "name": "mcp",
+      "scoped": "@imqueue/mcp",
+      "version": "3.5.2",
+      "license": "GPL-3.0",
+      "node": ">=18",
+      "released": "2026-08-22",
+      "firstRelease": "2026-07-22",
+      "releases": 35,
+      "majors": [
+        1,
+        2,
+        3
+      ],
+      "deprecated": false,
+      "install": "npm i @imqueue/mcp",
+      "docs": "/mcp/",
+      "documented": false,
+      "npm": "https://www.npmjs.com/package/@imqueue/mcp",
+      "repo": "https://github.com/imqueue/mcp",
+      "blurb": "The Model Context Protocol server: these docs as tools, over stdio or the hosted endpoint."
+    }
+  ]
+}
