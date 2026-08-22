@@ -58,24 +58,24 @@ command-line tool and wants `npm i -g @imqueue/cli`.
 <!-- status:begin packages -->
 | Package | Version | Licence | Node | Last release |
 |---|---|---|---|---|
-| [@imqueue/core](/api/core/latest/) | 3.4.0 | GPL-3.0-only | `>=22.12.0` | 2026-08-20 |
-| [@imqueue/rpc](/api/rpc/latest/) | 3.7.0 | GPL-3.0-only | `>=22.12.0` | 2026-08-20 |
-| [@imqueue/pg-pubsub](/api/pg-pubsub/latest/) | 3.0.5 | GPL-3.0-only | `>=22.12.0` | 2026-08-01 |
-| [@imqueue/pg-cache](/api/pg-cache/latest/) | 5.1.0 | GPL-3.0-only | `>=22.12.0` | 2026-08-18 |
-| [@imqueue/tag-cache](/api/tag-cache/latest/) | 3.0.3 | GPL-3.0-only | `>=22.12.0` | 2026-07-31 |
-| [@imqueue/pg-sequelize](/api/pg-sequelize/latest/) | 4.2.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-18 |
-| [@imqueue/pg-prisma](/api/pg-prisma/latest/) | 1.0.2 | GPL-3.0-only | `>=22.12.0` | 2026-08-16 |
+| [@imqueue/core](/api/core/latest/) | 3.4.2 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
+| [@imqueue/rpc](/api/rpc/latest/) | 3.7.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
+| [@imqueue/pg-pubsub](/api/pg-pubsub/latest/) | 3.0.6 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
+| [@imqueue/pg-cache](/api/pg-cache/latest/) | 5.1.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
+| [@imqueue/tag-cache](/api/tag-cache/latest/) | 3.0.4 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
+| [@imqueue/pg-sequelize](/api/pg-sequelize/latest/) | 4.2.2 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
+| [@imqueue/pg-prisma](/api/pg-prisma/latest/) | 1.0.3 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
 | [@imqueue/async-logger](/api/async-logger/latest/) | 3.2.0 | GPL-3.0-only | `>=22.12.0` | 2026-07-31 |
 | [@imqueue/opentelemetry](/api/opentelemetry/latest/) | 4.1.0 | GPL-3.0-only | `>=22.12.0` | 2026-08-09 |
 | [@imqueue/datadog](/api/datadog/latest/) | 3.2.0 | GPL-3.0-only | not declared | 2026-08-01 |
-| [@imqueue/graphql-dependency](/api/graphql-dependency/latest/) | 3.1.0 | GPL-3.0-only | `>=22.12.0` | 2026-07-31 |
-| [@imqueue/type-graphql-dependency](/api/type-graphql-dependency/latest/) | 3.0.3 | GPL-3.0-only | `>=22.12.0` | 2026-07-31 |
-| [@imqueue/net](/api/net/latest/) | 3.0.2 | GPL-3.0-only | `>=22.12.0` | 2026-08-01 |
+| [@imqueue/graphql-dependency](/api/graphql-dependency/latest/) | 3.1.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
+| [@imqueue/type-graphql-dependency](/api/type-graphql-dependency/latest/) | 3.0.4 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
+| [@imqueue/net](/api/net/latest/) | 3.0.3 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
 | [@imqueue/http-protect](/api/http-protect/latest/) | 3.0.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-01 |
-| [@imqueue/validation](/api/validation/latest/) | 1.1.0 | GPL-3.0-only | `>=22.12.0` | 2026-08-01 |
-| [@imqueue/job](/api/job/latest/) | 3.1.0 | GPL-3.0-only | `>=22.12.0` | 2026-08-20 |
-| [@imqueue/cli](/cli/) | 5.2.0 | GPL-3.0-only | `>=22.12.0` | 2026-08-20 |
-| [@imqueue/mcp](/mcp/) | 3.5.2 | GPL-3.0 | `>=18` | 2026-08-22 |
+| [@imqueue/validation](/api/validation/latest/) | 1.1.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
+| [@imqueue/job](/api/job/latest/) | 3.1.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
+| [@imqueue/cli](/cli/) | 5.2.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
+| [@imqueue/mcp](/mcp/) | 3.6.0 | GPL-3.0-only | `>=18` | 2026-08-22 |
 <!-- status:end packages -->
 
 Two pairs are mutually exclusive: pick **either** `@imqueue/pg-prisma` **or**

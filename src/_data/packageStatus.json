@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-22T04:50:03.807Z",
+  "generated": "2026-08-22T06:18:01.325Z",
   "framework": {
     "license": "GPL-3.0-only",
     "licenseNote": "GPL-3.0-only, or a commercial licence for closed-source distribution",
@@ -11,12 +11,12 @@
     {
       "name": "core",
       "scoped": "@imqueue/core",
-      "version": "3.4.0",
+      "version": "3.4.2",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-20",
+      "released": "2026-08-22",
       "firstRelease": "2018-06-15",
-      "releases": 87,
+      "releases": 89,
       "majors": [
         1,
         2,
@@ -33,12 +33,12 @@
     {
       "name": "rpc",
       "scoped": "@imqueue/rpc",
-      "version": "3.7.0",
+      "version": "3.7.1",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-20",
+      "released": "2026-08-22",
       "firstRelease": "2018-06-15",
-      "releases": 117,
+      "releases": 118,
       "majors": [
         1,
         2,
@@ -55,12 +55,12 @@
     {
       "name": "pg-pubsub",
       "scoped": "@imqueue/pg-pubsub",
-      "version": "3.0.5",
+      "version": "3.0.6",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-01",
+      "released": "2026-08-22",
       "firstRelease": "2019-12-28",
-      "releases": 53,
+      "releases": 54,
       "majors": [
         1,
         2,
@@ -77,12 +77,12 @@
     {
       "name": "pg-cache",
       "scoped": "@imqueue/pg-cache",
-      "version": "5.1.0",
+      "version": "5.1.1",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-18",
+      "released": "2026-08-22",
       "firstRelease": "2020-03-18",
-      "releases": 60,
+      "releases": 61,
       "majors": [
         1,
         2,
@@ -101,12 +101,12 @@
     {
       "name": "tag-cache",
       "scoped": "@imqueue/tag-cache",
-      "version": "3.0.3",
+      "version": "3.0.4",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-07-31",
+      "released": "2026-08-22",
       "firstRelease": "2019-10-31",
-      "releases": 27,
+      "releases": 28,
       "majors": [
         1,
         2,
@@ -123,12 +123,12 @@
     {
       "name": "pg-sequelize",
       "scoped": "@imqueue/pg-sequelize",
-      "version": "4.2.1",
+      "version": "4.2.2",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-18",
+      "released": "2026-08-22",
       "firstRelease": "2026-08-01",
-      "releases": 2,
+      "releases": 3,
       "majors": [
         4
       ],
@@ -143,12 +143,12 @@
     {
       "name": "pg-prisma",
       "scoped": "@imqueue/pg-prisma",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-16",
+      "released": "2026-08-22",
       "firstRelease": "2026-07-22",
-      "releases": 3,
+      "releases": 4,
       "majors": [
         1
       ],
@@ -225,12 +225,12 @@
     {
       "name": "graphql-dependency",
       "scoped": "@imqueue/graphql-dependency",
-      "version": "3.1.0",
+      "version": "3.1.1",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-07-31",
+      "released": "2026-08-22",
       "firstRelease": "2019-10-31",
-      "releases": 27,
+      "releases": 28,
       "majors": [
         1,
         2,
@@ -247,12 +247,12 @@
     {
       "name": "type-graphql-dependency",
       "scoped": "@imqueue/type-graphql-dependency",
-      "version": "3.0.3",
+      "version": "3.0.4",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-07-31",
+      "released": "2026-08-22",
       "firstRelease": "2021-03-04",
-      "releases": 15,
+      "releases": 16,
       "majors": [
         1,
         2,
@@ -269,12 +269,12 @@
     {
       "name": "net",
       "scoped": "@imqueue/net",
-      "version": "3.0.2",
+      "version": "3.0.3",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-01",
+      "released": "2026-08-22",
       "firstRelease": "2021-11-21",
-      "releases": 9,
+      "releases": 10,
       "majors": [
         1,
         2,
@@ -313,12 +313,12 @@
     {
       "name": "validation",
       "scoped": "@imqueue/validation",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-01",
+      "released": "2026-08-22",
       "firstRelease": "2026-07-22",
-      "releases": 2,
+      "releases": 3,
       "majors": [
         1
       ],
@@ -333,12 +333,12 @@
     {
       "name": "job",
       "scoped": "@imqueue/job",
-      "version": "3.1.0",
+      "version": "3.1.1",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-20",
+      "released": "2026-08-22",
       "firstRelease": "2020-11-20",
-      "releases": 20,
+      "releases": 21,
       "majors": [
         1,
         2,
@@ -355,12 +355,12 @@
     {
       "name": "cli",
       "scoped": "@imqueue/cli",
-      "version": "5.2.0",
+      "version": "5.2.1",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-20",
+      "released": "2026-08-22",
       "firstRelease": "2018-06-15",
-      "releases": 93,
+      "releases": 94,
       "majors": [
         1,
         2,
@@ -379,12 +379,12 @@
     {
       "name": "mcp",
       "scoped": "@imqueue/mcp",
-      "version": "3.5.2",
-      "license": "GPL-3.0",
+      "version": "3.6.0",
+      "license": "GPL-3.0-only",
       "node": ">=18",
       "released": "2026-08-22",
       "firstRelease": "2026-07-22",
-      "releases": 35,
+      "releases": 36,
       "majors": [
         1,
         2,
