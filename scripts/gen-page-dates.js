@@ -86,6 +86,20 @@ function git(args) {
   return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' }).trim();
 }
 
+// One spelling for UTC, because git has two and they are the same instant.
+//
+// `%aI` renders a +0000 commit as "…+00:00" up to git 2.52 and as "…Z" from 2.53.
+// Both are valid ISO-8601 and schema.org accepts either, but --check compares the
+// STRINGS — so the same clean checkout passed on one machine and failed on another
+// with `publication date changed: …+00:00 -> …Z`, for three pages that had not been
+// touched in months. A check whose verdict depends on the developer's git version
+// is a check people learn to override.
+//
+// Canonicalised to "Z": it is what current git emits, so a repository regenerated
+// once stays stable on both. Only UTC-authored commits are affected — every other
+// offset (+03:00 and friends) renders identically in every version.
+const utcZ = (iso) => iso.replace(/\+00:00$/, 'Z');
+
 // `git log --follow --diff-filter=A` gives the commit that introduced the file,
 // tracking renames — the closest thing to a publication date the repo holds.
 function datesFor(rel) {
@@ -95,7 +109,7 @@ function datesFor(rel) {
     .pop();
   const modified = git(['log', '-1', '--format=%aI', '--', rel]);
 
-  return added && modified ? { published: added, modified } : null;
+  return added && modified ? { published: utcZ(added), modified: utcZ(modified) } : null;
 }
 
 const files = ROOTS.flatMap((r) => walk(path.join(ROOT, r))).sort();
