@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/datadog 3.2.0 · API reference"
+title: "@imqueue/datadog 3.2.1 · API reference"
 description: "Datadog APM tracing for @imqueue/rpc — distributed traces across IMQ service calls, with no changes to service or client code."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/datadog","url":"/api/datadog/latest/"}]
 ---

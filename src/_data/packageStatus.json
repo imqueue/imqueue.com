@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-22T07:31:57.553Z",
+  "generated": "2026-08-22T08:10:19.544Z",
   "framework": {
     "license": "GPL-3.0-only",
     "licenseNote": "GPL-3.0-only, or a commercial licence for closed-source distribution",
@@ -33,12 +33,12 @@
     {
       "name": "rpc",
       "scoped": "@imqueue/rpc",
-      "version": "3.7.1",
+      "version": "3.7.2",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
       "released": "2026-08-22",
       "firstRelease": "2018-06-15",
-      "releases": 118,
+      "releases": 119,
       "majors": [
         1,
         2,
@@ -55,12 +55,12 @@
     {
       "name": "pg-pubsub",
       "scoped": "@imqueue/pg-pubsub",
-      "version": "3.0.6",
+      "version": "3.0.7",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
       "released": "2026-08-22",
       "firstRelease": "2019-12-28",
-      "releases": 54,
+      "releases": 55,
       "majors": [
         1,
         2,
@@ -77,12 +77,12 @@
     {
       "name": "pg-cache",
       "scoped": "@imqueue/pg-cache",
-      "version": "5.1.1",
+      "version": "5.1.2",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
       "released": "2026-08-22",
       "firstRelease": "2020-03-18",
-      "releases": 61,
+      "releases": 62,
       "majors": [
         1,
         2,
@@ -101,12 +101,12 @@
     {
       "name": "tag-cache",
       "scoped": "@imqueue/tag-cache",
-      "version": "3.0.4",
+      "version": "3.0.5",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
       "released": "2026-08-22",
       "firstRelease": "2019-10-31",
-      "releases": 28,
+      "releases": 29,
       "majors": [
         1,
         2,
@@ -123,12 +123,12 @@
     {
       "name": "pg-sequelize",
       "scoped": "@imqueue/pg-sequelize",
-      "version": "4.2.2",
+      "version": "4.2.3",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
       "released": "2026-08-22",
       "firstRelease": "2026-08-01",
-      "releases": 3,
+      "releases": 4,
       "majors": [
         4
       ],
@@ -185,12 +185,12 @@
     {
       "name": "opentelemetry",
       "scoped": "@imqueue/opentelemetry",
-      "version": "4.1.0",
+      "version": "4.1.1",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-09",
+      "released": "2026-08-22",
       "firstRelease": "2026-08-01",
-      "releases": 2,
+      "releases": 3,
       "majors": [
         4
       ],
@@ -205,12 +205,12 @@
     {
       "name": "datadog",
       "scoped": "@imqueue/datadog",
-      "version": "3.2.0",
+      "version": "3.2.1",
       "license": "GPL-3.0-only",
       "node": null,
-      "released": "2026-08-01",
+      "released": "2026-08-22",
       "firstRelease": "2026-08-01",
-      "releases": 1,
+      "releases": 2,
       "majors": [
         3
       ],
@@ -355,12 +355,12 @@
     {
       "name": "cli",
       "scoped": "@imqueue/cli",
-      "version": "5.2.1",
+      "version": "5.2.2",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
       "released": "2026-08-22",
       "firstRelease": "2018-06-15",
-      "releases": 94,
+      "releases": 95,
       "majors": [
         1,
         2,

@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/tag-cache 3.0.4 · API reference"
+title: "@imqueue/tag-cache 3.0.5 · API reference"
 description: "Tagged cache over Redis: every value is stored with a set of tags, and invalidating a tag drops everything stored under it."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/tag-cache","url":"/api/tag-cache/latest/"}]
 ---
