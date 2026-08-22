@@ -87,7 +87,7 @@ const CARDS = [
   // The image that carries both of the two above. It is pulled rather than
   // installed, so the command line is a `docker run` — the only entry here whose
   // command is not npm, and the point of the card is that it is one pull.
-  { repo: "redis-broker", name: "redis-broker", tagline: "Redis that announces itself", tagline2: "both discovery modules, chosen at runtime", cmd: "docker run ghcr.io/imqueue/redis-broker:7.4" },
+  { repo: "redis-broker", name: "redis-broker", tagline: "Redis that announces itself", tagline2: "both discovery modules, chosen at runtime", cmd: "docker run ghcr.io/imqueue/redis-broker:7.4", licence: "ISC" },
 ];
 
 // Fit the package name: shrink font so it never collides with the right edge.
@@ -98,7 +98,9 @@ function nameSize(name) {
   return 62;                         // "redis-broker-unicaster"
 }
 
-function card({ name, tagline, tagline2, cmd, tag }) {
+// `licence` overrides the GPL-3.0 default: redis-broker is ISC, because the
+// broker layer is infrastructure you run rather than a library you build against.
+function card({ name, tagline, tagline2, cmd, tag, licence }) {
   const ns = nameSize(name);
   // One-line tagline sits at y=372 with the command at 486; a second tagline
   // line tightens the two together and pushes the command down.
@@ -139,7 +141,7 @@ function card({ name, tagline, tagline2, cmd, tag }) {
 
   ${actionLine}
 
-  <text x="100" y="590" font-family="${MONO}" font-weight="700" font-size="28" fill="#7f8f89">open source · GPL-3.0</text>
+  <text x="100" y="590" font-family="${MONO}" font-weight="700" font-size="28" fill="#7f8f89">open source · ${licence || "GPL-3.0"}</text>
   <text x="1180" y="590" text-anchor="end" font-family="${MONO}" font-weight="700" font-size="28" fill="#7f8f89">imqueue.org</text>
 </svg>`;
 }
