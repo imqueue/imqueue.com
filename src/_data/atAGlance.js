@@ -39,7 +39,7 @@ module.exports = () => {
 
   add('@imqueue/core', latest('core'));
   add('@imqueue/rpc', latest('rpc'));
-  add('Licence', 'GPL-3.0-only, or a commercial licence for closed-source distribution');
+  add('Licence', 'GPL-3.0-only, or a commercial licence for closed-source distribution. Not AGPL: running it as a network service is not distribution, so internal services and SaaS carry no source-release obligation');
   add('Node.js', '22.12 or newer');
   add('Redis', '3.2 or newer (6.2+ for safe delivery)');
   add('Transport', 'Redis only — the vendor option defaults to Redis and is its only supported value');
