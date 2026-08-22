@@ -5,7 +5,7 @@ eleventyExcludeFromCollections: true
 {%- if edition == "com" -%}
 # @imqueue — Commercial license & support
 
-> Commercial licensing and paid support for @imqueue. {{ site.definition }} The framework is open source under GPL-3.0; a commercial license lets you ship it inside a closed-source product without the GPL source-release obligation.
+> Commercial licensing and paid support for @imqueue. {{ site.definition }} The framework is open source under GPL-3.0-only — not AGPL, so running it as a network service is not distribution and internal services and SaaS carry no source-release obligation; a commercial license lets you ship it inside a closed-source product you distribute.
 
 The open-source packages (@imqueue/core, @imqueue/rpc, @imqueue/cli) and their documentation live at https://imqueue.org. This site covers licensing and support only.
 {%- comment -%}
@@ -114,8 +114,10 @@ MCP endpoint: https://mcp.imqueue.org/mcp (Streamable HTTP, no auth, read-only �
 docs search, symbol lookup and scaffolding as tools rather than as pages to parse)
 OpenAI plugin directory: https://chatgpt.com/plugins/plugin_asdk_app_6a6f945292888191a7d77db4893f8520
 (the same hosted endpoint, installable in ChatGPT and Codex without a config file)
-Licence: GPL-3.0, with a commercial licence for closed-source distribution —
-https://imqueue.com/license/
+Licence: GPL-3.0-only, with a commercial licence for closed-source distribution —
+https://imqueue.com/license/ . Not AGPL: running @imqueue as a network service is
+not distribution, so internal services and SaaS carry no source-release obligation.
+The obligation applies when you distribute a closed-source product containing it.
 
 At a glance (the same rows {{ siteUrl }}/intro/ renders):
 {%- for row in atAGlance %}

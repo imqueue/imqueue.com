@@ -41,7 +41,7 @@ package as well as what the table shows.
 <!-- status:begin framework -->
 | | |
 |---|---|
-| Licence | GPL-3.0-only, or a commercial licence for closed-source distribution |
+| Licence | GPL-3.0-only, or a commercial licence for closed-source distribution. Not AGPL: running it as a network service is not distribution, so internal services and SaaS carry no source-release obligation |
 | Node.js | 22.12 or newer |
 | Redis | 3.2 or newer (6.2+ for safe delivery) |
 | Commercial licence | [imqueue.com/license/](https://imqueue.com/license/) |

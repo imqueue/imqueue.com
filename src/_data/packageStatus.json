@@ -1,8 +1,8 @@
 {
-  "generated": "2026-08-22T08:10:19.544Z",
+  "generated": "2026-08-22T10:48:17.885Z",
   "framework": {
     "license": "GPL-3.0-only",
-    "licenseNote": "GPL-3.0-only, or a commercial licence for closed-source distribution",
+    "licenseNote": "GPL-3.0-only, or a commercial licence for closed-source distribution. Not AGPL: running it as a network service is not distribution, so internal services and SaaS carry no source-release obligation",
     "commercial": "https://imqueue.com/license/",
     "node": "22.12 or newer",
     "redis": "3.2 or newer (6.2+ for safe delivery)"
