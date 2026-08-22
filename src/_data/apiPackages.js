@@ -10,10 +10,13 @@
 const { shippedGroups, TAGS } = require('../../scripts/lib/api-packages');
 
 // Every @imqueue package lives at github.com/imqueue/<unscoped name> — verified
-// for all 16, so it is derived rather than configured. One caveat worth recording:
-// @imqueue/pg-cache's own npm `repository.url` points at imqueue/pg-pubsub, which
-// is a copy-paste error in that package.json. github.com/imqueue/pg-cache exists
-// and is the real repository, so do not "correct" this to follow npm.
+// for all 16, so it is derived rather than configured.
+//
+// This used to carry a caveat: @imqueue/pg-cache published `repository.url`
+// pointing at imqueue/pg-pubsub, so the note said not to "correct" this to follow
+// npm. That was true up to 5.0.5 and stopped being true at 5.0.6, and the note
+// outlived it by two releases — the derived URL was right the whole time, which is
+// why nothing caught the drift. npm now agrees with the derivation for all 16.
 const repoOf = (name) => `https://github.com/imqueue/${name}`;
 
 // Stable key for remembering a group's collapsed state in localStorage, derived
