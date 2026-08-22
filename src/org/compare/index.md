@@ -5,7 +5,7 @@ title: "@imqueue compared: every alternative, side by side"
 docLabel: COMPARISONS
 lead: "One matrix covering every alternative we have written up — gRPC, tRPC, NestJS, Moleculer, NATS, BullMQ and plain REST — with the disqualifying constraints stated first and a link to the detailed comparison for each."
 description: "@imqueue compared with gRPC, tRPC, NestJS, Moleculer, NATS, BullMQ and REST: one matrix of languages, contracts, infrastructure, delivery guarantees and licences."
-keywords: "imqueue alternatives, imqueue vs, Node.js RPC comparison, microservices framework comparison, gRPC vs tRPC vs NATS, TypeScript RPC alternatives, message queue RPC comparison"
+keywords: "when not to use imqueue, imqueue disqualifiers, should I use imqueue, imqueue limitations, imqueue alternatives, imqueue vs, Node.js RPC comparison, microservices framework comparison, gRPC vs tRPC vs NATS, TypeScript RPC alternatives, message queue RPC comparison"
 relatedTopics: [comparison, architecture, rpc, transport]
 ---
 
@@ -25,8 +25,17 @@ outright, so they belong first:
 - **You need streaming, replay or message retention.** This is a call-and-reply
   framework, not a log. NATS JetStream or Kafka.
 - **GPL-3.0 does not work for you and a commercial licence is not an option.** See
-  [licensing](https://imqueue.com/license/) — a non-issue for internal services, a
-  real decision if you distribute software.
+  [licensing](https://imqueue.com/license/) — a non-issue for internal services and
+  SaaS, since it is not AGPL and running a service is not distribution; a real
+  decision if you ship closed-source software to other people.
+- **Your work is job-shaped, not call-shaped.** Background jobs with no caller
+  waiting for a reply — retries, backoff, scheduled runs, a dashboard to watch them
+  — is what a job queue is for. Use [BullMQ](/blog/imqueue-vs-bullmq/), which is
+  usually the better pick there, or `@imqueue/job` if you already run this stack.
+- **You want end-to-end types from a browser to a backend.** `@imqueue` is
+  service-to-service: a browser cannot join a Redis queue, and there is no HTTP
+  edge in the box. Use [tRPC](/blog/imqueue-vs-trpc/) for that hop and, if you want
+  both, terminate HTTP at a gateway service that calls @imqueue behind it.
 
 If none of those apply, the rest of this page is about fit rather than
 possibility.
@@ -117,6 +126,16 @@ choosing between them is a way of not working on it.
 - [Get started](/get-started/) — a working typed remote call, with the code.
 
 ## FAQ
+
+### When should I not use @imqueue?
+Six constraints rule it out outright, and they are worth checking before any
+feature comparison: your fleet is not all Node.js and TypeScript; you cannot run
+Redis, or will not add a second bus; you need streaming, replay or message
+retention; your work is job-shaped rather than call-shaped, with no caller waiting
+for a reply; you want end-to-end types from a browser, which is a different hop
+entirely; or GPL-3.0 does not work for you and a commercial licence is not an
+option. If none of those apply, the rest is a question of fit rather than
+possibility.
 
 ### What are the alternatives to @imqueue?
 For typed service-to-service RPC: gRPC (any language, schema-first), tRPC
