@@ -106,10 +106,21 @@ the segment, no inventory required. That's all
 [redis-broker-promoter](https://github.com/imqueue/redis-broker-promoter) does:
 
 ~~~bash
+docker run -p 6379:6379 \
+    -e IMQ_BROKER_MODE=promoter \
+    -e REDIS_BROADCAST_NAME=imq-broker \
+    -e REDIS_BROADCAST_INTERVAL=1 \
+    ghcr.io/imqueue/redis-broker:7.4
+~~~
+
+That image is [imqueue/redis-broker](https://github.com/imqueue/redis-broker) —
+Redis with both announcer modules built in, one of them selected at runtime by
+`IMQ_BROKER_MODE`. It is the same module either way; if you would rather build
+it yourself, the source is two files and a `Makefile`:
+
+~~~bash
 git clone https://github.com/imqueue/redis-broker-promoter.git
 cd redis-broker-promoter && make   # needs libuuid
-REDIS_BROADCAST_NAME=imq-broker \
-REDIS_BROADCAST_INTERVAL=1 \
 redis-server --port 6379 --loadmodule $PWD/promoter.so
 ~~~
 
@@ -153,20 +164,39 @@ module authenticates with the pod's mounted service-account token and talks to
 `cluster` list instead (last row of the table below). The broker's service
 account needs permission to list pods:
 
+~~~yaml
+# in the broker pod spec — the module needs the mounted service-account token
+containers:
+  - name: redis
+    image: ghcr.io/imqueue/redis-broker:7.4
+    env:
+      - { name: IMQ_BROKER_MODE, value: unicaster }
+      - name: DEPLOYMENT_ENV          # the NAMESPACE — see below
+        valueFrom:
+          fieldRef: { fieldPath: metadata.namespace }
+      - { name: SELECTED_INTERFACES, value: "10." }
+~~~
+
+Only the mode changes between the two recipes, which is why one image carries
+both modules — you often cannot answer "does this network deliver broadcast?"
+until the pod is scheduled. `deploy/unicaster/` in that repo has the
+ServiceAccount, the `Role` and the `NetworkPolicy` to go with it. To build the
+module yourself instead:
+
 ~~~bash
 git clone https://github.com/imqueue/redis-broker-unicaster.git
 cd redis-broker-unicaster && make   # needs libuuid, libcurl, json-c
-
-# inside the broker pod — the module needs the mounted service-account token
-DEPLOYMENT_ENV=production \
-SELECTED_INTERFACES=10. \
 redis-server --port 6379 --loadmodule $PWD/unicaster.so
 ~~~
 
 - **`DEPLOYMENT_ENV`** — the Kubernetes namespace to enumerate pods in (and
   therefore the blast radius of the announcements). Announcements reach only
   this namespace, so brokers and every service or client that should discover
-  them must run in the same one.
+  them must run in the same one. The name reads like an environment, but it is
+  interpolated straight into `/api/v1/namespaces/<value>/pods`: set it from
+  `metadata.namespace` as above rather than typing a value, because unset it
+  requests `/namespaces//pods`, finds nobody, and reports nothing. The image
+  refuses to start without it for exactly that reason.
 - **`SELECTED_INTERFACES`** — comma-separated IP prefixes (e.g.
   `10.,192.168.`) selecting which local interfaces announce themselves; unset
   means all of them, loopback included, so set it in real deployments.
