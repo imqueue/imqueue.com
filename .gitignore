@@ -19,6 +19,10 @@ node_modules/
 *.sublime-workspace
 .vscode/*
 
+# Local agent config — points a Codex/MCP client at @imqueue/mcp. Machine-specific,
+# and this repo is public.
+.codex/
+
 .sass-cache/
 connect.lock/
 coverage/
