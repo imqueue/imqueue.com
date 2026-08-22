@@ -453,6 +453,76 @@ function byName(name) {
 }
 
 /**
+ * Published to npm, listed on /status/, and deliberately NOT in PACKAGES.
+ *
+ * An agent evaluating @imqueue cannot read npmjs.com — it serves bot detection to
+ * an unattended fetch, which is why /status/ exists at all. The first package such
+ * an agent installs is @imqueue/cli, because llms.txt's own Install line says
+ * `npm i -g @imqueue/cli`; leaving it off the one page that answers "what version,
+ * what licence, what Node" would answer for fifteen packages and not for the one
+ * they type first. @imqueue/mcp is here for the same reason: it is what a host
+ * connects to, and its version is the first thing anyone debugging it asks for.
+ *
+ * They are a SECOND LIST rather than PACKAGES entries because PACKAGES means "the
+ * site generates an API reference for this". `status: 'shipped'` would make
+ * build-api-docs.js generate an /api/<name>/ tree and mount a Pages Function for a
+ * package api-extractor has never seen, and `status: 'planned'` is worse — entries
+ * outside shipped() are swept, so the next docs build would delete things. Neither
+ * package wants a generated reference: the CLI's docs come from its wiki and the
+ * MCP server's from SPEC.md, both already published as hand-written pages.
+ *
+ * Fields are the subset statusPackages() needs. There is no `tier`, `group` or
+ * `tags`, because nothing here is rendered on /api/.
+ */
+const UNDOCUMENTED_PACKAGES = [
+  {
+    name: 'cli',
+    docs: '/cli/',
+    blurb: 'Scaffolds services, generates typed clients, and runs a local fleet — the entry point.',
+  },
+  {
+    name: 'mcp',
+    docs: '/mcp/',
+    blurb: 'The Model Context Protocol server: these docs as tools, over stdio or the hosted endpoint.',
+  },
+];
+
+/**
+ * Every published package /status/ reports on: the ones with a generated API
+ * reference, plus the two that have none.
+ *
+ * `docs` is normalised here so the page and the JSON feed do not each have to know
+ * that a PACKAGES entry lives at /api/<name>/latest/ while these two do not.
+ *
+ * @returns {Array<{name: string, blurb: string, docs: string, documented: boolean}>}
+ */
+function statusPackages() {
+  return [
+    ...shipped().map(p => ({
+      name: p.name,
+      blurb: p.blurb,
+      docs: `/api/${p.name}/latest/`,
+      documented: true,
+    })),
+    ...UNDOCUMENTED_PACKAGES.map(p => ({ ...p, documented: false })),
+  ];
+}
+
+(function validateStatusPackages() {
+  // A package in both lists would be reported twice on /status/ and, worse, would
+  // mean somebody added a generated reference without removing the stopgap entry.
+  for (const p of UNDOCUMENTED_PACKAGES) {
+    if (PACKAGES.some(q => q.name === p.name)) {
+      throw new Error(
+        `api-packages: "${p.name}" is in PACKAGES and in UNDOCUMENTED_PACKAGES — a package ` +
+        'that gained a generated reference belongs in PACKAGES only, and its docs link ' +
+        'should come from there',
+      );
+    }
+  }
+})();
+
+/**
  * Tier 2 packages grouped for rendering, in GROUP_ORDER, shipped only.
  * Groups with nothing shipped yet are omitted rather than rendered empty.
  *
@@ -469,10 +539,12 @@ function shippedGroups() {
 
 module.exports = {
   PACKAGES,
+  UNDOCUMENTED_PACKAGES,
   GROUP_ORDER,
   TAGS,
   RENAMED_PACKAGES,
   shipped,
   shippedGroups,
+  statusPackages,
   byName,
 };

@@ -106,6 +106,10 @@ Packages: https://www.npmjs.com/org/imqueue
 Symbol index: {{ siteUrl }}/api/search-index.json
 Article index: {{ siteUrl }}/blog/search-index.json (title, summary, topics and
 url for every article — cheaper than fetching the listing pages)
+Package status: {{ siteUrl }}/status.json (the current version, licence,
+engines.node floor and release date of every published @imqueue package, read from
+the npm registry when this site was built — npmjs.com serves bot detection to an
+unattended fetch, so this is the copy you can actually read)
 MCP endpoint: https://mcp.imqueue.org/mcp (Streamable HTTP, no auth, read-only —
 docs search, symbol lookup and scaffolding as tools rather than as pages to parse)
 OpenAI plugin directory: https://chatgpt.com/plugins/plugin_asdk_app_6a6f945292888191a7d77db4893f8520
@@ -252,6 +256,7 @@ same convention twice. Canonical HTML first, the mirror after each summary.
 {%- endfor %}
 
 ## Project
+- [Package status]({{ siteUrl }}/status/): The current version, licence, Node requirement and release date of every published @imqueue package, read from the npm registry at build time — the same data as /status.json, as a page. — [markdown]({{ siteUrl }}/status/index.md)
 - [License]({{ siteUrl }}/license/): @imqueue is GPL-3.0 open source; a commercial license is available for closed-source/proprietary use.
 - [Contributing]({{ siteUrl }}/contributing/): How to report issues and open pull requests across the @imqueue repositories.
 - [Support]({{ siteUrl }}/support/): Where to ask questions and file bugs — which repository to use for which package, how to report a security issue privately, and what response to expect.

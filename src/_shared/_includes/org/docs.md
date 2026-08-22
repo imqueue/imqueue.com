@@ -30,9 +30,16 @@ directly, each on its own anchor at `{{ siteUrl }}/api/faq/#<question-slug>`.
 7. [Agent Recipes]({{ siteUrl }}/agents/) — machine-oriented procedures an AI
    assistant can follow to make a change: the contracts each relies on, commands
    that prove it worked, and the failure modes to expect.
+8. [Glossary]({{ siteUrl }}/glossary/) — short definitions of the vocabulary the
+   rest of these docs assume: IMQ, fleet, self-describing service, safe delivery,
+   provider axis, each linked to the page that covers it properly.
+9. [Package Status]({{ siteUrl }}/status/) — the current version, licence, Node
+   requirement and release date of every published `@imqueue` package, read from
+   the npm registry when this site was built.
 
 ## Also on this site
 
 - [Introduction]({{ siteUrl }}/intro/) — what the framework is and the principles behind it.
 - [Blog]({{ siteUrl }}/blog/) — guides and comparisons, including how @imqueue differs from gRPC, tRPC, NestJS, Moleculer and BullMQ.
 - [/llms.txt]({{ siteUrl }}/llms.txt) — this site indexed for AI agents.
+- [/status.json]({{ siteUrl }}/status.json) — the same package facts as /status/, as data.

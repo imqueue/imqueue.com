@@ -44,4 +44,45 @@ function latestRelease(pkg) {
   return versions[versions.length - 1];
 }
 
-module.exports = { parseVer, cmpVer, majorOf, releaseVersions, latestRelease };
+// One published version's manifest, as npm has it.
+//
+// The REGISTRY, not the working copy. `core/package.json` on this machine said
+// 3.3.2 while npm served 3.4.0 — a local checkout is whatever was last pulled, and
+// /status/ exists precisely because an agent cannot read npm for itself. Reading a
+// sibling directory would publish a claim about what is installed here.
+//
+// Pinned to an explicit version rather than asking for the package: `npm view <pkg>
+// --json` reports the `latest` DIST-TAG, and the policy everywhere in this repo is
+// the highest published release (see releaseVersions above). Passing the version
+// keeps the two answers from ever being different things.
+function packageManifest(pkg, version) {
+  return JSON.parse(execSync(
+    `npm view @imqueue/${pkg}@${version} --json`,
+    { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 },
+  ).toString());
+}
+
+// When each version of a package was published, as { version: ISO-8601 }.
+//
+// The same call build-api-docs.js:158 makes for sitemap lastmod. Extracted so the
+// status feed and the sitemap date a release from one source; two implementations
+// of "when did this ship" is exactly the drift /status/ is meant to end.
+//
+// The object also carries `created` and `modified` keys, which are NOT versions.
+// Callers index by a version string, so they never see them.
+function releaseTimes(pkg) {
+  return JSON.parse(execSync(
+    `npm view @imqueue/${pkg} time --json`,
+    { stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 16 * 1024 * 1024 },
+  ).toString());
+}
+
+module.exports = {
+  parseVer,
+  cmpVer,
+  majorOf,
+  releaseVersions,
+  latestRelease,
+  packageManifest,
+  releaseTimes,
+};
