@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/pg-pubsub 3.0.5 · API reference"
+title: "@imqueue/pg-pubsub 3.0.6 · API reference"
 description: "Reliable PostgreSQL LISTEN/NOTIFY for Node.js — with an inter-process lock so a horizontally scaled service handles each notification once."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-pubsub","url":"/api/pg-pubsub/latest/"}]
 ---

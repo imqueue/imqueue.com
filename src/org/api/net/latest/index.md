@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/net 3.0.2 · API reference"
+title: "@imqueue/net 3.0.3 · API reference"
 description: "Fast CIDR membership testing for IPv4 and IPv6, using sorted binary ranges rather than per-network comparison."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/net","url":"/api/net/latest/"}]
 ---

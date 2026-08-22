@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "job",
-  "apiVersion": "3.1.0",
+  "apiVersion": "3.1.1",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-20T13:40:52.858Z",
+  "apiReleased": "2026-08-22T06:04:57.985Z",
   "apiNav": [
     {
       "group": "Classes",

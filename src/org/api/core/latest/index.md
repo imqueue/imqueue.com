@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/core 3.4.0 · API reference"
+title: "@imqueue/core 3.4.2 · API reference"
 description: "Redis-backed message queue engine for the @imqueue framework — the transport shared by @imqueue/rpc and the job packages."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"}]
 ---

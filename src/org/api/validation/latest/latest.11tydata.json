@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "validation",
-  "apiVersion": "1.1.0",
+  "apiVersion": "1.1.1",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-01T05:43:04.528Z",
+  "apiReleased": "2026-08-22T06:11:29.359Z",
   "apiNav": [
     {
       "group": "Functions",
