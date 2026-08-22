@@ -15,10 +15,18 @@ pages live in `src/org/` and `src/com/`, and Eleventy ignores the other one.
 
 **Clone with submodules.** The search ranker is its own repo
 ([imqueue/search-ranker](https://github.com/imqueue/search-ranker)), pinned here at
-`vendor/search-ranker` and pinned identically by the `@imqueue/mcp` server, so the site
-and the MCP tool cannot answer the same query differently. A plain `git clone` leaves that
+`vendor/search-ranker` and pinned separately by the `@imqueue/mcp` server, so that the site
+and the MCP tool do not answer the same query differently. A plain `git clone` leaves that
 directory empty and the build stops with the fix in the message — deliberately, because the
 alternative is a site that builds cleanly and ships no `search.js` at all.
+
+This used to say the two pins were *identical*, as though something checked. Nothing did,
+and they drifted for a fortnight in August 2026 — harmlessly, because the divergent commit
+was in `search.js`, the half `@imqueue/mcp` never copies. What has to match is the engine's
+behaviour, so `ranker.js` now carries `ENGINE_V`: this site stamps it into every feed as
+`e`, `check:ranker-engine` compares the pin against that repo's master, and
+`.github/workflows/repin-ranker.yml` takes a repin automatically when the number held still
+and opens an issue when it moved.
 
 ```bash
 git clone --recurse-submodules https://github.com/imqueue/imqueue.com.git

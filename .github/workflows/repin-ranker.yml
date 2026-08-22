@@ -1,0 +1,165 @@
+name: Repin the search ranker
+
+# Keeps vendor/search-ranker current, and splits the job in two by whether the
+# ranker's ANSWERS changed.
+#
+# Why it exists. The ranker is github.com/imqueue/search-ranker, pinned as a
+# submodule here and pinned separately by @imqueue/mcp — which takes ranker.js
+# alone, while this repo takes ranker.js and search.js. Because the two consume
+# different halves and pin by COMMIT, the pins fall out of step on a commit to
+# either half. In August 2026 they sat a fortnight apart with nothing red in either
+# repo, and it was harmless purely by luck: the divergent commit was in search.js,
+# which @imqueue/mcp never copies. The mechanism holding this together was "somebody
+# remembers to update two pointers in two repositories", and that is not a mechanism.
+#
+# A SCHEDULE, not a fan-out. No workflow anywhere in this org sends a
+# repository_dispatch — the only sender is the cli repo's `postpublish` npm hook,
+# firing from a laptop — and refresh-api-docs.yml says why in its own header: a
+# schedule "needs nothing in the package repos, so it cannot be forgotten". Same
+# reasoning applies here, doubled, because the ranker repo would otherwise have to
+# know about both of its consumers. The optional dispatch below is a latency
+# optimisation and nothing depends on it existing.
+#
+# TWO OUTCOMES, and the split is the whole point:
+#
+#   ENGINE_V unchanged  the commit was search.js, a README or a comment. The pin
+#                       moves, `npm test` gates it, imqueue-bot commits. Nobody is
+#                       interrupted, and the pins stop drifting for free.
+#   ENGINE_V moved      the engine answers queries differently now. NO commit — an
+#                       issue, carrying the paired KPI. That repo's README is
+#                       explicit that a delta is not a result until it is tested,
+#                       and `npm run kpi` is the test. Auto-merging a ranking change
+#                       because CI was green would be reading the summary line,
+#                       which is exactly what its own guidance says not to do.
+
+on:
+  schedule:
+    # 05:40 UTC daily. Off the hour, and after refresh-api-docs at 04:17, so the two
+    # jobs that both commit to master do not race for the push.
+    - cron: "40 5 * * *"
+  # Optional fast path. Nothing is required to send this; if the ranker repo ever
+  # does, the pin lands in minutes instead of by tomorrow.
+  repository_dispatch:
+    types: [ranker-updated]
+  workflow_dispatch:
+
+concurrency:
+  group: repin-ranker
+  cancel-in-progress: false
+
+jobs:
+  repin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      # For the issue raised when the engine's behaviour moved.
+      issues: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # REQUIRED: check:dates reads git history for every page. See checks.yml.
+          fetch-depth: 0
+          # REQUIRED: the whole job is about this submodule, and the build throws
+          # without it.
+          submodules: true
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Move the pin to search-ranker@master
+        id: pin
+        run: |
+          set -euo pipefail
+
+          before_sha="$(git -C vendor/search-ranker rev-parse HEAD)"
+          before_v="$(node -p "require('./vendor/search-ranker/ranker.js').ENGINE_V" 2>/dev/null || echo "")"
+
+          git submodule update --remote vendor/search-ranker
+
+          after_sha="$(git -C vendor/search-ranker rev-parse HEAD)"
+          after_v="$(node -p "require('./vendor/search-ranker/ranker.js').ENGINE_V" 2>/dev/null || echo "")"
+
+          {
+            echo "before_sha=$before_sha"
+            echo "after_sha=$after_sha"
+            echo "before_v=$before_v"
+            echo "after_v=$after_v"
+            echo "moved=$([ "$before_sha" != "$after_sha" ] && echo true || echo false)"
+            echo "engine_moved=$([ "$before_v" != "$after_v" ] && echo true || echo false)"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "pin  $before_sha -> $after_sha"
+          echo "engine  v${before_v:-?} -> v${after_v:-?}"
+
+      # The house's "did anything change?" gate. A no-op run must produce no commit,
+      # no issue and no noise.
+      - name: Nothing moved
+        if: steps.pin.outputs.moved != 'true'
+        run: echo "vendor/search-ranker is already at master — nothing to do."
+
+      - name: Build and test against the new pin
+        id: verify
+        if: steps.pin.outputs.moved == 'true'
+        continue-on-error: true
+        run: |
+          set +e
+          npm test > /tmp/verify.log 2>&1
+          echo "status=$?" >> "$GITHUB_OUTPUT"
+          tail -30 /tmp/verify.log
+
+      # ---- the engine did not move: bookkeeping, commit it -------------------
+      - name: Commit the repin
+        if: steps.pin.outputs.moved == 'true' && steps.pin.outputs.engine_moved != 'true' && steps.verify.outputs.status == '0'
+        run: |
+          set -euo pipefail
+
+          # An explicit path, not `git add -A`: this working tree also holds
+          # untracked local-only material (promotion/, the *-PLAN.md notes) that must
+          # never be committed by a bot.
+          git config user.name "imqueue-bot"
+          git config user.email "bot@imqueue.com"
+          git add -- vendor/search-ranker
+          git commit -m "chore(ranker): repin to ${{ steps.pin.outputs.after_sha }}
+
+          ENGINE_V held at v${{ steps.pin.outputs.after_v }}, so the engine answers every query
+          exactly as before — this is the UI half, a README or a comment. Taken
+          automatically to stop the pin drifting from @imqueue/mcp's, which is the
+          failure this job exists to prevent.
+
+          npm test passed against the new pin before this commit was made. A push made
+          with GITHUB_TOKEN does not trigger checks.yml, while Cloudflare Pages deploys
+          from the push itself, so the gate has to run here."
+          git push
+
+      # ---- the engine moved, or the build broke: an issue, no commit ----------
+      - name: Open or update the tracking issue
+        if: steps.pin.outputs.moved == 'true' && (steps.pin.outputs.engine_moved == 'true' || steps.verify.outputs.status != '0')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          if [ "${{ steps.pin.outputs.engine_moved }}" = "true" ]; then
+            headline="search-ranker moved to engine v${{ steps.pin.outputs.after_v }} (from v${{ steps.pin.outputs.before_v }}) — the ranking changed."
+          else
+            headline="search-ranker moved to ${{ steps.pin.outputs.after_sha }} and \`npm test\` failed against it."
+          fi
+
+          body=$(printf '%s\n\nThe pin was NOT taken. `vendor/search-ranker` is still at `%s` on master.\n\nTo take it, and measure it — a delta is not a result until it is tested, and the per-query deltas matter more than the summary line:\n\n```\ngit submodule update --remote vendor/search-ranker\nnpm run build:all\nnpm run kpi -- --json /tmp/after.json\nnpm run kpi -- --compare /tmp/after.json\n```\n\n`npm test` output from this run:\n\n```\n%s\n```\n' \
+            "$headline" \
+            "${{ steps.pin.outputs.before_sha }}" \
+            "$(tail -30 /tmp/verify.log 2>/dev/null || echo '(not run)')")
+
+          existing=$(gh issue list --state open --label ranker-pin --limit 1 --json number --jq '.[0].number')
+
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh label create ranker-pin --description "The pinned search ranker needs a decision" --color ededed 2>/dev/null || true
+            gh issue create --title "search-ranker: the pin needs a human" --label ranker-pin --body "$body"
+          fi

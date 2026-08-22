@@ -107,8 +107,37 @@ jobs:
           # here rather than having the refresh blocked. API-DOCS-PLAN.md §3 item 9.
           npm run build-docs -- $PKGS
 
+      # UNCONDITIONAL, and it must stay that way.
+      #
+      # The gate above names only packages whose /api/ tree is stale — i.e. whose
+      # VERSION moved. But /status/ also reports the licence, the engines.node floor
+      # and the release date, and none of those moves a version number. A package
+      # that adds `engines` in a patch release, or fixes a deprecated SPDX id, would
+      # never appear in that list and its row would sit wrong indefinitely.
+      #
+      # It also covers @imqueue/cli and @imqueue/mcp, which have no generated API
+      # reference at all and so can never be in the list by construction.
+      #
+      # Cost when nothing shipped: 18 packages × two `npm view` calls, and a clean
+      # `git status`. That is the whole reason the check downstream of it
+      # (check:package-status) enforces a 14-day freshness floor — if this step ever
+      # silently stops running, something has to say so.
+      - name: Refresh the package status from npm
+        id: status
+        run: |
+          set -euo pipefail
+          npm run gen-package-status
+          paths="src/_data/packageStatus.json src/org/status/index.md"
+          if [ -n "$(git status --porcelain -- $paths)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git --no-pager diff --stat -- $paths
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "/status/ already matches npm."
+          fi
+
       - name: Verify — redirects, dates, links, sitemap
-        if: steps.pkgs.outputs.list != ''
+        if: steps.pkgs.outputs.list != '' || steps.status.outputs.changed == 'true'
         # This is not belt-and-braces. A push made with GITHUB_TOKEN does not trigger
         # other workflows, so checks.yml will NOT run for the commit this job creates
         # — the gate has to run here or not at all. Cloudflare Pages deploys from the
@@ -117,7 +146,7 @@ jobs:
 
       - name: Commit & push if changed
         id: commit
-        if: steps.pkgs.outputs.list != ''
+        if: steps.pkgs.outputs.list != '' || steps.status.outputs.changed == 'true'
         env:
           PKGS: ${{ steps.pkgs.outputs.list }}
         run: |
@@ -126,7 +155,8 @@ jobs:
           # notes) that must never be committed by a bot or anyone else.
           paths="src/org/api src/org/_redirects src/_data/apiVersions.json \
                  lib/api-versions.js lib/api-renames.js lib/api-renamed.js \
-                 functions/api"
+                 functions/api \
+                 src/_data/packageStatus.json src/org/status/index.md"
 
           if [ -z "$(git status --porcelain -- $paths)" ]; then
             echo "Nothing changed — the reference already matches npm."
@@ -141,7 +171,13 @@ jobs:
           # whitespace. (Again bash-only: zsh does not split unquoted variables and
           # would leave every positional empty.)
           set -- $PKGS
-          if [ "$#" = 1 ]; then
+          if [ "$#" = 0 ]; then
+            # No /api/ tree was stale, so this commit is the status page alone —
+            # a licence, an engines floor, a release date or one of the two packages
+            # that have no generated reference. None of those moves a version, which
+            # is exactly why the status refresh does not sit behind that gate.
+            msg="chore(status): resync /status/ with npm"
+          elif [ "$#" = 1 ]; then
             ver=$(node -p "require('./src/_data/apiVersions.json')['$1'].latest")
             msg="docs(api): resync $1 with npm — $ver"
           else
