@@ -33,19 +33,19 @@
   },
   "src/org/agents/index.md": {
     "published": "2026-07-29T12:58:23+02:00",
-    "modified": "2026-08-21T13:49:45+00:00"
+    "modified": "2026-08-21T13:49:45Z"
   },
   "src/org/agents/isolated-imq-environments.md": {
     "published": "2026-07-23T10:18:53+02:00",
     "modified": "2026-07-30T18:50:39+02:00"
   },
   "src/org/agents/silent-failures.md": {
-    "published": "2026-08-21T13:49:45+00:00",
-    "modified": "2026-08-21T13:49:45+00:00"
+    "published": "2026-08-21T13:49:45Z",
+    "modified": "2026-08-21T13:49:45Z"
   },
   "src/org/api/faq.md": {
     "published": "2026-08-06T21:22:12+02:00",
-    "modified": "2026-08-21T13:49:45+00:00"
+    "modified": "2026-08-21T13:49:45Z"
   },
   "src/org/api/index.md": {
     "published": "2026-07-19T22:58:50+02:00",
@@ -85,7 +85,7 @@
   },
   "src/org/cli/index.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-08-01T13:33:45+00:00"
+    "modified": "2026-08-01T13:33:45Z"
   },
   "src/org/cli/installation.md": {
     "published": "2026-07-21T23:38:34+02:00",
@@ -93,7 +93,7 @@
   },
   "src/org/cli/managing-local-services.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-08-01T13:33:45+00:00"
+    "modified": "2026-08-01T13:33:45Z"
   },
   "src/org/cli/package-catalog.md": {
     "published": "2026-07-21T23:38:34+02:00",
