@@ -45,7 +45,7 @@
   },
   "src/org/api/faq.md": {
     "published": "2026-08-06T21:22:12+02:00",
-    "modified": "2026-08-21T13:49:45Z"
+    "modified": "2026-08-22T13:24:12+02:00"
   },
   "src/org/api/index.md": {
     "published": "2026-07-19T22:58:50+02:00",
@@ -65,7 +65,7 @@
   },
   "src/org/cli/clients-and-versioning.md": {
     "published": "2026-07-21T23:38:34+02:00",
-    "modified": "2026-08-04T16:52:15+02:00"
+    "modified": "2026-08-22T12:59:22+02:00"
   },
   "src/org/cli/configuration.md": {
     "published": "2026-07-21T23:38:34+02:00",
@@ -113,7 +113,7 @@
   },
   "src/org/compare/index.md": {
     "published": "2026-08-03T16:02:09+02:00",
-    "modified": "2026-08-03T16:02:09+02:00"
+    "modified": "2026-08-22T12:59:22+02:00"
   },
   "src/org/contact/index.html": {
     "published": "2026-08-02T15:16:32+02:00",
@@ -173,7 +173,7 @@
   },
   "src/org/status/index.md": {
     "published": "2026-08-22T05:47:37+02:00",
-    "modified": "2026-08-22T09:29:59+02:00"
+    "modified": "2026-08-22T12:59:22+02:00"
   },
   "src/org/support.md": {
     "published": "2026-08-02T13:25:53+02:00",
