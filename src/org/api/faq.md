@@ -726,6 +726,12 @@ Scale on queue depth, and let the service report it. Every `IMQService` can serv
 away, no exporter to install — which is the signal an autoscaler actually wants:
 work waiting for this service, rather than the CPU it happens to be burning.
 
+If you run KEDA, you may not need the endpoint at all: the backlog is a plain
+Redis list at `imq:<ServiceName>`, so the built-in `redis` scaler reads it with no
+exporter and no code change. [Autoscale on queue depth, not
+CPU](/blog/autoscaling-nodejs-services-on-queue-depth/) covers that route, this
+one, and the clustered case where only this one is correct.
+
 ~~~typescript
 import { IMQService, expose } from '@imqueue/rpc';
 
