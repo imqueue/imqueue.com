@@ -112,10 +112,32 @@ function plainText(md) {
  *   is not a mirror (no `# ` title, or no `Source:` line to take the URL from).
  */
 // The shape of every feed this module writes. The ranker declares the shape it READS
-// (FEED_V in src/_shared/js/search.js) and check-search-index.js fails when the two disagree —
-// which is what stops a pinned, submoduled ranker from silently misreading live feeds it was
-// never written for. Bump both when a tuple position or a top-level key changes.
+// (FEED_V in vendor/search-ranker/ranker.js) and check-search-index.js fails when the two
+// disagree — which is what stops a pinned, submoduled ranker from silently misreading live
+// feeds it was never written for. Bump both when a tuple position or a top-level key changes.
+//
+// The path in that sentence said src/_shared/js/search.js for months after the ranker moved
+// into the submodule, so anyone following it found nothing.
 const FEED_V = 1;
+
+// The ranker's BEHAVIOUR version, stamped into every feed as `e` beside `v`.
+//
+// FEED_V guards the shape and has been 1 through every scoring change ever made, so it cannot
+// see the thing that actually goes wrong: @imqueue/mcp pins this same repository by commit and
+// fetches these feeds LIVE, so a server running an older engine answers the same query
+// differently from the search box on this site — silently, and with FEED_V agreeing. The two
+// pins sat a fortnight apart in August 2026 with nothing red anywhere.
+//
+// Read from the vendored engine rather than restated, because unlike FEED_V this is not a
+// negotiation between two independent claims: the site does not have an opinion about which
+// ranking it wants, it ships whichever engine it pinned. The MCP server is the party that
+// compares, at runtime, against its own copy.
+//
+// An ADDITIVE top-level key, deliberately without a FEED_V bump: an older ranker ignores it,
+// whereas a bump would hard-fail the already-deployed MCP server the instant this site
+// deployed, for a key it does not even read. The exception is written down in the ranker's
+// README.
+const ENGINE_V = require("../../vendor/search-ranker/ranker.js").ENGINE_V;
 
 function parseMirror(text) {
   const lines = String(text).split("\n");
@@ -684,12 +706,12 @@ function buildCorpus(outputDir) {
   const lemmas = lemmaMap(vocabulary);
 
   return {
-    tier1: { v: FEED_V, records: [...faq, ...docs, ...api] },
-    tier2: { v: FEED_V, pages, sections, lemmas },
+    tier1: { v: FEED_V, e: ENGINE_V, records: [...faq, ...docs, ...api] },
+    tier2: { v: FEED_V, e: ENGINE_V, pages, sections, lemmas },
     // Anchor -> line range into each page's markdown mirror. Its own feed rather than a field of
     // tier 2, because tier 2 is fetched by every visitor who searches and this is for readers that
     // fetch the mirrors instead — no browser has any use for it.
-    sectionRanges: { v: FEED_V, pages: ranges },
+    sectionRanges: { v: FEED_V, e: ENGINE_V, pages: ranges },
     stats: {
       docs: docs.length,
       faq: faq.length,
@@ -719,5 +741,6 @@ module.exports = {
   plainText,
   splitSections,
   FEED_V,
+  ENGINE_V,
   summarize,
 };

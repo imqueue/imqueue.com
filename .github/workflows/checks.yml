@@ -64,3 +64,20 @@ jobs:
       # output, so the ordering inside `npm test` already covers the build.
       - name: npm test (redirects, dates, links, sitemap)
         run: npm test
+
+      # The two NETWORKED checks. Deliberately outside `npm test`, which runs in the
+      # pre-commit hook and must work offline — the same split check-api-versions.js
+      # has always had. Here is where they actually get run, because a `--check`
+      # script nothing invokes is this repo's recurring failure mode:
+      # `sync-cli-guide:check` has existed for months with no caller, and
+      # `check:links:external` sat unrun long enough to break unnoticed.
+      #
+      # Both run even if the other failed, and both AFTER npm test, so a red build
+      # still tells you everything that is wrong in one pass.
+      - name: npm run check:package-status:npm (is /status/ still what npm says?)
+        if: always()
+        run: npm run check:package-status:npm
+
+      - name: npm run check:ranker-engine (does the pinned engine still match master?)
+        if: always()
+        run: npm run check:ranker-engine

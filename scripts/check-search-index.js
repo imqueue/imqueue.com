@@ -298,6 +298,34 @@ for (const name of ['search-peer-index.json', 'search-peer-text.json']) {
       pass(`ranker and all ${feeds.length} feeds agree on feed v${FEED_V}`);
     }
   }
+
+  // ---- and the feeds say WHICH ENGINE built them ------------------------------
+  // FEED_V answers "can this ranker parse these feeds". It has been 1 through every
+  // scoring change ever made, so it cannot answer the question that actually bites:
+  // is the engine reading these feeds the engine that was measured against them.
+  // @imqueue/mcp pins the same submodule, deploys on its own schedule, and fetches
+  // these feeds live — so it can answer a query differently from this site's own
+  // search box, silently, with FEED_V agreeing throughout. It compares `e` at
+  // runtime; this asserts `e` is actually there and is this build's engine.
+  //
+  // Additive: an older ranker ignores the key, which is why it ships without a
+  // FEED_V bump. See the note in scripts/lib/search-corpus.js.
+  const { ENGINE_V } = require(path.join(__dirname, 'lib', 'search-corpus.js'));
+  const engineFeeds = ['search-index.json', 'search-text.json', 'search-sections.json'];
+  const unstamped = engineFeeds.filter((name) => {
+    const file = path.join(OUT, name);
+
+    return fs.existsSync(file) && JSON.parse(fs.readFileSync(file, 'utf8')).e !== ENGINE_V;
+  });
+
+  if (typeof ENGINE_V !== 'number') {
+    fail('the vendored ranker declares no ENGINE_V — the pin predates it, or the export was dropped');
+  } else if (unstamped.length) {
+    fail(`${unstamped.join(', ')} do not carry e:${ENGINE_V} — @imqueue/mcp cannot tell whether `
+      + 'its pinned engine matches the one that built these feeds');
+  } else {
+    pass(`all ${engineFeeds.length} feeds are stamped with engine v${ENGINE_V}`);
+  }
 }
 
 // ---- the section range map addresses the mirrors correctly ---------------------
