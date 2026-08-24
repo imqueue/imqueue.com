@@ -49,35 +49,6 @@ eleventyComputed:
         {% if pagination.href.next %}<a href="{{ pagination.href.next }}" aria-label="Next page">→</a>{% else %}<span class="disabled">→</span>{% endif %}
       </nav>
       {%- endif -%}
-
-      {%- comment -%}
-      Full archive, on every paginated page.
-
-      Pagination alone left 18 of the 26 posts three or more clicks from the home
-      page — /blog/ surfaced 5 cards plus the 8 newest in the sidebar, and nothing
-      else linked the rest. Weakly linked URLs are exactly what lands in GSC's
-      "Discovered — currently not indexed". Listing every post here puts all of
-      them two clicks from the home page, and grouping by year gives the list a
-      structure a flat dump of 26 links would not have.
-      {%- endcomment -%}
-      <section class="blog-archive" aria-labelledby="all-articles">
-        <h2 id="all-articles">All articles</h2>
-        {%- assign lastYear = "" -%}
-        {%- for post in collections.posts -%}
-        {%- assign year = post.date | date: "%Y" -%}
-        {%- if year != lastYear -%}
-        {%- unless lastYear == "" %}</ul>{% endunless %}
-        <h3>{{ year }}</h3>
-        <ul class="archive-list">
-        {%- assign lastYear = year -%}
-        {%- endif -%}
-          <li>
-            <a href="{{ post.url }}">{{ post.data.title }}</a>
-            <span class="meta">{{ post.date | date: "%b %-d" }}</span>
-          </li>
-        {%- endfor -%}
-        {%- unless lastYear == "" %}</ul>{% endunless %}
-      </section>
     </div>
 
     <!-- SIDEBAR -->

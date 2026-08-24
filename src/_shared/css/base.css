@@ -261,15 +261,15 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
      explicit MOBILE size that this rule was silently overriding — .prose h1/h2
      (prose.css:195-196), .hero h1 (org/index.html) and .fx-h2/.fx-thanks h2
      (flux.css:142,118) — so those media queries had no effect at all. The
-     component ones were the visible damage: .aside-box h2 and .blog-archive h2
-     are 13.5px uppercase mono labels and were rendering at 29.5px, so every blog
-     post showed "Written by" and the sidebar headings at section-heading size,
+     component ones were the visible damage: .aside-box h2 is a 13.5px uppercase
+     mono label and was rendering at 29.5px, so every blog post showed
+     "Written by" and the sidebar headings at section-heading size,
      and .card/.post-card titles were as large as the sections containing them.
 
      .fx-h1 is deliberately NOT excluded: the com heroes carry an inline 44-46px
      that beats flux.css's own 38px mobile rule, so this is what shrinks them. */
   h1:not(.prose h1, .hero h1) { font-size: 38.5px !important; }
-  h2:not(.prose h2, .card h2, .post-card h2, .aside-box h2, .blog-archive h2, .fx-h2, .fx-thanks h2) { font-size: 29.5px !important; }
+  h2:not(.prose h2, .card h2, .post-card h2, .aside-box h2, .fx-h2, .fx-thanks h2) { font-size: 29.5px !important; }
 }
 /* 2 × 2. Four columns fit until 656px (4 × 127 + 3 × 28 gap + 64 padding), so the fold
    is here rather than at the 760px content breakpoint: between the two the footer keeps
@@ -403,16 +403,6 @@ html.lightbox-open { overflow: hidden; }
 a.topic-chip:hover { border-color: var(--accent); color: var(--accent); }
 .topic-chip > span { color: var(--muted); font-size: 11.5px; }
 .topic-chip--flat { color: var(--muted); }
-
-/* ---- blog archive ------------------------------------------------------ */
-.blog-archive { margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--line); }
-.blog-archive h2 { font-family: var(--font-mono); font-size: 13.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin: 0 0 18px; font-weight: 600; }
-.blog-archive h3 { font-family: var(--font-mono); font-size: 15px; color: var(--muted); margin: 22px 0 8px; font-weight: 500; }
-.archive-list { list-style: none; margin: 0; padding: 0; }
-.archive-list li { display: flex; align-items: baseline; gap: 10px; padding: 5px 0; border-bottom: 1px dashed color-mix(in srgb, var(--line) 60%, transparent); }
-.archive-list a { color: var(--ink); text-decoration: none; font-size: 15.5px; }
-.archive-list a:hover { color: var(--accent); }
-.archive-list .meta { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-left: auto; white-space: nowrap; }
 
 /* ---- cookie-consent bar (_includes/consent.html, js/consent.js) ----
    Fixed to the bottom: the choice has to stay reachable however far the page is
