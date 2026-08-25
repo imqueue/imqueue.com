@@ -141,11 +141,15 @@ async function checkEdition(edition, origin) {
   }
 
   // ---- THE CONTACT ADDRESS SURVIVES -------------------------------------
-  // Cloudflare Scrape Shield -> Email Obfuscation. Measured 2026-08-03 under a
-  // GPTBot UA: `__cf_email__` spans on imqueue.org/support/ and
-  // imqueue.com/pricing/, with ZERO occurrences of the literal address in the HTML
-  // of either zone. This is a per-zone dashboard toggle, so nothing in the repo can
-  // prevent it coming back.
+  // Cloudflare Email Obfuscation. Measured 2026-08-03 under a GPTBot UA:
+  // `__cf_email__` spans on imqueue.org/support/ and imqueue.com/pricing/, with
+  // ZERO occurrences of the literal address in the HTML of either zone.
+  //
+  // DISABLED on both zones 2026-08-25, and this check has passed since. It stays
+  // because it is a per-zone dashboard toggle: nothing in the repo can prevent it
+  // coming back, and a new zone starts with it ON. Note the setting has MOVED —
+  // it is no longer under Scrape Shield, which is where this message used to send
+  // people. It is now Security -> Settings, filtered by "Client-side abuse".
   //
   // Probing ONE page per zone was not enough, and 2026-08-25 is how we found out.
   // The toggle rewrites every address-shaped string in every HTML response, and the
@@ -180,7 +184,7 @@ async function checkEdition(edition, origin) {
       obfuscated += n;
       if (page === contactPage) literal = res.body.includes('support@imqueue.com');
       if (n) {
-        fail(`${page} has ${n} __cf_email__ span(s) — Cloudflare Email Obfuscation is ON for this zone (Scrape Shield -> Email Obfuscation -> Off)`);
+        fail(`${page} has ${n} __cf_email__ span(s) — Cloudflare Email Obfuscation is ON for this zone (dashboard -> the zone -> Security -> Settings -> filter "Client-side abuse" -> Email Address Obfuscation -> Off)`);
       }
     }
 
