@@ -315,6 +315,57 @@ if (!(position.x > position.y)) {
   pass(`word order breaks a tie, gently (${Math.round(position.x)} vs ${Math.round(position.y)})`);
 }
 
+// ---- a dropped hyphen finds the same pages ----------------------------------
+// The site writes "back-pressure"; almost nobody types the hyphen. squash() exists
+// for exactly that, comparing both sides with every non-alphanumeric removed — and
+// it worked on RECORDS while being invisible on SECTIONS, for a reason that had
+// nothing to do with hyphens.
+//
+// GROUP_FLOOR drops any hit scoring under 0.3 of its group's best. A squashed match
+// is a BINARY signal scored by a flat constant, and the record path and the section
+// path used different constants, so the ratio between them was fixed: a page whose
+// TITLE squash-matched led the group far enough ahead that every squash-matching
+// SECTION fell under the floor. Measured on the live corpus, "backpressure" returned
+// ONE result where "back-pressure" returned ten, off identical evidence.
+//
+// So the invariant is a RELATIONSHIP between two spellings rather than a page name.
+// A hard-coded target would break the day an article is retitled, for a reason that
+// has nothing to do with the mechanic; synthetic, for the same reason.
+//
+// Raising the section constant to match is the obvious alternative fix and is worse:
+// it lifts the leader too whenever a section leads, so the floor rises with it.
+// Measured on 2026-08-25 it cost `generateclient` 45 of its 83 results and dropped
+// two pages out of first place on the artificial set.
+const HYPHEN_PROBE = {
+  v: 1,
+  pages: [
+    // The title carries the compound, so this page's record leads the group.
+    ['/lead/', 'Back-pressure for services', 'Docs'],
+    ['/body-a/', 'Queues', 'Docs'],
+    ['/body-b/', 'Deploys', 'Docs'],
+  ],
+  sections: [
+    [0, 'a', 'Back-pressure for services', 'back-pressure filler filler filler', ''],
+    [1, 'b', 'Absorbing a spike', 'a queue applies back-pressure to the caller', ''],
+    [2, 'c', 'Safe deploys', 'back-pressure keeps the deploy from dropping work', ''],
+  ],
+};
+
+ranker.state.t2 = ranker.prepareSections(HYPHEN_PROBE);
+ranker.state.t2.df = null;
+
+const hyphenated = ranker.search(ranker.parseQuery('back-pressure')).length;
+const dropped = ranker.search(ranker.parseQuery('backpressure')).length;
+
+ranker.state.t2 = saved;
+
+if (dropped < hyphenated) {
+  fail(`dropping the hyphen loses results: "backpressure" returns ${dropped}, `
+    + `"back-pressure" returns ${hyphenated} — squash-only hits are being cut by GROUP_FLOOR`);
+} else {
+  pass(`a dropped hyphen finds the same pages (${dropped} vs ${hyphenated})`);
+}
+
 // ---- morphology --------------------------------------------------------------
 // An inflected query must reach the same page as its dictionary form. Not the same
 // SCORE — a lemma match is worth 0.55 of a literal one on purpose — the same page.
