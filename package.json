@@ -33,7 +33,7 @@
     }
   },
   "scripts": {
-    "test": "npm run check:redirects && npm run check:agent-analytics && npm run check:dates && npm run check:package-status && npm run check:links && npm run check:sitemap && npm run check:llms && npm run check:search-ranker && npm run check:search-index && npm run check:search-ranking && npm run check:kpi && npm run check:search-ui && npm run check:jsonld && npm run check:mermaid",
+    "test": "npm run check:redirects && npm run check:agent-analytics && npm run check:dates && npm run check:package-status && npm run check:links && npm run check:sitemap && npm run check:llms && npm run check:search-ranker && npm run check:search-index && npm run check:search-ranking && npm run check:kpi && npm run check:search-ui && npm run check:jsonld && npm run check:mermaid && npm run check:email-literals",
     "check:redirects": "node scripts/check-redirects.js",
     "check:agent-analytics": "node scripts/check-agent-analytics.js",
     "probe:agent-analytics": "node scripts/probe-agent-analytics.js",
@@ -90,7 +90,8 @@
     "indexnow:org": "node scripts/indexnow-ping.js org --exclude=/api/",
     "indexnow:com": "node scripts/indexnow-ping.js com",
     "gen-syndication": "node scripts/gen-syndication.js",
-    "gen-social": "node scripts/gen-social-preview.js"
+    "gen-social": "node scripts/gen-social-preview.js",
+    "check:email-literals": "node scripts/check-email-literals.js"
   },
   "repository": {
     "type": "git",

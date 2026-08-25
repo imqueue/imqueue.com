@@ -86,7 +86,7 @@ vary what that argument is:
 | the caller sends… | …and your method receives |
 |---|---|
 | `{ email, password }` | an object with both keys — as intended |
-| `'ada@example.com'` | a **string**, 15 characters long |
+| `'ada'` | a **string**, 3 characters long |
 | `42` | a **number** |
 | `null` | `null` |
 | `{ email, password, isAdmin: true }` | an object with **three** keys |
@@ -249,8 +249,8 @@ class Address {
 // The next class that does seal
 @validatable()
 class Credentials {
-    @validate(z.string().email())
-    email!: string;
+    @validate(z.string().min(8))
+    password!: string;
 }
 ~~~
 
@@ -260,8 +260,8 @@ an address — picks it up on the way past:
 
 ~~~
 schemaOf(Address)      -> null
-Credentials fields     -> [ 'city', 'email' ]
-parse({ email: 'ada@example.com' })
+Credentials fields     -> [ 'city', 'password' ]
+parse({ password: 'correct-horse' })
                        -> rejected: city: invalid_type
 ~~~
 

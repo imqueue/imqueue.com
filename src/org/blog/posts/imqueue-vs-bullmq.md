@@ -38,8 +38,8 @@ new JobQueue<string>({ name: 'Emails' })
     .onPop(job => sendEmail(job))
     .start()
     .then(q => q
-        .push('welcome@acme.com')
-        .push('reminder@acme.com', { delay: 60_000 })); // run in 1 minute
+        .push('user-1042')
+        .push('user-1043', { delay: 60_000 })); // run in 1 minute
 ```
 
 ## Delayed & scheduled delivery is first-class — everywhere in @imqueue

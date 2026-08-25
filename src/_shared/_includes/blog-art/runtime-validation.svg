@@ -4,7 +4,7 @@
     <text x="30" y="64" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">{ email, pass }</text>
 
     <rect x="16" y="112" width="132" height="34" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="2"/>
-    <text x="30" y="134" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">"ada@ex.com"</text>
+    <text x="30" y="134" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">"a string"</text>
 
     <rect x="16" y="182" width="132" height="34" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="2"/>
     <text x="30" y="204" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">42</text>
