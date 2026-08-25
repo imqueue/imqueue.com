@@ -146,19 +146,50 @@ async function checkEdition(edition, origin) {
   // imqueue.com/pricing/, with ZERO occurrences of the literal address in the HTML
   // of either zone. This is a per-zone dashboard toggle, so nothing in the repo can
   // prevent it coming back.
+  //
+  // Probing ONE page per zone was not enough, and 2026-08-25 is how we found out.
+  // The toggle rewrites every address-shaped string in every HTML response, and the
+  // contact page is the least damaging place it lands. The expensive places are the
+  // ones nothing probed:
+  //
+  //   * /tutorial/deployment/ publishes six SSH clone commands as
+  //     `git clone [email protected]:imqueue-sandbox/api.git`. A reader who
+  //     copies one gets a command that cannot work, and an SSH URL cannot be
+  //     written without an address, so no content change can avoid it.
+  //   * A hero illustration is worse still: an <a> injected into an inline SVG's
+  //     <text> is not positioned SVG text, so it reflows and displaces every
+  //     element after it. /blog/runtime-validation-typescript-services/ shipped
+  //     that way and the drawing came apart on production while rendering
+  //     perfectly on localhost.
+  //
+  // So the probe set now includes a page from each family that got hurt. The
+  // source-side guard is scripts/check-email-literals.js, which runs in `npm test`
+  // and cannot see the toggle; this is the half that can.
   {
-    const page = edition === 'org' ? '/support/' : '/pricing/';
-    const res = await get(origin + page, AI_UAS[0]);
-    const obfuscated = (res.body.match(/__cf_email__/g) || []).length;
-    const literal = res.body.includes('support@imqueue.com');
+    const pages = edition === 'org'
+      ? ['/support/', '/tutorial/deployment/', '/blog/runtime-validation-typescript-services/']
+      : ['/pricing/'];
+    const contactPage = edition === 'org' ? '/support/' : '/pricing/';
+    let obfuscated = 0;
+    let literal = false;
 
-    if (obfuscated) {
-      fail(`${page} has ${obfuscated} __cf_email__ span(s) — Cloudflare Email Obfuscation is ON for this zone (Scrape Shield -> Email Obfuscation -> Off)`);
+    for (const page of pages) {
+      const res = await get(origin + page, AI_UAS[0]);
+      const n = (res.body.match(/__cf_email__/g) || []).length;
+
+      obfuscated += n;
+      if (page === contactPage) literal = res.body.includes('support@imqueue.com');
+      if (n) {
+        fail(`${page} has ${n} __cf_email__ span(s) — Cloudflare Email Obfuscation is ON for this zone (Scrape Shield -> Email Obfuscation -> Off)`);
+      }
     }
+
     if (!literal) {
-      fail(`${page} contains no literal contact address that a non-JS crawler can read`);
+      fail(`${contactPage} contains no literal contact address that a non-JS crawler can read`);
     }
-    if (!obfuscated && literal) pass(`${page} serves the literal contact address to a crawler`);
+    if (!obfuscated && literal) {
+      pass(`${pages.length} page(s) carry no __cf_email__, and ${contactPage} serves the literal contact address to a crawler`);
+    }
 
     // The JSON-LD copy is the belt-and-braces half and must hold either way.
     const home = await get(`${origin}/`, AI_UAS[0]);
