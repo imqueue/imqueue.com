@@ -1,0 +1,35 @@
+#!/bin/sh
+# Rejects a push if any outgoing commit carries AI attribution. Backstop for
+# commits that arrived without passing commit-msg (rebases, imports, --no-verify,
+# another machine).
+#
+# stdin: <local_ref> <local_sha> <remote_ref> <remote_sha>
+scan="$(dirname "$0")/ai-attribution-scan"
+[ -x "$scan" ] || exit 0
+z=0000000000000000000000000000000000000000
+fail=0
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+    [ "$local_sha" = "$z" ] && continue              # branch deletion
+    if [ "$remote_sha" = "$z" ]; then
+        range="$local_sha --not --remotes"           # new branch: only what is not already published
+    else
+        range="$remote_sha..$local_sha"
+    fi
+    for c in $(git rev-list $range 2>/dev/null); do
+        if ! git log -1 --format=%B "$c" | "$scan" 2>/tmp/.aiscan.$$; then
+            echo "pre-push: $(git log -1 --format='%h %s' "$c")" >&2
+            cat /tmp/.aiscan.$$ >&2
+            fail=1
+        fi
+        rm -f /tmp/.aiscan.$$
+    done
+done
+
+if [ "$fail" -ne 0 ]; then
+    echo "" >&2
+    echo "pre-push: refusing — the commits above carry AI attribution." >&2
+    echo "Rewrite them (git rebase -i / git filter-branch --msg-filter) before pushing." >&2
+    exit 1
+fi
+exit 0

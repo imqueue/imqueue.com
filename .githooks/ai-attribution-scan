@@ -1,0 +1,41 @@
+#!/usr/bin/perl
+# Reads a commit message on stdin. Exits 1 and reports if the message carries
+# machine-generated AI attribution.
+#
+# Two deliberate limits keep this from firing on legitimate history:
+#
+#  1. TRAILER SHAPES ONLY, never prose. Commit messages in this org legitimately
+#     discuss Claude, Anthropic, MCP and AI crawlers (see imqueue/mcp and the
+#     imqueue.com docs); those must pass untouched.
+#  2. UNAMBIGUOUS VENDOR TOKENS ONLY. `bot`, bare `ai`, `cody` and `devin` are
+#     deliberately absent: `Co-authored-by: dependabot[bot]` is ordinary
+#     automation attribution and must pass, and Cody/Devin/Ai are human names.
+use strict; use warnings;
+
+my $VENDOR = qr/claude|anthropic|copilot|chatgpt|openai|gpt-[0-9]|codex\b|
+                gemini|cursor|codeium|windsurf|aider|tabnine|sourcegraph|
+                codewhisperer|amazon\s*q\b|ai[-\s]assistant/xi;
+
+my @RULES = (
+  [ qr/^[ \t]*co-authored-by:[ \t]*[^\n]*$VENDOR/i      => 'AI co-author trailer' ],
+  [ qr/^[ \t]*co-authored-by:[ \t]*[^\n]*\@(?:anthropic|openai|cognition)\.com/i
+                                                        => 'AI vendor co-author email' ],
+  [ qr/^[ \t]*(?:assisted|generated|authored|written)-by:[ \t]*[^\n]*$VENDOR/i
+                                                        => 'AI attribution trailer' ],
+  [ qr/^[ \t]*(?:claude|chatgpt|copilot|gemini|cursor|codex)-session:/i
+                                                        => 'AI session trailer' ],
+  [ qr/^[ \t]*\x{1F916}?[ \t]*generated with[ \t]*\[?(?:claude|copilot|chatgpt|cursor|codex)/i
+                                                        => 'AI generation banner' ],
+);
+
+local $/; my $msg = <STDIN>; $msg = '' unless defined $msg;
+my (@bad, $n);
+for my $line (split /\n/, $msg) {
+  $n++;
+  for my $r (@RULES) {
+    if ($line =~ $r->[0]) { push @bad, [$n, $line, $r->[1]]; last }
+  }
+}
+exit 0 unless @bad;
+print STDERR "  $_->[2]:\n    line $_->[0]: $_->[1]\n" for @bad;
+exit 1;

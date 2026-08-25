@@ -1,0 +1,12 @@
+#!/bin/sh
+# Rejects a commit whose message carries AI attribution. See ai-attribution-scan
+# for what counts (trailer shapes only — prose about AI tooling is fine).
+scan="$(dirname "$0")/ai-attribution-scan"
+[ -x "$scan" ] || exit 0
+if ! "$scan" < "$1"; then
+    echo "" >&2
+    echo "commit-msg: refusing — the message above carries AI attribution." >&2
+    echo "Strip those trailer lines and commit again." >&2
+    exit 1
+fi
+exit 0
