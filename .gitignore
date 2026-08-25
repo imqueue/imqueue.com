@@ -112,3 +112,7 @@ plans/
 # change — and without the same queries a change in the KPI would not mean a change in the
 # ranker. See scripts/search-kpi/README.md.
 scripts/search-kpi/data/artificial-queries.json
+
+# end-to-end test run artifacts
+tests/e2e/.artifacts/
+tests/e2e/.report/

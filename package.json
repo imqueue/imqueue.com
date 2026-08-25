@@ -10,6 +10,7 @@
     "@fontsource/space-grotesk": "^5.3.0",
     "@microsoft/api-documenter": "^7.25.0",
     "@microsoft/api-extractor": "^7.47.0",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^25.9.5",
     "js-yaml": "^4.3.1",
     "markdown-it": "^14.1.0",
@@ -91,7 +92,14 @@
     "indexnow:com": "node scripts/indexnow-ping.js com",
     "gen-syndication": "node scripts/gen-syndication.js",
     "gen-social": "node scripts/gen-social-preview.js",
-    "check:email-literals": "node scripts/check-email-literals.js"
+    "check:email-literals": "node scripts/check-email-literals.js",
+    "pretest:e2e": "node tests/e2e/support/reap.js",
+    "test:e2e": "tests/e2e/run.sh",
+    "test:e2e:desktop": "tests/e2e/run.sh --project=desktop",
+    "test:e2e:mobile": "tests/e2e/run.sh --project=mobile",
+    "test:e2e:reap": "node tests/e2e/support/reap.js",
+    "e2e:which-gpu": "node tests/e2e/support/which-gpu.js",
+    "e2e:server": "node tests/e2e/server/pages-server.mjs"
   },
   "repository": {
     "type": "git",
