@@ -19,5 +19,5 @@ readonly networks: Buffer;
 
 ## Remarks
 
-Held by reference, not copied, so this is the cheap way to persist or clone a list — hand it back to the constructor with [NetworkList.type](/api/net/latest/net.networklist.type/)<!-- -->. Do not mutate it; every lookup reads it directly and assumes it is still sorted.
+Held by reference, not copied, so this is the cheap way to persist or clone a list — hand it back to the constructor with [NetworkList.type](/api/net/latest/net.networklist.type/)<!-- -->. Do not mutate it; every lookup reads it directly and assumes it is still sorted and free of overlaps.
 

@@ -65,7 +65,7 @@ TypeError if `ip` is not a valid address — an empty string included. Screen un
 
 ## Remarks
 
-Binary search over the sorted records, so O(log n) in the number of networks. An address of the other family returns `false` rather than throwing, which is what lets [Networks](/api/net/latest/net.networks/) ask both of its lists without checking first.
+Binary search over the sorted, disjoint records, so O(log n) in the number of networks. Disjointness is not incidental — [toBinaryList()](/api/net/latest/net.tobinarylist/) coalesces overlaps precisely so that discarding one half of the list at each probe can never discard a record that covers the address. An address of the other family returns `false` rather than throwing, which is what lets [Networks](/api/net/latest/net.networks/) ask both of its lists without checking first.
 
 Ranges are inclusive at both ends, so a `/32` matches exactly its one address.
 

@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/net 3.0.3 · API reference"
+title: "@imqueue/net 3.0.4 · API reference"
 description: "Fast CIDR membership testing for IPv4 and IPv6, using sorted binary ranges rather than per-network comparison."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/net","url":"/api/net/latest/"}]
 ---
@@ -64,7 +64,7 @@ Description
 
 </td><td>
 
-A single-family list of networks, stored as sorted binary ranges and searched in O(log n).
+A single-family list of networks, stored as sorted, disjoint binary ranges and searched in O(log n).
 
 
 </td></tr>

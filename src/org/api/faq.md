@@ -971,6 +971,12 @@ validate with `isValid()` first when the input is untrusted. `cidrToRange()` and
 `ipToInt()` are exported for building something else on the same primitives; this
 is the package `@imqueue/http-protect` uses for its own allow-list.
 
+Overlapping records are coalesced at construction, so listing a network beside a
+subnet of it is safe but not free of consequence: the two collapse into one
+record, `length` counts fewer networks than you passed, and `toArray()` gives the
+supernet back on its own. The addresses covered are identical either way — it is
+only the record list that differs.
+
 ~~~typescript
 import { isValid, Networks } from '@imqueue/net';
 

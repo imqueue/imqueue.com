@@ -1,6 +1,6 @@
 ---
 title: "NetworkList class · @imqueue/net"
-description: "A single-family list of networks, stored as sorted binary ranges and searched in O(log n)."
+description: "A single-family list of networks, stored as sorted, disjoint binary ranges and searched in O(log n)."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/net","url":"/api/net/latest/"},{"name":"NetworkList","url":"/api/net/latest/net.networklist/"}]
 ---
 
@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/net","url":
 
 # NetworkList class
 
-A single-family list of networks, stored as sorted binary ranges and searched in O(log n).
+A single-family list of networks, stored as sorted, disjoint binary ranges and searched in O(log n).
 
 **Signature:**
 
@@ -20,7 +20,7 @@ export declare class NetworkList
 
 One family per list — the record widths differ, so IPv4 and IPv6 cannot share a buffer. Reach for [Networks](/api/net/latest/net.networks/) unless you know the family up front; it holds one of these per family and dispatches on the address it is given.
 
-Each network is one record of two addresses, start and end: 8 bytes for IPv4 and 32 for IPv6, so memory is linear in the number of networks and independent of how large each network is. Records are sorted at construction, which is what makes the binary search in [NetworkList.includes()](/api/net/latest/net.networklist.includes/) valid.
+Each network is one record of two addresses, start and end: 8 bytes for IPv4 and 32 for IPv6, so memory is linear in the number of networks and independent of how large each network is. Records are sorted and coalesced at construction, which is what makes the binary search in [NetworkList.includes()](/api/net/latest/net.networklist.includes/) valid — that search needs the stored ranges to be both ordered and disjoint, so a network listed beside a subnet of it is stored as the one range covering both.
 
 Instances are effectively immutable — every field is `readonly` and there is no method that adds or removes a network. Extending a list means constructing a new one.
 

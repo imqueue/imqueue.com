@@ -72,7 +72,7 @@ _(Optional)_ the family, if known; omit to have it detected from the first recor
 
 Buffer
 
-A buffer of `[start, end]` address pairs, little-endian, ascending by start address. Two addresses of [sizeOf()](/api/net/latest/net.sizeof/) bytes per record.
+A buffer of `[start, end]` address pairs, little-endian, ascending by start address and pairwise disjoint. Two addresses of [sizeOf()](/api/net/latest/net.sizeof/) bytes per record.
 
 ## Exceptions
 
@@ -82,7 +82,11 @@ RangeError if a record has no `/prefix` — see [cidrToRangeInt()](/api/net/late
 
 ## Remarks
 
-Three things happen here that the caller can observe. Ranges are deduplicated, so two records covering the same range yield one entry — note that this compares ranges, not text, so `10.0.0.0/8` and `10.0.0.5/8` count as duplicates. They are then sorted, which is the precondition [NetworkList](/api/net/latest/net.networklist/) relies on for binary search. And the family is taken from `networks[0]`<!-- -->, so an empty array reaches [getType()](/api/net/latest/net.gettype/) as `undefined` and throws.
+Three things happen here that the caller can observe. Ranges are sorted by start address, which is the precondition [NetworkList](/api/net/latest/net.networklist/) relies on for binary search. Overlapping ranges are then coalesced into a single record spanning both — note that this compares ranges, not text, so `10.0.0.0/8` and `10.0.0.5/8` collapse into one record, and so do a network and a subnet of it, such as `10.0.0.0/8` and `10.1.0.0/16`<!-- -->, which come back as just the supernet. And the family is taken from `networks[0]`<!-- -->, so an empty array reaches [getType()](/api/net/latest/net.gettype/) as `undefined` and throws.
 
-Overlapping ranges are kept as they are rather than merged, so a list can hold a network and a subnet of it. That costs a little space but never affects the answer.
+Coalescing is what makes the result searchable, not merely smaller: binary search over ranges is only sound when the ranges are disjoint. Left overlapping, a probe that lands on a subnet nested inside an earlier supernet and finds the target above that subnet's end moves right, and never revisits the supernet sitting at a lower index — so an address the list does cover answers `false`<!-- -->.
+
+Only overlap is merged, never mere adjacency: `11.0.0.0/8` and `12.0.0.0/8` abut but stay two records. That is deliberate. The union of two adjacent prefixes need not be a prefix itself, and [NetworkList](/api/net/latest/net.networklist/) rejects a buffer holding a range that does not re-expand to one record, so merging adjacency would break the buffer round trip for a space saving that correctness does not need.
+
+The result therefore holds at most as many records as it was given, and fewer whenever the input overlaps.
 

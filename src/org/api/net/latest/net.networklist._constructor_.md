@@ -77,7 +77,7 @@ RangeError if a record has no `/prefix`<!-- -->. A bare address is rejected, so 
 
 ## Remarks
 
-The array form sorts and deduplicates by range, so the resulting [NetworkList.length](/api/net/latest/net.networklist.length/) may be lower than the number of records you passed. The buffer form trusts the bytes and copies nothing — it keeps a reference, so mutating that buffer afterwards corrupts the list.
+The array form sorts by range and coalesces overlaps, so the resulting [NetworkList.length](/api/net/latest/net.networklist.length/) may be lower than the number of records you passed — `['10.0.0.0/8', '10.1.0.0/16']` is one record, not two. The buffer form trusts the bytes and copies nothing — it keeps a reference, so mutating that buffer afterwards corrupts the list.
 
 ## Example
 

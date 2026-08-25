@@ -77,7 +77,7 @@ RangeError if a CIDR record has no `/prefix` — a bare address is rejected, so 
 
 ## Remarks
 
-The array form is the usual one, and it does the sorting for you: records are split by family, so the order you list them in does not matter. The buffer form is for restoring a set you packed earlier and reads `networks` as IPv4 only — an IPv6 buffer passed as the first argument would be misread, so it belongs in `networks6`<!-- -->.
+The array form is the usual one, and it does the sorting for you: records are split by family, then sorted and coalesced within each, so the order you list them in does not matter and neither does listing a network beside a subnet of it. The buffer form is for restoring a set you packed earlier and reads `networks` as IPv4 only — an IPv6 buffer passed as the first argument would be misread, so it belongs in `networks6`<!-- -->.
 
 An empty array yields a set with neither family populated, which answers `false` to everything rather than throwing.
 

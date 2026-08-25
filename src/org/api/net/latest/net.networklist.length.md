@@ -19,5 +19,5 @@ readonly length: number;
 
 ## Remarks
 
-Records, not bytes and not input records — computed as `bytesLength / recordSize`<!-- -->. It can be lower than the number of CIDR strings the constructor was given, because records covering the same range are deduplicated.
+Records, not bytes and not input records — computed as `bytesLength / recordSize`<!-- -->. It can be lower than the number of CIDR strings the constructor was given, because overlapping ranges are coalesced: exact duplicates collapse, and so does a network listed beside a subnet of it.
 

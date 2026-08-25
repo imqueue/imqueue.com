@@ -71,7 +71,7 @@ command-line tool and wants `npm i -g @imqueue/cli`.
 | [@imqueue/datadog](/api/datadog/latest/) | 3.2.1 | GPL-3.0-only | not declared | 2026-08-22 |
 | [@imqueue/graphql-dependency](/api/graphql-dependency/latest/) | 3.1.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
 | [@imqueue/type-graphql-dependency](/api/type-graphql-dependency/latest/) | 3.0.4 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
-| [@imqueue/net](/api/net/latest/) | 3.0.3 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
+| [@imqueue/net](/api/net/latest/) | 3.0.4 | GPL-3.0-only | `>=22.12.0` | 2026-08-25 |
 | [@imqueue/http-protect](/api/http-protect/latest/) | 3.0.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-01 |
 | [@imqueue/validation](/api/validation/latest/) | 1.1.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
 | [@imqueue/job](/api/job/latest/) | 3.1.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |

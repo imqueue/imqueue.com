@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-25T04:54:16.246Z",
+  "generated": "2026-08-25T14:11:27.294Z",
   "framework": {
     "license": "GPL-3.0-only",
     "licenseNote": "GPL-3.0-only, or a commercial licence for closed-source distribution. Not AGPL: running it as a network service is not distribution, so internal services and SaaS carry no source-release obligation",
@@ -269,12 +269,12 @@
     {
       "name": "net",
       "scoped": "@imqueue/net",
-      "version": "3.0.3",
+      "version": "3.0.4",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-22",
+      "released": "2026-08-25",
       "firstRelease": "2021-11-21",
-      "releases": 10,
+      "releases": 11,
       "majors": [
         1,
         2,

@@ -65,5 +65,5 @@ One flat array covering both families, IPv4 records followed by IPv6.
 
 ## Remarks
 
-The result is a valid constructor argument, which makes this the readable way to round-trip a set. Not necessarily the records you built it from, though: each range is re-expressed as its minimal cover, so duplicates are gone and a range spanning several prefixes returns as several records. Addresses covered are identical either way.
+The result is a valid constructor argument, which makes this the readable way to round-trip a set. Not necessarily the records you built it from, though: overlapping records were coalesced when the set was built, so a supernet listed beside a subnet of it returns as just the supernet, and each stored range is re-expressed as its minimal cover, so a range spanning several prefixes returns as several records. Addresses covered are identical either way.
 

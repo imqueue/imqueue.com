@@ -65,5 +65,5 @@ CIDR records covering exactly the same addresses as this list.
 
 ## Remarks
 
-Not necessarily the records you constructed with. Each stored range is re-expressed as its minimal cover, so duplicates are gone and a range that does not align to one prefix comes back as several records. The addresses covered are identical; the record list need not be.
+Not necessarily the records you constructed with. Overlapping inputs were already coalesced at construction, so a supernet listed beside a subnet of it comes back as just the supernet. Each stored range is then re-expressed as its minimal cover, so a range that does not align to one prefix comes back as several records. The addresses covered are identical; the record list need not be.
 
