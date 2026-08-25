@@ -93,6 +93,8 @@
     "gen-syndication": "node scripts/gen-syndication.js",
     "gen-social": "node scripts/gen-social-preview.js",
     "check:email-literals": "node scripts/check-email-literals.js",
+    "verify": "node scripts/verify.js",
+    "verify:save": "node scripts/verify.js --save",
     "pretest:e2e": "node tests/e2e/support/reap.js",
     "test:e2e": "tests/e2e/run.sh",
     "test:e2e:desktop": "tests/e2e/run.sh --project=desktop",

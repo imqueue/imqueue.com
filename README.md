@@ -56,8 +56,22 @@ npm run build:org    # what Cloudflare runs: this edition, plus the peer's searc
 ## Checks
 
 ```bash
-npm test            # check:redirects + check:dates + check:links + check:sitemap
+npm test            # 15 offline checks, listed below
+npm run test:e2e    # 172 browser tests against the built site — see tests/e2e/README.md
+npm run verify      # both suites, diffed against a saved baseline — see AGENTS.md
 ```
+
+`npm test` runs, in order: `check:redirects`, `check:agent-analytics`,
+`check:dates`, `check:package-status`, `check:links`, `check:sitemap`,
+`check:llms`, `check:search-ranker`, `check:search-index`,
+`check:search-ranking`, `check:kpi`, `check:search-ui`, `check:jsonld`,
+`check:mermaid`, `check:email-literals`. The list in `package.json` is the
+authority; the notes below cover the ones with a trap in them.
+
+Every check reads the **built** site, so `npm run build:all` first — and stop any
+`eleventy --serve` watcher before you trust a result, because it rebuilds the
+output concurrently and can make `check:links`/`check:sitemap` lie in either
+direction.
 
 - **`check:redirects`** guards the Cloudflare rule budget and replays every
   historical `/api/` URL through `lib/api-redirects.js`. Cloudflare Pages silently
@@ -69,8 +83,20 @@ npm test            # check:redirects + check:dates + check:links + check:sitema
   page and that no publication date has drifted. Run it explicitly after adding
   pages: at pre-commit the new files are staged but uncommitted, so they look
   untracked and the hook passes regardless.
-- **`check:links`** builds both editions and validates internal links.
-- **`check:sitemap`** validates the sitemap index and its children.
+- **`check:links`** builds both editions and validates internal links (~1900
+  pages). It is the slow one, and the reason a commit here takes a while: the
+  pre-commit hook runs it.
+- **`check:sitemap`** validates the sitemap index and its children, and asserts
+  that every indexable page has the markdown mirror agents are promised.
+- **`check:kpi`** is a **gate, not a report**. Its floors sit one standard error
+  below the measured value, so a small ranking change can trip it legitimately.
+  Never choose a target by looking at what the ranker currently does —
+  `scripts/search-kpi/README.md` has the method.
+- **`npm run test:e2e`** is the browser half, and it is separate on purpose: it
+  covers what only a browser can see (search, consent, forms, the phone drawer)
+  and deliberately does not duplicate the checks above. It runs the real Pages
+  Functions in front of the built site, so the `/api/` redirect policy and the
+  agent-facing headers are exercised as deployed, not as configured.
 
 `npm test` is offline. One check sits outside it for that reason:
 

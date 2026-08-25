@@ -116,3 +116,6 @@ scripts/search-kpi/data/artificial-queries.json
 # end-to-end test run artifacts
 tests/e2e/.artifacts/
 tests/e2e/.report/
+
+# verify.js baseline — a local artifact of one working tree, never shared
+.verify-baseline.json
