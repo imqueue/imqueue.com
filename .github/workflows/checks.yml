@@ -49,6 +49,23 @@ jobs:
           # `npm run build:all` needs it, and all of them do.
           submodules: true
 
+      # REQUIRED by sync-cli-guide:check, inside `npm test`: the CLI User Guide in
+      # src/org/cli/ is generated from this directory, and the check re-runs that
+      # generation to prove the two still agree. Without it the check skips, which
+      # is exactly the silence it exists to remove — so the npm test step below
+      # also sets CLI_WIKI_REQUIRED=1 and fails if this checkout ever stops
+      # producing a wiki/.
+      #
+      # Sparse: wiki/ is a dozen markdown files, not the cli source tree. No token
+      # — imqueue/cli is public, so the default one reads it, which also keeps this
+      # working for pull requests from forks.
+      - name: Checkout @imqueue/cli wiki source
+        uses: actions/checkout@v7
+        with:
+          repository: imqueue/cli
+          path: .cli-src
+          sparse-checkout: wiki
+
       - uses: actions/setup-node@v7
         with:
           # 22 in all five workflows and in .nvmrc, which is the point: .nvmrc
@@ -62,15 +79,24 @@ jobs:
 
       # check:links builds both editions itself, and check:sitemap then reads that
       # output, so the ordering inside `npm test` already covers the build.
-      - name: npm test (redirects, dates, links, sitemap)
+      - name: npm test (redirects, dates, links, sitemap, CLI guide)
+        env:
+          CLI_WIKI_DIR: .cli-src/wiki
+          # Turn "no wiki on disk" from a skip into a failure. This is the run that
+          # is supposed to catch guide drift; a green tick for a check that never
+          # executed is the failure mode, not the safe default.
+          CLI_WIKI_REQUIRED: "1"
         run: npm test
 
       # The two NETWORKED checks. Deliberately outside `npm test`, which runs in the
       # pre-commit hook and must work offline — the same split check-api-versions.ts
       # has always had. Here is where they actually get run, because a `--check`
       # script nothing invokes is this repo's recurring failure mode:
-      # `sync-cli-guide:check` has existed for months with no caller, and
-      # `check:links:external` sat unrun long enough to break unnoticed.
+      # `check:links:external` sat unrun long enough to break unnoticed, and
+      # `sync-cli-guide:check` went months with no caller while the guide silently
+      # drifted. That one is now inside `npm test` above — it reads a local
+      # directory rather than the network, so it did not need this split; it needed
+      # the wiki checked out, which is what the step near the top does.
       #
       # Both run even if the other failed, and both AFTER npm test, so a red build
       # still tells you everything that is wrong in one pass.

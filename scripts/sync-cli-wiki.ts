@@ -8,7 +8,11 @@
  *                 Default: ../cli/wiki relative to this repo (sibling checkout),
  *                 overridable with the CLI_WIKI_DIR env var.
  *   --check       Do not write; exit 1 if the generated output would differ from
- *                 what is on disk (useful in CI to detect drift).
+ *                 what is on disk (useful in CI to detect drift). Part of
+ *                 `npm test`, via the sync-cli-guide:check script.
+ *
+ * CLI_WIKI_REQUIRED=1 makes --check fail when the wiki dir is missing instead of
+ * skipping. CI sets it; see the note above the existsSync check before pass 1.
  *
  * The page bodies come verbatim from the wiki; this repo owns only the editorial
  * front matter and ordering (scripts/cli-wiki-manifest.ts). The transform is
@@ -60,6 +64,36 @@ function headingText(line: string): string {
 const pageUrlByName = new Map(
   pages.map((p) => [p.wiki.replace(/\.md$/, ""), p.url])
 );
+
+// The wiki lives in a DIFFERENT repo, so `npm test` cannot assume it is on disk:
+// a contributor without a sibling checkout has no wiki/ to compare against, and
+// neither do the workflows that run the suite for an unrelated reason (api docs,
+// weekly maintenance, ranker repin). Skipping there is what lets this check sit in
+// `npm test` without making the suite depend on a second clone — it stays offline,
+// which is the rule for everything in that chain.
+//
+// Skipping SILENTLY would recreate the bug this check exists to catch, so the two
+// workflows that are meant to enforce it — checks.yml, which runs on every push and
+// PR, and sync-cli-guide.yml, which gates the bot's own commit — set
+// CLI_WIKI_REQUIRED=1, and the skip becomes a failure there.
+//
+// A write run always requires the wiki, whatever the env says: a sync that cannot
+// find its source must fail, not report success having copied nothing.
+//
+// This has to stay AHEAD of pass 1, which reads every wiki file at module scope.
+// It used to sit further down, next to the run loop, where it was unreachable: a
+// missing dir threw a raw ENOENT stack out of pass 1 long before the friendly
+// message could print. Moving it back down silently restores that.
+if (!fs.existsSync(WIKI_DIR)) {
+  if (CHECK && process.env.CLI_WIKI_REQUIRED !== "1") {
+    console.log(`— skipped: no @imqueue/cli wiki at ${WIKI_DIR}`);
+    console.log("  Clone imqueue/cli beside this repo (or set CLI_WIKI_DIR) to run this check.");
+    process.exit(0);
+  }
+
+  console.error(`✗ wiki dir not found: ${WIKI_DIR}\n  pass --wiki <dir> or set CLI_WIKI_DIR.`);
+  process.exit(2);
+}
 
 // --- pass 1: collect every #fragment that is linked to, per destination page ---
 // A link [text](Page#frag) references (Page, frag). A same-page [text](#frag)
@@ -164,10 +198,6 @@ function generate(p: WikiPage, index: number): string {
 }
 
 // --- run ---
-if (!fs.existsSync(WIKI_DIR)) {
-  console.error(`✗ wiki dir not found: ${WIKI_DIR}\n  pass --wiki <dir> or set CLI_WIKI_DIR.`);
-  process.exit(2);
-}
 
 let changed = 0;
 const written: string[] = [];
@@ -192,7 +222,20 @@ for (let i = 0; i < pages.length; i++) {
 
 if (CHECK) {
   if (changed) {
-    console.error(`\n✗ ${changed} page(s) out of date. Run: node scripts/sync-cli-wiki.ts`);
+    // Read the diff before running the sync. "Out of date" is symmetric — it fires
+    // when the wiki has moved ahead of the site (sync it) AND when the site has
+    // prose the wiki does not (syncing DELETES it, because this transform is a
+    // whole-file overwrite with no merge). The second case has already cost this
+    // repo one page: two FAQ pairs were written straight into
+    // src/org/cli/clients-and-versioning.md and were a release away from being
+    // silently dropped, until they were moved up to the wiki where they belong.
+    console.error(`\n✗ ${changed} page(s) out of date.`);
+    console.error("\n  Look at what would change before you fix it:");
+    console.error("    node scripts/sync-cli-wiki.ts && git diff -- src/org/cli");
+    console.error("\n  Wiki ahead of the site  -> keep that sync and commit it.");
+    console.error("  Site has prose the wiki lacks -> the sync would DELETE it.");
+    console.error("    Revert, move the text into imqueue/cli's wiki/, and re-run.");
+    console.error("    Guide pages are generated; the wiki is the only place edits survive.");
     process.exit(1);
   }
   console.log("✓ CLI User Guide is in sync with the wiki.");

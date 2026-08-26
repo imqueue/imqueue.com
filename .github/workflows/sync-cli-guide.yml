@@ -127,6 +127,14 @@ jobs:
         # commit this job creates — while Cloudflare Pages deploys from the git
         # push itself. Without this step an unverified guide goes straight to
         # production. Same reasoning as refresh-api-docs.yml.
+        #
+        # Pointed at the same wiki the sync above read, so the suite's
+        # sync-cli-guide:check re-derives the guide and asserts it matches what was
+        # just committed — an idempotence check on the transform, and the reason
+        # this step cannot be allowed to reach the default ../cli/wiki and skip.
+        env:
+          CLI_WIKI_DIR: .cli-src/wiki
+          CLI_WIKI_REQUIRED: "1"
         run: npm test
 
       - name: Push
