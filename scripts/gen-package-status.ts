@@ -32,23 +32,13 @@ import path from 'node:path';
 
 import { statusPackages, type StatusPackage } from './lib/api-packages.ts';
 import { releaseVersions, majorOf, packageManifest, releaseTimes } from './lib/npm-releases.ts';
-import { createRequire } from 'node:module';
-
-// For the loads whose path is decided at run time. Synchronous, because the
-// checks that consume them are.
-const require = createRequire(import.meta.url);
+import atAGlance from '../src/_data/atAGlance.ts';
 
 
 const ROOT = path.join(import.meta.dirname, '..');
 const OUT = path.join(ROOT, 'src', '_data', 'packageStatus.json');
 const PAGE = path.join(ROOT, 'src', 'org', 'status', 'index.md');
 const CHECK = process.argv.includes('--check');
-
-/** One row of src/_data/atAGlance.ts. */
-interface AtAGlanceRow {
-  label: string;
-  value: string;
-}
 
 /** The framework-wide block of the status feed. */
 export interface FrameworkFacts {
@@ -104,7 +94,7 @@ interface Manifest {
 // alternative is a framework block that silently loses a row when someone rewords
 // one.
 function frameworkFacts(): FrameworkFacts {
-  const rows = (require('../src/_data/atAGlance.ts') as () => AtAGlanceRow[])();
+  const rows = atAGlance();
   const pick = (label: string): string => {
     const row = rows.find(r => r.label === label);
 
