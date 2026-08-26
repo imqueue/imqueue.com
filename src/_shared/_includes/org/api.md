@@ -3,10 +3,10 @@ Authored mirror of /api/. See README.txt: the generic md-mirror.liquid renders
 `rawInput`, and src/org/api/index.md's rawInput is a JSON-LD block, two card
 grids, a 120-line state-persistence <script> and five `{% include %}`s — the
 guide an agent came for is in the includes, and the template source is not
-markdown at all. eleventy.config.js therefore keeps /api/ out of `contentMd`
+markdown at all. eleventy.config.mts therefore keeps /api/ out of `contentMd`
 and this file mirrors the page instead.
 
-The package list is generated from src/_data/apiPackages.js, the same source the
+The package list is generated from src/_data/apiPackages.ts, the same source the
 HTML page and /llms.txt use, so it cannot list a package the build did not
 generate. The guide sections are the same five includes both of those render.
 {%- endcomment -%}

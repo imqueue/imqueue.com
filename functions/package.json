@@ -1,0 +1,4 @@
+{
+  "//": "Same reason as lib/package.json: scopes functions/ to ES modules while the repo root is still CommonJS. Explicit rather than relying on Node's ESM syntax detection, which is what carried these files before they were TypeScript.",
+  "type": "module"
+}

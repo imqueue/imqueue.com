@@ -68,7 +68,7 @@ jobs:
       - run: npm ci
 
       - name: Regenerate CLI User Guide from the wiki
-        run: node scripts/sync-cli-wiki.js --wiki .cli-src/wiki
+        run: node scripts/sync-cli-wiki.ts --wiki .cli-src/wiki
 
       - name: Anything to do?
         id: changed
@@ -139,7 +139,7 @@ jobs:
         # something real to announce.
         #
         # Dispatching that workflow rather than calling `npm run indexnow:org`
-        # here: indexnow-ping.js does NOT wait for anything ("Run AFTER a deploy,
+        # here: indexnow-ping.ts does NOT wait for anything ("Run AFTER a deploy,
         # once the new content is actually live"), and the ~12-minute
         # built-vs-live sitemap parity gate that makes it correct lives in
         # indexnow.yml. Pinging from this job would submit a brand-new guide page

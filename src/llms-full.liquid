@@ -41,7 +41,7 @@ disagree. See src/com/mirrors/README.txt for why .com needed them at all.
 The whole corpus is captured FIRST, so the header can state the file's real size and
 document count instead of guessing them. Two passes over the same ordered
 collection: one for the table of contents, one for the bodies. `collections.llmsFull`
-holds the order (see eleventy.config.js) rather than the template deciding it, so
+holds the order (see eleventy.config.mts) rather than the template deciding it, so
 the TOC and the bodies cannot disagree about what is in here or in what sequence.
 
 /, /intro/ and /docs/ come first and come from includes: they are authored as HTML

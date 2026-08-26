@@ -139,7 +139,7 @@ Looking a symbol up by name rather than browsing? [`/api/search-index.json`](/ap
 </details>
 
 <!-- Tier 2 — the capability libraries you add to a service, one section per group.
-     Generated from src/_data/apiPackages.js (which reads scripts/lib/api-packages.js),
+     Generated from src/_data/apiPackages.ts (which reads scripts/lib/api-packages.ts),
      so a wave ships by flipping one `status` in the config rather than editing markup
      here — that is what keeps this page and the generator from drifting.
 

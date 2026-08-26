@@ -22,7 +22,7 @@ eleventyExcludeFromCollections: true
   Cache-Control: public, max-age=31536000, immutable
 
 # /css/* and /js/* are now content-hashed at build time (base.css ->
-# base.<hash>.css, see scripts/lib/asset-manifest.js), which is the prerequisite
+# base.<hash>.css, see scripts/lib/asset-manifest.ts), which is the prerequisite
 # this comment used to ask for. A changed file is a new URL, so `immutable` cannot
 # pin stale bytes — the previous max-age=14400 on unfingerprinted names could, and
 # did: on 2026-07-30 a deployed CSS fix kept being served from the old edge copy
@@ -101,7 +101,7 @@ eleventyExcludeFromCollections: true
   Cache-Control: public, max-age=0, must-revalidate
 
 {%- comment -%}
-The search corpus (scripts/gen-search-index.js). Same treatment as llms.txt and for
+The search corpus (scripts/gen-search-index.ts). Same treatment as llms.txt and for
 the same two reasons: it is regenerated on every deploy, and it is not a page.
 
 `max-age=0, must-revalidate` rather than the year-long immutable that /js/* gets,
@@ -117,7 +117,7 @@ put the header on the markdown mirrors.
 {%- endcomment %}
 # There is deliberately NO Access-Control-Allow-Origin here. Cross-site search reads the
 # OTHER edition's index from `/search-peer-*.json` on THIS origin — copied in at build
-# time by scripts/copy-peer-index.js — so no cross-origin request is ever made and no
+# time by scripts/copy-peer-index.ts — so no cross-origin request is ever made and no
 # header has to permit one. That file explains why copying beat both CORS and a symlink.
 /search-index.json
   X-Robots-Tag: noindex

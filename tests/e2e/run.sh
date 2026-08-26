@@ -3,11 +3,11 @@
 #
 #   tests/e2e/run.sh                       # whole suite
 #   tests/e2e/run.sh --project=desktop
-#   tests/e2e/run.sh specs/search-dialog.spec.js
+#   tests/e2e/run.sh specs/search-dialog.spec.ts
 #
 # Three runs of this suite froze this workstation hard enough to need a power
 # cycle. The cause was the browser reaching the NVIDIA driver (see the header of
-# playwright.config.js, which is where that is dealt with). This file is the
+# playwright.config.ts, which is where that is dealt with). This file is the
 # containment that does not depend on having diagnosed it correctly:
 #
 #   * strays from an interrupted run are reaped BEFORE anything new is started;
@@ -29,7 +29,7 @@ MEMORY_MAX="${E2E_MEMORY_MAX:-6G}"
 CPU_QUOTA="${E2E_CPU_QUOTA:-400%}"
 TASKS_MAX="${E2E_TASKS_MAX:-512}"
 
-reap() { node "${HERE}/support/reap.js"; }
+reap() { node "${HERE}/support/reap.ts"; }
 
 # Before, so a previous run's leftovers are not counted against this run's caps —
 # and again on the way out, however this exits.
@@ -38,7 +38,7 @@ trap reap EXIT INT TERM
 
 cd "${ROOT}" || exit 1
 
-PLAYWRIGHT=(npx playwright test -c "${HERE}/playwright.config.js" "$@")
+PLAYWRIGHT=(npx playwright test -c "${HERE}/playwright.config.ts" "$@")
 
 # ---- containment ----------------------------------------------------------
 #
@@ -66,7 +66,7 @@ PLAYWRIGHT=(npx playwright test -c "${HERE}/playwright.config.js" "$@")
 #
 # 1. THE NETWORK, isolated by default. Every byte the suite moves is 127.0.0.1 —
 #    the server is local, and every external host is intercepted in-process by
-#    support/fixtures.js and answered without a socket. A namespace with nothing
+#    support/fixtures.ts and answered without a socket. A namespace with nothing
 #    but loopback therefore costs the suite nothing, keeps its traffic off the
 #    host's nftables/WireGuard/Docker path, and makes "nothing leaves this
 #    machine" a property of the kernel rather than a promise made by fixtures.
@@ -76,7 +76,7 @@ PLAYWRIGHT=(npx playwright test -c "${HERE}/playwright.config.js" "$@")
 #    freezes captured nothing and each ended on `nvidia … Enabling HDA
 #    controller`, which is what originally pointed at the dGPU's resume path.
 #    That inference did not survive: the one crash that recorded a trace was this
-#    one, the GPU pinning in support/gpu.js is verified working (the card stayed
+#    one, the GPU pinning in support/gpu.ts is verified working (the card stayed
 #    `suspended` through every run) and the machine panicked anyway. All four were
 #    most likely this same bug, with that nvidia line simply the last message
 #    journald managed to flush. The pinning stays — it is free and correct — but
@@ -94,8 +94,10 @@ if command -v bwrap >/dev/null 2>&1; then
   fi
 
   if [ "${E2E_HIDE_DGPU:-0}" = "1" ]; then
-    mapfile -t ALLOWED < <(node -e \
-      'require("'"${HERE}"'/support/gpu.js").integratedNodes().forEach((n) => console.log(n))')
+    # `--input-type=module` rather than `require()`: support/gpu.ts is ESM, and
+    # this has to read one named export out of it from a one-liner.
+    mapfile -t ALLOWED < <(node --input-type=module -e \
+      'import { integratedNodes } from "'"${HERE}"'/support/gpu.ts"; integratedNodes().forEach((n) => console.log(n))')
 
     if [ "${#ALLOWED[@]}" -gt 0 ]; then
       BWRAP+=(--tmpfs /dev/dri)

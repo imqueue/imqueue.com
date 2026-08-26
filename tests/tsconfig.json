@@ -1,0 +1,27 @@
+{
+  // The e2e suite is the one place in this repo where BOTH runtimes are in play.
+  //
+  // `page.evaluate(() => document.querySelector(…))` is a function that is written
+  // in a Node file, serialised, and executed in the browser. It needs `lib.dom`.
+  // The root config deliberately does not have it: every other file here runs in
+  // Node, and a build script that reaches for `document` should be a type error,
+  // not a runtime one at 3am. So the DOM lives here, scoped to the tests, instead
+  // of being switched on globally to satisfy a dozen callbacks.
+  //
+  // `npm run check:types` runs this project as well as the root one.
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+
+    // Back to the root config's pre-migration pair, and only here. The rest of the
+    // repo is resolved as Node resolves it, because Node is what loads it. Playwright
+    // is what loads this tree — it transpiles the specs itself — and its convention is
+    // extensionless relative imports (`'../support/fixtures'`), which `nodenext`
+    // rejects outright. Writing `.ts` on 25 imports to satisfy a resolver that never
+    // sees them would describe the wrong runtime.
+    "module": "preserve",
+    "moduleResolution": "bundler"
+  },
+  "include": ["**/*"],
+  "exclude": ["node_modules"]
+}

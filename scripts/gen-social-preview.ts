@@ -1,0 +1,183 @@
+/**
+ * Generate GitHub social-preview cards (1280x640, GitHub's recommended size)
+ * for the main @imqueue repos, in the Terminal (.org) brand style.
+ *
+ *   node scripts/gen-social-preview.ts   (or: npm run gen-social)
+ *
+ * GitHub social-preview images can only be UPLOADED per-repo via
+ * Settings -> Social preview (there is no API), so these are produced as files
+ * for manual upload. Output: promotion/social-preview/<repo>.png
+ *
+ * Font handling mirrors gen-og-images.ts (woff2 -> sfnt behind a throwaway
+ * fontconfig) so librsvg/Pango can resolve the brand fonts.
+ */
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import woff2 from "wawoff2";
+
+const ROOT = path.resolve(import.meta.dirname, "..");
+const FONTS_DIR = path.join(ROOT, "src", "_shared", "fonts");
+const OUT_DIR = path.join(ROOT, "promotion", "social-preview");
+const MONO = "JetBrains Mono";
+
+const FONT_FILES = [
+  "jetbrains-mono-latin-400-normal.woff2",
+  "jetbrains-mono-latin-700-normal.woff2",
+];
+
+async function setupFonts() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "imq-social-"));
+  const ttfDir = path.join(dir, "ttf");
+  const cacheDir = path.join(dir, "cache");
+  fs.mkdirSync(ttfDir, { recursive: true });
+  fs.mkdirSync(cacheDir, { recursive: true });
+  for (const f of FONT_FILES) {
+    const sfnt = await woff2.decompress(fs.readFileSync(path.join(FONTS_DIR, f)));
+    fs.writeFileSync(path.join(ttfDir, f.replace(/\.woff2$/, ".ttf")), Buffer.from(sfnt));
+  }
+  const conf = path.join(dir, "fonts.conf");
+  fs.writeFileSync(
+    conf,
+    `<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+  <dir>${ttfDir}</dir>
+  <cachedir>${cacheDir}</cachedir>
+  <config></config>
+</fontconfig>`
+  );
+  process.env.FONTCONFIG_FILE = conf;
+  process.env.FONTCONFIG_PATH = dir;
+}
+
+// Brand glyph (from src/_shared/_includes/brand-logo.html), viewBox "3 10 42 28".
+const glyph = (x: number, y: number, scale: number, color: string): string => `
+  <g transform="translate(${x},${y}) scale(${scale})" fill="none" stroke="${color}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M33 12H15a8 8 0 0 0-8 8v8a8 8 0 0 0 8 8h18"/>
+    <circle cx="16" cy="24" r="2.6" fill="${color}" stroke="none"/>
+    <circle cx="24" cy="24" r="2.6" fill="${color}" stroke="none"/>
+    <circle cx="41" cy="24" r="2.8" fill="${color}" stroke="none"/>
+  </g>`;
+
+const esc = (s: string): string => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/** One GitHub social-preview card. */
+interface Card {
+  /** Repository the image is uploaded to; also the output filename. */
+  repo: string;
+  name: string;
+  tagline: string;
+  /** A second tagline line, for names too long to fit one. */
+  tagline2?: string;
+  /** The `$ npm i …` line. Absent on the two UDP nodes, which are not packages. */
+  cmd?: string;
+  /** Shown instead of a command, for a card with nothing to install. */
+  tag?: string;
+  /** Overrides the GPL-3.0 default. */
+  licence?: string;
+}
+
+// name, tagline (+ optional second line for long ones), install command
+const CARDS: Card[] = [
+  { repo: "org", name: "@imqueue", tagline: "RPC over a message queue for Node & TypeScript", cmd: "npm i -g @imqueue/cli" },
+  { repo: "rpc", name: "@imqueue/rpc", tagline: "Type-safe RPC over a message queue", cmd: "npm i @imqueue/rpc" },
+  { repo: "core", name: "@imqueue/core", tagline: "The Redis-backed messaging-queue engine", cmd: "npm i @imqueue/core" },
+  { repo: "cli", name: "@imqueue/cli", tagline: "Scaffolding & typed-client generation", cmd: "npm i -g @imqueue/cli" },
+  { repo: "job", name: "@imqueue/job", tagline: "Simple, safe-by-default Redis job queue", cmd: "npm i @imqueue/job" },
+  { repo: "pg-pubsub", name: "@imqueue/pg-pubsub", tagline: "Reliable PostgreSQL LISTEN/NOTIFY", tagline2: "with inter-process lock support", cmd: "npm i @imqueue/pg-pubsub" },
+  { repo: "net", name: "@imqueue/net", tagline: "Fast, reliable binary address checker", tagline2: "for Node — IPv4 & IPv6 support", cmd: "npm i @imqueue/net" },
+  { repo: "http-protect", name: "@imqueue/http-protect", tagline: "HTTP DDoS protection middleware", cmd: "npm i @imqueue/http-protect" },
+  { repo: "pg-sequelize", name: "@imqueue/pg-sequelize", tagline: "GraphQL input to efficient SQL", tagline2: "for Sequelize-backed services", cmd: "npm i @imqueue/pg-sequelize" },
+  { repo: "mcp", name: "@imqueue/mcp", tagline: "Docs search & service scaffolding", tagline2: "for AI coding agents (MCP)", cmd: "npx -y @imqueue/mcp" },
+  { repo: "pg-prisma", name: "@imqueue/pg-prisma", tagline: "Prisma & Postgres toolkit for services", tagline2: "extensions, archiving, typed models", cmd: "npm i @imqueue/pg-prisma" },
+  { repo: "validation", name: "@imqueue/validation", tagline: "Zod-backed field & method validation", tagline2: "via native TC39 decorators", cmd: "npm i @imqueue/validation" },
+  { repo: "opentelemetry", name: "@imqueue/opentelemetry", tagline: "OpenTelemetry tracing for every RPC", tagline2: "one registration, no code changes", cmd: "npm i @imqueue/opentelemetry" },
+  { repo: "datadog", name: "@imqueue/datadog", tagline: "Datadog APM tracing for every RPC", tagline2: "a drop-in dd-trace replacement", cmd: "npm i @imqueue/datadog" },
+  // Not npm packages (UDP nodes that announce new Redis broker instances so the
+  // message bus scales out horizontally) — no install command, so they show a
+  // context tag instead of a `$ npm i` line. Promoter broadcasts (where allowed);
+  // unicaster sends direct unicast to discovered pods where broadcast is blocked.
+  { repo: "redis-broker-promoter", name: "redis-broker-promoter", tagline: "Announces new Redis broker instances", tagline2: "for horizontal message-bus auto-scaling", tag: "UDP broadcast · Redis · auto-scaling" },
+  { repo: "redis-broker-unicaster", name: "redis-broker-unicaster", tagline: "Unicasts new Redis brokers to cluster pods", tagline2: "where broadcast is blocked (e.g. GCP VPC)", tag: "UDP unicast · Kubernetes · auto-scaling" },
+  // The image that carries both of the two above. It is pulled rather than
+  // installed, so the command line is a `docker run` — the only entry here whose
+  // command is not npm, and the point of the card is that it is one pull.
+  { repo: "redis-broker", name: "redis-broker", tagline: "Redis that announces itself", tagline2: "both discovery modules, chosen at runtime", cmd: "docker run ghcr.io/imqueue/redis-broker:7.4", licence: "ISC" },
+];
+
+// Fit the package name: shrink font so it never collides with the right edge.
+function nameSize(name: string): number {
+  if (name.length <= 8) return 96;   // "@imqueue"
+  if (name.length <= 13) return 78;  // "@imqueue/core"
+  if (name.length <= 18) return 70;  // "@imqueue/pg-pubsub"
+  return 62;                         // "redis-broker-unicaster"
+}
+
+// `licence` overrides the GPL-3.0 default: redis-broker is ISC, because the
+// broker layer is infrastructure you run rather than a library you build against.
+function card({ name, tagline, tagline2, cmd, tag, licence }: Card): string {
+  const ns = nameSize(name);
+  // One-line tagline sits at y=372 with the command at 486; a second tagline
+  // line tightens the two together and pushes the command down.
+  const ty1 = tagline2 ? 358 : 372;
+  const taglineBlock = tagline2
+    ? `<text x="100" y="${ty1}" font-family="${MONO}" font-weight="400" font-size="40" fill="#d5e2db">${esc(tagline)}</text>
+  <text x="100" y="${ty1 + 52}" font-family="${MONO}" font-weight="400" font-size="40" fill="#d5e2db">${esc(tagline2)}</text>`
+    : `<text x="100" y="${ty1}" font-family="${MONO}" font-weight="400" font-size="40" fill="#d5e2db">${esc(tagline)}</text>`;
+  const cmdY = tagline2 ? 504 : 486;
+  // Prominent green `$ npm i …` for packages; a muted `// tag` for repos with
+  // no install command (e.g. deployable infra nodes).
+  const actionLine = cmd
+    ? `<text x="100" y="${cmdY}" font-family="${MONO}" font-weight="700" font-size="32" fill="#63e6a0"><tspan fill="#35d0e0">$</tspan> ${esc(cmd)}</text>`
+    : tag
+    ? `<text x="100" y="${cmdY}" font-family="${MONO}" font-weight="700" font-size="30" fill="#7f8f89"><tspan fill="#35d0e0">//</tspan> ${esc(tag)}</text>`
+    : "";
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <defs>
+    <linearGradient id="gt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3ddc84"/>
+      <stop offset="1" stop-color="#35d0e0"/>
+    </linearGradient>
+    <radialGradient id="tglow" cx="0.15" cy="0.15" r="0.6">
+      <stop offset="0" stop-color="#3ddc84" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#3ddc84" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="640" fill="#0a0e0d"/>
+  <rect width="1280" height="640" fill="url(#tglow)"/>
+  <rect x="0" y="0" width="1280" height="8" fill="url(#gt)"/>
+
+  <g transform="translate(96,150)">
+    ${glyph(0, 0, 2.4, "url(#gt)")}
+    <text x="124" y="82" font-family="${MONO}" font-weight="700" font-size="${ns}" fill="#e8f0ec">${esc(name)}</text>
+  </g>
+
+  ${taglineBlock}
+
+  ${actionLine}
+
+  <text x="100" y="590" font-family="${MONO}" font-weight="700" font-size="28" fill="#7f8f89">open source · ${licence || "GPL-3.0"}</text>
+  <text x="1180" y="590" text-anchor="end" font-family="${MONO}" font-weight="700" font-size="28" fill="#7f8f89">imqueue.org</text>
+</svg>`;
+}
+
+async function main() {
+  await setupFonts();
+  // Dynamic import, not a top-level one: ESM hoists every static import above the
+  // first statement, so `sharp` would initialise its font stack before
+  // setupFonts() had written FONTCONFIG_* into the environment — which is the one
+  // thing the ordering here exists to guarantee.
+  const { default: sharp } = await import("sharp");
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+  for (const c of CARDS) {
+    await sharp(Buffer.from(card(c))).png().toFile(path.join(OUT_DIR, `${c.repo}.png`));
+    console.log(`  wrote promotion/social-preview/${c.repo}.png`);
+  }
+  console.log(`\nUpload each per repo: Settings -> Options -> Social preview.`);
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

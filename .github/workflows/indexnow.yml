@@ -42,14 +42,14 @@ jobs:
         # actually reflects this commit. Falls through after ~12 min so a slow
         # deploy never blocks the ping (IndexNow crawls asynchronously anyway).
         #
-        # Both sides go through indexnow-ping.js --print-urls rather than grepping
+        # Both sides go through indexnow-ping.ts --print-urls rather than grepping
         # <loc> here: .org's sitemap.xml is an INDEX, so a raw grep would compare
         # three child-sitemap names that change almost never, and the gate would
         # pass before a single page was live.
         run: |
           set -u
-          built_urls() { node scripts/indexnow-ping.js "$1" --print-urls 2>/dev/null; }
-          live_urls() { node scripts/indexnow-ping.js "$1" --print-urls --live 2>/dev/null; }
+          built_urls() { node scripts/indexnow-ping.ts "$1" --print-urls 2>/dev/null; }
+          live_urls() { node scripts/indexnow-ping.ts "$1" --print-urls --live 2>/dev/null; }
           wait_host() {
             edition="$1"; host="$2"
             want="$(built_urls "$edition")"

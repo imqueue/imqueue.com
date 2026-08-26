@@ -21,7 +21,7 @@ Params:
   {%- if item.data.noindex -%}{%- assign isPage = false -%}{%- endif -%}
   {%- comment -%}
   Per-symbol API member pages opt out via `sitemap: false` from
-  build-api-docs.js. 243 of the 350 API URLs were single-member stubs of ~130
+  build-api-docs.ts. 243 of the 350 API URLs were single-member stubs of ~130
   words — 57% of the whole sitemap — which spent crawl budget on pages that
   cannot rank and skewed the quality ratio of the submitted set. They stay
   indexable and reachable (sidebar + breadcrumb), just unsubmitted.
@@ -57,7 +57,7 @@ Params:
     {%- endif -%}
     {%- comment -%}
     lastmod for API pages is the npm release date of the version tree
-    (apiReleased, from build-api-docs.js), not item.date. item.date is the
+    (apiReleased, from build-api-docs.ts), not item.date. item.date is the
     generated file's mtime, so every rebuild stamped all 350 API URLs with the
     same build date — 85% of every lastmod in the file. Google discounts lastmod
     per-site once it proves unreliable, and that discount would have landed on the

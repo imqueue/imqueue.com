@@ -8,7 +8,7 @@ not shared — `cf-*` is styled from theme tokens in base.css and re-tuned for f
 com/css/flux.css, the same way the docs sidebar is, so each site renders it in its
 own design while the behaviour stays one implementation (site.js, [data-contact-form]).
 
-Posts JSON to /api/message (functions/api/message.js). Works only with JavaScript:
+Posts JSON to /api/message (functions/api/message.ts). Works only with JavaScript:
 attachments have to be read and base64-encoded client-side, and a no-JS fallback that
 silently dropped them would be worse than the mailto link the page also offers.
 {%- endcomment -%}

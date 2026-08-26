@@ -238,7 +238,7 @@ I only have one imqueue project?" where the page asked "…one project?", and an
 "The default ~/.imq home is exactly right" where the page says "The defaults are
 exactly right" — keyword-expanded copies of the visible text rather than the visible
 text. Google's FAQPage requirement is that the answer be present ON THE PAGE, and
-check-jsonld.js now asserts it, which is what surfaced this.
+check-jsonld.ts now asserts it, which is what surfaced this.
 
 As `### question?` headings the four join the other nine posts' shape: each gets an
 anchor and a [[toc]] entry, and faq-jsonld.html generates the markup from the prose,

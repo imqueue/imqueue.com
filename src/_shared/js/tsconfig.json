@@ -1,0 +1,53 @@
+{
+  // The one place in this repo where TypeScript is a BUILD STEP rather than a type
+  // checker, and the reason is not negotiable: these two files are downloaded and
+  // executed by a browser. Node's load-time type stripping — which is what lets
+  // every other .ts file here run with no build at all — is a property of Node.
+  // A browser given `var mode: string` throws a SyntaxError.
+  //
+  // So this project emits. `scripts/lib/asset-manifest.ts` runs it once at Eleventy
+  // config load, before it content-hashes anything, because the bytes it hashes have
+  // to be the bytes the browser gets. Output goes to .browser-js/ — gitignored, a
+  // build intermediate on the same model as .search-bundle.js, never edited.
+  //
+  // `types: []` and a DOM lib are the other half. The root config is Node's: it has
+  // `types: ["node"]` and no DOM, so `document` is an error there and `process` is
+  // not. Here it is exactly the other way round, which is what makes a `process.env`
+  // reaching into a browser script fail at check time rather than at a visitor's.
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    // ES2019: what the source is already written in (var, function, no arrows), so
+    // the emit is the input minus the types rather than a downlevelled rewrite. It
+    // is also older than anything this site's CSS requires of a browser.
+    "target": "ES2019",
+    "lib": ["ES2019", "DOM", "DOM.Iterable"],
+    "types": [],
+
+    // These two files are CLASSIC SCRIPTS — `<script src>`, no `type="module"` — and
+    // everything here exists to keep the emit that way.
+    //
+    // The root config resolves as Node does (`module: nodenext`), and src/package.json
+    // declares `"type": "module"`, so under the default `moduleDetection: "auto"` tsc
+    // classified these as ES modules and appended `export {}` to say so. A browser
+    // loading that as a plain script throws `Unexpected token 'export'` before a line
+    // of it runs — which is exactly what the e2e suite reported: every page carrying
+    // these two scripts logged two uncaught errors, and the consent banner and theme
+    // switch were dead.
+    //
+    // `legacy` restores the rule that a file is a module only if it says so with an
+    // import or an export. Neither of these does.
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "moduleDetection": "legacy",
+
+    "noEmit": false,
+    "outDir": "../../../.browser-js/_shared/js",
+    // Inherited from the root config, where it is right and here would be wrong:
+    // a `.ts` in an import specifier cannot survive an emit.
+    "allowImportingTsExtensions": false
+  },
+  // Its own, because `extends` inherits the root's exclude list — which names this
+  // very directory, so without this the project would exclude its own inputs.
+  "exclude": ["node_modules"],
+  "include": ["*.ts"]
+}

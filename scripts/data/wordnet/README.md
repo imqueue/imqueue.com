@@ -1,6 +1,6 @@
 # WordNet data, vendored
 
-Two derived files, used at **build time only** by [`scripts/lib/lemma.js`](../../lib/lemma.js)
+Two derived files, used at **build time only** by [`scripts/lib/lemma.ts`](../../lib/lemma.ts)
 to turn inflected words into dictionary forms for the search index. Neither file is
 served; what reaches the browser is a ~12 KB map of the *corpus's own* inflected forms,
 regenerated on every build.
@@ -18,7 +18,7 @@ The lemma index is the half that matters, and it is not the irregular list — i
 because both are "drop `-ing`, maybe restore an `-e`". Asking *is the result a word?*
 settles it. Rules alone need an arbitrary threshold instead, and measured on this corpus
 adding one fixed five wrong merges while destroying a right one — `use`/`used`/`using`
-stopped merging at all. See the header of `lemma.js` for the full argument.
+stopped merging at all. See the header of `lemma.ts` for the full argument.
 
 They are vendored rather than installed because the build must be reproducible: a
 dependency version bump would silently change the map, and therefore the rankings, with
@@ -45,7 +45,7 @@ awk '!/^ /{print $1}' index.noun index.verb index.adj index.adv \
 ```
 
 `exceptions.txt` is the four `*.exc` files concatenated with a leading part-of-speech
-tag (`n`, `v`, `a`, `r`), in that order — the order matters, because `lemma.js` keeps the
+tag (`n`, `v`, `a`, `r`), in that order — the order matters, because `lemma.ts` keeps the
 first mapping for a form and that is Morphy's own precedence.
 
 After regenerating, run `npm run check:search-ranking`. It pins the merges that must

@@ -1,0 +1,569 @@
+#!/usr/bin/env node
+/**
+ * Link-checker crawler for the built @imqueue sites.
+ *
+ * Serves the built editions locally (no external network needed) and crawls
+ * every internal link recursively, reporting anything that does not resolve:
+ *   - <a href>, <img src>, <script src>, <link href>, <source src>
+ *   - cross-site links between imqueue.org and imqueue.com (both are served,
+ *     so a link from .com to imqueue.org/license/ is verified against the
+ *     .org build)
+ *   - #fragment links (verified against the target page's element ids)
+ *   - Cloudflare `_redirects` are applied, so links that resolve only via a
+ *     301 are treated as valid (and followed to their destination)
+ *
+ * External links (any other host) are counted but not fetched by default, so
+ * the check stays fast and offline; pass --external to fetch them too.
+ *
+ * Exit code is non-zero when any broken internal link is found — suitable for a
+ * pre-commit hook.
+ *
+ * Usage:
+ *   node scripts/check-links.ts [--external] [--skip-descend=/api/,/foo/]
+ *                               [--quiet]
+ * Assumes `_site-org` and `_site-com` already built (run build:all first).
+ */
+import http from "node:http";
+import https from "node:https";
+import fs from "node:fs";
+import path from "node:path";
+
+const ROOT = path.resolve(import.meta.dirname, "..");
+
+/**
+ * One edition, and the loopback server this run stands up in front of it.
+ *
+ * `port` and `base` are filled in by main() once the server is listening; they
+ * are optional because a Site exists before there is anything to serve it.
+ */
+interface Site {
+  name: string;
+  dir: string;
+  host: string;
+  port?: number;
+  base?: string;
+}
+
+/** One `_redirects` rule. */
+interface RedirectRule {
+  from: string;
+  to: string;
+  status: number;
+}
+
+/** What request() resolves to. `status: 0` means it never got an answer. */
+interface Fetched {
+  status: number;
+  headers: Record<string, string | string[] | undefined>;
+  body: string;
+  isHtml: boolean;
+  error?: string;
+}
+
+/** One crawled page, memoised by pathKey. */
+interface CrawledPage {
+  status: number;
+  isHtml: boolean;
+  anchors: Set<string>;
+  links: string[];
+  redirectedExternal: boolean;
+  error?: string;
+  finalSite?: Site;
+  finalPath?: string;
+}
+
+/** What classify() decided a href is. */
+type Classified =
+  | { kind: "ignore" }
+  | { kind: "internal"; site: Site; path: string; frag: string }
+  | { kind: "external"; url: string };
+
+const SITES: Site[] = [
+  { name: "org", dir: path.join(ROOT, "_site-org"), host: "imqueue.org" },
+  { name: "com", dir: path.join(ROOT, "_site-com"), host: "imqueue.com" },
+];
+
+// ---- args ----------------------------------------------------------------
+const args = process.argv.slice(2);
+const CHECK_EXTERNAL = args.includes("--external");
+const QUIET = args.includes("--quiet");
+const skipArg = args.find((a) => a.startsWith("--skip-descend="));
+const SKIP_DESCEND = skipArg
+  ? (skipArg.split("=")[1] ?? "").split(",").filter(Boolean)
+  : [];
+
+// --allow-external=<file>: hosts (or exact URLs) whose failures are expected and must
+// not fail the run. Only meaningful with --external.
+//
+// Link rot is TIME-driven, so a commit-triggered gate can never catch it — which is
+// why `check:links:external` existed for months with nothing running it. The blocker
+// to scheduling it was noise, not effort: there are only 33 distinct external hosts,
+// dominated by npmjs/github/gnu/nodejs, and no rot today, but a naive run yields ~9
+// false failures — npmjs.com 403s a bot HEAD, gnu.org times out, and one host is a
+// documented placeholder. A weekly job that cries wolf gets muted in a fortnight.
+//
+// One entry per line; `#` comments and blanks ignored. A line matches if the URL's
+// host equals it, ends with "." + it, or the URL starts with it (so an exact URL can
+// be listed without exempting its whole host).
+const allowArg = args.find((a) => a.startsWith("--allow-external="));
+const ALLOW_EXTERNAL = (() => {
+  if (!allowArg) return [];
+
+  const file = allowArg.split("=").slice(1).join("=");
+
+  if (!fs.existsSync(file)) {
+    console.error(`--allow-external: no such file: ${file}`);
+    process.exit(2);
+  }
+
+  return fs.readFileSync(file, "utf8")
+    .split("\n")
+    .map((l) => l.replace(/#.*$/, "").trim())
+    .filter(Boolean);
+})();
+
+const externalAllowed = (url: string): boolean => ALLOW_EXTERNAL.some((entry) => {
+  if (url.startsWith(entry)) return true;
+  try {
+    const host = new URL(url).hostname;
+    return host === entry || host.endsWith(`.${entry}`);
+  } catch {
+    return false;
+  }
+});
+
+// ---- tiny static server with _redirects ----------------------------------
+const MIME: Record<string, string | undefined> = {
+  ".html": "text/html", ".htm": "text/html", ".css": "text/css",
+  ".js": "text/javascript", ".mjs": "text/javascript", ".json": "application/json",
+  ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg", ".gif": "image/gif", ".webp": "image/webp",
+  ".ico": "image/x-icon", ".txt": "text/plain", ".xml": "application/xml",
+  ".woff": "font/woff", ".woff2": "font/woff2", ".map": "application/json",
+  ".avif": "image/avif", ".mp4": "video/mp4", ".webmanifest": "application/manifest+json",
+};
+
+function parseRedirects(dir: string): RedirectRule[] {
+  const file = path.join(dir, "_redirects");
+  if (!fs.existsSync(file)) return [];
+  const rules: RedirectRule[] = [];
+  for (let line of fs.readFileSync(file, "utf8").split("\n")) {
+    line = line.trim();
+    if (!line || line.startsWith("#")) continue;
+    const parts = line.split(/\s+/);
+    if (parts.length < 2) continue;
+    const [from = "", to = "", status] = parts;
+    rules.push({ from, to, status: parseInt(status ?? "", 10) || 301 });
+  }
+  return rules;
+}
+
+function matchRedirect(
+  rules: readonly RedirectRule[],
+  urlPath: string,
+): { status: number; location: string } | null {
+  for (const r of rules) {
+    if (r.from.endsWith("/*")) {
+      const prefix = r.from.slice(0, -1); // keep trailing slash
+      if (urlPath === prefix || urlPath.startsWith(prefix)) {
+        const splat = urlPath.slice(prefix.length);
+        return { status: r.status, location: r.to.replace(":splat", splat) };
+      }
+    } else if (urlPath === r.from) {
+      return { status: r.status, location: r.to };
+    }
+  }
+  return null;
+}
+
+function resolveFile(dir: string, urlPath: string): string | null {
+  const p = decodeURIComponent((urlPath.split("?")[0] ?? "").split("#")[0] ?? "");
+  const joined = path.normalize(path.join(dir, p));
+  if (!joined.startsWith(dir)) return null; // path traversal guard
+  const candidates: string[] = [];
+  if (p.endsWith("/")) {
+    candidates.push(path.join(joined, "index.html"));
+  } else {
+    candidates.push(joined);
+    candidates.push(joined + ".html");
+    candidates.push(path.join(joined, "index.html"));
+  }
+  for (const c of candidates) {
+    try {
+      if (fs.statSync(c).isFile()) return c;
+    } catch (_) {}
+  }
+  return null;
+}
+
+function makeServer(site: Site): http.Server {
+  const rules = parseRedirects(site.dir);
+  return http.createServer((req, res) => {
+    const urlPath = req.url ?? "/";
+    // Static asset takes precedence (as on Cloudflare Pages), then _redirects.
+    const file = resolveFile(site.dir, urlPath);
+    if (file) {
+      const ext = path.extname(file).toLowerCase();
+      res.writeHead(200, { "Content-Type": MIME[ext] ?? "application/octet-stream" });
+      if (req.method === "HEAD") return res.end();
+      return fs.createReadStream(file).pipe(res);
+    }
+    const rd = matchRedirect(rules, urlPath.split("?")[0] ?? "/");
+    if (rd) {
+      res.writeHead(rd.status, { Location: rd.location });
+      return res.end();
+    }
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    res.end("Not found");
+  });
+}
+
+function listen(server: http.Server): Promise<number> {
+  return new Promise((resolve) => {
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+
+      // Always an AddressInfo here: listen(0, host) binds a TCP port, and the
+      // string form only comes back for a unix socket.
+      resolve(typeof address === "object" && address ? address.port : 0);
+    });
+  });
+}
+
+// ---- fetch ----------------------------------------------------------------
+// Two things here were wrong, and only the second was visible.
+//
+// 1. `http.request` was used for EVERY url. That is correct for the internal crawl —
+//    it all goes to the local static server on 127.0.0.1 — but `--external` passes
+//    https:// urls through the same function, so it dialled port 80 on hosts that
+//    only answer 443. So `check:links:external` never actually verified an external
+//    link: it measured whatever a plaintext connection did. Which also means the
+//    audit note that "a naive run yields ~9 false positives" was describing a broken
+//    checker, not the state of the links.
+//
+// 2. No timeout, anywhere. A host that completes the TCP handshake and then never
+//    responds hangs the whole run forever with no output — which is exactly what
+//    happened on the first real run: 15 minutes, zero bytes written, two live
+//    processes. A weekly job built on that would hang until GitHub's 6-hour job
+//    timeout killed it, every Monday, and report nothing.
+//
+// The timeout applies to internal requests too, which is free: the local server
+// answers in single-digit milliseconds, so anything reaching 10s there is a bug worth
+// failing on rather than waiting on.
+const REQUEST_TIMEOUT_MS = 10000;
+
+function request(localUrl: string, method = "GET"): Promise<Fetched> {
+  return new Promise<Fetched>((resolve) => {
+    const u = new URL(localUrl);
+    const mod = u.protocol === "https:" ? https : http;
+    const r = mod.request(
+      {
+        hostname: u.hostname,
+        port: u.port,
+        path: u.pathname + u.search,
+        method,
+        timeout: REQUEST_TIMEOUT_MS,
+        // Some hosts 403 or hang on a request with no UA. Naming ourselves is both
+        // more honest and more likely to be served than a bare Node default.
+        headers: { "user-agent": "imqueue-link-check (+https://imqueue.org/)" },
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+        const ct = res.headers["content-type"] || "";
+        const isHtml = ct.includes("text/html");
+        if (method === "HEAD" || !isHtml) {
+          res.resume();
+          res.on("end", () =>
+            resolve({ status: res.statusCode ?? 0, headers: res.headers, body: "", isHtml })
+          );
+          return;
+        }
+        res.on("data", (c) => chunks.push(c));
+        res.on("end", () =>
+          resolve({
+            status: res.statusCode ?? 0,
+            headers: res.headers,
+            body: Buffer.concat(chunks).toString("utf8"),
+            isHtml,
+          })
+        );
+      }
+    );
+    r.on("error", (e) => resolve({ status: 0, error: e.message, headers: {}, body: "", isHtml: false }));
+    // `timeout` above only fires the event; it does not abort the request.
+    r.on("timeout", () => {
+      r.destroy();
+      resolve({ status: 0, error: `timeout after ${REQUEST_TIMEOUT_MS}ms`, headers: {}, body: "", isHtml: false });
+    });
+    r.end();
+  });
+}
+
+// ---- html parsing ---------------------------------------------------------
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&#x2F;/gi, "/");
+}
+
+const ATTR_RE = /<(a|link|area)\b[^>]*?\shref\s*=\s*["']([^"']+)["']/gi;
+const SRC_RE = /<(img|script|source|iframe|audio|video|track)\b[^>]*?\ssrc\s*=\s*["']([^"']+)["']/gi;
+const ID_RE = /\sid\s*=\s*["']([^"']+)["']/gi;
+const NAME_RE = /<a\b[^>]*?\sname\s*=\s*["']([^"']+)["']/gi;
+
+function extractLinks(html: string): string[] {
+  const out: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = ATTR_RE.exec(html))) out.push(decodeEntities(m[2] ?? ""));
+  while ((m = SRC_RE.exec(html))) out.push(decodeEntities(m[2] ?? ""));
+  return out;
+}
+function extractAnchors(html: string): Set<string> {
+  const set = new Set<string>();
+  let m: RegExpExecArray | null;
+  while ((m = ID_RE.exec(html))) set.add(m[1] ?? "");
+  while ((m = NAME_RE.exec(html))) set.add(m[1] ?? "");
+  return set;
+}
+
+// ---- url classification ---------------------------------------------------
+const siteByHost: Record<string, Site | undefined> = {};
+SITES.forEach((s) => (siteByHost[s.host] = s));
+
+function classify(raw: string, fromSite: Site, fromPath: string): Classified {
+  const t = raw.trim();
+  if (!t) return { kind: "ignore" };
+  if (/^(mailto:|tel:|javascript:|data:|sms:|ftp:)/i.test(t)) return { kind: "ignore" };
+  if (t.startsWith("#")) {
+    return { kind: "internal", site: fromSite, path: fromPath, frag: t.slice(1) };
+  }
+  let url: URL;
+  try {
+    url = new URL(t, `https://${fromSite.host}${fromPath}`);
+  } catch (_) {
+    return { kind: "ignore" };
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") return { kind: "ignore" };
+  // localhost is never a link, it is an EXAMPLE. The tutorial tells readers to open
+  // http://localhost:3000/ and http://localhost:8888/, and --external was dutifully
+  // connecting to the machine running the check — reporting ECONNREFUSED as broken
+  // link rot on five pages. Six of the twelve failures on the first working run were
+  // this, which on a weekly schedule is exactly the noise that gets a job muted.
+  if (/^(localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)$/.test(url.hostname)) {
+    return { kind: "ignore" };
+  }
+  const host = url.hostname.replace(/^www\./, "");
+  const site = siteByHost[host];
+  if (site) {
+    return {
+      kind: "internal",
+      site,
+      path: url.pathname + url.search,
+      frag: url.hash ? url.hash.slice(1) : "",
+    };
+  }
+  return { kind: "external", url: url.origin + url.pathname };
+}
+
+function pathKey(site: Site, p: string): string {
+  return site.name + ":" + (p.split("#")[0] ?? "").split("?")[0];
+}
+
+// ---- crawl ----------------------------------------------------------------
+async function main() {
+  // Verify builds exist.
+  for (const s of SITES) {
+    if (!fs.existsSync(path.join(s.dir, "index.html"))) {
+      console.error(`✗ ${s.dir}/index.html missing — run \`npm run build:all\` first.`);
+      process.exit(2);
+    }
+  }
+
+  const servers: http.Server[] = [];
+  for (const s of SITES) {
+    const server = makeServer(s);
+    s.port = await listen(server);
+    s.base = `http://127.0.0.1:${s.port}`;
+    servers.push(server);
+  }
+
+  const pageCache = new Map<string, CrawledPage>();
+  const descended = new Set<string>();
+  const broken: Array<{ url: string; from: string; reason: string }> = [];
+  const brokenSeen = new Set<string>();
+  const externals = new Set<string>();
+  // ONE request per unique external URL, not one per OCCURRENCE.
+  //
+  // This memo is load-bearing, not an optimisation, and it is very likely the real
+  // reason nobody ever ran `check:links:external`: the fetch used to sit unmemoised at
+  // the call site below, so a link in the footer or in every mirror's `Source:` line
+  // was re-checked once per page. `https://github.com/imqueue` appears on effectively
+  // all 1,898 crawled pages — at ~500ms each that is 15 minutes for one URL — and the
+  // run buffers its report to the end, so it presented as a hang rather than as
+  // arithmetic. Measured twice at 20+ minutes with zero bytes written, killed by hand.
+  //
+  // 79 unique external links now means at most 79 requests. Progress goes to stderr as
+  // each one resolves, so the run can never look hung again.
+  const externalResults = new Map<string, string | null>();
+  const externalVerdict = async (url: string): Promise<string | null> => {
+    const memo = externalResults.get(url);
+
+    if (memo !== undefined) return memo;
+
+    const r: Partial<Fetched> = await request(url, "HEAD").catch(() => ({ status: 0 }));
+    const reason = (r.status ?? 0) >= 200 && (r.status ?? 0) < 400
+      ? null
+      : `external HTTP ${r.status || r.error || "unreachable"}`;
+
+    externalResults.set(url, reason);
+    if (!QUIET) {
+      process.stderr.write(reason ? `  ext FAIL ${url} - ${reason}\n` : `  ext ok   ${url}\n`);
+    }
+
+    return reason;
+  };
+  let pagesCrawled = 0;
+
+  function reportBroken(url: string, from: string, reason: string): void {
+    const k = `${url}|${from}|${reason}`;
+    if (brokenSeen.has(k)) return;
+    brokenSeen.add(k);
+    broken.push({ url, from, reason });
+  }
+
+  // Fetch + parse one internal target, following redirects across both sites.
+  async function getPage(site: Site, p: string): Promise<CrawledPage> {
+    const key = pathKey(site, p);
+    const memo = pageCache.get(key);
+
+    if (memo) return memo;
+
+    let curSite = site;
+    let curPath = p.split("#")[0] ?? "/";
+    let result: CrawledPage | null = null;
+    for (let hop = 0; hop < 6; hop++) {
+      const resp = await request((curSite.base ?? "") + curPath);
+      if (resp.status >= 300 && resp.status < 400 && resp.headers.location) {
+        const cls = classify(String(resp.headers.location), curSite, curPath);
+        if (cls.kind === "internal") {
+          curSite = cls.site;
+          curPath = cls.path.split("#")[0] ?? "/";
+          continue;
+        }
+        // redirect leaves our sites -> treat as resolved (external destination)
+        result = { status: 200, isHtml: false, anchors: new Set(), links: [], redirectedExternal: true };
+        break;
+      }
+      result = {
+        status: resp.status,
+        error: resp.error,
+        isHtml: resp.isHtml,
+        anchors: resp.isHtml ? extractAnchors(resp.body) : new Set(),
+        links: resp.isHtml ? extractLinks(resp.body) : [],
+        redirectedExternal: false,
+        finalSite: curSite,
+        finalPath: curPath,
+      };
+      break;
+    }
+    if (!result)
+      result = { status: 0, error: "too many redirects", isHtml: false, anchors: new Set(), links: [], redirectedExternal: false };
+    pageCache.set(key, result);
+    return result;
+  }
+
+  const queue = SITES.map((s) => ({ site: s, path: "/", from: "(seed)" }));
+
+  while (queue.length) {
+    // Guarded rather than asserted: `queue.length` above proves it is there, but
+    // the shift itself is what the compiler sees.
+    const next = queue.shift();
+
+    if (!next) continue;
+
+    const { site, path: p, from } = next;
+    const key = pathKey(site, p);
+    if (descended.has(key)) continue;
+    descended.add(key);
+
+    const page = await getPage(site, p);
+    const display = `https://${site.host}${p}`;
+
+    if (page.redirectedExternal) continue;
+    if (page.status !== 200) {
+      reportBroken(display, from, page.error ? `error: ${page.error}` : `HTTP ${page.status}`);
+      continue;
+    }
+    if (!page.isHtml) continue;
+    pagesCrawled++;
+
+    if (SKIP_DESCEND.some((pre) => p.startsWith(pre))) continue;
+
+    for (const raw of page.links) {
+      const cls = classify(raw, site, p);
+      if (cls.kind === "ignore") continue;
+      if (cls.kind === "external") {
+        externals.add(cls.url);
+        if (CHECK_EXTERNAL && !externalAllowed(cls.url)) {
+          const verdict = await externalVerdict(cls.url);
+
+          if (verdict) reportBroken(cls.url, display, verdict);
+        }
+        continue;
+      }
+      // internal
+      const target = await getPage(cls.site, cls.path);
+      const tdisplay = `https://${cls.site.host}${cls.path}${cls.frag ? "#" + cls.frag : ""}`;
+      if (target.redirectedExternal) {
+        // resolves via redirect to an external destination — OK
+      } else if (target.status !== 200) {
+        reportBroken(tdisplay, display, target.error ? `error: ${target.error}` : `HTTP ${target.status}`);
+      } else if (cls.frag && target.isHtml && !target.anchors.has(cls.frag)) {
+        reportBroken(tdisplay, display, `missing #${cls.frag} anchor`);
+      }
+      // enqueue internal html pages for further crawling
+      if (
+        target.status === 200 &&
+        target.isHtml &&
+        !target.redirectedExternal &&
+        !descended.has(pathKey(cls.site, cls.path))
+      ) {
+        queue.push({ site: cls.site, path: cls.path.split("#")[0] ?? "/", from: display });
+      }
+    }
+  }
+
+  servers.forEach((s) => s.close());
+
+  // ---- report -------------------------------------------------------------
+  if (!QUIET) {
+    console.log(
+      `\nLink check: crawled ${pagesCrawled} pages across ${SITES.map((s) => s.host).join(", ")}` +
+        `; ${externals.size} external link(s) ${CHECK_EXTERNAL ? "checked" : "skipped"}.`
+    );
+    if (SKIP_DESCEND.length) console.log(`(did not descend into: ${SKIP_DESCEND.join(", ")})`);
+  }
+
+  if (broken.length) {
+    console.error(`\n✗ ${broken.length} broken link(s):\n`);
+    // group by source page
+    const byFrom = new Map();
+    for (const b of broken) {
+      if (!byFrom.has(b.from)) byFrom.set(b.from, []);
+      byFrom.get(b.from).push(b);
+    }
+    for (const [fromPage, items] of byFrom) {
+      console.error(`  on ${fromPage}`);
+      for (const it of items) console.error(`    → ${it.url}  [${it.reason}]`);
+    }
+    console.error("");
+    process.exit(1);
+  }
+
+  if (!QUIET) console.log("✓ No broken links found.\n");
+}
+
+main().catch((e) => {
+  console.error("check-links crashed:", e);
+  process.exit(2);
+});

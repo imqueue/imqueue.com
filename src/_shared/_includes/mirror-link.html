@@ -3,7 +3,7 @@ The visible "read this page as markdown" link.
 
 This is the load-bearing half of the mirror-advertising work. The
 <link rel="alternate" type="text/markdown"> in head.html and the `Link:` header in
-functions/_middleware.js are both cheap future-proofing — no major crawler is
+functions/_middleware.ts are both cheap future-proofing — no major crawler is
 documented to follow either. A link in the page body needs no new convention to be
 honoured: it enters the ordinary crawlable link graph, so the mirrors stop being
 1,236 files reachable only by guessing the URL pattern.
@@ -15,7 +15,7 @@ the same thing (/tutorial/user-service/).
 
 Rendered on documentation pages, blog posts and the generated API reference —
 everywhere `hasMirror` is true and there is a page footer to put it in. Gated on
-`hasMirror` (see lib/markdown-link.js) so it can never point at a 404.
+`hasMirror` (see lib/markdown-link.ts) so it can never point at a 404.
 
 Deliberately not a copy-to-clipboard button: that needs JavaScript, produces
 nothing a crawler can follow, and a plain link already gives both audiences what

@@ -80,7 +80,7 @@ jobs:
             # --list prints names and nothing else, and THROWS if npm is
             # unreachable — a registry failure must fail this job rather than
             # resolve to an empty list, which would look exactly like success.
-            list="$(node scripts/check-api-versions.js --list)"
+            list="$(node scripts/check-api-versions.ts --list)"
             echo "Stale per npm: ${list:-none}"
           fi
           # One line, single-spaced, no trailing space. --list emits one name per
@@ -154,7 +154,7 @@ jobs:
           # also holds untracked local-only material (promotion/, the *-PLAN.md
           # notes) that must never be committed by a bot or anyone else.
           paths="src/org/api src/org/_redirects src/_data/apiVersions.json \
-                 lib/api-versions.js lib/api-renames.js lib/api-renamed.js \
+                 lib/api-versions.ts lib/api-renames.ts lib/api-renamed.ts \
                  functions/api \
                  src/_data/packageStatus.json src/org/status/index.md"
 
@@ -201,7 +201,7 @@ jobs:
       # Bing-backed engines only on the next crawl, for the largest body of unique
       # content on the site.
       #
-      # scripts/changed-urls.js resolves the commit's diff to URLs and intersects them
+      # scripts/changed-urls.ts resolves the commit's diff to URLs and intersects them
       # with the built sitemap, so a mapping mistake drops the URL and says so instead
       # of submitting something that does not exist. `|| true` because a failed
       # submission must never fail a job that has already pushed correct content — the
@@ -209,13 +209,13 @@ jobs:
       - name: IndexNow — only the /api/ URLs this commit changed
         if: steps.commit.outputs.sha != ''
         run: |
-          urls=$(node scripts/changed-urls.js org "${{ steps.commit.outputs.sha }}^..${{ steps.commit.outputs.sha }}" --prefix=/api/)
+          urls=$(node scripts/changed-urls.ts org "${{ steps.commit.outputs.sha }}^..${{ steps.commit.outputs.sha }}" --prefix=/api/)
           if [ -z "$urls" ]; then
             echo "No /api/ page URLs changed — nothing to submit."
             exit 0
           fi
           # Unquoted on purpose: one word per URL.
-          node scripts/indexnow-ping.js org $urls || true
+          node scripts/indexnow-ping.ts org $urls || true
 
 # ---------------------------------------------------------------------------
 # The schedule alone keeps /api/ correct within a day. To make a release show up
@@ -240,7 +240,7 @@ jobs:
 # It is the same credential sync-cli-guide.yml documents, and the only one to create
 # by hand. Without it, the schedule still covers every package.
 #
-# IndexNow: a WHOLE-SITEMAP ping is still not made from here — indexnow-ping.js's
+# IndexNow: a WHOLE-SITEMAP ping is still not made from here — indexnow-ping.ts's
 # --exclude=/api/ stands, and API pages reach search engines through the sitemap. What
 # this job does now is submit exactly the /api/ URLs its own commit changed, which is
 # usually two and never 423. See the step above; supersedes API-DOCS-PLAN.md §5

@@ -1,0 +1,919 @@
+// agent-analytics.js — server-side GA4 events for the traffic gtag cannot see.
+//
+// GA4 is a JavaScript tag, and the surface this site builds for AI agents runs
+// none of it: /llms.txt, /llms-full.txt, every <page-url>index.md mirror,
+// /api/search-index.json. Crawlers execute no JS even on the HTML pages. Measured
+// 2026-08-01: Cloudflare's edge saw 4.77k requests in 24h while GA4 reported 347
+// sessions in 28 days. Those are different populations, and only one of them was
+// being measured.
+//
+// Cloudflare's AI Crawl Control shows the other one, but its free tier keeps only
+// 24 hours of metrics and reports per crawler brand — no path analysis, no
+// history, no slicing. This module sends the same events into GA4 instead, where
+// the reporting already exists.
+//
+// --- rules this follows, each for a reason ------------------------------------
+//
+// 1. ONE PROPERTY, SEPARATE EVENT NAME. This used to say "point GA4_MP_MEASUREMENT_ID at
+//    a property that is NOT the one in the site's <head>", to keep robots out of the
+//    human numbers. That is no longer how it works: both streams land in the imqueue.org
+//    property so that one report can cover every audience, and the separation is done by
+//    EVENT NAME instead. gtag sends page_view; everything here sends srv_page_view. GA4's
+//    `Views` metric counts only page_view/screen_view, so the two can never be summed by
+//    accident — which is what the separate property was really protecting against.
+//
+// 2. COUNT EVERY REQUEST WORTH COUNTING, INCLUDING BROWSERS. Also changed (2026-08-03):
+//    this used to skip browsers entirely on the grounds that gtag had them. It does not —
+//    gtag only has the ones who accept the cookie banner, which is roughly half. So a
+//    browser fetching a DOCUMENT is now counted here too, giving a complete total that
+//    does not depend on a consent rate.
+//    What is still skipped, and must stay skipped: subresources. The middleware fronts
+//    every stylesheet, script, font and image on both sites, and counting those would turn
+//    one page view into a dozen events. isDocumentRequest() is that gate.
+//
+// 3. NEVER FORWARD THE CRAWLER'S USER-AGENT. GA4 drops traffic it identifies as a
+//    bot from the IAB list, and the Measurement Protocol only knows the UA if you
+//    hand it over — which would silently discard the entire dataset. The crawler is
+//    carried as an ordinary event parameter instead, so it is analysable rather than
+//    a filter key.
+//
+// 4. A SALTED DIGEST FOR PEOPLE, A FAMILY LABEL FOR ROBOTS. This rule used to read "NO IP,
+//    NO FINGERPRINT ... no hashing of addresses that would only pretend not to identify".
+//    The owner reversed it on 2026-08-03, for a reason the old rule had no answer to:
+//    unique visitors cannot be counted without an identifier, and refusing one meant the
+//    only number the owner actually wanted was permanently unavailable.
+//    What keeps it defensible: the address is hashed with a SECRET salt and never stored or
+//    logged, nothing is written to the visitor's device (so ePrivacy Art. 5(3) — the cookie
+//    consent rule — does not engage at all), and crawlers keep a family label because a
+//    per-address digest for a rotating bot fleet is noise. What it costs: the id is
+//    pseudonymous personal data, persistent by design, needs Art. 6(1)(f) legitimate
+//    interest, and must be disclosed in /privacy/. See lib/visitor-id.ts for the full
+//    reasoning, including why the salt is not optional and why it does not rotate.
+//
+// 5. FAIL OPEN AND INERT BY DEFAULT. With the env vars unset this module does
+//    nothing at all, so a fork or a preview deploy sends no traffic anywhere. Without
+//    VISITOR_SALT it still reports robots but counts no people. The caller wraps it and
+//    never awaits it — see functions/_middleware.ts.
+
+import { visitorId } from './visitor-id.ts';
+
+// --- the vocabulary ---------------------------------------------------------
+//
+// Every value below is a GA4 report DIMENSION, which is what makes spelling them
+// out worth the lines. A typo in the CRAWLERS table fails nothing at runtime — it
+// creates a row nobody is looking at, on a property where the whole point is that
+// the rows are comparable across months. The union is the only thing that can
+// notice, since no test can assert a label it does not already know about.
+
+/** The audience buckets. See classifyKind for what each one means. */
+export type AgentKind =
+  | 'user'
+  | 'assistant.ide'
+  | 'assistant.chat'
+  | 'assistant.other'
+  | 'ai.search'
+  | 'ai.training'
+  | 'search'
+  | 'infra'
+  | 'unknown';
+
+/**
+ * One CRAWLERS row: match, family name, operator, and the kind the UA alone
+ * settles — null when it does not, leaving the decision to the path.
+ */
+type CrawlerRow = readonly [RegExp, string, string, AgentKind | null];
+
+/** One AGENT_SURFACE row: a path match and the surface name it reports as. */
+type SurfaceRow = readonly [RegExp, string];
+
+/** One AI_REFERRERS row: a brand slug and the hosts that mean it. */
+type ReferrerRow = readonly [string, readonly string[]];
+
+/** What a user-agent could be named as, or null when nothing matched it. */
+export interface CrawlerMatch {
+  crawler: string;
+  operator: string;
+  kind: AgentKind | null;
+}
+
+/** The two referrer dimensions. Both always present — see classifyReferrer. */
+export interface ReferrerFields {
+  referrer_host: string;
+  ai_source: string;
+}
+
+/**
+ * The only part of a Request this module reads.
+ *
+ * Structural rather than `Request` so the checks can hand it a two-line stub:
+ * scripts/check-agent-analytics.ts exercises the header logic without a runtime,
+ * and a real Request would make that a fixture instead of a literal.
+ */
+export interface HeaderSource {
+  headers: { get: (name: string) => string | null };
+}
+
+/** What describe() decided about a request, or null when there is nothing to count. */
+export interface Described {
+  crawler: string;
+  operator: string;
+  kind: AgentKind;
+  surface: string;
+  browser: boolean;
+}
+
+/** Inputs to describe(). */
+export interface DescribeInput {
+  url: URL;
+  userAgent: string | null | undefined;
+  isDocument?: boolean;
+}
+
+/** Inputs to buildEvent(). */
+export interface BuildEventInput {
+  url: URL;
+  userAgent: string | null | undefined;
+  status: number | string;
+  edition: string;
+  ip?: string | null | undefined;
+  salt?: string | null | undefined;
+  referrer?: string | null | undefined;
+  gaClientId?: string | null | undefined;
+  isDocument?: boolean;
+  now?: number;
+}
+
+/**
+ * The event parameters one srv_page_view carries.
+ *
+ * Spelled out rather than left as a string map because six of these are
+ * registered GA4 custom dimensions and two more still need registering — see
+ * buildEvent's doc comment. A parameter renamed here without being renamed in
+ * Admin is collected and silently discarded for reporting, which is the failure
+ * this shape exists to make visible at the call site instead.
+ */
+export interface Ga4Params {
+  page_location: string;
+  page_title: string;
+  session_id: string;
+  engagement_time_msec: number;
+  crawler: string;
+  operator: string;
+  kind: AgentKind;
+  surface: string;
+  status: string;
+  edition: string;
+  visit_id: string;
+  /** Omitted, never 'none' — it is GA4-reserved and carries attribution meaning. */
+  page_referrer?: string;
+  referrer_host: string;
+  ai_source: string;
+}
+
+/**
+ * A GA4 Measurement Protocol payload: one client, one event.
+ *
+ * `events` is a one-element TUPLE, not an array. The Measurement Protocol accepts
+ * up to 25 events per request and this module has always sent exactly one — so
+ * the tuple states the fact rather than leaving every reader of `events[0]` to
+ * handle an emptiness that cannot happen.
+ */
+export interface Ga4Event {
+  client_id: string;
+  events: [{ name: string; params: Ga4Params }];
+}
+
+/** What the two edge entry points need: the request, the bindings, the verdict. */
+export interface EdgeInput {
+  request: HeaderSource;
+  env: Record<string, string | undefined> | undefined;
+  url: URL;
+  status: number | string;
+  edition: string;
+}
+
+// Bot families, most specific first. `operator` groups them the way Cloudflare's AI
+// Crawl Control does, so its numbers and GA4's can be compared.
+//
+// `kind` is the audience split every report here is built on, and it is stated per
+// FAMILY rather than derived from `operator` because the same operator ships both:
+// GPTBot is filling a training set, ChatGPT-User is a person waiting for an answer.
+// Rolling them up by company would merge the two populations that most need
+// separating. Three values are used:
+//
+//   assistant — fetching on a person's behalf, right now, mid-conversation
+//   crawler   — indexing or collecting, nobody waiting
+//   null      — cannot say from the UA alone; classifyKind() lets the path decide
+//
+const CRAWLERS: readonly CrawlerRow[] = [
+  [/GPTBot/i,            'GPTBot',            'OpenAI',     'ai.training'],
+  [/ChatGPT-User/i,      'ChatGPT-User',      'OpenAI',     'assistant.chat'],
+  [/OAI-SearchBot/i,     'OAI-SearchBot',     'OpenAI',     'ai.search'],
+  [/ClaudeBot/i,         'ClaudeBot',         'Anthropic',  'ai.training'],
+  // Judgement call: Claude-Web was the user-triggered fetcher before Claude-User
+  // existed, and Anthropic's own docs no longer describe it. Filed as ai.search on the
+  // grounds that it retrieved to answer rather than to train. Low volume; revisit if
+  // it ever isn't.
+  [/Claude-Web/i,        'Claude-Web',        'Anthropic',  'ai.search'],
+  [/Claude-User/i,       'Claude-User',       'Anthropic',  'assistant.chat'],
+  [/anthropic-ai/i,      'anthropic-ai',      'Anthropic',  'ai.training'],
+  [/PerplexityBot/i,     'PerplexityBot',     'Perplexity', 'ai.search'],
+  [/Perplexity-User/i,   'Perplexity-User',   'Perplexity', 'assistant.chat'],
+  // Google-Extended is not a crawler at all — it is the token that governs whether
+  // Googlebot's existing fetch may be used for Gemini training. It appears here so the
+  // row exists; its kind describes the purpose it controls.
+  [/Google-Extended/i,   'Google-Extended',   'Google',     'ai.training'],
+  [/Googlebot/i,         'Googlebot',         'Google',     'search'],
+  [/Google-CloudVertexBot/i, 'Vertex',        'Google',     'ai.search'],
+  [/Applebot-Extended/i, 'Applebot-Extended', 'Apple',      'ai.training'],
+  [/Applebot/i,          'Applebot',          'Apple',      'search'],
+  // Judgement call: Amazonbot serves both Alexa answers and shopping crawls, and the
+  // UA does not say which. `search` is the less flattering of the two readings.
+  [/Amazonbot/i,         'Amazonbot',         'Amazon',     'search'],
+  [/meta-externalagent/i, 'Meta-ExternalAgent', 'Meta',     'ai.training'],
+  // Not analytics traffic at all: someone pasted a link into Facebook or Messenger and
+  // it fetched the page to build a preview card. One hit per paste, no reader attached.
+  [/facebookexternalhit/i, 'facebookexternalhit', 'Meta',   'infra'],
+  [/bingbot/i,           'BingBot',           'Microsoft',  'search'],
+  [/CCBot/i,             'CCBot',             'Common Crawl', 'ai.training'],
+  [/Bytespider/i,        'Bytespider',        'ByteDance',  'ai.training'],
+  [/DeepSeek/i,          'DeepSeekBot',       'DeepSeek',   'ai.training'],
+  [/MistralAI-User/i,    'MistralAI-User',    'Mistral',    'assistant.chat'],
+  [/cohere-ai/i,         'cohere-ai',         'Cohere',     'ai.training'],
+  [/YouBot/i,            'YouBot',            'You.com',    'ai.search'],
+  // Judgement call: Diffbot is a commercial web-data extractor. Not training a model of
+  // its own, but the outcome for us is the same — the page becomes someone's dataset.
+  [/Diffbot/i,           'Diffbot',           'Diffbot',    'ai.training'],
+  [/Baiduspider/i,       'Baiduspider',       'Baidu',      'search'],
+  [/YandexBot/i,         'YandexBot',         'Yandex',     'search'],
+  [/DuckDuckBot/i,       'DuckDuckBot',       'DuckDuckGo', 'search'],
+
+  // Coding agents and AI editors. These are the clients this site is most written FOR
+  // — they read a package's reference while someone is typing against it — and they
+  // are the reason the split above cannot stop at the search-and-training brands.
+  //
+  // Matched on a distinctive token rather than a full UA string because these tools
+  // change their UA freely between releases. A token that stops appearing costs a row
+  // that reads zero, which is visible; a token that is too broad would silently
+  // mislabel, so they are kept narrow and anchored where the word is a common one.
+  // Anything not matched here still lands as `unclassified` and is counted — see
+  // classifyKind — so a missing tool understates the breakdown, never the total.
+  //
+  // `assistant.ide` is the row this whole taxonomy exists to expose: a coding agent
+  // reading a package reference while a developer types against it. That is the reader
+  // this site is written for, and it used to be averaged in with people asking a chatbot
+  // a general question.
+  [/claude-code/i,       'Claude Code',       'Anthropic',  'assistant.ide'],
+  [/\bCursor\b/i,        'Cursor',            'Cursor',     'assistant.ide'],
+  [/Windsurf/i,          'Windsurf',          'Windsurf',   'assistant.ide'],
+  [/Codeium/i,           'Codeium',           'Windsurf',   'assistant.ide'],
+  [/Copilot/i,           'Copilot',           'GitHub',     'assistant.ide'],
+  [/\bCline\b/i,         'Cline',             'Cline',      'assistant.ide'],
+  [/\bAider\b/i,         'Aider',             'Aider',      'assistant.ide'],
+  [/\bDevin\b/i,         'Devin',             'Cognition',  'assistant.ide'],
+  [/\bZed\b/i,           'Zed',               'Zed',        'assistant.ide'],
+
+  // Not a crawler brand but the most interesting row on the report: a plain HTTP
+  // client asking for markdown is very likely an agent following the convention,
+  // including this project's own MCP server's get_doc. Kind is left to the path,
+  // because the same client fetching an HTML page could be anything.
+  [/^(node|undici|axios|python-requests|httpx|aiohttp|Go-http-client|curl|wget)/i,
+    'http-client', 'Generic client', null],
+];
+
+// The pages and endpoints that exist FOR agents. A request for one of these counts
+// even from an unrecognised client, because nothing else on the site is fetched
+// this way on purpose.
+const AGENT_SURFACE: readonly SurfaceRow[] = [
+  [/\/index\.md$/,               'markdown-mirror'],
+  [/^\/llms\.txt$/,              'llms.txt'],
+  [/^\/llms-full\.txt$/,         'llms-full.txt'],
+  [/^\/api\/search-index\.json$/, 'symbol-index'],
+  [/^\/robots\.txt$/,            'robots.txt'],
+  [/sitemap[^/]*\.xml$/,         'sitemap'],
+];
+
+// Surfaces that exist ONLY for agents, used to classify a client we cannot name.
+// robots.txt and sitemap*.xml are deliberately absent even though they are part of
+// AGENT_SURFACE: those are what search crawlers and uptime monitors fetch, so they
+// say nothing about who is asking. The markdown and the symbol index say a lot —
+// no browser and no ordinary crawler asks for those on purpose.
+const AGENT_ONLY = new Set([
+  'markdown-mirror',
+  'llms.txt',
+  'llms-full.txt',
+  'symbol-index',
+]);
+
+// A user-agent that SAYS it is a bot, without matching any family above.
+//
+// The browser heuristic in describe() is `Mozilla/` + a document request, and
+// nearly every crawler on the web sends `Mozilla/5.0 (compatible; Xbot/1.0;
+// +http://…)` — Mozilla/ included, precisely so old servers do not turn them
+// away. Every one of the CRAWLERS entries above matches before this runs, so
+// what reaches here is the long tail: SEO auditors, uptime probes, scrapers,
+// AI startups nobody has a row for yet, and the next model vendor's first
+// crawler. All of them were being counted as `kind=user` — a human reader — on
+// any HTML page. That inflates the one number on the report that is supposed to
+// mean "somebody is looking at this", and it does it invisibly.
+//
+// Anchored on the shapes a bot uses to announce itself, not on the word alone:
+//
+//   bot/ bot; bot) bot   a version, list, paren-close or end-of-string after "bot"
+//   crawler spider       the two other words a crawler calls itself
+//   +http                the contact URL crawlers put in their UA
+//
+// Two deliberate omissions.
+//
+// `(compatible;` is NOT here even though it is the convention this whole pattern
+// is about, because legacy Internet Explorer used it too —
+// `Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)` — and
+// matching it would file real people as bots. A false positive here silently
+// deletes a human from the report, which is worse than the miscount being fixed.
+// Every crawler that sends `(compatible;` in practice also carries a `…bot/` token
+// or a `+http` contact URL, so nothing is lost by dropping it; a UA of exactly
+// `Mozilla/5.0 (compatible; SomeScraper/1.0)` is missed, and that is the accepted
+// cost.
+//
+// Bare `bot` is not matched either: it occurs inside ordinary words and product
+// tokens, for the same reason.
+//
+// These requests are still COUNTED — as crawler=unnamed-bot / kind=unknown, which
+// is this module's documented "add a pattern" queue. Dropping them would trade a
+// wrong number for a missing one.
+const SELF_DECLARED_BOT = /bot[/;)\s]|bot$|crawler|spider|\+https?:\/\//i;
+
+// AI answer surfaces, by brand. A click from one of these is a CITATION being
+// followed — the single outcome this whole programme exists to produce — and
+// until now nothing in the property could count one.
+//
+// Two things make the edge the right place to classify it rather than GA4:
+//
+//   * GA4's default channel group grew an "AI Assistants" channel in May 2026,
+//     but Google's internal list omits Perplexity AND Claude, so both land in
+//     `Referral` alongside every Stack Overflow and GitHub link. Perplexity is
+//     the engine most inclined to cite a documentation domain, which makes it
+//     the one that matters most here.
+//   * gtag does not run for a visitor with an ad blocker, and this is a docs
+//     site for back-end developers. The edge sees those sessions; the tag does
+//     not. `ai_source` is therefore the only AI-referral figure that is not
+//     silently filtered by the audience most likely to block it.
+//
+// The host set is deliberately IDENTICAL to the regex in the `AI referrers`
+// custom channel group (promotion/ga4-ai-channel-group.md), so the dimension and
+// the channel cannot drift into disagreeing about the same session. Grouped by
+// brand rather than by host: `chatgpt.com` and `chat.openai.com` are one source.
+//
+// Subdomains match (`(.*\.)?host`), which is how `www.` and the various regional
+// and app subdomains are absorbed.
+//
+// Not matched on a bare substring, ever. Google's own documented example regex
+// starts with `.*ai`, which matches `mail.google.com` and anything containing
+// "email" — on a property measured in hundreds of sessions that one alternative
+// makes the channel worthless while looking like it works.
+const AI_REFERRERS: readonly ReferrerRow[] = [
+  ['chatgpt',    ['chatgpt.com', 'chat.openai.com', 'openai.com']],
+  ['perplexity', ['perplexity.ai']],
+  ['claude',     ['claude.ai']],
+  ['gemini',     ['gemini.google.com', 'bard.google.com', 'aistudio.google.com',
+                  'notebooklm.google.com']],
+  ['copilot',    ['copilot.microsoft.com', 'copilot.cloud.microsoft',
+                  'edgeservices.bing.com']],
+  ['grok',       ['grok.com']],
+  ['deepseek',   ['deepseek.com', 'chat.deepseek.com']],
+  ['mistral',    ['mistral.ai', 'chat.mistral.ai']],
+  ['meta',       ['meta.ai']],
+  ['you',        ['you.com']],
+  ['poe',        ['poe.com']],
+  ['phind',      ['phind.com']],
+  ['kagi',       ['kagi.com']],
+  ['qwen',       ['qwen.ai', 'chat.qwen.ai']],
+  ['felo',       ['felo.ai']],
+  ['genspark',   ['genspark.ai']],
+  ['liner',      ['liner.com']],
+  ['iask',       ['iask.ai']],
+  ['komo',       ['komo.ai']],
+  ['andisearch', ['andisearch.com']],
+];
+
+/**
+ * Where a request says it came from: the referrer's hostname, and which AI
+ * surface it is if any.
+ *
+ * Both values are always present, never null — a `(not set)` row in GA4 cannot be
+ * told apart from a dimension that was never registered, which is the same reason
+ * `surface` is 'html' rather than null.
+ *
+ *   ai_source  a brand slug | 'internal' | 'other' | 'none'
+ *
+ * `internal` exists because it has to: every in-site navigation sends a referrer
+ * on this origin, so without its own value it would drown `other` and make the
+ * dimension unreadable. `none` covers no referrer at all, which is most crawler
+ * traffic and also every click from the ChatGPT and Claude DESKTOP apps — they
+ * send no referrer, so AI referral measured this way is a floor, never a total.
+ *
+ * @param referrer The Referer header, verbatim.
+ * @param url The request URL, to recognise same-origin.
+ */
+export function classifyReferrer(referrer: string | null | undefined, url: URL): ReferrerFields {
+  if (!referrer) {
+    return { referrer_host: 'none', ai_source: 'none' };
+  }
+
+  let host: string;
+
+  try {
+    host = new URL(referrer).hostname.toLowerCase().replace(/^www\./, '');
+  } catch {
+    // A malformed Referer is a client's problem, not a reason to lose the event.
+    return { referrer_host: 'invalid', ai_source: 'other' };
+  }
+
+  // Both editions count as internal to each other: imqueue.com -> imqueue.org is
+  // a documented crossing this site makes on purpose, and calling it a referral
+  // would put our own navigation in the channel meant for citations.
+  if (/(^|\.)imqueue\.(org|com|net)$/.test(host)) {
+    return { referrer_host: host, ai_source: 'internal' };
+  }
+
+  for (const [brand, hosts] of AI_REFERRERS) {
+    if (hosts.some((h) => host === h || host.endsWith(`.${h}`))) {
+      return { referrer_host: host, ai_source: brand };
+    }
+  }
+
+  return { referrer_host: host, ai_source: 'other' };
+}
+
+const slug = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+/** Which crawler family a user-agent belongs to, or null for anything else. */
+export function classifyCrawler(userAgent: string | null | undefined): CrawlerMatch | null {
+  if (!userAgent) {
+    // A request with no UA at all is not a browser. Worth counting, worth naming —
+    // and worth leaving to the path, since it could be a script or a stripped agent.
+    return { crawler: 'no-user-agent', operator: 'Unidentified', kind: null };
+  }
+
+  for (const [re, crawler, operator, kind] of CRAWLERS) {
+    if (re.test(userAgent)) return { crawler, operator, kind };
+  }
+
+  return null;
+}
+
+/**
+ * Which audience a request belongs to. Dotted values so a report can group with one
+ * "contains" filter instead of a second dimension:
+ *
+ *   user             a browser — somebody is looking at it
+ *   assistant.ide    coding agent, developer typing right now
+ *   assistant.chat   AI fetching for a live conversation
+ *   assistant.other  unnamed client on a path only agents ask for
+ *   ai.search        index behind AI answers — where citations come from
+ *   ai.training      corpus collection; no traffic today, weights tomorrow
+ *   search           classic web search indexing
+ *   infra            monitors, link previews, plain HTTP clients
+ *   unknown          genuinely unclassified — the "add a pattern" queue
+ *
+ * `contains "assistant."` is everything with a person waiting; `contains "ai."` is
+ * machine consumption; `search` is the one that sends humans back.
+ *
+ * This replaced a flat human/assistant/crawler/unknown on 2026-08-03. The old `crawler`
+ * merged three outcomes that matter completely differently to a docs site — Google
+ * indexing you sends readers, GPTBot training on you sends nothing today, OAI-SearchBot
+ * indexing you produces citations — and one label hid all three.
+ *
+ * When the user-agent names a family, that family's own answer wins. When it does not:
+ * a real browser asking for a document is `user`; an unnamed client on an agent-only
+ * path is `assistant.other`, on the balance of evidence, because nothing else fetches
+ * those files on purpose; everything left over is `unknown` rather than being folded
+ * into a real bucket, so no number is inflated by a guess.
+ *
+ * @param found Result of classifyCrawler.
+ * @param surface Result of classifySurface.
+ * @param browser Request looks like a browser fetching a document.
+ * @param botish UA declares itself a bot but matches no known family.
+ */
+export function classifyKind(
+  found: CrawlerMatch | null,
+  surface: string | null,
+  browser = false,
+  botish = false,
+): AgentKind {
+  if (found && found.kind) {
+    return found.kind;
+  }
+
+  // Only when nothing named the client. A crawler that happens to send Sec-Fetch-Dest
+  // must never outrank its own UA match.
+  if (!found && browser) {
+    return 'user';
+  }
+
+  // The agent-only surfaces are evidence about an ANONYMOUS client: nothing but an
+  // agent asks for a markdown mirror on purpose, so `assistant.other` is the fair
+  // reading. It is not fair for a client that has told us it is a crawler — every
+  // `assistant.*` value means a person is waiting on the answer, and nobody is
+  // waiting on SemrushBot. Left as `unknown`, which is where a human names it.
+  if (botish) {
+    return 'unknown';
+  }
+
+  return surface !== null && AGENT_ONLY.has(surface) ? 'assistant.other' : 'unknown';
+}
+
+/**
+ * GA4's own client id for this browser, from the `_ga` cookie, or null.
+ *
+ * gtag writes `_ga=GA1.1.<client_id>.<timestamp>` (the first two labels are the
+ * cookie's own version and domain-depth, not part of the id). Handing that same
+ * value to the Measurement Protocol is what makes a server-sent event and a
+ * gtag-sent event belong to the SAME GA4 user.
+ *
+ * Without it they never do. The edge was using a salted IP+UA digest, which is a
+ * perfectly good pseudonymous id and a completely different one — so a person
+ * reading three pages appeared as one user to gtag and a second, unrelated user to
+ * this middleware, and no per-user metric in the property was true for anyone who
+ * appeared in both streams.
+ *
+ * Falls back to the digest when there is no cookie, which is the common case and
+ * the whole point: a crawler has no cookie, and a visitor who declined consent has
+ * none either. Nothing here CREATES a cookie or changes consent — it reads one that
+ * gtag already set, and only when it is there.
+ *
+ * @param cookieHeader The raw Cookie header.
+ * @returns GA4's client id, or null.
+ */
+export function ga4ClientId(cookieHeader: string | null | undefined): string | null {
+  if (!cookieHeader) return null;
+
+  const match = /(?:^|;\s*)_ga=GA\d+\.\d+\.(\d+\.\d+)/.exec(cookieHeader);
+
+  return match?.[1] ?? null;
+}
+
+/**
+ * Does this request look like a browser fetching a DOCUMENT?
+ *
+ * This is the gate that keeps the human count from becoming a flood. The middleware
+ * fronts every request to both sites — stylesheets, scripts, fonts, images — and once
+ * browsers are counted at all, anything less specific than "document" turns each page
+ * view into a dozen events and the numbers into noise.
+ *
+ * Sec-Fetch-Dest is the reliable signal: every current browser sends `document` for a
+ * navigation and something else (`style`, `script`, `font`, `image`) for a subresource.
+ * The Accept fallback covers clients that send no Sec-Fetch headers at all — assets ask
+ * for `text/css` or `image/*`, so they still fall out.
+ *
+ * Deliberately NOT a check on the path. Extension lists rot, and `/api/core/latest/` has
+ * no extension at all.
+ *
+ */
+export function isDocumentRequest(request: HeaderSource): boolean {
+  const dest = request.headers.get('sec-fetch-dest');
+
+  if (dest) {
+    return dest === 'document';
+  }
+
+  return (request.headers.get('accept') || '').includes('text/html');
+}
+
+/**
+ * Everything about a request that can be decided without async work: who, what, and
+ * whether it is ours to count at all. Returns null for the requests this module skips.
+ *
+ * Split out from buildEvent so the diagnostic header stays synchronous — buildEvent has
+ * to await the visitor digest, and making the middleware await it before it can attach a
+ * header would put a hash on the critical path of a page it is only describing.
+ */
+export function describe({ url, userAgent, isDocument = false }: DescribeInput): Described | null {
+  const found = classifyCrawler(userAgent);
+  const surface = classifySurface(url.pathname);
+
+  // A named client is whatever it is named; `browser` only applies to the leftovers.
+  // Mozilla/ is in every real browser's UA and absent from curl, wget and most tools —
+  // but NOT absent from crawlers, which send it on purpose so old servers serve them.
+  // So a UA that declares itself a bot is disqualified from `browser` even though it
+  // carries Mozilla/ and asked for a document; see SELF_DECLARED_BOT.
+  const botish = SELF_DECLARED_BOT.test(userAgent || '');
+  const browser = !found && !botish && isDocument && /Mozilla\//.test(userAgent || '');
+
+  // Nothing to count: not a recognised client, not the agent surface, not a document.
+  // This is where every stylesheet, font and image leaves. `botish` keeps its request
+  // in — an unnamed crawler on an ordinary page is exactly what the report should
+  // surface as a gap, and it used to be counted as a human instead.
+  if (!found && !surface && !browser && !botish) {
+    return null;
+  }
+
+  return {
+    crawler: found
+      ? found.crawler
+      : (browser ? 'browser' : (botish ? 'unnamed-bot' : 'unclassified')),
+    operator: found ? found.operator : (browser ? 'Browser' : 'Unidentified'),
+    kind: classifyKind(found, surface, browser, botish),
+    surface: surface || 'html',
+    browser,
+  };
+}
+
+/** Which agent-facing surface a path belongs to, or null for ordinary pages. */
+export function classifySurface(pathname: string): string | null {
+  for (const [re, surface] of AGENT_SURFACE) {
+    if (re.test(pathname)) return surface;
+  }
+
+  return null;
+}
+
+/**
+ * The GA4 Measurement Protocol body for one request, or null when the request is
+ * one gtag already measures (an ordinary browser asking for an ordinary page).
+ *
+ * Sent as `page_view` with `page_location` on purpose: that populates GA4's
+ * built-in Pages and Landing-page reports with no custom dimensions registered, so
+ * "which part of the docs do agents actually read" works on day one. The extras —
+ * kind, crawler, operator, surface, status, visit_id — must each be registered as an
+ * event-scoped custom dimension in Admin → Custom definitions before they can be used
+ * as report dimensions. They show up in DebugView and Realtime immediately either way,
+ * which makes the difference easy to misread: REGISTRATION IS NOT RETROACTIVE, so an
+ * unregistered parameter is being thrown away for reporting even while you can watch
+ * it arrive. All six are registered on the imqueue.org property.
+ *
+ * TWO MORE NEED REGISTERING: `referrer_host` and `ai_source`, added with the referrer
+ * classifier. Until they are, an AI citation click is being collected and discarded —
+ * visible in Realtime, absent from every report. Admin → Custom definitions → Create
+ * custom dimension, scope Event, parameter name exactly as spelled here.
+ * (`page_referrer` needs nothing: GA4 reads it natively.)
+ */
+export async function buildEvent({
+  url, userAgent, status, edition, ip, salt, referrer = null, gaClientId = null,
+  isDocument = false, now = Date.now(),
+}: BuildEventInput): Promise<Ga4Event | null> {
+  const seen = describe({ url, userAgent, isDocument });
+
+  if (!seen) return null;
+
+  const { crawler, operator, kind, surface, browser } = seen;
+
+  // A real visitor id for browsers, a family label for everything else.
+  //
+  // For a person the digest is the whole point: it makes unique visitors countable, and
+  // it makes SESSIONS real, so views-per-visit and duration mean something on this stream
+  // instead of being an artefact of bucketing. For a crawler it would be noise — GPTBot
+  // arrives from a rotating fleet and each address is a different "visitor" that is really
+  // the same robot — so crawlers keep the family identity they had.
+  const visitor = browser ? await visitorId({ ip, userAgent, salt }) : null;
+
+  // No salt, no human counting. Deliberate: better to count no people than to invent a
+  // weaker identifier for them. See lib/visitor-id.ts.
+  if (browser && !visitor) return null;
+
+  // A WALL-CLOCK HALF-HOUR BUCKET, not an inactivity window. Read that literally: two
+  // views a minute apart that straddle :30 are two sessions, and a view at :29 and
+  // another at :59 in the same clock hour are one. gtag's half of this same property
+  // uses the real GA4 rule — 30 minutes of INACTIVITY, extended by each new event —
+  // so the two halves of the property do not sessionise alike. That is a known cost of
+  // the one-shared-property decision, not a bug to be found later.
+  //
+  // Named `sessionBucket` so the code reads as what it is. `visit_id` in the payload
+  // below carries the same value under a reportable name, and its comment says the
+  // same thing.
+  //
+  // A correct inactivity window needs per-visitor state across requests — KV or a
+  // Durable Object — and both are paid, which the no-paid-statistics constraint rules
+  // out. So the choice is between this and no server-side sessionisation at all; a
+  // bucket that is honest about being a bucket is the better of the two.
+  //
+  // The consequences worth knowing when reading a report:
+  //   * session COUNTS from the edge are inflated relative to gtag's, by roughly the
+  //     rate at which visits straddle a boundary;
+  //   * session DURATION from the edge is meaningless and should not be reported;
+  //   * per-session event counts are a floor, never a ceiling.
+  //
+  // The crawler case is separately honest about what it is: two GPTBot fetches 40
+  // minutes apart are two "visits" and a hundred in one minute are one, however many
+  // machines ran them.
+  const HALF_HOUR_MS = 1800000;
+  const sessionBucket =
+    `${visitor ? visitor.slice(0, 16) : slug(crawler)}-${Math.floor(now / HALF_HOUR_MS)}`;
+
+  return {
+    // gtag's own client id when the browser has one, so the two streams describe
+    // the same user; otherwise the visitor digest for a person, or a stable family
+    // label for a crawler. See ga4ClientId().
+    client_id: (browser && gaClientId) || visitor || `${slug(operator)}.${slug(crawler)}`,
+    events: [{
+      // NOT page_view. gtag owns that name, and GA4's `Views` metric counts only
+      // page_view/screen_view — so a browser that consents is reported twice, once by
+      // gtag and once from here, and `Views` would read ~140% of reality with no single
+      // true number anywhere in the property. A distinct name makes the two streams
+      // incapable of being added up by accident: `Views` stays gtag's, and everything the
+      // server saw is Event count of this. The cost is that GA4's built-in Pages and
+      // Landing-page reports no longer include it; `page_location` is still sent so a
+      // free-form exploration can do that job.
+      name: 'srv_page_view',
+      params: {
+        page_location: url.href,
+        page_title: url.pathname,
+        // GA4 needs both of these or the event lands without a session and the
+        // engagement metrics read as zero.
+        session_id: sessionBucket,
+        engagement_time_msec: 1,
+        crawler,
+        operator,
+        kind,
+        // 'html' rather than null so the dimension is never (not set): a crawler
+        // reading the HTML page instead of the mirror is exactly what you want to
+        // be able to filter on.
+        surface,
+        status: String(status),
+        edition,
+        // The same value again under a name GA4 will hand back as a dimension. Note
+        // what it is: a wall-clock half-hour bucket, not an inactivity window — see
+        // the sessionBucket comment above. Counting distinct visit_ids therefore
+        // overstates sessions, and any duration derived from it is meaningless.
+        //
+        // session_id above is consumed for sessionisation and is NOT reportable:
+        // its own name and every ga_-prefixed spelling are refused as custom
+        // dimensions ("Parameter name is not allowed for this scope"). Reporting
+        // needs one row per visit for the one thing GA4 cannot aggregate — the
+        // minimum and maximum of anything — so it is sent twice under two names.
+        visit_id: sessionBucket,
+        // Where the request said it came from. `page_referrer` is the name GA4
+        // itself reads for source/medium attribution, so sending it is what lets
+        // an edge-measured session be attributed at all instead of collapsing
+        // into Direct. referrer_host and ai_source are the reportable pair — see
+        // classifyReferrer for why the brand list lives here and not only in the
+        // channel group.
+        //
+        // page_referrer is omitted rather than sent as 'none' when there is no
+        // referrer: it is a GA4-reserved field with attribution semantics, and an
+        // invented value there would be a claim about where a visitor came from.
+        // The two custom dimensions carry the explicit 'none' instead.
+        ...(referrer ? { page_referrer: referrer } : {}),
+        ...classifyReferrer(referrer, url),
+      },
+    }],
+  };
+}
+
+/**
+ * The `x-agent-analytics` header value for a request, or null when the request should
+ * not carry one.
+ *
+ * Always on, no variable to set. "Is the site sending events?" is otherwise only
+ * answerable by touring dashboards, and GA4's reports cannot distinguish "never sent"
+ * from "sent and rejected" from "sent to a property you are not looking at" — so a
+ * diagnostic that needs a redeploy to switch on is unavailable exactly when it is
+ * wanted. This makes the server-side half one curl, permanently:
+ *
+ *   curl -sI -A 'GPTBot/1.2' https://imqueue.org/llms.txt | grep x-agent-analytics
+ *
+ * Restricted to the AGENT SURFACE — llms.txt, the .md mirrors, the symbol index —
+ * for two reasons. Attaching a header means rebuilding the response (the one from
+ * next() has immutable headers), and this middleware fronts every request to both
+ * sites: pages, CSS, fonts, images. Those are exactly the requests this returns null
+ * for, so the rebuild never touches the traffic that dominates. And HTML pages are
+ * already measured for the audience that reads them, by gtag in the browser.
+ *
+ * Note that is narrower than what gets SENT: a crawler fetching an HTML page, and now any
+ * browser fetching one, are both tracked but get no header. The header is a diagnostic,
+ * not a mirror of the policy.
+ *
+ * Uses describe() rather than buildEvent so it stays synchronous — buildEvent has to await
+ * the visitor digest, and a hash has no business on the critical path of a response this
+ * only annotates. Same credential guard as trackRequest; if that changes, change it here.
+ */
+export function headerNote({ request, env, url, status, edition }: EdgeInput): string | null {
+  if (!classifySurface(url.pathname)) return null;
+
+  if (!env || !env.GA4_MP_MEASUREMENT_ID || !env.GA4_MP_API_SECRET) {
+    return 'off reason=not-configured';
+  }
+
+  const seen = describe({
+    url,
+    userAgent: request.headers.get('user-agent'),
+    isDocument: isDocumentRequest(request),
+  });
+
+  if (!seen) return 'skipped reason=subresource';
+
+  // `salt=` is the one thing this cannot infer from describe(): a browser is reported as
+  // kind=user here, but with no VISITOR_SALT configured buildEvent will drop it. Saying so
+  // is the difference between "the deployment is fine" and half an hour in the dashboards.
+  const salted = Boolean(env.VISITOR_SALT);
+
+  // ai= makes the referrer classifier checkable from outside, which matters because
+  // it is the one part of this module whose input the operator can supply by hand:
+  //
+  //   curl -sI -e 'https://www.perplexity.ai/search/x' https://imqueue.org/llms.txt \
+  //     | grep x-agent-analytics
+  //
+  // Otherwise "does a Perplexity citation get attributed" is only answerable by
+  // waiting for a real one and then trusting a dashboard.
+  const { ai_source } = classifyReferrer(request.headers.get('referer'), url);
+
+  // mp= names WHICH GA4 property this deployment is feeding. The single hardest
+  // question to answer from outside was "the events are being sent, but to which
+  // property?" — and it is not academic here: the two editions shared one property
+  // by accident until 2026-08-02, with imqueue.org's traffic landing in the one
+  // named imqueue.com. A repo cannot tell you which property owns an id, which is
+  // exactly why the id belongs in the deployment and its VALUE belongs in this
+  // header. G-… ids are public (they ship in every page's source), so there is
+  // nothing to redact. The api_secret is never named here, only its presence.
+  return `sent kind=${seen.kind} crawler=${seen.crawler} surface=${seen.surface} ` +
+    `status=${status} edition=${edition} ai=${ai_source} ` +
+    `mp=${env.GA4_MP_MEASUREMENT_ID} salt=${salted ? 'set' : 'MISSING'}`;
+}
+
+/**
+ * Send one request's event. Always returns a promise for the caller to hand to
+ * waitUntil; it resolves immediately when there is nothing to send — no credentials, a
+ * subresource, or a browser with no salt configured. Async because the visitor digest is
+ * (crypto.subtle), which is why it no longer returns null for "nothing to do".
+ *
+ * `env.GA4_MP_DEBUG` routes to GA4's validation endpoint and logs what it says.
+ * Use it once while setting this up, reading the output in the Pages project's
+ * function logs, then unset it — the validation endpoint reports problems but
+ * RECORDS NOTHING, so leaving it on means collecting no data at all. (It is not
+ * DebugView, which needs the normal endpoint and a debug_mode parameter; validation
+ * is the more useful half here because a malformed hit is otherwise accepted with a
+ * 2xx and silently dropped.)
+ */
+export async function trackRequest({ request, env, url, status, edition }: EdgeInput): Promise<void> {
+  // Rule 5: inert until configured. Spelled with `env?.` rather than a separate
+  // `env &&` so the narrowing survives to env.VISITOR_SALT further down.
+  if (!env?.GA4_MP_MEASUREMENT_ID || !env.GA4_MP_API_SECRET) return;
+
+  const id = env.GA4_MP_MEASUREMENT_ID;
+  const secret = env.GA4_MP_API_SECRET;
+
+  const body = await buildEvent({
+    url,
+    userAgent: request.headers.get('user-agent'),
+    // cf-connecting-ip is Cloudflare's own header and cannot be spoofed by the client;
+    // x-forwarded-for can be, so it is deliberately not consulted. Goes straight into the
+    // digest and is never stored or logged — see lib/visitor-id.ts.
+    ip: request.headers.get('cf-connecting-ip'),
+    salt: env.VISITOR_SALT,
+    // The header is spelled with one `r`. Passed through verbatim and classified in
+    // buildEvent, never stored — like the IP and the UA, it only leaves here as a
+    // hostname and a brand slug.
+    referrer: request.headers.get('referer'),
+    // Read, never written, and only used when gtag already set it.
+    gaClientId: ga4ClientId(request.headers.get('cookie')),
+    isDocument: isDocumentRequest(request),
+    status,
+    edition,
+  });
+
+  if (!body) return;
+
+  const debug = Boolean(env.GA4_MP_DEBUG);
+  const endpoint = debug
+    ? 'https://www.google-analytics.com/debug/mp/collect'
+    : 'https://www.google-analytics.com/mp/collect';
+
+  // The secret goes in the QUERY STRING because that is the only form the Measurement
+  // Protocol accepts — no header auth, no body field. Server-to-server over TLS, so it
+  // is never exposed to a browser or a network observer, and the credential is
+  // write-only to one property and revocable in GA4 at any time.
+  //
+  // The one way it can still leak is OUR OWN LOGS: never log this URL, and never
+  // interpolate a fetch error verbatim, because the message can echo it. The debug
+  // branch below logs the site's pathname and GA4's verdict, never the endpoint.
+  const sent = fetch(
+    `${endpoint}?measurement_id=${encodeURIComponent(id)}&api_secret=${encodeURIComponent(secret)}`,
+    {
+      method: 'POST',
+      // Rule 3: our own UA, never the crawler's. Sending the crawler's would let
+      // GA4's bot filter discard the whole dataset.
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    },
+  );
+
+  if (!debug) {
+    // Awaited rather than returned: an async function already awaits a returned
+    // promise, and the resolved Response is nobody's business.
+    await sent.catch(() => {
+      // A measurement failure must never become a site failure. There is nowhere
+      // useful to report this from a Worker, and retrying a lost hit is worth less
+      // than the request it would cost.
+    });
+
+    return;
+  }
+
+  // The normal endpoint answers 2xx for a malformed hit and drops it, so the only
+  // way to know the payload is right is to ask. Read this in the Pages project's
+  // function logs — an empty validationMessages array means the hit is good.
+  await sent
+    .then((res) => res.text())
+    .then((text) => console.log(`[agent-analytics] ${url.pathname} → ${text}`))
+    .catch(() => {});
+}

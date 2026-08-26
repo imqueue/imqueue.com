@@ -101,9 +101,16 @@ plans/
 
 # Build intermediate: the ranker's two halves — vendor/search-ranker/ranker.js and
 # search.js — concatenated into the one asset the site serves. Written by
-# scripts/lib/asset-manifest.js on every eleventy config load, because
+# scripts/lib/asset-manifest.ts on every eleventy config load, because
 # addPassthroughCopy takes a path rather than bytes. Never edited; edit the submodule.
 .search-bundle.js
+
+# Build intermediate: the compiled form of src/_shared/js/*.ts. Those two files are
+# the only ones in this repo a BROWSER executes, so they are the only ones that
+# cannot rely on Node stripping their types at load — they are emitted here by
+# scripts/lib/asset-manifest.ts, on the same config-load hook and for the same
+# reason as .search-bundle.js above. Edit the .ts sources.
+.browser-js/
 
 # The artificial KPI query set: 1.2 MB, and regenerated exactly by
 # `npm run kpi:search:gen` from the built index plus a fixed PRNG seed, so committing it
@@ -117,5 +124,5 @@ scripts/search-kpi/data/artificial-queries.json
 tests/e2e/.artifacts/
 tests/e2e/.report/
 
-# verify.js baseline — a local artifact of one working tree, never shared
+# verify.ts baseline — a local artifact of one working tree, never shared
 .verify-baseline.json

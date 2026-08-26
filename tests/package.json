@@ -1,0 +1,4 @@
+{
+  "//": "tests/ is fully TypeScript and fully ESM. Playwright transpiles the specs itself, but the Pages-Functions harness in server/ is spawned with plain node, which classifies it by the nearest package.json — the repo root's, still CommonJS — and would reparse it as ESM with a warning on every run.",
+  "type": "module"
+}

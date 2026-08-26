@@ -24,7 +24,7 @@ KPI's 52.6% — see [The artificial tripwire](#the-artificial-tripwire).
 Two ranker versions in one process, over one corpus:
 
 ```bash
-node scripts/search-kpi/gold.js --ref <sha>   # the KPI, paired, with McNemar
+node scripts/search-kpi/gold.ts --ref <sha>   # the KPI, paired, with McNemar
 ```
 
 `--ref` names a commit in the **ranker's** repository (the `vendor/search-ranker` submodule), not
@@ -78,7 +78,7 @@ diff. Queries are written one per line, so a relabelling is a readable `git diff
 ## Where the labels come from
 
 `judged/*.js` holds **the decisions**. One module per cluster of the harvest; each entry is an
-explicit per-query membership list plus the content reason it was judged that way. `build-gold.js`
+explicit per-query membership list plus the content reason it was judged that way. `build-gold.ts`
 only assembles them and stamps the fingerprint — it decides nothing.
 
 ```bash
@@ -87,17 +87,17 @@ npm run kpi:build   # edit a module, then run this, then `npm run check:kpi`
 
 | module | decided | labelled | quarantined |
 |---|---|---|---|
-| `mcp.js` | 867 | 322 | 545 |
-| `comparisons.js` | 524 | 126 | 398 |
-| `core.js` | 412 | 199 | 213 |
-| `noise-molecule.js` | 408 | 2 | 406 |
-| `jobqueue.js` | 347 | 139 | 208 |
-| `delivery-monolith-testing.js` | 346 | 182 | 164 |
-| `mcp-spelled.js` | 242 | 49 | 193 |
-| `infra.js` | 221 | 64 | 157 |
+| `mcp.ts` | 867 | 322 | 545 |
+| `comparisons.ts` | 524 | 126 | 398 |
+| `core.ts` | 412 | 199 | 213 |
+| `noise-molecule.ts` | 408 | 2 | 406 |
+| `jobqueue.ts` | 347 | 139 | 208 |
+| `delivery-monolith-testing.ts` | 346 | 182 | 164 |
+| `mcp-spelled.ts` | 242 | 49 | 193 |
+| `infra.ts` | 221 | 64 | 157 |
 | **total** | **3,367** | **1,083** | **2,284** |
 
-Plus `question.js` (115), `intent.js` (19) and `peer.js` (14), which are curated rather than
+Plus `question.ts` (115), `intent.ts` (19) and `peer.ts` (14), which are curated rather than
 harvested.
 
 ### The four populations
@@ -130,7 +130,7 @@ their own floor — held out of the average is not the same as unmeasured.
 
 ## The gate
 
-`scripts/check-kpi.js`, wired into `npm test` between `check:search-ranking` and `check:search-ui`.
+`scripts/check-kpi.ts`, wired into `npm test` between `check:search-ranking` and `check:search-ui`.
 Before it existed, fourteen checks ran and none touched the gold set, while the only KPI with teeth
 anywhere in the repo was a `recall@6` floor inside a script `npm test` does not run, over labels
 since shown to call a verified improvement a significant regression. The build gated on the weakest
@@ -146,8 +146,8 @@ It asserts five things, each of which has really gone wrong:
    `claude code mcp registry ` had a trailing space; `mcp server opencode` sat in "install" while
    `install mcp server opencode` sat in "third-party". None of that was visible by inspection.
    All three query files are covered this way — `natural-queries.json` against `judged/*.js`,
-   `question-queries.json` against `judged/question.js`, `intent-queries.json` against
-   `judged/intent.js` — which is what keeps them inputs rather than souvenirs.
+   `question-queries.json` against `judged/question.ts`, `intent-queries.json` against
+   `judged/intent.ts` — which is what keeps them inputs rather than souvenirs.
 2. **The label set is self-consistent.** No query in both gold and quarantine, no query in both
    quarantine buckets, no `target` repeated in its own `also`, no duplicates.
 3. **The committed file is what `judged/` assembles to.** Re-assembled in a subprocess and compared
@@ -212,14 +212,14 @@ part-credit rather than scoring pass/fail. Three ideas stacked up:
 
 **One caveat, because anyone who knows nDCG will assume otherwise: ours is not cumulative.** Textbook
 DCG *sums* the discounted gains of every relevant hit in the window; this takes the single best
-contribution (`Math.max` in `lib/harness.js`). That is on purpose — `also` lists *alternatives*, so
+contribution (`Math.max` in `lib/harness.ts`). That is on purpose — `also` lists *alternatives*, so
 the ideal ranking puts **one** of them first, not all of them, and summing would reward a ranker for
 returning three spellings of the same answer. Read it as a graded, discounted "how good was the best
 hit and how high was it", not as a textbook nDCG.
 
 ### What each one gives for a single target at each rank
 
-Computed from `lib/harness.js`, not from the textbook, so this is what the report really does:
+Computed from `lib/harness.ts`, not from the textbook, so this is what the report really does:
 
 | target lands at | P@1 | MRR@target | r@6 | nDCG@10 |
 |---|---|---|---|---|
@@ -273,7 +273,7 @@ assumed, with `--gains 2,3,5,10`. The absolute nDCG level moves across that rang
 five topics come out in the same order every time, so no diagnosis depends on the number chosen.
 
 **`confidence: 'low'` is supported and currently unused.** Before the rebuild, 65 labels carried it
-for the hub-versus-article coin flip and the passing-mention target, and `gold.js` printed the
+for the hub-versus-article coin flip and the passing-mention target, and `gold.ts` printed the
 headline with and without them. The rebuild replaced it with something better — the reason each
 decision was made is written next to it in `judged/*.js`, per query — so no label sets it today and
 the report's confidence block does not fire. The field stays in the fingerprint because it can move a
@@ -309,7 +309,7 @@ weight tuning fixes it; the middle two are ranking defects.
 
 A change of 0.1–0.5 macro points has been enough to keep or drop a ranker change here, and one change
 moved the mean by **+0.0** while 260 queries churned. So every comparison reports the paired tests
-from `lib/stats.js`:
+from `lib/stats.ts`:
 
 - **McNemar** for P@1, because P@1 is not continuous — it is one bit per query, and its delta takes
   exactly three values. McNemar discards the agreements (a query whose target led both before and
@@ -335,13 +335,13 @@ nothing.
 **And the aggregate alone is a weak regression detector.** Halving the title weight (430 → 200) moved
 micro-accuracy by **+0.0 points** while 150 queries got worse and 110 got better. A change with a
 flat average and hundreds of queries churning is not a safe change; it is an unmeasured one. That is
-why both comparison paths print per-query movement, and why `compare.js` exists at all.
+why both comparison paths print per-query movement, and why `compare.ts` exists at all.
 
 ## Fit and holdout
 
 Every constant in the ranker was chosen by sweeping it against these sets, which makes every number
 here a **training** score. The set is therefore cut in two and both halves are printed by default
-(`lib/split.js`), on P@1 — for months `split.js` computed only the legacy linear `accuracy`, which
+(`lib/split.ts`), on P@1 — for months `split.ts` computed only the legacy linear `accuracy`, which
 meant the single guard against overfitting was measuring a metric the headline had stopped using.
 
 The cut is **by group, never by query.** The natural harvest expands each seed a–z, so `imqueue rpc`
@@ -360,7 +360,7 @@ as a measured overfitting result.
 
 `data/quarantine.json`, 2,284 queries no page here answers. Keeping them in one bucket makes both
 numbers useless, so the verdict each judged module wrote is classified — by an explicit table in
-`build-gold.js`, not by pattern-matching, because "another ecosystem's load balancing" and "a
+`build-gold.ts`, not by pattern-matching, because "another ecosystem's load balancing" and "a
 balancer pattern we do not cover" differ by judgement and not by any substring. **A verdict in
 neither list is a hard build error**, so a new one has to be classified deliberately rather than
 defaulting into whichever bucket is larger.
@@ -403,7 +403,7 @@ that returns nothing look excellent.
 `data/artificial-queries.json` — 10,000 queries plus 499 typo variants, generated from the site's own
 titles, headings, `keywords` front matter, summaries, API identifiers and prose, so ground truth is
 free: a query built from page P should return P. Gitignored, because it regenerates exactly from the
-index plus a fixed seed; `measure.js` and `compare.js` both say so out loud rather than measuring
+index plus a fixed seed; `measure.ts` and `compare.ts` both say so out loud rather than measuring
 nothing in silence.
 
 **It is a tripwire and nothing else.** A failure means a page cannot be found by its own title, which
@@ -460,7 +460,7 @@ The weakest groups, and they are where to work: `framework choice` 0% (n=8), `au
 `mcp troubleshooting` 0% (n=31).
 
 Written to `data/gold-baseline.json` by `npm run kpi:baseline`. Compare with
-`node scripts/search-kpi/gold.js --compare scripts/search-kpi/data/gold-baseline.json`, or against
+`node scripts/search-kpi/gold.ts --compare scripts/search-kpi/data/gold-baseline.json`, or against
 another ranker commit with `--ref <sha>`.
 
 **The baseline records its own provenance, and `--compare` prints it.** The label fingerprint pins
@@ -606,7 +606,7 @@ because the measured typo class is one transposed key, which plain Levenshtein s
 that returns at least one result today is scored by byte-identical code and cannot move. Measured
 against that prediction when it shipped: typo accuracy 36.2% → **55.2%**, typo empty result set
 29.1% → **5.8%**, natural +0.1 (2 queries improved, 0 worse), artificial and question **0 queries
-changed**. `check-search-ranking.js` asserts the gate, because the safety argument is worth exactly as
+changed**. `check-search-ranking.ts` asserts the gate, because the safety argument is worth exactly as
 much as that assertion.
 
 The typo bucket now reads **63.9% accuracy, 47.5% at #1, 25.3% never found, 6.4% empty**. What moved
@@ -640,7 +640,7 @@ rather than argued.
 - **The natural set is skewed** toward whatever Google has many completions for — which is why the
   headline is a macro average and why `seo` is held out of it.
 - **19 queries will call almost any change unmeasured.** The intent set is a **named-case check**,
-  closer to `check-search-ranking.js` than to an average — read the moves, not the mean. It is
+  closer to `check-search-ranking.ts` than to an average — read the moves, not the mean. It is
   flagged high-importance for one reason: the MCP server's own instruction is *"never infer an API
   name or signature"*, so an agent obeying it asks by **describing** what it needs. When the
   description misses, the agent does not scroll and it does not retry — **it infers, and the

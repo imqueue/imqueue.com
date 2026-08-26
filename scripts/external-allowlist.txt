@@ -10,7 +10,7 @@
 # nobody can ever safely remove.
 
 # 403s an unattended HEAD from a datacentre IP; every /package/ URL on the site is
-# generated from src/_data/apiPackages.js and cannot be a typo.
+# generated from src/_data/apiPackages.ts and cannot be a typo.
 www.npmjs.com
 npmjs.com
 

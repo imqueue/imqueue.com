@@ -11,7 +11,7 @@ wide: true
 ---
 
 <!--
-The tables below are GENERATED. Do not edit them by hand: scripts/gen-package-status.js
+The tables below are GENERATED. Do not edit them by hand: scripts/gen-package-status.ts
 rewrites everything between each `status:begin`/`status:end` pair from
 src/_data/packageStatus.json, and `npm run check:package-status:npm` fails when what is
 committed here no longer matches npm.
@@ -22,7 +22,7 @@ is a version nothing updates, which is the failure this whole page exists to fix
 NOT Liquid, deliberately. The markdown mirrors are built from `doc.rawInput`, before any
 template rendering, so a `{{ … }}` in this file would be served verbatim at /status.md —
 to precisely the machine readers this page is for. Generating the source sidesteps that
-entirely, and it is what sync-cli-wiki.js already does for the CLI guide.
+entirely, and it is what sync-cli-wiki.ts already does for the CLI guide.
 -->
 
 Every published `@imqueue` package, with the facts you would otherwise go to npm

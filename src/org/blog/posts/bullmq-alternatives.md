@@ -163,7 +163,7 @@ shipped verbatim into both. agentMarkdown strips HTML comments, so this is the f
 an authoring note has to take in a post.
 
 The hand-written FAQPage block that used to sit here is gone: the faqPairs filter
-(eleventy.config.js) generates it from the `## FAQ` headings above, via
+(eleventy.config.mts) generates it from the `## FAQ` headings above, via
 faq-jsonld.html. The hand-written copy had already drifted — it said "What is the
 best…" and "do not" where the visible prose says "What's the best…" and "don't" —
 and Google's FAQPage requirement is that the answer be present ON THE PAGE.

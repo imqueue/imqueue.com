@@ -11,7 +11,7 @@ BOTH builds, so it was dead weight on .com and wrong on .org.
 {%- comment -%} Compute the page title + effective description/image once, reuse for OG/Twitter. {%- endcomment -%}
 {%- comment -%}
 `bareTitle` pages skip the " · @imqueue" suffix. Blog posts set it (see
-posts.11tydata.js): the suffix costs 11 of a ~60-character SERP budget, the brand
+posts.11tydata.ts): the suffix costs 11 of a ~60-character SERP budget, the brand
 is already in most post headlines, and it was truncating the keyword tails of 23
 of the 26 posts.
 {%- endcomment -%}
@@ -36,7 +36,7 @@ editorial date, so article:published_time would have nothing true to say.
 /api/faq/ is the one page under /api/ that is NOT reference: hand-written prose,
 with an editorial date in pageDates.json and no package to be `about`. It is tested
 before the /api/ branch for that reason — APIReference would have made it claim to
-document a package, which check-jsonld.js catches, and rightly.
+document a package, which check-jsonld.ts catches, and rightly.
 {%- endcomment -%}
 {%- assign articleType = "" -%}
 {%- if page.url == "/api/faq/" or page.url contains "/tutorial/" or page.url contains "/cli/" or page.url contains "/mcp/" or page.url contains "/get-started/" or page.url contains "/intro/" or page.url contains "/using-ai-assistants/" or page.url contains "/agents/" or page.url contains "/docs/" -%}
@@ -69,7 +69,7 @@ knows which one it is.
 
 The origin here is used to build result HREFS, not to fetch anything: the peer's index is
 copied onto this origin as /search-peer-*.json at build time (see
-scripts/copy-peer-index.js), so the fetch is same-origin and there is no CORS anywhere in
+scripts/copy-peer-index.ts), so the fetch is same-origin and there is no CORS anywhere in
 this feature. A missing peer file means the peer group simply does not appear — a peer
 that was not built must never degrade the search that was.
 {%- endcomment -%}
@@ -100,8 +100,8 @@ there, since the same links exist on the pages themselves.
 {%- if edition == "org" %}<link rel="alternate" type="application/atom+xml" title="@imqueue blog" href="{{ siteUrl }}/blog/feed.xml">{% endif %}
 {%- comment -%}
 The markdown mirror, declared. `hasMirror` is computed data — see
-lib/markdown-link.js for the rule and for why it is one function rather than one
-copy here and another in the Worker. functions/_middleware.js emits the matching
+lib/markdown-link.ts for the rule and for why it is one function rather than one
+copy here and another in the Worker. functions/_middleware.ts emits the matching
 `Link:` header from that same function, and mirror-link.html renders the visible
 link, which is the half of this with an actual mechanism behind it.
 {%- endcomment -%}
@@ -343,7 +343,7 @@ and 2.1.0 on another. /api/ itself defines all 16 (src/org/api/index.md).
       {%- comment -%}
         `license` was on the compact copy of this node and not here, which made
         `https://imqueue.org/#software` two different entities depending on the page.
-        check-jsonld.js now fails on any such divergence.
+        check-jsonld.ts now fails on any such divergence.
       {%- endcomment -%}
       "license": "https://www.gnu.org/licenses/gpl-3.0.html",
       "usageInfo": "https://imqueue.com/license/",
@@ -382,7 +382,7 @@ and 2.1.0 on another. /api/ itself defines all 16 (src/org/api/index.md).
 
       `offers` is safe without an edition test: articleSoftware is already org-only
       (see its assignment above), which is what keeps the commercial site from
-      claiming the product is free. check-jsonld.js asserts that per edition.
+      claiming the product is free. check-jsonld.ts asserts that per edition.
     {%- endcomment -%}
     {
       "@type": "SoftwareApplication",
@@ -583,7 +583,7 @@ not end up with two lists.
 {%- if bcSeg == "api" and apiCrumbs -%}
 {%- comment -%}
 Generated reference pages carry the trail api-documenter emitted, lifted into
-`apiCrumbs` by build-api-docs.js and rendered by apiref.html. Emitting it from the
+`apiCrumbs` by build-api-docs.ts and rendered by apiref.html. Emitting it from the
 same array is what makes the markup match the visible breadcrumb — and it keeps
 the parent-symbol level (core.ilogger.info -> core.ilogger) that a URL-derived
 trail cannot know. The last crumb self-links, so its url is already metaUrl.
@@ -642,7 +642,7 @@ content-hashed filename the build emitted (/css/base.css -> /css/base.<hash>.css
 That is what makes the immutable Cache-Control in headers.liquid safe: a changed
 file is a new URL, so no edge or browser can serve it stale. Referencing an
 unhashed path here would 404 — the filter throws at build time rather than let
-that ship. See scripts/lib/asset-manifest.js.
+that ship. See scripts/lib/asset-manifest.ts.
 
 `pageCss` is an unused hook; it is passed through the filter too so that the first
 page to set it fails loudly at build time instead of silently 404ing.
@@ -686,11 +686,11 @@ in _includes/consent.html finds its work by that exact selector.
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   // `kind` is what separates these hits from the edge's in reporting: this tag only
-  // ever runs for somebody with a browser, while lib/agent-analytics.js reports the
+  // ever runs for somebody with a browser, while lib/agent-analytics.ts reports the
   // crawlers and assistants into the SAME property. Without it the two populations
   // would be one blended number that describes neither.
   //
-  // 'user' must stay identical to the value lib/agent-analytics.js uses for a browser —
+  // 'user' must stay identical to the value lib/agent-analytics.ts uses for a browser —
   // the two streams describe the same population from different vantage points, and two
   // spellings would split it into two rows that each look like half the traffic.
   //

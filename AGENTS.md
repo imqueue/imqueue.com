@@ -88,7 +88,7 @@ Where it goes:
 |---|---|
 | Anything a browser does — a click, a keystroke, a form, a dialog, rendered state | `tests/e2e/specs/` |
 | Redirect policy, headers, feeds, mirrors, anything at the HTTP level | `tests/e2e/specs/` (no browser is started for those files) |
-| A build-time invariant — link graph, sitemap, dates, JSON-LD, index integrity | a `scripts/check-*.js`, wired into `npm test` |
+| A build-time invariant — link graph, sitemap, dates, JSON-LD, index integrity | a `scripts/check-*.ts`, wired into `npm test` |
 | Search ranking | **not** a test — measure it, `npm run kpi:compare`, and read the per-query deltas |
 
 Do **not** re-test in e2e what `npm test` already covers. Link crawling, sitemap
@@ -190,14 +190,15 @@ so a new check is picked up here without anyone remembering to add it — but it
 starts life in the `full` tier only, and the narrow tiers say which checks they
 are skipping.
 
-### `npm test` — 15 offline checks
+### `npm test` — 16 offline checks
 
 ```
-check:redirects        check:agent-analytics  check:dates
-check:package-status   check:links            check:sitemap
-check:llms             check:search-ranker    check:search-index
-check:search-ranking   check:kpi              check:search-ui
-check:jsonld           check:mermaid          check:email-literals
+check:types            check:redirects        check:agent-analytics
+check:dates            check:package-status   check:links
+check:sitemap          check:llms             check:search-ranker
+check:search-index     check:search-ranking   check:kpi
+check:search-ui        check:jsonld           check:mermaid
+check:email-literals
 ```
 
 Traps worth knowing:
@@ -215,6 +216,8 @@ Traps worth knowing:
   Never pick a target by looking at what the ranker currently does.
 - **`check:api-versions` is deliberately not in `npm test`** — it needs the npm
   registry, and an unreachable registry must not block an unrelated commit.
+- **`check:types` covers three projects, not one**, and running `tsc` bare only
+  checks the first. See the TypeScript section below.
 
 ### `npm run test:e2e` — 172 browser tests
 
@@ -236,7 +239,7 @@ It tests the site **as built**. It never builds. `npm run build:all` first, or
 you are testing yesterday.
 
 The harness runs the **real Cloudflare Pages Functions** in front of `_site-org`
-— `functions/_middleware.js` and `lib/api-handler.js`. That is deliberate: every
+— `functions/_middleware.ts` and `lib/api-handler.ts`. That is deliberate: every
 `/api/<pkg>/` version redirect, the `Link: …index.md` mirror header and the
 `x-agent-analytics` note happen at the edge, so a plain file server would prove
 nothing about the URLs readers and crawlers actually hold.
@@ -261,6 +264,59 @@ nothing about the URLs readers and crawlers actually hold.
 
 ---
 
+## TypeScript
+
+Everything here is TypeScript. Nothing is transpiled to run it — Node 24 strips
+types at load, so `node scripts/check-links.ts` executes the file directly, and
+that is the property the setup exists to protect: the moment a build step stands
+between an edit and a result, the checks get slower and a slower check is one
+that gets skipped.
+
+Two consequences, both enforced rather than documented and hoped for:
+
+- **`erasableSyntaxOnly`.** Node STRIPS types, it does not TRANSFORM them.
+  `enum`, `namespace`, parameter properties and `export =` all parse and then
+  throw `ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX` at runtime. The flag makes each one a
+  type error instead.
+- **ESM, not CommonJS.** `export =` is how CJS publishes types and is exactly
+  what the flag above forbids. The repo root is still CommonJS (it has to be —
+  `vendor/search-ranker` is a submodule with no `package.json`, so a root
+  `"type": "module"` would reinterpret its CJS engine as ESM), so each converted
+  tree carries its own `package.json` marker: `lib/`, `scripts/`, `functions/`,
+  `src/`, `tests/`. `eleventy.config.mts` uses the unambiguous extension for the
+  same reason.
+
+**Three tsconfig projects, because three runtimes.** `npm run check:types` runs
+all three; `tsc` on its own runs only the first.
+
+| Project | Covers | Why it is separate |
+|---|---|---|
+| `tsconfig.json` | `lib/ scripts/ functions/ src/ eleventy.config.mts` | Node: `types: ["node"]`, no DOM, `moduleResolution: nodenext` so the checker resolves exactly as the runtime does |
+| `tests/tsconfig.json` | `tests/` | Needs `lib.dom` for `page.evaluate` callbacks; Playwright is the loader, so extensionless relative imports and `moduleResolution: bundler` |
+| `src/_shared/js/tsconfig.json` | `consent.ts`, `site.ts` | The only files a BROWSER runs, so the only ones actually COMPILED — see below |
+
+**The two browser files are the exception to everything above.** A browser cannot
+strip types, so `src/_shared/js/*.ts` is emitted to `.browser-js/` (gitignored)
+before anything is content-hashed — the hash has to be over the bytes the browser
+receives. `scripts/lib/asset-manifest.ts` runs that compile at Eleventy config
+load and re-runs it on watch. Traps:
+
+- **They are classic scripts, not modules.** `moduleDetection: "legacy"` in their
+  tsconfig is what keeps `export {}` off the end of the emit; without it every
+  page logs `Unexpected token 'export'` and the consent banner and theme switch
+  are dead. The e2e suite catches this; `npm test` does not.
+- **Edit the `.ts`, never `.browser-js/`.** It is regenerated on every build.
+
+**Eleventy's config is `eleventy.config.mts`**, and Eleventy only auto-discovers
+`eleventy.config.{js,cjs,mjs}` — so the `edition:*` and `serve:*` scripts pass
+`--config=eleventy.config.mts` explicitly. A new script that runs `eleventy` needs
+that flag or it will build with no config at all.
+
+**Untyped dependencies get a hand-written declaration**, not a blanket
+`declare module`: `types/untyped-modules.d.ts` and `types/eleventy.d.ts` spell
+only the surface this repo calls, so an upstream signature change fails at the
+call site instead of being absorbed by an `any`.
+
 ## Repository rules
 
 - **`promotion/` is never committed.** It is local-only draft and outreach
@@ -268,7 +324,7 @@ nothing about the URLs readers and crawlers actually hold.
 - **The search ranker is a submodule** at `vendor/search-ranker`. Changes go in
   *that* repo, then the moved pointer is committed here. `npm run kpi:compare`
   before and after, and read the per-query deltas — never the summary alone.
-- **Never hand-edit generated files.** `functions/api/<pkg>/`, `lib/api-versions.js`
+- **Never hand-edit generated files.** `functions/api/<pkg>/`, `lib/api-versions.ts`
   and the API reference under `src/org/api/` all come from generators; edit the
   generator. The files say so in their first line.
 - **Commits are authored by the human contributor.** No tool or assistant

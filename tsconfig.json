@@ -1,0 +1,91 @@
+{
+  // TypeScript is a TYPE CHECKER here, never a build step.
+  //
+  // Node 24 strips types at load time, so `node scripts/check-links.ts` runs the
+  // file directly — same as it always did. That property is what makes the 15
+  // checks in `npm test` fast enough to run on every commit, and it is worth
+  // protecting: the moment a `tsc` emit stands between an edit and a result, the
+  // loop that catches ranking regressions and dead links gets slower, and a
+  // slower check is one that gets skipped.
+  //
+  // Two consequences follow, and both are enforced below rather than documented
+  // and hoped for:
+  //
+  //   1. `erasableSyntaxOnly` — Node STRIPS types, it does not TRANSFORM them.
+  //      `enum`, `namespace`, parameter properties and `export =` all parse but
+  //      throw ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX at runtime. Without this flag
+  //      that is a runtime error in production; with it, it is a type error.
+  //
+  //   2. ESM, not CJS. `export =` is how CJS exposes types, and it is exactly
+  //      what (1) forbids — so typed cross-module imports require real
+  //      `import`/`export`. That is why this migration converted the module
+  //      system as well: in CJS every `require()` would have come back `any`,
+  //      and a migration that types nothing across a boundary is a rename.
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+
+    // `nodenext`, because Node is what loads every file this project covers, and
+    // resolution is where a .ts migration goes wrong quietly: an extensionless
+    // relative import type-checks under a bundler resolver and throws
+    // ERR_MODULE_NOT_FOUND at runtime. This makes the checker resolve exactly as the
+    // runtime does — including the `.ts` specifiers, which Node accepts and which
+    // `allowImportingTsExtensions` below permits under `noEmit`.
+    //
+    // tests/ is the one exception and says why in its own tsconfig: Playwright, not
+    // Node, is the loader there.
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+
+    "strict": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": false,
+    "erasableSyntaxOnly": true,
+
+    // Type-check only. Nothing here ever emits.
+    "noEmit": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Off, now that the migration is done: nothing here is JavaScript any more, and
+    // a .js file reappearing in these trees should fail to import rather than be
+    // absorbed as an untyped island. The two that remain are deliberate and outside
+    // the include globs — vendor/search-ranker (a submodule, shared with the
+    // published MCP server) and .browser-js (a build intermediate).
+    "allowJs": false,
+    "checkJs": false,
+
+    "types": ["node"]
+  },
+  "include": [
+    "types/**/*.d.ts",
+    "scripts/**/*",
+    "lib/**/*",
+    "functions/**/*",
+    "src/**/*",
+    "eleventy.config.mts"
+  ],
+  // `**/*.d.ts` is NOT excluded: types/ is where the shims for untyped
+  // dependencies live, and excluding every declaration file would silently
+  // un-declare them while leaving the include glob looking correct.
+  // Two directories are their own projects, both because they need lib.dom and this
+  // one must not have it: tests/ (tests/tsconfig.json) for the e2e specs' in-browser
+  // callbacks, and src/_shared/js/ (its own tsconfig.json) for the two scripts that
+  // are downloaded and run by a browser — the only files here that are COMPILED
+  // rather than stripped at load. `npm run check:types` runs all three.
+  "exclude": [
+    "node_modules",
+    "_site-org",
+    "_site-com",
+    ".browser-js",
+    "vendor",
+    "promotion",
+    "tests",
+    "src/_shared/js"
+  ]
+}

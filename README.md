@@ -74,10 +74,10 @@ output concurrently and can make `check:links`/`check:sitemap` lie in either
 direction.
 
 - **`check:redirects`** guards the Cloudflare rule budget and replays every
-  historical `/api/` URL through `lib/api-redirects.js`. Cloudflare Pages silently
+  historical `/api/` URL through `lib/api-redirects.ts`. Cloudflare Pages silently
   drops `_redirects` rules past the **100th dynamic rule**, so the `/api/` version
   mapping deliberately does *not* live there — see below. Note it exercises
-  `lib/api-redirects.js` under plain node and knows nothing about `functions/`, so
+  `lib/api-redirects.ts` under plain node and knows nothing about `functions/`, so
   it cannot catch a Pages **routing** regression — only a policy one.
 - **`check:dates`** asserts `src/_data/pageDates.json` covers every hand-authored
   page and that no publication date has drifted. Run it explicitly after adding
@@ -135,7 +135,7 @@ deploys send nothing to production analytics — which the previous arrangement 
 manage: the ids were hardcoded, so every local build reported as real traffic.
 
 They were hardcoded until 2026-08-02, and the pair was wrong in a way a repo cannot
-detect: the id in `eleventy.config.js` belonged to the property named **imqueue.com**,
+detect: the id in `eleventy.config.mts` belonged to the property named **imqueue.com**,
 so imqueue.org's traffic was recorded there while the property named imqueue.org
 received none of it. Which property owns an id is knowable only in GA4 — Admin → Data
 streams → the stream → Measurement ID.
@@ -147,15 +147,15 @@ Per-edition `_redirects` and `_headers` are generated into each build
 
 `functions/` is shared by both Pages projects:
 
-- `functions/_middleware.js` — 301s `imqueue.net` and `www.imqueue.net` onto
+- `functions/_middleware.ts` — 301s `imqueue.net` and `www.imqueue.net` onto
   imqueue.org. Both are custom domains on the imqueue-org project, so without this
   they serve the docs site on a second hostname rather than pointing at it. Because
   this directory is shared, a root middleware runs in front of **every** request to
   both sites, so it is written to fail open: any internal error falls through to
   `next()`, degrading to "no redirect" rather than "site down". A Cloudflare Redirect
   Rule is the better mechanism and should replace it — see the header comment.
-- `functions/api/contact.js` — the commercial lead form (imqueue.com `/pricing/`).
-- `functions/api/message.js` — the general contact form (`/contact/`, **both**
+- `functions/api/contact.ts` — the commercial lead form (imqueue.com `/pricing/`).
+- `functions/api/message.ts` — the general contact form (`/contact/`, **both**
   editions), with optional attachments. Kept separate from `contact.js` because that
   one has different fields, a different subject line and no attachments; one endpoint
   serving both would mean a request shape where half the fields are conditional on the
@@ -169,12 +169,12 @@ Per-edition `_redirects` and `_headers` are generated into each build
   Optional overrides: `CONTACT_TO` (default `support@imqueue.com`) and `CONTACT_FROM`
   (default `@imqueue <noreply@imqueue.com>`; its domain must be verified in Resend —
   which is why the org site sends as imqueue.com and needs no second verification).
-- The root middleware also carries **agent analytics** (`lib/agent-analytics.js`) —
+- The root middleware also carries **agent analytics** (`lib/agent-analytics.ts`) —
   see below. It is the only place in the stack that sees requests for `/llms.txt` and
   the `.md` mirrors, because those run no JavaScript.
-- `functions/api/<pkg>/[[path]].js` — **generated**, one per documented package
-  (see `scripts/lib/api-packages.js`); resolves retired API version URLs onto the
-  version trees that are actually published, using `lib/api-redirects.js`. Mounted
+- `functions/api/<pkg>/[[path]].ts` — **generated**, one per documented package
+  (see `scripts/lib/api-packages.ts`); resolves retired API version URLs onto the
+  version trees that are actually published, using `lib/api-redirects.ts`. Mounted
   per package rather than as one `/api/[[path]]` catch-all so it cannot shadow the
   contact endpoint: `[[path]]` is an *optional* catch-all and does match a bare
   segment, so a dynamic segment directly under `/api/` would sit on top of
@@ -213,7 +213,7 @@ even on the HTML pages. Measured 2026-08-01: Cloudflare's edge saw **4.77k reque
 in 24h** while GA4 reported **347 sessions in 28 days**. The audience this site is
 built for was the one not being measured.
 
-`lib/agent-analytics.js`, called from the root middleware, sends those requests to
+`lib/agent-analytics.ts`, called from the root middleware, sends those requests to
 GA4 over the Measurement Protocol, so the reporting already exists for them: which
 sections agents read, which crawler, which status, over time. Cloudflare's AI Crawl
 Control shows the same traffic but keeps 24 hours and reports per crawler brand.
@@ -236,10 +236,10 @@ Setup, all free:
    npm run probe:agent-analytics     # GA4_MP_DEBUG=1 to validate instead of send
    ```
 
-   It sends three events through `lib/agent-analytics.js` itself — including a 404 — so
+   It sends three events through `lib/agent-analytics.ts` itself — including a 404 — so
    a pass means the module, the credential and the property agree. GA4 answers 204 to
    valid and invalid hits alike, so the proof is **Realtime**, not the exit code. The
-   probe refuses to run against the property `eleventy.config.js` reports to, and never
+   probe refuses to run against the property `eleventy.config.mts` reports to, and never
    prints the secret.
 
 5. **Validate the deployment** — nothing to switch on. Every request to the agent
@@ -290,11 +290,11 @@ npm run sync-cli-guide              # pull the CLI manual from the cli wiki
 `npm run build-docs` publishes `/api/<pkg>/latest/` for each package's current
 major, plus one archived copy of each past major **for `core` and `rpc` only** —
 every other package is `latestOnly` and publishes `/latest/` and nothing else. It
-also writes `src/_data/apiVersions.json`, `lib/api-versions.js`,
-`lib/api-crosslinks.js` and the per-package Functions under `functions/api/`.
+also writes `src/_data/apiVersions.json`, `lib/api-versions.ts`,
+`lib/api-crosslinks.ts` and the per-package Functions under `functions/api/`.
 
 Which packages are documented, their group, tags and blurb all live in
-**`scripts/lib/api-packages.js`** — the one place to edit. A package with
+**`scripts/lib/api-packages.ts`** — the one place to edit. A package with
 `status: 'planned'` is in the taxonomy but is not generated and is not linked from
 `/api/`; flipping it to `'shipped'` and re-running is what lands a rollout wave.
 

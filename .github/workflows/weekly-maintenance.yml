@@ -4,7 +4,7 @@ name: Weekly maintenance
 # neither was happening: a pre-commit hook and a push-triggered workflow can only ever
 # catch what a commit introduces.
 #
-#   1. dateModified drift. gen-page-dates.js computes it, prints it, and deliberately
+#   1. dateModified drift. gen-page-dates.ts computes it, prints it, and deliberately
 #      does not gate on it — the reason is in that file: `modified` goes stale the
 #      moment a page is committed, so failing on it would make every commit block the
 #      next one through the pre-commit hook. So drift was repaired by hand, once
@@ -15,7 +15,7 @@ name: Weekly maintenance
 #   2. External link rot. `check:links:external` existed for months with nothing
 #      running it anywhere — the only hit for it across .github/, .githooks/ and
 #      package.json was its own definition. It was also BROKEN, which is why nobody
-#      missed it: check-links.js dialled every URL over plain http, including https
+#      missed it: check-links.ts dialled every URL over plain http, including https
 #      ones, and had no request timeout at all. Both fixed in the same change as this
 #      file; see the comment above `request()`. scripts/external-allowlist.txt keeps
 #      the expected failures (npmjs 403ing an unattended HEAD, and friends) from
@@ -46,7 +46,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          # REQUIRED. gen-page-dates.js reads git history for every page
+          # REQUIRED. gen-page-dates.ts reads git history for every page
           # (`git log --follow --diff-filter=A`); with the default shallow fetch every
           # file looks as though one commit added it. Same reason refresh-api-docs.yml
           # and sync-cli-guide.yml set it.
@@ -65,7 +65,7 @@ jobs:
       - name: Rewrite only the dateModified values
         id: fix
         run: |
-          node scripts/gen-page-dates.js --fix-modified | tee /tmp/fix.log
+          node scripts/gen-page-dates.ts --fix-modified | tee /tmp/fix.log
           if [ -z "$(git status --porcelain -- src/_data/pageDates.json)" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
@@ -92,7 +92,7 @@ jobs:
           git add -- src/_data/pageDates.json
           git commit -m "chore(dates): refresh dateModified for pages whose source moved
 
-          Rewritten by scripts/gen-page-dates.js --fix-modified. Publication dates and
+          Rewritten by scripts/gen-page-dates.ts --fix-modified. Publication dates and
           the key set are untouched; only \`modified\` values changed.
 
           $(cat /tmp/fix.log)"
@@ -105,13 +105,13 @@ jobs:
       - name: IndexNow — the URLs whose lastmod moved
         if: steps.commit.outputs.sha != ''
         run: |
-          urls=$(node scripts/changed-urls.js org "${{ steps.commit.outputs.sha }}^..${{ steps.commit.outputs.sha }}")
+          urls=$(node scripts/changed-urls.ts org "${{ steps.commit.outputs.sha }}^..${{ steps.commit.outputs.sha }}")
           if [ -z "$urls" ]; then
             echo "pageDates.json changed but no page URL did — nothing to submit."
             exit 0
           fi
           # Unquoted on purpose: one word per URL.
-          node scripts/indexnow-ping.js org $urls || true
+          node scripts/indexnow-ping.ts org $urls || true
 
   link-rot:
     name: External link rot

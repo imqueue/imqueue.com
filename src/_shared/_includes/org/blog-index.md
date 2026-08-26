@@ -2,7 +2,7 @@
 Mirrors src/org/blog/index.html, which paginates `collections.posts` 5 at a time.
 This lists EVERY article instead: pagination exists so a human is not handed 40
 cards at once, and an agent has the opposite preference — one fetch, whole index.
-That is also why /blog/page/N/ has no mirror of its own, which check-sitemap.js
+That is also why /blog/page/N/ has no mirror of its own, which check-sitemap.ts
 records as deliberate.
 {%- endcomment -%}
 # Node.js microservice guides and comparisons

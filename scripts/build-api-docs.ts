@@ -1,0 +1,1151 @@
+// build-api-docs.ts — automatic @imqueue API-reference builder.
+//
+// Which packages are documented, and how they are grouped, lives in
+// scripts/lib/api-packages.ts — shared with the /api/ landing page and the
+// generated Pages Functions, so adding a package is one config entry rather than
+// a hand edit in four files.
+//
+// Policy (per package):
+//   * /api/<pkg>/latest/  ALWAYS serves the current MAJOR's newest release.
+//     A new minor/patch of the current major just moves /latest/ forward — it
+//     is NOT published under its own versioned URL.
+//   * Each PAST major keeps exactly ONE archived copy: that major's highest
+//     release, at /api/<pkg>/<version>/ (shown under "Older versions") —
+//     UNLESS the package is `latestOnly`, which publishes /latest/ and nothing
+//     else. Everything except core and rpc is latestOnly; see api-packages.ts.
+//   * When a new major ships, the outgoing major's highest release becomes its
+//     archive entry and /latest/ moves to the new major.
+//
+// Everything is sourced from the PUBLISHED npm packages (no local source build),
+// so this runs anywhere with npm + network. Re-run on every release.
+//
+//   npm run build-docs                 # rebuild all packages per policy
+//   node scripts/build-api-docs.ts rpc # just one package
+//   npm run build-docs -- --strict-prose  # fail, don't warn, under the summary floor
+//
+// Naming packages is the cheap path for a release: a one-package run MERGES its
+// entries into the shared outputs (apiVersions.json, lib/api-versions.ts,
+// lib/api-renames.ts, functions/api/) instead of rewriting them, so the packages it
+// did not build keep theirs. It used to skip those files, which meant the version a
+// page advertises — it lives in apiVersions.json, not in the page — could only be
+// moved by rebuilding all 16 from their published tarballs.
+//
+// Outputs: src/org/api/<pkg>/{latest,<archive-ver>}/ pages, src/_data/
+// apiVersions.json (consumed by the /api/ landing page), functions/api/<pkg>/
+// (one Pages Function per package), and the generated API section of
+// src/org/_redirects (retired version URLs 301 to their kept copy).
+import { execSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { ExtractorConfig, Extractor } from '@microsoft/api-extractor';
+import { apiDescription, summaryParagraph } from './lib/api-summary.ts';
+import { assertNoLostPages } from './lib/api-pages.ts';
+import { normalizeModel } from './lib/api-model.ts';
+import { PACKAGES as PACKAGES_ALL, RENAMED_PACKAGES, shipped } from './lib/api-packages.ts';
+import { cmpVer, majorOf, releaseVersions } from './lib/npm-releases.ts';
+import { generate as genCrosslinks } from './gen-api-crosslinks.ts';
+
+const ROOT = process.cwd();
+const TMP = path.join(ROOT, '.api-tmp', 'build');
+const DOCUMENTER = path.join(ROOT, 'node_modules', '.bin', 'api-documenter');
+// `planned` packages are in the taxonomy but have no pages yet — flipping one to
+// `shipped` in api-packages.ts is what makes a wave land.
+const PKG_CONFIG = shipped();
+const PKGS = PKG_CONFIG.map(p => p.name);
+
+// summary%: the share of a package's generated pages whose OWN summary section
+// yields prose — i.e. pages where summaryParagraph() finds a real sentence between
+// the symbol heading and its signature block.
+//
+// This is the one doc-quality number this build reports, and it is deliberately
+// NOT the "prose%" proxy used to survey the packages before this landed. That
+// proxy asked whether the page contained any capital-initial line of 40+
+// characters anywhere, which counts table rows and Remarks prose. It ranked the
+// packages differently enough to matter: measured over the same api-documenter
+// output, pg-pubsub is 80% here against 53% by the proxy, async-logger 71% against
+// 36%, while opentelemetry drops from 86% to 64%.
+//
+// This measure is the one worth gating on because it is the same function that
+// fills each page's meta description and its /api/search-index.json summary. A
+// page counted as failing here is precisely a page whose description falls back to
+// "<symbol> — @imqueue/<pkg> <version> API reference" and whose search-index entry
+// carries no summary — a stub for both search and agents.
+//
+// Calibration under THIS metric: core 99% (160/161), rpc 99% (189/190). The
+// in-scope packages run 13%–83%, so a floor at the spine's level would reject all
+// of them. 40% is set to catch the packages that would ship mostly signature-only
+// stubs — type-graphql-dependency (13%), http-protect (31%), pg-cache (39%) — and
+// to pass the rest. Warn-only unless --strict-prose.
+const SUMMARY_FLOOR = 0.40;
+
+const GROUPS = [
+  'Classes', 'Abstract Classes', 'Enumerations', 'Functions',
+  'Interfaces', 'Variables', 'Type Aliases', 'Namespaces',
+];
+
+/** One entry of a package page's generated sidebar. */
+interface NavItem {
+  name: string;
+  url: string;
+}
+
+/** One heading-level group of that sidebar. */
+interface NavGroup {
+  group: string;
+  items: NavItem[];
+}
+
+/** One crumb of the trail lifted out of an api-documenter page. */
+interface Crumb {
+  name: string;
+  url: string;
+}
+
+/** What versions of a package exist, and which of them this build publishes. */
+interface VersionPlan {
+  versions: string[];
+  latest: string;
+  currentMajor: number;
+  /** The highest release of each PAST major, newest first. */
+  archives: string[];
+  /** major -> its highest release. */
+  highestOfMajor: Record<number, string>;
+  /** version -> ISO publish time, from npm. Also carries `created`/`modified`. */
+  released: Record<string, string>;
+}
+
+/** What embed() reports back: the pages it wrote, and how many carry prose. */
+interface EmbedResult {
+  basenames: Set<string>;
+  summary: { pages: number; withProse: number };
+}
+
+/** One symbol whose page slug moved because a collision suffix was stripped. */
+interface RenameRow {
+  from: string;
+  to: string;
+  kind: string;
+}
+
+/** What src/_data/apiVersions.json holds per package. */
+interface PublishedVersions {
+  latest: string;
+  archives: string[];
+}
+
+/** Inputs to embed(). */
+interface EmbedInput {
+  pkg: string;
+  version: string;
+  /** 'latest', or the version for an archived major. */
+  seg: string;
+  /** Directory api-documenter wrote its markdown into. */
+  mdDir: string;
+  /** Page basenames present under /latest/, for an archive's latestUrl links. */
+  latestFiles?: Set<string> | null;
+  /** npm's publish time for THIS version, inherited by every page in the tree. */
+  released?: string | undefined;
+}
+
+function sh(cmd: string, cwd?: string): void {
+  execSync(cmd, { cwd: cwd || ROOT, stdio: 'inherit' });
+}
+function shq(cmd: string, cwd?: string): string {
+  return execSync(cmd, { cwd: cwd || ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString();
+}
+function rmrf(p: string): void { fs.rmSync(p, { recursive: true, force: true }); }
+function firstHeading(text: string, fallback: string): string {
+  const m = text.match(/^#{1,4}\s+(.+?)\s*$/m);
+  return m?.[1]?.replace(/[\\`]/g, '').trim() ?? fallback;
+}
+// Undo api-documenter's markdown escaping for text rendered outside markdown.
+function unescapeMd(text: string): string {
+  return text.replace(/\\([\\`*_{}[\]()#+\-.!|<>~])/g, '$1');
+}
+
+// api-documenter opens every page at `##`, so the generated reference shipped
+// with no <h1> at all — 349 indexable pages whose strongest heading was an h2.
+// Promote the first one; the sub-headings ("Methods", "Parameters") stay h2, which
+// gives the page a real outline. Anchor ids are derived from heading text, not
+// level, so existing #fragment links keep working.
+function promoteFirstHeading(text: string): string {
+  return text.replace(/^## /m, '# ');
+}
+
+// Lift api-documenter's breadcrumb paragraph out of the body and return it as
+// data. Two reasons not to just render it as-is: its first crumb is labelled
+// "Home" but points at /api/, so no reference page ever linked the site root; and
+// as a plain paragraph it carries no breadcrumb semantics, which left every API
+// page emitting BreadcrumbList JSON-LD that matched nothing on the page.
+//
+// It is also the only place a member page's parent symbol is known
+// (core.ilogger.info -> core.ilogger), so the trail cannot be reconstructed in the
+// layout. apiref.html renders it and head.html emits the matching JSON-LD, both
+// from this one array.
+function extractTrail(text: string): { body: string; crumbs: Crumb[] | null } {
+  const m = /^\[Home\]\([^)]*\)[^\n]*$/m.exec(text);
+
+  if (!m) {
+    return { body: text, crumbs: null };
+  }
+
+  const items: Crumb[] = [...m[0].matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)]
+    .map(([, name, url]) => ({ name: unescapeMd(name ?? ''), url: url ?? '' }));
+  // items[0] is the mislabelled "Home"; the real root is prepended by the layout.
+  const crumbs = [{ name: 'API reference', url: '/api/' }, ...items.slice(1)];
+  // Consume the blank line the trail sat on as well, or the removal leaves three
+  // consecutive newlines in the committed artifact (and in the .md mirror agents
+  // read). One blank line still separates the generator comment from the heading.
+  // Strip the newlines the trail line owned. The text before it already ends with
+  // the blank line that separated it from the generator comment, so that blank
+  // line becomes the separator for the heading and nothing is left doubled.
+  const after = text.slice(m.index + m[0].length).replace(/^(?:\r?\n)+/, '');
+
+  return { body: text.slice(0, m.index) + after, crumbs };
+}
+
+// Compute the publish plan for a package from its npm version history.
+//
+// `latestOnly` (api-packages.ts) suppresses the archive derivation entirely.
+// Without it every new package would silently generate 2–4 extra copies of
+// itself: most have several past majors (pg-cache has 4, pg-sequelize 3), and this
+// derivation is unconditional. Two knock-on effects are deliberate:
+//
+//   * a past-major URL 301s to /latest/ rather than 404ing, via the archive
+//     fallback in lib/api-redirects.ts
+//   * cleanStale() keeps only `latest`, so flipping latestOnly ON for core or rpc
+//     later would DELETE the archives they already publish
+function planFor(pkg: string, { latestOnly = false } = {}): VersionPlan {
+  const versions = releaseVersions(pkg);
+  // Non-null in practice: releaseVersions throws when npm has no release, and a
+  // published package always has at least one.
+  const latest = versions[versions.length - 1] ?? '';
+  const currentMajor = majorOf(latest);
+  // Release timestamps, so the sitemap can date an API page by when its version
+  // actually shipped. Previously lastmod came from the generated file's mtime, so
+  // every rebuild restamped all 350 API URLs with the build date — 85% of every
+  // lastmod in the sitemap, which is how a site teaches Google to ignore lastmod.
+  const released = JSON.parse(shq(`npm view @imqueue/${pkg} time --json`)) as Record<string, string>;
+
+  // highest release of each past major, newest major first
+  const byMajor: Record<number, string> = {};
+  for (const v of versions) {
+    const m = majorOf(v);
+    const held = byMajor[m];
+
+    if (!held || cmpVer(v, held) > 0) byMajor[m] = v;
+  }
+  const archives = latestOnly
+    ? []
+    : Object.keys(byMajor).map(Number).filter(m => m < currentMajor)
+      .sort((a, b) => b - a).map(m => byMajor[m] ?? '');
+
+  return { versions, latest, currentMajor, archives, highestOfMajor: byMajor, released };
+}
+
+// --- re-export stripping (see call site) ---------------------------------
+function stripReexports(
+  dir: string,
+  modulePattern: string,
+  { skipNodeModules = false } = {},
+): void {
+  const RE = new RegExp(
+    `^\\s*export\\s*(?:type\\s*)?(?:\\{[^}]*\\}|\\*(?:\\s+as\\s+\\w+)?)\\s*from\\s*['"]${modulePattern}['"];?\\s*$`,
+    'gm',
+  );
+  const walk = (d: string): void => {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      if (e.isDirectory()) { if (!(skipNodeModules && e.name === 'node_modules')) walk(path.join(d, e.name)); }
+      else if (e.name.endsWith('.d.ts')) {
+        const p = path.join(d, e.name);
+        const src = fs.readFileSync(p, 'utf8');
+        if (RE.test(src)) fs.writeFileSync(p, src.replace(RE, ''));
+      }
+    }
+  };
+  walk(dir);
+}
+
+// Embed api-documenter markdown as native Eleventy pages under the given URL
+// segment ('latest' for the current major, or the version for an archive).
+// Archived segments are emitted with `noindex: true` (they duplicate /latest/
+// for search) and a per-page `latestUrl` pointing at the same symbol under
+// /latest/ (falling back to the package root when the symbol no longer exists),
+// which drives the "you're viewing archived docs" banner. Returns the set of
+// page basenames it wrote (used to resolve archives' latestUrl links).
+function embed({ pkg, version, seg, mdDir, latestFiles, released }: EmbedInput): EmbedResult {
+  const isArchived = seg !== 'latest';
+  const isRoot = (b: string): boolean => b === 'index' || b === pkg;
+  const latestUrlFor = (b: string): string =>
+    isRoot(b) || !(latestFiles && latestFiles.has(b))
+      ? `/api/${pkg}/latest/`
+      : `/api/${pkg}/latest/${b}/`;
+  const base_ = `/api/${pkg}/${seg}`;
+  const urlFor = (file: string): string => {
+    const b = file.replace(/\.md$/, '');
+    return (b === 'index' || b === pkg) ? `${base_}/` : `${base_}/${b}/`;
+  };
+  const rewriteLinks = (text: string): string => text
+    .replace(/\[Home\]\((?:\.\/)?index\.md\)/g, '[Home](/api/)')
+    .replace(/\]\((?:\.\/)?([A-Za-z0-9._-]+)\.md(#[^)]*)?\)/g,
+      (_m: string, name: string, anchor?: string) => `](${urlFor(name)}${anchor || ''})`);
+
+  const outDir = path.join(ROOT, 'src', 'org', 'api', pkg, seg);
+  rmrf(outDir);
+  fs.mkdirSync(outDir, { recursive: true });
+
+  const pkgPageMd = fs.readFileSync(path.join(mdDir, `${pkg}.md`), 'utf8');
+  const apiNav: NavGroup[] = [];
+  let cur: NavGroup | null = null;
+  // Which cell of the current table row we are inside: 0 is the symbol column,
+  // 1 the summary column, -1 not in a row yet.
+  let cell = -1;
+  for (const line of pkgPageMd.split('\n')) {
+    const h = line.match(/^##\s+(.+?)\s*$/);
+    if (h) {
+      const group = (h[1] ?? '').trim();
+
+      cur = GROUPS.includes(group) ? { group, items: [] } : null;
+      if (cur) apiNav.push(cur);
+      cell = -1;
+      continue;
+    }
+    if (cur) {
+      const re = /\[([^\]]+)\]\((?:\.\/)?([A-Za-z0-9._-]+)\.md\)/g;
+      // Each group is a two-column table: the symbol link, then its summary.
+      // ONLY the first column is a sidebar entry. A summary routinely contains
+      // {@link} cross-references, which render as links to other symbols — and
+      // taking every link on the line pulled those in as entries too. They
+      // appeared under the wrong group (a function listed under Interfaces) and
+      // duplicated an entry that already existed elsewhere, and because the
+      // highlight matches on url, landing on such a page lit up two items at
+      // once. Attribute each link to the cell it is actually in.
+      if (/<tr[\s>]/.test(line)) {
+        cell = -1;
+      }
+      const cells = line.split(/<td[^>]*>/);
+      for (let i = 0; i < cells.length; i++) {
+        if (i > 0) {
+          cell++;
+        }
+        if (cell !== 0) {
+          continue;
+        }
+        // api-documenter escapes markdown-significant characters in link text,
+        // so `DEFAULT_IMQ_OPTIONS` arrives as `DEFAULT\_IMQ\_OPTIONS`. The
+        // sidebar renders these labels as plain text, so unescape them.
+        let m: RegExpExecArray | null;
+        re.lastIndex = 0;
+        while ((m = re.exec(cells[i] ?? ''))) {
+          cur.items.push({ name: unescapeMd(m[1] ?? ''), url: urlFor(m[2] ?? '') });
+        }
+      }
+    }
+  }
+  if (!apiNav.length) throw new Error(`No symbols parsed for ${pkg}@${version} sidebar`);
+
+  // A url must appear once across the whole sidebar, or the current-page
+  // highlight marks every entry that shares it. The cell attribution above is
+  // what guarantees that; this asserts it rather than trusting it, since the
+  // failure is silent in the build and only visible as a double highlight.
+  const seenUrls = new Map<string, string>();
+  for (const group of apiNav) {
+    for (const item of group.items) {
+      if (seenUrls.has(item.url)) {
+        throw new Error(
+          `Duplicate sidebar url for ${pkg}@${version}: ${item.url} listed as ` +
+          `"${seenUrls.get(item.url)}" and again as "${group.group}/${item.name}"`,
+        );
+      }
+      seenUrls.set(item.url, `${group.group}/${item.name}`);
+    }
+  }
+
+  // Build the YAML front matter for one embedded page.
+  //
+  // `description` matters: without it head.html falls back to the site slogan,
+  // which made 351 of the 352 indexed API pages share one meta description.
+  // apiDescription() lifts the per-symbol summary api-documenter already emits.
+  const frontMatter = (
+    title: string,
+    latestUrl: string,
+    description: string,
+    crumbs: Crumb[] | null,
+    unsubmitted: boolean,
+  ): string => {
+    let fm = `title: ${JSON.stringify(title)}\n`;
+    if (description) fm += `description: ${JSON.stringify(description)}\n`;
+    if (crumbs) fm += `apiCrumbs: ${JSON.stringify(crumbs)}\n`;
+    if (unsubmitted) fm += 'sitemap: false\n';
+    if (isArchived) fm += `noindex: true\nlatestUrl: ${JSON.stringify(latestUrl)}\n`;
+    return `---\n${fm}---\n\n`;
+  };
+  // Per-symbol MEMBER pages stay indexable but leave the sitemap. 243 of the 350
+  // submitted API URLs were these — a single method or property, ~130 words, and
+  // 15 of them documenting inherited EventEmitter methods that Node's own docs
+  // will always outrank. At 57% of the sitemap they spent crawl budget on pages
+  // that cannot rank and drowned the 73 editorial URLs in the set Google grades.
+  // They remain reachable from the sidebar and the breadcrumb, so Google can still
+  // find and index them — it just is not asked to.
+  //
+  // Two dots means a member: core.ilogger.info (member) vs core.ilogger (the
+  // interface) vs core.imq_log_args (a top-level const).
+  const isMemberPage = (b: string): boolean => b.split('.').length > 2;
+  // Rewrite links first so the lifted trail carries site URLs, not `*.md` paths.
+  const prepare = (raw: string): { md: string; crumbs: Crumb[] | null } => {
+    const { body, crumbs } = extractTrail(rewriteLinks(raw));
+    return { md: promoteFirstHeading(body), crumbs };
+  };
+  const archivedSuffix = isArchived ? ` v${version} (archived)` : '';
+
+  const basenames = new Set<string>(['index']);
+  let count = 0;
+  // summary%: pages whose own summary section yields prose. Uses the very same
+  // summaryParagraph() that fills the meta description, so a page counted as
+  // failing here is exactly a page whose description had to fall back to
+  // "<symbol> — @imqueue/<pkg> <version> API reference."
+  let withProse = 0;
+  for (const file of fs.readdirSync(mdDir)) {
+    if (!file.endsWith('.md')) continue;
+    // api-documenter's package page is `<pkg>.md`, and it is also what index.md
+    // is written from. Emitting both produced two indexable URLs with identical
+    // content — /api/<pkg>/<seg>/<pkg>/ competing with /api/<pkg>/<seg>/, each
+    // self-canonical and both in the sitemap. rewriteLinks() already points
+    // `<pkg>.md` links at the package root, so nothing links to the duplicate.
+    if (file === `${pkg}.md`) continue;
+    // api-documenter also emits its own index.md for the model root. The package
+    // root page is written from `<pkg>.md` further down and overwrites it, so
+    // embedding it here was wasted work — and it made summary% unreachable at
+    // 100%: the index page was counted twice, once as this (prose-less) model page
+    // and once as the real package page, so every package reported one page short.
+    if (file === 'index.md') continue;
+    const b = file.replace(/\.md$/, '');
+    basenames.add(b);
+    const raw = fs.readFileSync(path.join(mdDir, file), 'utf8');
+    const symbol = firstHeading(raw, b);
+    const title = `${symbol} · @imqueue/${pkg}${archivedSuffix}`;
+    const desc = apiDescription(raw, { pkg, version, symbol });
+    const { md, crumbs } = prepare(raw);
+    fs.writeFileSync(path.join(outDir, file),
+      frontMatter(title, latestUrlFor(b), desc, crumbs, isMemberPage(b)) + md);
+    count++;
+    if (summaryParagraph(raw)) withProse++;
+  }
+  const indexTitle = `@imqueue/${pkg} ${version} · API reference${isArchived ? ' (archived)' : ''}`;
+  const indexDesc = apiDescription(pkgPageMd, { pkg, version, symbol: `${pkg} package` });
+  const indexPage = prepare(pkgPageMd);
+  fs.writeFileSync(path.join(outDir, 'index.md'),
+    frontMatter(indexTitle, `/api/${pkg}/latest/`, indexDesc, indexPage.crumbs, false) + indexPage.md);
+  // bareTitle: these titles already end with "· @imqueue/<pkg>", so letting
+  // head.html append its "· @imqueue" suffix produced
+  // "Foo.bar() method · @imqueue/core · @imqueue" — 11 wasted characters of SERP
+  // budget on every page, and the brand twice.
+  // apiReleased: npm's publish time for this version, inherited by every page in
+  // the tree through the data cascade. src/sitemap.liquid uses it for <lastmod>
+  // instead of the file mtime, which restamped all 350 API URLs on every rebuild.
+  fs.writeFileSync(path.join(outDir, `${seg}.11tydata.json`),
+    JSON.stringify({ layout: 'apiref.html', section: 'api', bareTitle: true, apiPkg: pkg, apiVersion: version, apiVersionPath: seg, apiReleased: released || null, apiNav }, null, 2));
+
+  if (summaryParagraph(pkgPageMd)) withProse++;
+
+  const pages = count + 1; // + the package-root index.md
+  console.log(`  embedded ${count} pages -> src/org/api/${pkg}/${seg}/ (${apiNav.reduce((n: number, g) => n + g.items.length, 0)} symbols)`);
+  return { basenames, summary: { pages, withProse } };
+}
+
+// Fetch a published version from npm and emit it at the given URL segment.
+// Returns { basenames, prose } — see embed().
+function generate({ pkg, version, seg, latestFiles, released }: Omit<EmbedInput, 'mdDir'>): EmbedResult {
+  console.log(`\n=== @imqueue/${pkg}@${version}  ->  /api/${pkg}/${seg}/ ===`);
+  const work = path.join(TMP, `${pkg}-${version}`);
+  rmrf(work);
+  fs.mkdirSync(work, { recursive: true });
+
+  sh(`npm pack @imqueue/${pkg}@${version} --pack-destination "${work}" --loglevel=error`);
+  const tgz = fs.readdirSync(work).find(f => f.endsWith('.tgz'));
+  sh(`tar xzf "${tgz}" -C "${work}"`, work);
+  const pkgDir = path.join(work, 'package');
+  const pj = JSON.parse(
+    fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8'),
+  ) as Record<string, unknown>;
+  const entry = String(pj.types || pj.typings || 'index.d.ts');
+
+  // Resolve EVERY @imqueue/* dependency for cross-package type references, but
+  // never bundle one (each has its own pages; bundling hits an api-extractor
+  // defect). Then strip its re-exports, which is what stops a package
+  // re-documenting symbols another package owns.
+  //
+  // This used to be hard-coded to the single `@imqueue/core` case, which handled
+  // exactly one in-scope package (`job`). Six others depend on an @imqueue
+  // package that is NOT core and so got nothing installed and nothing stripped:
+  //
+  //   pg-sequelize, tag-cache, datadog       -> @imqueue/rpc
+  //   pg-cache    -> @imqueue/pg-pubsub, @imqueue/rpc, @imqueue/tag-cache
+  //   http-protect            -> @imqueue/net
+  //   type-graphql-dependency -> @imqueue/graphql-dependency
+  //
+  // Worth being precise about what that cost, because it is easy to overstate:
+  // those packages still EXTRACT without this (measured — pg-sequelize and datadog
+  // both produce complete models). What they lose is resolved cross-package types
+  // in signatures, and de-duplication: every symbol re-exported from a dependency
+  // ships a second page under this package's name, competing with the page the
+  // owning package publishes.
+  for (const [dep, range] of Object.entries(pj.dependencies || {})) {
+    if (!dep.startsWith('@imqueue/')) continue;
+
+    // Best-effort, matching the rest of this script: a dependency that cannot be
+    // installed degrades the output (unresolved types, duplicate pages) but must
+    // not take the whole build down.
+    try {
+      sh(`npm install ${dep}@"${range}" --no-save --no-audit --no-fund --ignore-scripts --loglevel=error`, pkgDir);
+      stripReexports(pkgDir, dep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), { skipNodeModules: true });
+    } catch {
+      console.warn(`  WARN  could not install ${dep}@${range} for ${pkg} — its re-exported symbols will ship duplicate pages`);
+    }
+  }
+  // core re-exports EventEmitter from node:events; api-extractor throws a hard
+  // "Unsupported export" on a re-exported EXTERNAL symbol. Strip those re-export
+  // lines everywhere (uses as a base class still resolve fine).
+  stripReexports(pkgDir, '(?:node:)?events');
+
+  const cfgObj = {
+    $schema: 'https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json',
+    projectFolder: pkgDir,
+    mainEntryPointFilePath: path.join(pkgDir, entry),
+    bundledPackages: [],
+    // types: ['node'], not []. With no ambient Node types, api-extractor throws a
+    // hard `Unable to follow symbol for "Buffer"` on any package that uses Buffer
+    // in its public surface — @imqueue/net does, and could not be documented at
+    // all. Measured safe to apply globally: against published core@3.3.0 and
+    // rpc@3.5.1 the two settings produce identical models (169 and 202 nodes, 0
+    // warnings, no symbol differences), so this does not perturb the pages the
+    // site already publishes. @types/node is a declared devDependency for this.
+    compiler: { overrideTsconfig: { compilerOptions: { target: 'ESNext', module: 'nodenext', moduleResolution: 'nodenext', skipLibCheck: true, types: ['node'], lib: ['ESNext'] }, include: [entry] } },
+    apiReport: { enabled: false },
+    docModel: { enabled: true, apiJsonFilePath: path.join(work, `${pkg}.api.json`) },
+    dtsRollup: { enabled: false },
+    tsdocMetadata: { enabled: false },
+    messages: { compilerMessageReporting: { default: { logLevel: 'none' } }, extractorMessageReporting: { default: { logLevel: 'none' } } },
+  };
+  const cfgPath = path.join(work, 'api-extractor.json');
+  fs.writeFileSync(cfgPath, JSON.stringify(cfgObj));
+  const ec = ExtractorConfig.prepare({ configObject: ExtractorConfig.loadFile(cfgPath), configObjectFullPath: cfgPath, packageJsonFullPath: path.join(pkgDir, 'package.json') });
+  if (!Extractor.invoke(ec, { localBuild: true, showVerboseMessages: false }).succeeded) {
+    throw new Error(`API Extractor failed for ${pkg}@${version}`);
+  }
+
+  // Normalise the model into a shape api-documenter can represent before it runs:
+  // fold a declaration-merged class+interface into one symbol, and give
+  // same-name static/instance siblings distinct pages. Without this a legitimate
+  // TypeScript pattern silently loses a page — see scripts/lib/api-model.ts.
+  const model = JSON.parse(fs.readFileSync(path.join(work, `${pkg}.api.json`), 'utf8'));
+  const { notes, renames } = normalizeModel(model);
+
+  for (const note of notes) {
+    console.log(`  model: ${note}`);
+  }
+
+  // A rename moves the page's URL, and the old one may already be published and
+  // indexed. Record it so the run can emit redirects — see recordRenames().
+  recordRenames({ pkg, seg, renames });
+
+  const modelDir = path.join(work, 'model');
+  fs.mkdirSync(modelDir, { recursive: true });
+  fs.writeFileSync(path.join(modelDir, `${pkg}.api.json`), JSON.stringify(model));
+  const mdDir = path.join(work, 'md');
+  sh(`"${DOCUMENTER}" markdown --input-folder "${modelDir}" --output-folder "${mdDir}"`);
+
+  // Every symbol in the model must have got its own page. api-documenter builds
+  // filenames from lowercased symbol names and silently overwrites on a clash, so
+  // a lost page is otherwise invisible — see scripts/lib/api-pages.ts. Asserted
+  // against the NORMALISED model, which is what api-documenter was given.
+  const counts = assertNoLostPages({
+    pkg,
+    version,
+    model,
+    emitted: fs.readdirSync(mdDir).filter(f => f.endsWith('.md')),
+  });
+  console.log(`  ${counts.expected} model symbols -> ${counts.emitted} pages, no collisions`);
+
+  return embed({ pkg, version, seg, mdDir, latestFiles, released });
+}
+
+// Remove version dirs under src/org/api/<pkg>/ that the current plan doesn't keep.
+function cleanStale(pkg: string, keepSegs: readonly string[]): void {
+  const dir = path.join(ROOT, 'src', 'org', 'api', pkg);
+  if (!fs.existsSync(dir)) return;
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (e.isDirectory() && !keepSegs.includes(e.name)) {
+      rmrf(path.join(dir, e.name));
+      console.log(`  removed stale src/org/api/${pkg}/${e.name}/`);
+    }
+  }
+}
+
+// Retired version URLs used to be enumerated here as one `_redirects` rule per
+// published version. Cloudflare Pages silently caps _redirects at 100 DYNAMIC
+// rules — anything using :splat — and drops the rest with no build error. The
+// list had reached 190, emitted core-then-rpc and ascending, so the rules that
+// landed last were dead: every rpc 3.x rule, i.e. the current major. Retired
+// /api/rpc/3.x/ URLs hard-404ed.
+//
+// The mapping now lives in lib/api-redirects.ts and runs in the Pages Functions
+// at functions/api/{core,rpc}/[[path]].ts, which has no rule cap and also covers
+// versions published after the last docs build. All this file emits is the
+// version map those functions import, plus a _redirects that documents where the
+// rules went. scripts/check-redirects.ts guards both ends.
+function writeRedirects() {
+  const file = path.join(ROOT, 'src', 'org', '_redirects');
+  fs.writeFileSync(file, `# imqueue.org — Cloudflare Pages redirects.
+#
+# Intentionally empty of /api/ rules.
+#
+# Retired API version URLs (/api/<pkg>/<version>/... -> the kept copy) are
+# resolved at request time by the Pages Functions in functions/api/core/ and
+# functions/api/rpc/, using the policy in lib/api-redirects.ts.
+#
+# Do NOT re-add them here. Cloudflare Pages silently drops dynamic redirect
+# rules past the 100th, and there are ~190 published versions — the newest, most
+# valuable rules are the ones that get dropped. scripts/check-redirects.ts fails
+# the build if this file ever exceeds the cap.
+`);
+  console.log('\nWrote src/org/_redirects (API mapping lives in functions/api/)');
+}
+
+// The version map the Pages Functions import. Same data as
+// src/_data/apiVersions.json, but as an ES module: a Function cannot read
+// Eleventy's data directory at request time.
+// Page slugs that moved because normalizeModel() stripped an api-extractor
+// collision suffix from a symbol's name. Accumulated across every generate()
+// call, then emitted once for the whole run.
+const RENAMED_PAGES = new Map<string, { to: string; kind: string }>();
+
+function recordRenames(
+  { pkg, seg, renames }: { pkg: string; seg: string; renames: readonly RenameRow[] },
+): void {
+  for (const { from, to, kind } of renames) {
+    // api-documenter lowercases the symbol name into the filename, and the site
+    // serves each page at its basename without the .md — so the slug is exactly
+    // what the URL's last segment is.
+    const slug = (name: string): string => `${pkg}/${seg}/${pkg}.${name.toLowerCase()}`;
+
+    RENAMED_PAGES.set(slug(from), { to: slug(to), kind });
+  }
+}
+
+// Row shape writeRenames() emits, parsed back so a build of SOME packages can keep
+// the entries it did not rebuild. `kind` lives only in the trailing comment, so it
+// is captured here rather than re-derived: re-deriving it would need the API model
+// of a package this run never built.
+const RENAME_ROW = /^\s*\[("(?:[^"\\]|\\.)*"),\s*("(?:[^"\\]|\\.)*")\],\s*\/\/\s*(.+)$/;
+
+function readExistingRenames(): RenameRow[] {
+  const file = path.join(ROOT, 'lib', 'api-renames.ts');
+
+  if (!fs.existsSync(file)) return [];
+
+  const text = fs.readFileSync(file, 'utf8');
+  const rows: RenameRow[] = [];
+
+  for (const line of text.split('\n')) {
+    const m = RENAME_ROW.exec(line);
+
+    if (m) {
+      rows.push({
+        from: JSON.parse(m[1] ?? '""') as string,
+        to: JSON.parse(m[2] ?? '""') as string,
+        kind: (m[3] ?? '').trim(),
+      });
+    }
+  }
+
+  // Never let a format change here fail quietly. Every row is a published, indexed
+  // URL that 301s; silently parsing zero of them would emit an empty map and turn
+  // each one back into the 404 this file exists to prevent.
+  const declared = (text.match(/^\s*\[/gm) || []).length;
+
+  if (rows.length !== declared) {
+    throw new Error(
+      `lib/api-renames.ts: parsed ${rows.length} of ${declared} row(s). The emitted row ` +
+      'format and RENAME_ROW have diverged — fix the pattern rather than regenerating, ' +
+      'because dropping a row turns a live 301 into a 404.',
+    );
+  }
+
+  return rows;
+}
+
+// Renames for `builtPkgs` come from this run; every other shipped package keeps what
+// is already on disk. A full build passes every package, so nothing is carried over
+// and the result is exactly what the old rewrite-from-scratch produced.
+function mergedRenames(
+  builtPkgs: readonly string[],
+): { rows: RenameRow[]; carried: number; fresh: number } {
+  const fresh = [...RENAMED_PAGES.entries()]
+    .map(([from, { to, kind }]) => ({ from, to, kind }));
+
+  // A full build recomputes every row, so it neither reads what is on disk nor may
+  // be blocked by it: readExistingRenames() throws on a malformed file, and failing
+  // the one build that would rewrite that file correctly is the wrong trade.
+  if (builtPkgs.length === PKGS.length) {
+    return { rows: fresh, carried: 0, fresh: fresh.length };
+  }
+
+  const built = new Set(builtPkgs);
+  const pkgOf = (key: string): string => key.split('/')[0] ?? '';
+  const carried = readExistingRenames()
+    // An unshipped package's rows go with it, the way writeFunctions() retires its
+    // mount — otherwise a partial build would preserve them forever.
+    .filter(r => !built.has(pkgOf(r.from)) && PKGS.includes(pkgOf(r.from)));
+
+  return { rows: [...carried, ...fresh], carried: carried.length, fresh: fresh.length };
+}
+
+// Same rule for the version map: this run's entries win, the rest stand. Emitted in
+// PKGS order so the file's shape does not depend on what a given run happened to
+// build, which keeps the diff to the versions that actually moved.
+function mergedVersions(
+  built: Record<string, PublishedVersions | undefined>,
+): { versions: Record<string, PublishedVersions>; carried: number } {
+  const file = path.join(ROOT, 'src', '_data', 'apiVersions.json');
+  // Same reasoning as mergedRenames(): a full build supplies every entry itself, so
+  // it does not read — and cannot be tripped by — the file it is about to replace.
+  const prior: Record<string, PublishedVersions | undefined> =
+    Object.keys(built).length !== PKGS.length && fs.existsSync(file)
+      ? JSON.parse(fs.readFileSync(file, 'utf8')) as Record<string, PublishedVersions>
+      : {};
+  const out: Record<string, PublishedVersions> = {};
+  let carried = 0;
+
+  for (const pkg of PKGS) {
+    const fresh = built[pkg];
+    const held = prior[pkg];
+
+    if (fresh) {
+      out[pkg] = fresh;
+    } else if (held) {
+      out[pkg] = held;
+      carried++;
+    }
+    // A shipped package with neither is one that has never been built. Leaving it
+    // out is deliberate: it has no pages, so routing it would serve a 404.
+  }
+
+  return { versions: out, carried };
+}
+
+// The old URL may already be published, submitted in sitemap-api.xml and indexed
+// — pg-cache shipped ClassDecorator_2 and MethodDecorator_2 for three waves — so
+// it must 301 rather than 404. Same policy and same shape as
+// lib/api-crosslinks.ts, which salvages rpc's stripped core re-exports.
+function writeRenames(rowList: readonly RenameRow[]): void {
+  const rows = [...rowList].sort((a, b) => a.from.localeCompare(b.from));
+  const body = rows
+    .map(({ from, to, kind }) => `    [${JSON.stringify(from)}, ${JSON.stringify(to)}], // ${kind}`)
+    .join('\n');
+  const file = path.join(ROOT, 'lib', 'api-renames.ts');
+
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `// GENERATED by scripts/build-api-docs.ts — do not edit by hand.
+//
+// API pages whose URL moved because scripts/lib/api-model.ts stripped an
+// api-extractor collision suffix from the symbol's name — \`Response_2\` was never
+// a name @imqueue/http-protect exports, it recorded a clash with an ambient
+// declaration. The suffixed URL was published, so it 301s onto the real one
+// instead of 404ing.
+//
+// Keys and values are <pkg>/<version-segment>/<page-basename>, i.e. the /api/
+// path with no leading or trailing slash.
+export const RENAMED_API_PAGES: ReadonlyMap<string, string> = new Map([
+${body}
+]);
+`);
+  console.log(
+    `Wrote lib/api-renames.ts — ${rows.length} page(s) 301 from a stripped ` +
+    'collision suffix',
+  );
+}
+
+function writeVersionModule(apiVersions: Record<string, PublishedVersions>): void {
+  const body = Object.entries(apiVersions)
+    .map(([pkg, p]) => `  ${JSON.stringify(pkg)}: { "latest": ${JSON.stringify(p.latest)}, "archives": ${JSON.stringify(p.archives)} }`)
+    .join(',\n');
+  const file = path.join(ROOT, 'lib', 'api-versions.ts');
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `// GENERATED by scripts/build-api-docs.ts — do not edit by hand.
+//
+// The same data as src/_data/apiVersions.json, emitted as an ES module because
+// the Cloudflare Pages Functions under functions/api/ cannot read Eleventy's
+// data directory at request time — they need a plain import.
+import type { ApiVersions } from "./api-types.ts";
+
+export const API_VERSIONS: ApiVersions = {
+${body}
+};
+`);
+  console.log(`Wrote lib/api-versions.ts`);
+}
+
+// The retired-slug -> current-slug map, emitted as an ES module for the same
+// reason as api-versions.js: the Pages Functions need a plain import.
+//
+// Generated from the hand-maintained RENAMED_PACKAGES in lib/api-packages.ts, NOT
+// derived from the built package set — that distinction is load-bearing. The two
+// other places a rename rule could plausibly live both destroy it:
+// src/org/_redirects is overwritten wholesale by writeRedirects() on every build,
+// and mergedRenames() filters carried rows through `PKGS.includes(pkgOf(r.from))`,
+// so a row keyed on a retired slug is dropped the moment that slug leaves PKGS —
+// which is precisely when the redirect starts being needed.
+// Which symbol pages each ARCHIVED version tree actually contains, for the
+// TypeDoc-era salvage in lib/api-redirects.ts.
+//
+// Without it that salvage guesses: /api/rpc/2.1.0/interfaces/IMQOptions.html maps to
+// /api/rpc/2.1.0/rpc.imqoptions/, which does not exist — a 301 into a 404, worse for
+// crawling than the 404 it replaced (observed live before this existed). With it, a
+// known symbol gets its page and an unknown one gets the version index, so every
+// legacy URL lands on something real.
+//
+// Derived from the pages on disk rather than from this run's output, so a partial
+// build (`build-docs -- rpc`) keeps every other package's entries instead of
+// truncating the map to whatever it just rebuilt. /latest/ is excluded: TypeDoc URLs
+// were always versioned, and /latest/ moves.
+function writeLegacyPages() {
+  const apiRoot = path.join(ROOT, 'src', 'org', 'api');
+  const entries = [];
+
+  for (const pkg of fs.readdirSync(apiRoot)) {
+    const pkgDir = path.join(apiRoot, pkg);
+
+    if (!fs.statSync(pkgDir).isDirectory()) continue;
+
+    for (const seg of fs.readdirSync(pkgDir)) {
+      const dir = path.join(pkgDir, seg);
+
+      if (!/^\d+\.\d+\.\d+$/.test(seg) || !fs.statSync(dir).isDirectory()) continue;
+
+      for (const file of fs.readdirSync(dir)) {
+        if (file.endsWith('.md') && file !== 'index.md') {
+          entries.push(`${pkg}/${seg}/${file.slice(0, -3)}`);
+        }
+      }
+    }
+  }
+
+  entries.sort();
+
+  const file = path.join(ROOT, 'lib', 'api-legacy-pages.ts');
+
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `// GENERATED by scripts/build-api-docs.ts — do not edit by hand.
+// Symbol pages present in each archived version tree, as "<pkg>/<version>/<page>".
+// Consulted by resolveLegacyTypedoc() so a TypeDoc-era URL is only 301'd onto a page
+// that exists; anything else lands on the version index instead of a 404.
+export const ARCHIVED_PAGES: ReadonlySet<string> = new Set([
+${entries.map(e => `  ${JSON.stringify(e)},`).join('\n')}
+]);
+`);
+  console.log(`Wrote lib/api-legacy-pages.ts: ${entries.length} archived pages`);
+}
+
+function writeRenamedModule() {
+  const body = RENAMED_PACKAGES
+    .map(r => `  [${JSON.stringify(r.from)}, ${JSON.stringify(r.to)}],`)
+    .join('\n');
+  const file = path.join(ROOT, 'lib', 'api-renamed.ts');
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `// GENERATED by scripts/build-api-docs.ts — do not edit by hand.
+//
+// Packages published under a different name once, retired slug -> current slug.
+// Source of truth: RENAMED_PACKAGES in scripts/lib/api-packages.ts.
+export const RENAMED_PACKAGES: ReadonlyMap<string, string> = new Map([
+${body}
+]);
+`);
+  console.log(`Wrote lib/api-renamed.ts: ${RENAMED_PACKAGES.length} rename(s)`);
+}
+
+// One Cloudflare Pages Function per package, GENERATED from api-packages.ts.
+//
+// Deliberately still one mount per package rather than a single
+// functions/api/[pkg]/[[path]].ts. `[[path]]` is an OPTIONAL catch-all, so
+// functions/api/[pkg]/[[path]].ts compiles to /api/:pkg/* and DOES match a bare
+// single segment — proven live: GET /api/core, with nothing after `core`, 301s to
+// /api/core/latest/, which can only come from functions/api/core/[[path]].ts. A
+// dynamic segment directly under /api/ would therefore sit on top of /api/contact
+// and rely on Pages route specificity, which lib/api-handler.ts records as holding
+// "by convention" only. Generating the mounts removes the copy-paste cost — the
+// only real objection to the per-package layout — without taking that risk.
+//
+// Note check:redirects CANNOT catch a regression here: it runs
+// lib/api-redirects.ts under plain node and has zero references to functions/.
+function writeFunctions() {
+  const dir = path.join(ROOT, 'functions', 'api');
+  const mount = (pkg: string, note: string): void => {
+    const out = path.join(dir, pkg);
+    fs.mkdirSync(out, { recursive: true });
+    fs.writeFileSync(path.join(out, '[[path]].ts'),
+      `// GENERATED by scripts/build-api-docs.ts — do not edit by hand.
+// Cloudflare Pages Function — /api/${pkg}/*
+// ${note}
+// See lib/api-redirects.ts for the policy and why this is not in _redirects.
+import { handleApiRequest } from "../../../lib/api-handler.ts";
+
+export const onRequest = handleApiRequest;
+`);
+  };
+
+  for (const pkg of PKGS) {
+    mount(pkg, `Resolves retired @imqueue/${pkg} version URLs onto the kept version trees.`);
+  }
+
+  // A retired slug keeps its mount forever. Functions are evaluated ahead of
+  // _redirects (see lib/api-handler.ts), so without one the request never reaches
+  // resolveRenamedPackage() and every indexed URL under the old name 404s. The
+  // mount is the only thing that makes those 301s reachable at all.
+  //
+  // A pair whose `from` is still a shipped package is one the cutover has not
+  // reached yet: it was already mounted as a live package above, and re-mounting it
+  // with a retired-slug comment would be a lie on disk. PKGS wins.
+  const retired = RENAMED_PACKAGES
+    .map(r => r.from)
+    .filter(name => !PKGS.includes(name));
+
+  for (const r of RENAMED_PACKAGES) {
+    if (PKGS.includes(r.from)) continue;
+
+    mount(r.from, `Retired slug: 301s /api/${r.from}/… onto /api/${r.to}/latest/….`);
+  }
+
+  // Retire the mount of a package that is no longer shipped. Scoped to names this
+  // config knows about, so functions/api/contact.ts and anything hand-authored is
+  // never a candidate — and skipping the retired slugs is what stops this sweep
+  // from deleting the redirect mounts written immediately above.
+  for (const p of PACKAGES_ALL) {
+    if (PKGS.includes(p.name) || retired.includes(p.name)) continue;
+
+    const stale = path.join(dir, p.name);
+
+    if (fs.existsSync(stale)) {
+      rmrf(stale);
+      console.log(`  removed stale functions/api/${p.name}/`);
+    }
+  }
+
+  console.log(`Wrote ${PKGS.length} Pages Function(s): ${PKGS.map(p => `functions/api/${p}/`).join(', ')}`);
+
+  if (retired.length) {
+    console.log(`Kept ${retired.length} retired-slug mount(s): ${retired.map(p => `functions/api/${p}/`).join(', ')}`);
+  }
+}
+
+// Report symbols that more than one package documents.
+//
+// This is a REPORT, not a gate, and the distinction took a wrong turn to find.
+// The obvious assumption is that a shared name means de-duplication failed —
+// stripping a dependency's re-exports (see generate()) is what stops a package
+// re-documenting symbols another package owns, so a leftover looks like a bug.
+//
+// Measured, it is the opposite. Every shared name in the current set is an
+// INDEPENDENT declaration that happens to reuse a name:
+//
+//   AnyJson    core: boolean|number|string|null|undefined|JsonArray|JsonObject
+//              pg-pubsub: boolean|number|string|null|JsonArray|JsonMap
+//   ILogger    pg-cache declares its own in src/env.ts rather than depending on core
+//
+// Those are different types, in different packages, at different URLs. Each one
+// needs its own page — suppressing either would document a type the package does
+// not have. So failing the build here would block a wave over correct output.
+//
+// What the report is for: a signature that is byte-IDENTICAL across two packages
+// is the shape a genuinely unstripped re-export takes, and that is worth looking
+// at. A differing signature is just a reused name. Both are listed, separately,
+// because "pg-cache copied ILogger instead of importing it" is useful to know
+// even though it is not a docs bug.
+function checkCrossPackageDupes() {
+  // symbol name -> every package that documents it, with the signature it shows.
+  const owners = new Map<string, Array<{ pkg: string; sig: string }>>();
+
+  for (const pkg of PKGS) {
+    const dir = path.join(ROOT, 'src', 'org', 'api', pkg, 'latest');
+
+    if (!fs.existsSync(dir)) continue;
+
+    for (const f of fs.readdirSync(dir)) {
+      if (!f.endsWith('.md') || f === 'index.md') continue;
+      if (!f.startsWith(`${pkg}.`)) continue;
+
+      const sym = f.slice(pkg.length + 1).replace(/\.md$/, '');
+      const md = fs.readFileSync(path.join(dir, f), 'utf8');
+      // api-documenter emits CRLF, so \r?\n — anchoring on \n alone made every
+      // signature read as empty, which reported all of them as identical.
+      const sig = ((/```typescript\r?\n([\s\S]*?)```/.exec(md) || [, ''])[1] ?? '')
+        .replace(/\r/g, '').trim();
+      const documented = owners.get(sym) ?? [];
+
+      documented.push({ pkg, sig });
+      owners.set(sym, documented);
+    }
+  }
+
+  const shared = [...owners].filter(([, list]) => list.length > 1);
+
+  if (!shared.length) {
+    console.log(`\nNo symbol names shared across packages (${owners.size} symbols, ${PKGS.length} package(s)).`);
+    return;
+  }
+
+  const identical = shared.filter(([, l]) => new Set(l.map(x => x.sig)).size === 1);
+  const distinct = shared.filter(([, l]) => new Set(l.map(x => x.sig)).size > 1);
+
+  console.log(`\n${shared.length} symbol name(s) documented by more than one package:`);
+
+  for (const [sym, list] of distinct) {
+    console.log(`  differing  ${sym.padEnd(26)} ${list.map(x => x.pkg).join(', ')}`);
+  }
+  for (const [sym, list] of identical) {
+    console.log(`  IDENTICAL  ${sym.padEnd(26)} ${list.map(x => x.pkg).join(', ')}`);
+  }
+
+  if (distinct.length) {
+    console.log(
+      `  ${distinct.length} have different signatures — separate types that reuse a name.\n` +
+      '  Correct as-is: each package documents the type it actually exports.',
+    );
+  }
+  if (identical.length) {
+    console.log(
+      `  ${identical.length} are byte-identical. Check whether one is an unstripped re-export\n` +
+      '  from a dependency (see the @imqueue/* install in generate()); if it is a\n' +
+      '  hand-copied declaration, that is the package\'s call, not this build\'s.',
+    );
+  }
+}
+
+// summary%, per package, against SUMMARY_FLOOR.
+function reportSummaryCoverage(
+  coverage: Record<string, { pages: number; withProse: number }>,
+  strict: boolean,
+): void {
+  console.log('\nDoc-block coverage (summary%: pages whose own summary section has prose)');
+
+  let breached = 0;
+
+  for (const [pkg, m] of Object.entries(coverage)) {
+    const pct = m.pages ? m.withProse / m.pages : 0;
+    const under = pct < SUMMARY_FLOOR;
+
+    if (under) breached++;
+    console.log(
+      `  ${under ? 'LOW ' : 'ok  '}  ${pkg.padEnd(38)} ` +
+      `${String(Math.round(pct * 100)).padStart(3)}%  (${m.withProse}/${m.pages} pages)`,
+    );
+  }
+
+  if (!breached) return;
+
+  const msg =
+    `${breached} package(s) below the ${Math.round(SUMMARY_FLOOR * 100)}% summary floor. ` +
+    'Those pages ship as signature-only stubs — no meta description of their own ' +
+    'and no search-index summary: bad for search, and worse for an agent that gets ' +
+    'a type with no explanation. Improve the doc-blocks and RELEASE them — this ' +
+    'generator reads the published tarball, so an unreleased fix does not appear.';
+
+  if (strict) {
+    console.error(`\nFAIL  ${msg}`);
+    process.exitCode = 1;
+  } else {
+    console.warn(`\nWARN  ${msg}\n      (--strict-prose makes this fail)`);
+  }
+}
+
+function main() {
+  const argv = process.argv.slice(2);
+  const strictProse = argv.includes('--strict-prose');
+  const only = argv.filter(a => !a.startsWith('--'));
+  const pkgs = only.length ? PKGS.filter(p => only.includes(p)) : PKGS;
+
+  const unknown = only.filter(p => !PKGS.includes(p));
+  if (unknown.length) {
+    throw new Error(
+      `Not a shipped package: ${unknown.join(', ')}. Shipped: ${PKGS.join(', ')}. ` +
+      'Add it to scripts/lib/api-packages.ts, or flip its status to "shipped".',
+    );
+  }
+
+  rmrf(TMP);
+  fs.mkdirSync(TMP, { recursive: true });
+  const built: Record<string, PublishedVersions> = {};
+  const coverage: Record<string, { pages: number; withProse: number }> = {};
+  try {
+    for (const pkg of pkgs) {
+      const cfg = PKG_CONFIG.find(p => p.name === pkg);
+
+      // `unknown` above already rejected any name that is not a shipped package,
+      // so a miss here would mean PKGS and PKG_CONFIG disagree.
+      if (!cfg) continue;
+
+      const plan = planFor(pkg, { latestOnly: cfg.latestOnly });
+      console.log(
+        `\n##### @imqueue/${pkg}: latest ${plan.latest} (major ${plan.currentMajor}), ` +
+        `archives [${plan.archives.join(', ') || 'none'}]` +
+        `${cfg.latestOnly ? ' (latestOnly)' : ''}`,
+      );
+      const result = generate({
+        pkg, version: plan.latest, seg: 'latest', released: plan.released[plan.latest],
+      });
+      coverage[pkg] = result.summary;
+      for (const v of plan.archives) {
+        generate({ pkg, version: v, seg: v, latestFiles: result.basenames, released: plan.released[v] });
+      }
+      cleanStale(pkg, ['latest', ...plan.archives]);
+      built[pkg] = { latest: plan.latest, archives: plan.archives };
+    }
+  } finally {
+    rmrf(TMP);
+  }
+
+  // Shared outputs are per-package data, so a build of SOME packages MERGES its
+  // entries over what is on disk. It used to skip these files entirely, which made
+  // a routine version bump cost a full build of all 16 packages — reading every
+  // published tarball for ~8 minutes to move one string — because the version a
+  // page advertises lives in apiVersions.json, not in the page.
+  //
+  // Merging, not rewriting, is the whole point: writing these from only what this
+  // run built would drop every other package's version and every published rename
+  // 301. A full build passes every package, so both merges carry nothing over and
+  // the output is byte-identical to what the old branch produced.
+  const { versions: apiVersions, carried: carriedVersions } = mergedVersions(built);
+  const { rows: renameRows, carried: carriedRenames, fresh: freshRenames } = mergedRenames(pkgs);
+
+  fs.writeFileSync(path.join(ROOT, 'src', '_data', 'apiVersions.json'), JSON.stringify(apiVersions, null, 2) + '\n');
+  console.log(`\nWrote src/_data/apiVersions.json: ${JSON.stringify(apiVersions)}`);
+  writeVersionModule(apiVersions);
+  writeRenamedModule();
+  writeRenames(renameRows);
+
+  if (pkgs.length !== PKGS.length) {
+    console.log(
+      `  merged a partial build: rebuilt ${pkgs.join(', ')}; carried over ` +
+      `${carriedVersions} package version(s) and ${carriedRenames} rename 301(s) ` +
+      `already on disk (${freshRenames} from this run).`,
+    );
+  }
+
+  // Neither depends on being a full build. Both derive from the pages on disk, and
+  // the packages this run did not build still have theirs — writeRedirects() is
+  // static text, and writeFunctions() mounts every shipped package regardless.
+  writeRedirects();
+  writeLegacyPages();
+  writeFunctions();
+  // genCrosslinks() reads core's and rpc's page basenames and emits a salvage map;
+  // it does not touch pages. Running it on every build is not merely safe but
+  // required: rebuilding rpc alone can change which core symbols it still
+  // documents, and a stale map would 301 URLs that now resolve on their own.
+  genCrosslinks();
+  checkCrossPackageDupes();
+
+  reportSummaryCoverage(coverage, strictProse);
+  console.log('\nDone!');
+}
+
+main();

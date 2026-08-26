@@ -47,5 +47,5 @@ somewhere else, and /llms.txt — the entry point that leads here — sets that
 precedent.
 
 This file is .txt on purpose. As README.md it would be an Eleventy template, and
-`permalink: false` does not save it: org.11tydata.js computes a permalink whenever
+`permalink: false` does not save it: org.11tydata.ts computes a permalink whenever
 `data.permalink` is falsy, so it would publish itself at /mirrors/README/.

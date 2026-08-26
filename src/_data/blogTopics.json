@@ -5,7 +5,7 @@
     "pages with real titles and distinct descriptions.",
     "",
     "A hub is only generated for a topic with at least MIN_TOPIC_POSTS posts",
-    "(see eleventy.config.js). Slugs below that threshold still get a label so",
+    "(see eleventy.config.mts). Slugs below that threshold still get a label so",
     "the chips on a post read properly, they just do not become a page — a hub",
     "listing one post is index bloat, not a hub.",
     "",

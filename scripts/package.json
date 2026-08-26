@@ -1,0 +1,4 @@
+{
+  "//": "scripts/ is fully TypeScript and fully ESM. It gets its own package.json because the repo root is still CommonJS — eleventy.config.mts and the src/ data files import into here by explicit .ts specifier, which Node supports. Without this marker Node would classify every file by the root's CommonJS default, fail to parse it, and reparse it as ESM with a MODULE_TYPELESS_PACKAGE_JSON warning on every run. This replaced separate markers in scripts/lib/ and scripts/search-kpi/ once the whole tree was converted.",
+  "type": "module"
+}

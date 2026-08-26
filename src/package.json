@@ -1,0 +1,4 @@
+{
+  "//": "src/ holds Eleventy's build-time JavaScript — data files, .11ty templates — all of it TypeScript and ESM. Its own package.json for the same reason scripts/ has one: the repo root is still CommonJS, and without this marker Node classifies each file by that default, fails to parse it, and reparses it as ESM with a warning. This does NOT cover src/_shared/js/, which ships to browsers and is compiled rather than stripped — see its own note there.",
+  "type": "module"
+}

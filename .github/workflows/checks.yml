@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          # REQUIRED: scripts/gen-page-dates.js --check reads git history
+          # REQUIRED: scripts/gen-page-dates.ts --check reads git history
           # (`git log --follow --diff-filter=A`) to verify every page's recorded
           # publication date. The default shallow fetch has one commit, so every
           # file would appear to have been added by it and the check would fail on
@@ -43,7 +43,7 @@ jobs:
           fetch-depth: 0
           # REQUIRED: the search ranker is the imqueue/search-ranker submodule at
           # vendor/search-ranker. Without this the checkout leaves it empty and the
-          # build throws (scripts/lib/asset-manifest.js) — which is the designed
+          # build throws (scripts/lib/asset-manifest.ts) — which is the designed
           # behaviour, but it means every run here fails rather than checking
           # anything. Every workflow in this repo that runs `npm test` or
           # `npm run build:all` needs it, and all of them do.
@@ -66,7 +66,7 @@ jobs:
         run: npm test
 
       # The two NETWORKED checks. Deliberately outside `npm test`, which runs in the
-      # pre-commit hook and must work offline — the same split check-api-versions.js
+      # pre-commit hook and must work offline — the same split check-api-versions.ts
       # has always had. Here is where they actually get run, because a `--check`
       # script nothing invokes is this repo's recurring failure mode:
       # `sync-cli-guide:check` has existed for months with no caller, and
