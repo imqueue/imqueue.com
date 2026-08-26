@@ -166,17 +166,6 @@ function load(dir?: string, rankerFile?: string): RankerEngine {
 }
 
 /**
- * Extract a past ranker from the submodule's history and return the file path, ready to hand
- * to `load()` as `rankerFile`. That is the whole shape of a before/after run: two `load()`
- * calls in one process, one of them reading a commit.
- *
- * It lives here rather than in each runner because three scripts had grown their own copy —
- * the same duplication `scripts/lib/ranker.ts` exists to prevent for the path itself. The ref
- * names a commit in the RANKER's history, which is not this repo's history, so `git show` has
- * to run inside the submodule; getting that wrong reports "unknown revision" for a commit that
- * plainly exists, which is why the error message says so out loud.
- */
-/**
  * WHICH RANKER AND WHICH CONTENT produced a set of numbers, for storing in a --json run.
  *
  * The label fingerprint already pins which QUERIES were scored and pins nothing about the code that
@@ -229,52 +218,143 @@ function provenance(ignore?: string | (string | undefined)[]): Provenance {
   return { ranker: at(RANKER_DIR, []), site: at(ROOT, skip) };
 }
 
-function baseline(ref: string): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kpi-baseline-'));
+/** Temp directories this process made, removed on the way out. */
+const scratch: string[] = [];
 
-  const show = (name: string): string => execFileSync('git', ['show', `${ref}:${name}`], {
+process.on('exit', () => {
+  for (const dir of scratch) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+/** `git show <ref>:<name>`, run inside the submodule. Throws when the path is not at that ref. */
+function show(ref: string, name: string): string {
+  return execFileSync('git', ['show', `${ref}:${name}`], {
     cwd: RANKER_DIR,
     encoding: 'utf8',
     maxBuffer: 8 * 1024 * 1024,
     stdio: ['ignore', 'pipe', 'pipe'],
   });
+}
 
-  // ranker.js FIRST, then search.js — the engine was split out of the single file on 2026-08-06,
-  // so which name holds the scorer depends on how old the ref is. Both names are tried rather
-  // than one chosen from a date because a comparison across the split is exactly the comparison
-  // worth being able to run: the split had to move all four sets by zero, and proving that means
-  // measuring a two-file working tree against a one-file commit. Under Node the UI half is not
-  // needed either way — it exports nothing and requires a DOM.
-  let file;
+/**
+ * Build a ref that carries SOURCE rather than bundles, and return its engine.
+ *
+ * The TypeScript rewrite stopped committing dist/, so from that commit on there is no file in
+ * the tree that can be required — the engine has to be produced. That makes an older ref cheap
+ * to read and a newer one cost an install and a bundle, which is the whole reason this is
+ * separated out rather than folded into the `git show` path above: a comparison across the
+ * rewrite has to do both, in one process.
+ *
+ * `git archive` rather than `git worktree add`, deliberately. A worktree registers itself in the
+ * submodule's git directory and has to be unregistered again; a run interrupted between those
+ * two leaves the registration behind, pointing at a temp directory that no longer exists, and
+ * the next `git worktree add` in that repo complains about it. An archive is only files, so
+ * cleanup is `rm -rf` and an interrupted run leaves nothing behind but a directory in /tmp.
+ */
+function buildRef(ref: string, dir: string): string {
+  const tar = path.join(dir, 'ref.tar');
 
-  try {
-    file = path.join(dir, 'ranker.js');
-    fs.writeFileSync(file, show('ranker.js'));
-  } catch {
-    try {
-      file = path.join(dir, 'search.js');
-      fs.writeFileSync(file, show('search.js'));
-    } catch (error) {
-      // Both plausible causes name the same fix, and git's own message names neither: a submodule
-      // checked out with `--init` but never fetched has no HEAD to show, and `git show` run against
-      // a directory that is not a repository at all says only "does not exist in 'HEAD'".
-      console.error(`Cannot read ranker ref \`${ref}\` from ${RANKER_DIR}\n`);
-      // execFileSync attaches the child's stderr to the error it throws; the plain
-      // message says only that the command failed, and git's own words are the
-      // half that names the fix.
-      const detail = error instanceof Error
-        ? String((error as Error & { stderr?: unknown }).stderr || error.message)
-        : String(error);
+  execFileSync('git', ['archive', '--format=tar', '-o', tar, ref], {
+    cwd: RANKER_DIR,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  execFileSync('tar', ['-xf', tar, '-C', dir], { stdio: ['ignore', 'pipe', 'pipe'] });
+  fs.rmSync(tar, { force: true });
 
-      console.error(`  git: ${detail.trim()}\n`);
-      console.error('Neither ranker.js nor search.js exists at that ref.\n');
-      console.error('`--ref` names a commit in the ranker submodule, not in this repo. If the\n'
-        + 'submodule is not fully checked out:\n\n    git submodule update --init\n');
-      process.exit(1);
-    }
+  // Said before the install, because `npm ci` in a directory with no manifest fails with a
+  // message about package.json that names neither the ref nor what was expected of it.
+  if (!fs.existsSync(path.join(dir, 'package.json'))) {
+    console.error(`Ranker ref \`${ref}\` has neither a bundled ranker.js nor a package.json.\n`);
+    console.error('It is neither a pre-rewrite commit (which committed ranker.js and search.js)');
+    console.error('nor a post-rewrite one (which builds them). Check the ref.\n');
+    process.exit(1);
   }
 
-  return file;
+  // The slow half, and unavoidable: a ref is only as buildable as its own lockfile, and reusing
+  // the checked-out submodule's node_modules would silently measure a build made with different
+  // dependencies. `npm run kpi:compare --ref <sha>` across the rewrite therefore costs an
+  // install and a bundle — seconds, once, for a command that is already the slow one.
+  console.error(`kpi: building ranker ref ${ref}…`);
+  execFileSync('npm', ['ci'], { cwd: dir, stdio: ['ignore', 'pipe', 'pipe'] });
+  execFileSync('npm', ['run', 'build'], { cwd: dir, stdio: ['ignore', 'pipe', 'pipe'] });
+
+  const built = path.join(dir, 'dist', 'ranker.js');
+
+  if (!fs.existsSync(built)) {
+    console.error(`Ranker ref \`${ref}\` built without producing dist/ranker.js.\n`);
+    process.exit(1);
+  }
+
+  return built;
+}
+
+/**
+ * Extract a past ranker and return a path ready to hand to `load()` as `rankerFile`. That is the
+ * whole shape of a before/after run: two `load()` calls in one process, one of them reading a
+ * commit.
+ *
+ * It lives here rather than in each runner because three scripts had grown their own copy — the
+ * same duplication `scripts/lib/ranker.ts` exists to prevent for the path itself. The ref names a
+ * commit in the RANKER's history, which is not this repo's history, so git has to run inside the
+ * submodule; getting that wrong reports "unknown revision" for a commit that plainly exists,
+ * which is why the error message says so out loud.
+ *
+ * THREE LAYOUTS, in the order they existed, because a comparison across a layout change is
+ * exactly the comparison worth being able to run — each of these moves had to move all four KPI
+ * sets by zero, and proving that means measuring the new tree against the old commit:
+ *
+ *   search.js   before the engine/UI split (2026-08-06): one file, and it is the scorer
+ *   ranker.js   after the split: the engine, committed as ES5
+ *   src/ + build after the TypeScript rewrite: nothing requireable in the tree at all
+ *
+ * Under Node the UI half is never needed: it exports nothing and requires a DOM.
+ */
+function baseline(ref: string): string {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kpi-baseline-'));
+
+  scratch.push(dir);
+
+  // ranker.js FIRST, then search.js — which name holds the scorer depends on how old the ref
+  // is, and both are tried rather than one chosen from a date.
+  for (const name of ['ranker.js', 'search.js']) {
+    let source;
+
+    try {
+      source = show(ref, name);
+    } catch {
+      continue; // not this layout; try the next
+    }
+
+    const file = path.join(dir, name);
+
+    fs.writeFileSync(file, source);
+
+    return file;
+  }
+
+  // Neither bundle is in the tree. Either the ref is post-rewrite and has to be built, or the
+  // ref is not a ranker commit at all — and `git archive` below is what tells the two apart,
+  // because it fails on an unknown revision and succeeds on a real one.
+  try {
+    return buildRef(ref, dir);
+  } catch (error) {
+    // Both plausible causes name the same fix, and git's own message names neither: a submodule
+    // checked out with `--init` but never fetched has no HEAD to show, and git run against a
+    // directory that is not a repository at all says only "does not exist in 'HEAD'".
+    console.error(`Cannot read ranker ref \`${ref}\` from ${RANKER_DIR}\n`);
+    // execFileSync attaches the child's stderr to the error it throws; the plain
+    // message says only that the command failed, and git's own words are the
+    // half that names the fix.
+    const detail = error instanceof Error
+      ? String((error as Error & { stderr?: unknown }).stderr || error.message)
+      : String(error);
+
+    console.error(`  git: ${detail.trim()}\n`);
+    console.error('`--ref` names a commit in the ranker submodule, not in this repo. If the\n'
+      + 'submodule is not fully checked out:\n\n    git submodule update --init\n');
+    process.exit(1);
+  }
 }
 
 const page = (url: unknown): string => String(url).split('#')[0] ?? '';

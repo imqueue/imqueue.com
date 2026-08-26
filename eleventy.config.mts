@@ -1,9 +1,16 @@
-// `.mts`, not `.ts`. The root package.json has no `type` field and cannot get
-// `"type": "module"`: vendor/search-ranker is a git submodule with no package.json
-// of its own, so flipping the root would reinterpret its CommonJS `ranker.js` as
-// ESM and break the loader in scripts/lib/ranker.ts. `.mts` is unambiguously an ES
-// module whatever the package says, which is also what silences Node's
-// MODULE_TYPELESS_PACKAGE_JSON reparse warning on every build.
+// `.mts`, not `.ts`. The root package.json has no `type` field, so a `.ts` here would be
+// classified by Node's syntax detection and reparsed as ESM with a
+// MODULE_TYPELESS_PACKAGE_JSON warning on every build. `.mts` is unambiguously an ES module
+// whatever the package says, and says so to a reader as well as to Node.
+//
+// The ORIGINAL reason was stronger and no longer holds, which is worth recording rather than
+// quietly deleting: the root could not become `"type": "module"` at all, because
+// vendor/search-ranker was a submodule with no package.json and flipping the root would have
+// reinterpreted its CommonJS ranker.js as ESM. The ranker's TypeScript rewrite ended that —
+// it carries its own package.json now, and its dist/ carries a second one pinning the
+// bundles to `"type": "commonjs"`, so the nearest-manifest rule shields it from whatever this
+// repo declares. Flipping the root is therefore possible today; nobody has, and it is a
+// change of its own rather than a side effect of this file's extension.
 //
 // Eleventy only AUTO-DISCOVERS eleventy.config.{js,cjs,mjs}, so the npm scripts
 // pass `--config=eleventy.config.mts` explicitly.

@@ -15,6 +15,15 @@
 //   search.js  imqueue's browser UI. The dialog, /search/, the scoped sidebar boxes,
 //              the feed URLs, the analytics. Never required — only served.
 //
+// BOTH ARE BUILD OUTPUT NOW. The ranker was rewritten in TypeScript, so the two files
+// live at vendor/search-ranker/dist/ and are produced by `npm run build` inside the
+// submodule rather than committed to it. Nothing else about the contract moved: the
+// engine bundle is the same IIFE publishing the same 15 names to `module.exports`
+// under Node and `window.SearchRanker` in a browser.
+//
+// What DID change is the number of ways this can be absent, and they need different
+// instructions — see `state()` below.
+//
 // The site serves them CONCATENATED as one hashed asset (see asset-manifest.ts), so a
 // visitor still makes one request. `ENGINE_*` and `UI_*` below are how a caller says
 // which half it means; before the split there was one path and no way to be wrong,
@@ -38,14 +47,20 @@ import path from "node:path";
 import { createRequire } from "node:module";
 
 /**
- * The engine's export surface, as the `API` object at the bottom of
- * vendor/search-ranker/ranker.js publishes it.
+ * The engine's export surface, as the `API` object in
+ * vendor/search-ranker/src/ranker/api.ts publishes it.
  *
- * Hand-written, not generated. The ranker is a submodule from another repo,
- * plain JavaScript, and TypeScript cannot see across the require() below that
- * loads it by absolute path. What this declaration buys is the failure that
- * actually happens here — a member NAME that stopped existing, which today
- * reads as `undefined` and is caught by nothing.
+ * STILL HAND-WRITTEN, and that is now a choice rather than a limitation: the
+ * ranker ships real declarations at dist/types/ranker/api.d.ts since the
+ * TypeScript rewrite. Importing them would tie `npm run check:types` — the first
+ * thing `npm test` runs — to the submodule having been BUILT, and dist/ is not
+ * committed. A type check that fails on a clean checkout for a reason that has
+ * nothing to do with types is worse than a declaration kept in step by hand and
+ * asserted by check-search-ranker.ts against the built file.
+ *
+ * What this declaration buys is the failure that actually happens here — a member
+ * NAME that stopped existing, which today reads as `undefined` and is caught by
+ * nothing.
  *
  * The signatures are deliberately loose. Pinning them would be a second copy of
  * the ranker's own contract living in this repo, and a second copy that can
@@ -85,34 +100,93 @@ const ROOT = path.join(import.meta.dirname, "..", "..");
 // `git show <ref>:<path>` want. The absolute ones are for require() and readFileSync.
 const RANKER_DIR = path.join(ROOT, "vendor", "search-ranker");
 
-const ENGINE_REL = "vendor/search-ranker/ranker.js";
-const ENGINE_FILE = path.join(RANKER_DIR, "ranker.js");
+const ENGINE_REL = "vendor/search-ranker/dist/ranker.js";
+const ENGINE_FILE = path.join(RANKER_DIR, "dist", "ranker.js");
 
-const UI_REL = "vendor/search-ranker/search.js";
-const UI_FILE = path.join(RANKER_DIR, "search.js");
+const UI_REL = "vendor/search-ranker/dist/search.js";
+const UI_FILE = path.join(RANKER_DIR, "dist", "search.js");
+
+// The submodule's own manifest. Present iff the submodule has been checked out at
+// all, and it is what separates the two kinds of absence below.
+const RANKER_MANIFEST = path.join(RANKER_DIR, "package.json");
 
 /**
- * Has the submodule been checked out? False in a plain `git clone`.
+ * Why the ranker is not usable, or null when it is.
  *
- * BOTH halves, because a checkout with only one of them is a real state — a submodule
- * pinned to a pre-split commit has search.js and no ranker.js — and it would otherwise
- * produce a site whose search asset is half the code it needs.
+ * FOUR STATES SINCE THE BUNDLES BECAME BUILD OUTPUT, and three of them look identical
+ * from here — no dist/ranker.js — while needing different instructions. Telling a
+ * contributor to run `git submodule update --init` on a submodule that is already
+ * checked out sends them to look for a problem that is not there, and telling them to
+ * build one pinned to a commit that has nothing to build sends them somewhere worse.
+ */
+function state(): "unpopulated" | "prerewrite" | "unbuilt" | null {
+  if (!fs.existsSync(RANKER_MANIFEST)) {
+    // A pre-rewrite pin is POPULATED and has no manifest: the old layout committed
+    // ranker.js and search.js at the root and had no package.json at all. Only an
+    // empty directory is an unpopulated submodule.
+    return fs.existsSync(path.join(RANKER_DIR, "ranker.js")) ? "prerewrite" : "unpopulated";
+  }
+
+  return exists() ? null : "unbuilt";
+}
+
+/**
+ * Are the built bundles on disk?
+ *
+ * BOTH halves, because a checkout with only one of them is a real state — an
+ * interrupted build leaves one bundle written and the other not — and it would
+ * otherwise produce a site whose search asset is half the code it needs.
  */
 export function exists(): boolean {
   return fs.existsSync(ENGINE_FILE) && fs.existsSync(UI_FILE);
 }
 
-// The instruction, in full, wherever the absence is reported. A contributor hitting
-// this has a working tree that looks complete and a build that fails for a reason
-// nothing on disk explains.
-const MISSING =
-  `The search ranker is missing: ${ENGINE_REL} and/or ${UI_REL}\n\n` +
-  "It is a git submodule (github.com/imqueue/search-ranker), and a plain `git clone`\n" +
-  "does not populate it. Run:\n\n" +
-  "    git submodule update --init\n\n" +
-  "or clone with `--recurse-submodules` next time.\n\n" +
-  "If the directory IS populated and only ranker.js is missing, the submodule is\n" +
-  "pinned to a commit from before the engine/UI split — update the pin.";
+/**
+ * The instruction, in full, wherever the absence is reported.
+ *
+ * A function rather than a constant because which instruction is right depends on
+ * what is on disk, and that is read at the moment of failure. A contributor hitting
+ * either of these has a working tree that looks complete and a build that fails for a
+ * reason nothing on disk explains.
+ */
+function missing(): string {
+  const why = state();
+
+  if (why === "prerewrite") {
+    return (
+      "The search ranker pin predates its TypeScript rewrite.\n\n" +
+      "vendor/search-ranker/ holds the old layout — ranker.js and search.js at its root,\n" +
+      "no package.json — and this repo now reads the built bundles at dist/. Move the pin:\n\n" +
+      "    git submodule update --remote vendor/search-ranker\n" +
+      "    npm run ranker:build\n\n" +
+      "and measure it before committing: `npm run kpi -- --ref <old-sha>` compares the two\n" +
+      "engines in one process, and a ranking delta is not a result until it is read."
+    );
+  }
+
+  if (why === "unpopulated") {
+    return (
+      `The search ranker is missing: vendor/search-ranker/ is empty.\n\n` +
+      "It is a git submodule (github.com/imqueue/search-ranker), and a plain `git clone`\n" +
+      "does not populate it. Run:\n\n" +
+      "    git submodule update --init\n" +
+      "    npm run ranker:build\n\n" +
+      "or clone with `--recurse-submodules` next time."
+    );
+  }
+
+  return (
+    `The search ranker is not built: ${ENGINE_REL} and/or ${UI_REL}\n\n` +
+    "The submodule IS checked out — these two files are build output, not sources.\n" +
+    "Since the ranker was rewritten in TypeScript they are produced by its own build\n" +
+    "and deliberately not committed, so a fresh checkout has src/ and no dist/. Run:\n\n" +
+    "    npm run ranker:build\n\n" +
+    "which is `npm ci && npm run build` inside the submodule, and is what\n" +
+    "`npm run build:all` runs for you.\n\n" +
+    "If dist/ exists and only one of the two files is in it, the last build was\n" +
+    "interrupted — run it again."
+  );
+}
 
 /**
  * Load the ENGINE for use under Node. Throws with the fix if the submodule is not
@@ -121,7 +195,7 @@ const MISSING =
  */
 export function requireRanker(): RankerEngine {
   if (!exists()) {
-    throw new Error(MISSING);
+    throw new Error(missing());
   }
 
   return require(ENGINE_FILE) as RankerEngine;
@@ -138,10 +212,10 @@ export function requireRanker(): RankerEngine {
  */
 export function bundle(): string {
   if (!exists()) {
-    throw new Error(MISSING);
+    throw new Error(missing());
   }
 
   return fs.readFileSync(ENGINE_FILE, "utf8") + "\n" + fs.readFileSync(UI_FILE, "utf8");
 }
 
-export { RANKER_DIR, ENGINE_REL, ENGINE_FILE, UI_REL, UI_FILE, MISSING };
+export { RANKER_DIR, RANKER_MANIFEST, ENGINE_REL, ENGINE_FILE, UI_REL, UI_FILE, missing };

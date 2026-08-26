@@ -1,8 +1,17 @@
 // The seam between the ranker's two halves, asserted.
 //
-// vendor/search-ranker/ is one submodule and two files: ranker.js is a portable scoring engine
-// with no DOM in it, and search.js is imqueue's browser UI, which reads the engine off
-// `window.SearchRanker`. The site serves them concatenated (scripts/lib/asset-manifest.ts).
+// vendor/search-ranker/ is one submodule and two bundles: dist/ranker.js is a portable scoring
+// engine with no DOM in it, and dist/search.js is imqueue's browser UI, which reads the engine
+// off `window.SearchRanker`. The site serves them concatenated (scripts/lib/asset-manifest.ts).
+//
+// BUILD OUTPUT, since the ranker was rewritten in TypeScript — which is deliberate and is why
+// this file was kept rather than retired. Upstream now type-checks the UI against the engine's
+// real exports at compile time, so most of what is asserted below cannot go wrong in the
+// SOURCE any more. What can still go wrong is the BUNDLE: a build configured to tree-shake,
+// rename or split differently produces artifacts nothing upstream has looked at, and these two
+// files are what this site serves and what @imqueue/mcp requires. The assertions moved from
+// "the author did not make a mistake" to "the build did not", which is the level a consumer
+// can usefully check at.
 //
 // WHY THIS FILE EXISTS. Before the split, a name used by the dialog and defined by the scorer was
 // one closure away and could not be wrong. Now it crosses a published object, and every way of
@@ -25,7 +34,7 @@
 
 import fs from 'node:fs';
 
-import { ENGINE_FILE, ENGINE_REL, UI_FILE, UI_REL, MISSING, exists } from './lib/ranker.ts';
+import { ENGINE_FILE, ENGINE_REL, UI_FILE, UI_REL, missing, exists } from './lib/ranker.ts';
 
 let failures = 0;
 
@@ -37,7 +46,7 @@ const fail = (message: string): void => {
 };
 
 if (!exists()) {
-  console.error(MISSING);
+  console.error(missing());
   process.exit(1);
 }
 
@@ -94,6 +103,14 @@ function bound(source: string): Set<string> {
   for (const m of text.matchAll(/\bfunction\s*[A-Za-z_$\w]*\s*\(([^)]*)\)/g)) {
     for (const p of (m[1] ?? '').split(',')) if (p.trim()) out.add(p.trim());
   }
+  // ARROW PARAMETERS, both spellings. The hand-written ES5 engine had none, so this file did
+  // not look for them; the bundle is full of `(a, b) => …` and `(response) => …`, and every one
+  // of those parameters was reported as an undefined name. Ten of them, which is exactly the
+  // shape of a false positive that gets a real check switched off.
+  for (const m of text.matchAll(/\(([^()]*)\)\s*=>/g)) {
+    for (const p of (m[1] ?? '').split(',')) if (p.trim()) out.add(p.trim());
+  }
+  for (const m of text.matchAll(/(?:^|[^.\w$])([A-Za-z_$][\w$]*)\s*=>/g)) out.add(m[1] ?? '');
   for (const m of text.matchAll(/\bcatch\s*\(\s*([A-Za-z_$][\w$]*)/g)) out.add(m[1] ?? '');
 
   return out;
@@ -101,8 +118,8 @@ function bound(source: string): Set<string> {
 
 // ---- the engine's export surface --------------------------------------------
 
-// `var API = { name: name, ... }` — matched rather than evaluated, because requiring the engine
-// here would prove only that Node's branch works and this check is about the browser's.
+// `var API = { ... }` — matched rather than evaluated, because requiring the engine here would
+// prove only that Node's branch works and this check is about the browser's.
 const apiBlock = /var API = \{([\s\S]*?)\n {2}\};/.exec(engineSrc);
 
 if (!apiBlock) {
@@ -110,8 +127,13 @@ if (!apiBlock) {
   process.exit(1);
 }
 
+// BOTH property forms, and the second one is why this check went red on the TypeScript
+// rewrite: the hand-written engine wrote `parseQuery: parseQuery,` and the bundler writes the
+// shorthand `parseQuery,`. A `name:`-only pattern found zero of fifteen names, reported
+// "exports 0 names" as a PASS, and then failed every contract assertion beneath it — a green
+// line above seven red ones, all of them describing the same broken regex.
 const EXPORTED = new Set<string>(
-  [...(apiBlock[1] ?? '').matchAll(/^\s*([A-Za-z_$][\w$]*):/gm)].map((m) => m[1] ?? ''),
+  [...(apiBlock[1] ?? '').matchAll(/^\s*([A-Za-z_$][\w$]*)\s*(?::|,|$)/gm)].map((m) => m[1] ?? ''),
 );
 
 pass(`${ENGINE_REL}: exports ${EXPORTED.size} names`);
@@ -120,7 +142,11 @@ pass(`${ENGINE_REL}: exports ${EXPORTED.size} names`);
 // separately from what the UI needs because the two lists are not the same and nothing else says
 // so: `FEED_V` is read by the MCP server to check the feed shape and by no browser code at all,
 // so a surface derived from the UI alone would drop it and the server would assert `undefined`.
-const NODE_CONTRACT = ['parseQuery', 'prepare', 'prepareSections', 'search', 'groupKey', 'state', 'FEED_V'];
+// `S_TEXT` joined the list when the ranker's TypeScript rewrite began exporting its tuple
+// offsets: src/ranker.ts there used to hard-code `const S_TEXT = 3` and now reads the export,
+// so a build that dropped it would be a TypeError in a Worker rather than a stale constant.
+const NODE_CONTRACT = ['parseQuery', 'prepare', 'prepareSections', 'search', 'groupKey', 'state',
+  'FEED_V', 'S_TEXT'];
 
 for (const name of NODE_CONTRACT) {
   if (!EXPORTED.has(name)) {

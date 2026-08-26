@@ -76,13 +76,37 @@ jobs:
         run: |
           set -euo pipefail
 
+          # ENGINE_V comes out of a BUILT bundle since the ranker was rewritten in
+          # TypeScript: dist/ is not committed, so the number has to be produced rather
+          # than read. Both layouts are handled because this job is precisely the thing
+          # that moves a pin ACROSS that boundary — once — and on that run `before` is a
+          # pre-rewrite commit with ranker.js at its root while `after` is not.
+          #
+          # A read that fails leaves the value empty, which is what the old `|| echo ""`
+          # did too. It is said out loud here, because an empty pair compares equal and
+          # would let an engine change through as "the UI half" — the one outcome this
+          # job exists to catch.
+          engine_v() {
+            if [ -f vendor/search-ranker/package.json ]; then
+              if ! npm run ranker:build -- --quiet >/dev/null 2>&1; then
+                echo "WARNING: could not build the ranker submodule — ENGINE_V unread" >&2
+                return 0
+              fi
+              node -p "require('./vendor/search-ranker/dist/ranker.js').ENGINE_V" 2>/dev/null \
+                || echo "WARNING: dist/ranker.js exports no ENGINE_V" >&2
+            else
+              node -p "require('./vendor/search-ranker/ranker.js').ENGINE_V" 2>/dev/null \
+                || echo "WARNING: pre-rewrite pin exports no ENGINE_V" >&2
+            fi
+          }
+
           before_sha="$(git -C vendor/search-ranker rev-parse HEAD)"
-          before_v="$(node -p "require('./vendor/search-ranker/ranker.js').ENGINE_V" 2>/dev/null || echo "")"
+          before_v="$(engine_v)"
 
           git submodule update --remote vendor/search-ranker
 
           after_sha="$(git -C vendor/search-ranker rev-parse HEAD)"
-          after_v="$(node -p "require('./vendor/search-ranker/ranker.js').ENGINE_V" 2>/dev/null || echo "")"
+          after_v="$(engine_v)"
 
           {
             echo "before_sha=$before_sha"
@@ -150,7 +174,7 @@ jobs:
             headline="search-ranker moved to ${{ steps.pin.outputs.after_sha }} and \`npm test\` failed against it."
           fi
 
-          body=$(printf '%s\n\nThe pin was NOT taken. `vendor/search-ranker` is still at `%s` on master.\n\nTo take it, and measure it — a delta is not a result until it is tested, and the per-query deltas matter more than the summary line:\n\n```\ngit submodule update --remote vendor/search-ranker\nnpm run build:all\nnpm run kpi -- --json /tmp/after.json\nnpm run kpi -- --compare /tmp/after.json\n```\n\n`npm test` output from this run:\n\n```\n%s\n```\n' \
+          body=$(printf '%s\n\nThe pin was NOT taken. `vendor/search-ranker` is still at `%s` on master.\n\nTo take it, and measure it — a delta is not a result until it is tested, and the per-query deltas matter more than the summary line:\n\n```\ngit submodule update --remote vendor/search-ranker\nnpm run build:all   # builds the ranker submodule too\nnpm run kpi -- --json /tmp/after.json\nnpm run kpi -- --compare /tmp/after.json\n```\n\n`npm test` output from this run:\n\n```\n%s\n```\n' \
             "$headline" \
             "${{ steps.pin.outputs.before_sha }}" \
             "$(tail -30 /tmp/verify.log 2>/dev/null || echo '(not run)')")

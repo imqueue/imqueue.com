@@ -26,7 +26,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { MISSING, exists, bundle } from "./ranker.ts";
+import { missing, exists, bundle } from "./ranker.ts";
 
 /** What buildAssetManifest() hands back to eleventy.config. */
 export interface AssetManifest {
@@ -170,8 +170,8 @@ export function buildAssetManifest(root: string, edition: string): AssetManifest
     throw new Error(
       `A second search.js exists in src/: ${culprit}\n\n` +
         "The ranker is a submodule now (see scripts/lib/ranker.ts). Delete the copy in\n" +
-        "src/ and edit vendor/search-ranker/ instead — ranker.js for anything that scores,\n" +
-        "search.js for anything a reader sees — or the site would serve the copy while the\n" +
+        "src/ and edit vendor/search-ranker/src/ instead — ranker/ for anything that scores,\n" +
+        "ui/ for anything a reader sees — or the site would serve the copy while the\n" +
         "MCP server serves the submodule, which is the drift the split ended.",
     );
   }
@@ -179,7 +179,7 @@ export function buildAssetManifest(root: string, edition: string): AssetManifest
   if (!exists()) {
     // Loud, at eleventy config load, before a single page is written. The alternative
     // is a complete-looking build whose search button does nothing.
-    throw new Error(MISSING);
+    throw new Error(missing());
   }
 
   // The ranker is TWO files — engine then UI — and the site serves them as one. The

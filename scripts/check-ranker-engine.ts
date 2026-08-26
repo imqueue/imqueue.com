@@ -27,18 +27,22 @@
 // .github/workflows/repin-ranker.yml opens an issue rather than committing when
 // this number moves.
 
-import path from 'node:path';
-
 import { requireRanker } from './lib/ranker.ts';
 
-const RAW = 'https://raw.githubusercontent.com/imqueue/search-ranker/master/ranker.js';
+// THE SOURCE, not a bundle. The ranker was rewritten in TypeScript and no longer
+// commits its build output, so master has no ranker.js to read — dist/ is produced
+// by `npm run build` and exists only in a checkout. src/ranker/constants.ts is where
+// the constant is declared and is committed, which makes it the file to fetch as
+// well as the honest one: this compares against what upstream WROTE rather than
+// against whatever a build of it happened to emit.
+const RAW = 'https://raw.githubusercontent.com/imqueue/search-ranker/master/src/ranker/constants.ts';
 const TIMEOUT_MS = 15000;
 
-// Read as TEXT, not by evaluating the fetched file. Downloading 2,900 lines of
-// JavaScript from the network and running them to learn a version number would be
-// a genuinely bad trade, and this is one regex against a constant declaration whose
-// spelling the ranker repo's own CI depends on too.
-const DECLARATION = /^\s*var\s+ENGINE_V\s*=\s*(\d+)\s*;/m;
+// Read as TEXT, not by evaluating the fetched file. Downloading a module from the
+// network and running it to learn a version number would be a genuinely bad trade,
+// and this is one regex against a constant declaration whose spelling the ranker
+// repo's own CI depends on too.
+const DECLARATION = /^\s*export\s+const\s+ENGINE_V\s*=\s*(\d+)\s*;/m;
 
 function declaredIn(source: string, where: string): number {
   const m = DECLARATION.exec(source);
@@ -57,13 +61,27 @@ async function main() {
   const vendored: unknown = requireRanker().ENGINE_V;
 
   if (typeof vendored !== 'number') {
-    console.error('  FAIL  vendor/search-ranker/ranker.js exports no ENGINE_V. '
+    console.error('  FAIL  vendor/search-ranker/dist/ranker.js exports no ENGINE_V. '
       + 'Update the submodule pin: this site stamps that number into every feed, '
       + 'and @imqueue/mcp compares against it at runtime.');
     process.exit(1);
   }
 
   const res = await fetch(RAW, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+
+  if (res.status === 404) {
+    // A 404 IS NOT AN OUTAGE, and lumping it in with one is how this check would go
+    // green forever the day the constant moves. GitHub being down answers 5xx; a 404
+    // means the file is not where this repo believes it is, which is a real finding
+    // with a real fix, so it fails.
+    console.error(`  FAIL  ${RAW} is 404.`);
+    console.error('');
+    console.error('        Either the TypeScript rewrite has not landed on search-ranker@master');
+    console.error('        yet — this repo already reads the rewritten layout, and master still');
+    console.error('        holds the single ranker.js — or ENGINE_V moved out of');
+    console.error('        src/ranker/constants.ts. Both are answered by looking at that repo.');
+    process.exit(1);
+  }
 
   if (!res.ok) {
     // A GitHub outage is not a drift. Failing the build on one would teach everyone
@@ -89,6 +107,7 @@ async function main() {
   console.error('        same query. To take it:');
   console.error('');
   console.error('          git submodule update --remote vendor/search-ranker');
+  console.error('          npm run ranker:build               # dist/ is not committed');
   console.error('          npm run build:all && npm run kpi   # paired, before and after');
   console.error('');
   console.error('        A ranking delta is not a result until it is tested — read the per-query');

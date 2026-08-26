@@ -166,9 +166,10 @@ function loadContent(dir: string): Corpus {
   }));
 
   // Section document frequency: in how many sections a word appears at all, matching how
-  // search.js measures it. A Map, not an object — `df.constructor` on a plain object is a
+  // the engine measures it. A Map, not an object — `df.constructor` on a plain object is a
   // truthy function, which is exactly the bug that hid nineteen unreachable pages in the
-  // ranker (see STOP in vendor/search-ranker/search.js).
+  // ranker (see STOP in vendor/search-ranker/src/ranker/constants.ts). The SOURCE, not the
+  // bundle: dist/ is build output and is not in a fresh checkout to read.
   const df = new Map<string, number>();
 
   for (const section of sections) {

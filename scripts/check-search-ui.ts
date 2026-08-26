@@ -22,7 +22,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { exists as rankerExists, MISSING, UI_FILE } from './lib/ranker.ts';
+import { exists as rankerExists, missing, UI_FILE } from './lib/ranker.ts';
 
 const ROOT = path.join(import.meta.dirname, '..');
 
@@ -184,11 +184,18 @@ for (const [re, ok, why] of JS_CASES) {
 // engine and has no analytics in it at all. Point this at the engine and all six cases fail with
 // "nothing reports which result was chosen", which reads as a regression rather than as a check
 // looking in the wrong file.
+//
+// THE FILE IS A BUNDLE NOW, and the patterns below have to survive that. Three of them did not:
+// a bundler writes shorthand properties where the source wrote `name: value`, and it renames a
+// local that collides with another module's (`pageHost` became `pageHost2`). Both are spelling,
+// not behaviour, and both read as "the analytics were deleted" if the pattern is not widened.
+// A pattern here should pin the PROPERTY it is named after and nothing about how the bundler
+// happened to emit it.
 // Named imports rather than a namespace object: ranker.ts is ESM now, and a
 // default import of a module that has no default binding is a hard error rather
 // than the CJS interop the `rankerLib.` spellings below were written against.
 if (!rankerExists()) {
-  console.error(MISSING);
+  console.error(missing());
   process.exit(1);
 }
 
@@ -217,7 +224,10 @@ const SEARCH_CASES: readonly SourceCase[] = [
     'query typed at normal speed arrives as a dozen prefixes of itself',
   ],
   [
-    /"search_select"[\s\S]{0,300}?position:/,
+    // `position[,:]` — the bundler emits the shorthand `position,` where the source has
+    // `position: position`. The name is what matters; which spelling reaches the bundle is not
+    // this check's business.
+    /"search_select"[\s\S]{0,300}?position\s*[,:]/,
     'a taken result is reported with its position',
     'nothing reports WHICH result was chosen, so the data says what was asked and ' +
     'never whether the ranking was right — the one signal worth collecting',
@@ -228,7 +238,10 @@ const SEARCH_CASES: readonly SourceCase[] = [
     'clicks in the dialog are not reported',
   ],
   [
-    /watchClicks\(pageEl\(pageHost, "results"\)\)/,
+    // `pageHost\w*`, because bundling two modules that each declare a `pageHost` renames one of
+    // them — here to `pageHost2`. Pinning the exact local name would make this check fail on an
+    // unrelated module gaining a variable.
+    /watchClicks\(pageEl\(pageHost\w*, "results"\)\)/,
     '/search/ results are watched for clicks',
     'clicks on the /search/ page are not reported — that is where shared links land',
   ],
@@ -290,7 +303,10 @@ const SCOPE_CASES: readonly SourceCase[] = [
   // Scope by filtering RESULTS. Indexing a subset would compute df over 29 pages instead
   // of 86, so every idf would differ and the ranking would leave what the KPI measures.
   [
-    /!hit\.external && urls\[hit\.record\.u\.split\("#"\)\[0\]\]/,
+    // The optional `urls &&` is a guard the ranker's TypeScript rewrite added: where `urls` is
+    // falsy the old line threw a TypeError and this one filters everything out. Neither half of
+    // what this case is named for moved, so the pattern accepts both.
+    /!hit\.external && (?:urls && )?urls\[hit\.record\.u\.split\("#"\)\[0\]\]/,
     'scoping filters results by page kind, and excludes the peer edition',
     'the scope filter changed shape — if it stops excluding hit.external, imqueue.com ' +
     'pages appear under "Search posts"; if it stops keying on the page URL, answer ' +

@@ -279,12 +279,14 @@ Two consequences, both enforced rather than documented and hoped for:
   throw `ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX` at runtime. The flag makes each one a
   type error instead.
 - **ESM, not CommonJS.** `export =` is how CJS publishes types and is exactly
-  what the flag above forbids. The repo root is still CommonJS (it has to be —
-  `vendor/search-ranker` is a submodule with no `package.json`, so a root
-  `"type": "module"` would reinterpret its CJS engine as ESM), so each converted
+  what the flag above forbids. The repo root is still CommonJS, so each converted
   tree carries its own `package.json` marker: `lib/`, `scripts/`, `functions/`,
-  `src/`, `tests/`. `eleventy.config.mts` uses the unambiguous extension for the
-  same reason.
+  `src/`, `tests/`, and `eleventy.config.mts` uses the unambiguous extension.
+  The root *had* to stay CommonJS while `vendor/search-ranker` was a submodule
+  with no `package.json` of its own; the ranker's TypeScript rewrite ended that
+  constraint — it ships a manifest now, and pins its own `dist/` to
+  `"type": "commonjs"` — so flipping the root is possible but has not been done,
+  and would be a change of its own rather than a consequence of anything here.
 
 **Three tsconfig projects, because three runtimes.** `npm run check:types` runs
 all three; `tsc` on its own runs only the first.

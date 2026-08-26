@@ -20,11 +20,18 @@ and the MCP tool do not answer the same query differently. A plain `git clone` l
 directory empty and the build stops with the fix in the message — deliberately, because the
 alternative is a site that builds cleanly and ships no `search.js` at all.
 
+**The ranker has a build now.** It is TypeScript, and the two files this site serves —
+`dist/ranker.js` and `dist/search.js` — are produced by `npm run build` inside the submodule
+rather than committed to it. `npm run build:all` does that for you (see `npm run ranker:build`),
+so the sequence below is unchanged; a checkout with `src/` and no `dist/` is now its own
+failure state with its own instruction, distinct from an unpopulated submodule.
+
 This used to say the two pins were *identical*, as though something checked. Nothing did,
 and they drifted for a fortnight in August 2026 — harmlessly, because the divergent commit
 was in `search.js`, the half `@imqueue/mcp` never copies. What has to match is the engine's
-behaviour, so `ranker.js` now carries `ENGINE_V`: this site stamps it into every feed as
-`e`, `check:ranker-engine` compares the pin against that repo's master, and
+behaviour, so the engine now carries `ENGINE_V` (in `src/ranker/constants.ts`): this site
+stamps it into every feed as `e`, `check:ranker-engine` compares the pin against that repo's
+master, and
 `.github/workflows/repin-ranker.yml` takes a repin automatically when the number held still
 and opens an issue when it moved.
 
@@ -40,9 +47,10 @@ npm run serve:org   # imqueue.org — http://localhost:8080
 npm run serve:com   # imqueue.com — http://localhost:8081
 ```
 
-To change the ranker, edit `vendor/search-ranker/search.js`, measure with
-`npm run kpi:compare` (never by the summary alone — read the per-query deltas), then commit
-**inside the submodule** and commit the moved pointer here. `scripts/search-kpi/README.md`
+To change the ranker, edit `vendor/search-ranker/src/ranker/` (the engine) or
+`vendor/search-ranker/src/ui/` (imqueue's search UI), rebuild it with `npm run ranker:build`,
+measure with `npm run kpi:compare` (never by the summary alone — read the per-query deltas),
+then commit **inside the submodule** and commit the moved pointer here. `scripts/search-kpi/README.md`
 has the numbers and the rejected experiments.
 
 ## Build

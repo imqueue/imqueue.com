@@ -231,12 +231,14 @@ export function plainText(md: unknown): string {
  *   line to take the URL from).
  */
 // The shape of every feed this module writes. The ranker declares the shape it READS
-// (FEED_V in vendor/search-ranker/ranker.js) and check-search-index.ts fails when the two
+// (FEED_V in vendor/search-ranker/src/ranker/constants.ts) and check-search-index.ts fails
+// when the two
 // disagree — which is what stops a pinned, submoduled ranker from silently misreading live
 // feeds it was never written for. Bump both when a tuple position or a top-level key changes.
 //
 // The path in that sentence said src/_shared/js/search.js for months after the ranker moved
-// into the submodule, so anyone following it found nothing.
+// into the submodule, so anyone following it found nothing. It names the SOURCE rather than
+// the bundle for the same reason: dist/ is build output and is not in a fresh checkout.
 const FEED_V = 1;
 
 // The ranker's BEHAVIOUR version, stamped into every feed as `e` beside `v`.
