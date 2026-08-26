@@ -58,6 +58,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          # REQUIRED to push at all: the attribution ruleset declines a GITHUB_TOKEN
+          # push to master. See refresh-api-docs.yml for the full reasoning.
+          token: ${{ secrets.BOT_PUSH_TOKEN }}
           # REQUIRED: check:dates reads git history for every page. See checks.yml.
           fetch-depth: 0
           # REQUIRED: the whole job is about this submodule, and the build throws

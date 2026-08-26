@@ -51,6 +51,17 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          # PUSHES AS A HUMAN, NOT AS THE ACTIONS BOT, and without it this job cannot
+          # push at all. master requires the "attribution / No AI attribution" check and
+          # the ruleset's only bypass is OrganizationAdmin, so a GITHUB_TOKEN push is
+          # declined outright (GH013) — and it can never satisfy the check either, since
+          # a GITHUB_TOKEN push triggers no workflows to produce it. That is not a
+          # hypothetical: it silently broke this job on 2026-08-26, the morning after the
+          # ruleset was added, and /status/ drifted until someone ran the check by hand.
+          #
+          # This token belongs to an org admin, so the push meets the existing bypass.
+          # It also means checks.yml DOES now run on the commit this job creates.
+          token: ${{ secrets.BOT_PUSH_TOKEN }}
           # REQUIRED for the `npm test` step: check:dates reads git history
           # (`git log --follow --diff-filter=A`) to verify every page's publication
           # date. The default shallow fetch has one commit, so every file looks as

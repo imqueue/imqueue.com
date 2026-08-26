@@ -32,6 +32,9 @@ jobs:
       - name: Checkout imqueue.com
         uses: actions/checkout@v7
         with:
+          # REQUIRED to push at all: the attribution ruleset declines a GITHUB_TOKEN
+          # push to master. See refresh-api-docs.yml for the full reasoning.
+          token: ${{ secrets.BOT_PUSH_TOKEN }}
           # REQUIRED by the verify step. check:dates reads git history
           # (`git log --follow --diff-filter=A`) for every page's publication
           # date; the default shallow fetch has one commit, so every file looks
