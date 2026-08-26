@@ -18,8 +18,8 @@ export const API_VERSIONS: ApiVersions = {
   "datadog": { "latest": "3.2.1", "archives": [] },
   "graphql-dependency": { "latest": "3.1.1", "archives": [] },
   "type-graphql-dependency": { "latest": "3.0.4", "archives": [] },
-  "net": { "latest": "3.0.4", "archives": [] },
-  "http-protect": { "latest": "3.0.1", "archives": [] },
+  "net": { "latest": "3.0.5", "archives": [] },
+  "http-protect": { "latest": "3.0.2", "archives": [] },
   "validation": { "latest": "1.1.1", "archives": [] },
   "job": { "latest": "3.1.1", "archives": [] }
 };

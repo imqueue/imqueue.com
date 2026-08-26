@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/http-protect 3.0.1 · API reference"
+title: "@imqueue/http-protect 3.0.2 · API reference"
 description: "Rate limiting and IP banning for express-like HTTP servers, backed by Redis."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/http-protect","url":"/api/http-protect/latest/"}]
 ---

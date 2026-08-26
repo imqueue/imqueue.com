@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-26T06:59:38.373Z",
+  "generated": "2026-08-26T13:47:34.906Z",
   "framework": {
     "license": "GPL-3.0-only",
     "licenseNote": "GPL-3.0-only, or a commercial licence for closed-source distribution. Not AGPL: running it as a network service is not distribution, so internal services and SaaS carry no source-release obligation",
@@ -269,12 +269,12 @@
     {
       "name": "net",
       "scoped": "@imqueue/net",
-      "version": "3.0.4",
+      "version": "3.0.5",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-25",
+      "released": "2026-08-26",
       "firstRelease": "2021-11-21",
-      "releases": 11,
+      "releases": 12,
       "majors": [
         1,
         2,
@@ -291,12 +291,12 @@
     {
       "name": "http-protect",
       "scoped": "@imqueue/http-protect",
-      "version": "3.0.1",
+      "version": "3.0.2",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-01",
+      "released": "2026-08-26",
       "firstRelease": "2023-12-03",
-      "releases": 7,
+      "releases": 8,
       "majors": [
         1,
         2,
@@ -379,12 +379,12 @@
     {
       "name": "mcp",
       "scoped": "@imqueue/mcp",
-      "version": "3.7.5",
+      "version": "3.7.7",
       "license": "GPL-3.0-only",
       "node": ">=18",
       "released": "2026-08-26",
       "firstRelease": "2026-07-22",
-      "releases": 42,
+      "releases": 44,
       "majors": [
         1,
         2,

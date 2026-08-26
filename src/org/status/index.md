@@ -71,12 +71,12 @@ command-line tool and wants `npm i -g @imqueue/cli`.
 | [@imqueue/datadog](/api/datadog/latest/) | 3.2.1 | GPL-3.0-only | not declared | 2026-08-22 |
 | [@imqueue/graphql-dependency](/api/graphql-dependency/latest/) | 3.1.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
 | [@imqueue/type-graphql-dependency](/api/type-graphql-dependency/latest/) | 3.0.4 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
-| [@imqueue/net](/api/net/latest/) | 3.0.4 | GPL-3.0-only | `>=22.12.0` | 2026-08-25 |
-| [@imqueue/http-protect](/api/http-protect/latest/) | 3.0.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-01 |
+| [@imqueue/net](/api/net/latest/) | 3.0.5 | GPL-3.0-only | `>=22.12.0` | 2026-08-26 |
+| [@imqueue/http-protect](/api/http-protect/latest/) | 3.0.2 | GPL-3.0-only | `>=22.12.0` | 2026-08-26 |
 | [@imqueue/validation](/api/validation/latest/) | 1.1.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
 | [@imqueue/job](/api/job/latest/) | 3.1.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
 | [@imqueue/cli](/cli/) | 5.2.2 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
-| [@imqueue/mcp](/mcp/) | 3.7.5 | GPL-3.0-only | `>=18` | 2026-08-26 |
+| [@imqueue/mcp](/mcp/) | 3.7.7 | GPL-3.0-only | `>=18` | 2026-08-26 |
 <!-- status:end packages -->
 
 Two pairs are mutually exclusive: pick **either** `@imqueue/pg-prisma` **or**

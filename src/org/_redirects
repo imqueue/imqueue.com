@@ -4,9 +4,9 @@
 #
 # Retired API version URLs (/api/<pkg>/<version>/... -> the kept copy) are
 # resolved at request time by the Pages Functions in functions/api/core/ and
-# functions/api/rpc/, using the policy in lib/api-redirects.js.
+# functions/api/rpc/, using the policy in lib/api-redirects.ts.
 #
 # Do NOT re-add them here. Cloudflare Pages silently drops dynamic redirect
 # rules past the 100th, and there are ~190 published versions — the newest, most
-# valuable rules are the ones that get dropped. scripts/check-redirects.js fails
+# valuable rules are the ones that get dropped. scripts/check-redirects.ts fails
 # the build if this file ever exceeds the cap.

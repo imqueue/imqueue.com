@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "http-protect",
-  "apiVersion": "3.0.1",
+  "apiVersion": "3.0.2",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-01T06:21:48.365Z",
+  "apiReleased": "2026-08-26T13:41:48.841Z",
   "apiNav": [
     {
       "group": "Classes",
