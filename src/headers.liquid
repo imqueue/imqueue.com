@@ -169,15 +169,45 @@ put the header on the markdown mirrors.
   X-Robots-Tag: noindex, nofollow
 
 # ---- security ------------------------------------------------------------
-# Not ranking factors, but cheap and worth having. Left out on purpose:
-#   * Strict-Transport-Security — a year-long max-age is effectively
-#     irreversible, and it is a deployment decision rather than an SEO one.
-#     Enable it once you are certain every subdomain (mcp.imqueue.org included)
-#     is HTTPS-only:  Strict-Transport-Security: max-age=31536000
-#   * Content-Security-Policy — this site runs inline scripts (the no-FOUC theme
-#     init) plus GA4 and Clarity, so a policy needs to be authored and tested
-#     against real pages rather than pasted in.
+# The response security headers graded by securityheaders.com / Mozilla Observatory,
+# and enforced on every build by the pentest tripwire (scripts/check-security.ts, in
+# `npm test`). The policy lives in scripts/security/policy.ts; the CSP is built from
+# the actual output — see below.
+#
+# Content-Security-Policy is authored HASH-based, not pasted. This site runs one
+# inline script (the no-FOUC theme init) and, in production, the GA4 config + Clarity
+# loader that js/consent.js turns from parked `text/plain` tags into real inline
+# scripts once a visitor consents. Those inline scripts are ABSENT from a dev/serve
+# build and PRESENT (with the fallback ids in eleventy.config.mts) in a production
+# one, so a hardcoded hash list would be wrong half the time. Instead `__CSP__` below
+# is a placeholder that the `eleventy.after` hook replaces with a policy whose
+# script-src carries the hash of every inline script THIS build emitted, plus the
+# GA4/Clarity origins only when they are actually loaded — see scripts/lib/csp.ts. If
+# a served response ever shows the literal `__CSP__`, the stamp step did not run.
+#
+# Strict-Transport-Security is WIRED BUT DISABLED, by the site owner's decision: a
+# long max-age is effectively irreversible and commits every subdomain
+# (mcp.imqueue.org included) to HTTPS-only. To enable, add this one line to the rule
+# below and confirm every subdomain is HTTPS-only first:
+#   Strict-Transport-Security: max-age=31536000; includeSubDomains
+# scripts/security/policy.ts (ACCEPTED) records the absence as an accepted risk until
+# then, so the tripwire does not fail on it while it is a deliberate choice.
+#
+# `! Access-Control-Allow-Origin` STRIPS a wildcard CORS header. Nothing on either
+# edition needs CORS — the cross-edition search reads the peer index from
+# `/search-peer-*.json` copied onto THIS origin at build time, so every fetch is
+# same-origin (see the /search-index.json note above). A live probe found
+# `Access-Control-Allow-Origin: *` on every response, added upstream of the build
+# (an account/zone default, not this file); this removes it so the site stops
+# advertising cross-origin read access it does not use. If it persists after deploy
+# it is a zone-level Transform Rule and must be removed there — Cloudflare dashboard →
+# Rules → Transform Rules → Modify Response Header.
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: SAMEORIGIN
+  Permissions-Policy: accelerometer=(), autoplay=(), browsing-topics=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), interest-cohort=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  Content-Security-Policy: __CSP__
+  ! Access-Control-Allow-Origin

@@ -126,3 +126,7 @@ tests/e2e/.report/
 
 # verify.ts baseline — a local artifact of one working tree, never shared
 .verify-baseline.json
+
+# Generated penetration-test report (scripts/pentest.ts). The engine, policy and
+# tripwire are committed; the rendered report of one run is not.
+scripts/security/report/

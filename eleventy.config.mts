@@ -28,6 +28,7 @@ import mdToc from "markdown-it-table-of-contents";
 
 import { generate } from "./scripts/gen-search-index.ts";
 import { buildAssetManifest, emitBrowserScripts } from "./scripts/lib/asset-manifest.ts";
+import { stampCsp } from "./scripts/lib/csp.ts";
 import type { CollectionItem } from "./scripts/lib/eleventy.ts";
 import { slugify } from "./scripts/lib/md-slug.ts";
 import blogTopicMeta from "./src/_data/blogTopics.json" with { type: "json" };
@@ -78,6 +79,22 @@ export default function (eleventyConfig: UserConfig) {
 
   eleventyConfig.setLibrary("md", md);
   eleventyConfig.addPlugin(syntaxHighlight);
+
+  // ---- CSP stamp -----------------------------------------------------------
+  // headers.liquid emits `Content-Security-Policy: __CSP__`; this replaces the
+  // placeholder with a policy whose script-src carries the hash of every inline
+  // script THIS build actually wrote (theme init always, GA4/Clarity when the
+  // fallback ids are in play), plus the analytics origins only when loaded. Done
+  // here, after the output exists, so it runs for every build path — `edition:*`,
+  // `build:all`, and build-site.ts — rather than in one script something could skip.
+  // See scripts/lib/csp.ts. `serve`/watch builds have only the theme-init hash, which
+  // is correct for them; the header just is not enforced by `eleventy --serve`.
+  eleventyConfig.on("eleventy.after", () => {
+    const stamped = stampCsp(path.resolve(import.meta.dirname, OUTPUT));
+    console.log(
+      `[csp] ${EDITION}: ${stamped ? "stamped Content-Security-Policy into _headers" : "no __CSP__ placeholder found in _headers"}`,
+    );
+  });
 
   // Standard LiquidJS: quoted/variable partials + comma-separated include args.
   eleventyConfig.setLiquidOptions({

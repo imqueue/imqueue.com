@@ -35,6 +35,7 @@
 
 import { headerNote, trackRequest } from "../lib/agent-analytics.ts";
 import { markdownLink } from "../lib/markdown-link.ts";
+import { SECURITY_TXT_PATH, securityTxt } from "../lib/security-txt.ts";
 import type { PagesContext } from "../lib/pages.ts";
 
 const REDIRECT_HOSTS = new Set(["imqueue.net", "www.imqueue.net"]);
@@ -61,9 +62,20 @@ export async function onRequest(context: PagesContext): Promise<Response> {
         },
       });
     }
+
+    // RFC 9116 security-contact file, served dynamically so its Expires never goes
+    // stale — see lib/security-txt.ts. After the parked-domain redirect, so
+    // imqueue.net still hops to imqueue.org first; before next(), because there is
+    // no static file to fall through to and no analytics or mirror hint to add. This
+    // is the one place in the stack that runs for every request on both editions,
+    // which is what makes the endpoint testable locally through the same handler.
+    if (url.pathname === SECURITY_TXT_PATH) {
+      return securityTxt(url.hostname);
+    }
   } catch {
     // Deliberately swallowed — see constraint 1. Falling through to next() means a
-    // bug here degrades to "no redirect", never to "site down".
+    // bug here degrades to "no redirect", never to "site down". securityTxt() is pure
+    // and cannot throw, so a request for it never lands here.
   }
 
   const response = await context.next();

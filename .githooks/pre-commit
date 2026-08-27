@@ -81,3 +81,15 @@ if ! npm run --silent check:sitemap; then
   echo "  Bypass in an emergency with: git commit --no-verify" >&2
   exit 1
 fi
+
+# 6. Security tripwire — headers, CSP hash coverage, security.txt (RFC 9116), HTML
+#    hygiene, and non-destructive active probes against the two built editions. The
+#    build check:links just made is reused, so this only adds the probe time.
+echo "→ pre-commit: running the security tripwire…"
+if ! npm run --silent check:security; then
+  echo "" >&2
+  echo "✗ Security checks failed — commit aborted." >&2
+  echo "  Run 'npm run pentest' for the full report; accept a deliberate gap in" >&2
+  echo "  scripts/security/policy.ts (ACCEPTED). Bypass with: git commit --no-verify" >&2
+  exit 1
+fi
