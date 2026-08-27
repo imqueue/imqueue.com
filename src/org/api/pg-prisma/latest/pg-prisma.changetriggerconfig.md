@@ -98,6 +98,25 @@ _(Optional)_ Tables that should notify — the complete desired set, not an addi
 </td></tr>
 <tr><td>
 
+[schema?](/api/pg-prisma/latest/pg-prisma.changetriggerconfig.schema/)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Default schema of the listed tables (default `public`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
 [silent?](/api/pg-prisma/latest/pg-prisma.changetriggerconfig.silent/)
 
 
@@ -112,6 +131,25 @@ boolean
 </td><td>
 
 _(Optional)_ Suppress SQL logging for the install DDL (default `true`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[suppressSetting?](/api/pg-prisma/latest/pg-prisma.changetriggerconfig.suppresssetting/)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Setting that silences the trigger (default [CHANGE\_NOTIFY\_SUPPRESS\_SETTING](/api/pg-prisma/latest/pg-prisma.change_notify_suppress_setting/)<!-- -->).
 
 
 </td></tr>

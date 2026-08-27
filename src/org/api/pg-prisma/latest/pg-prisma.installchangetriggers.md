@@ -74,9 +74,11 @@ Nothing; it resolves once the triggers match `models`<!-- -->.
 
 ## Remarks
 
-Creates one shared plpgsql function and attaches a row-level trigger to each table in `models`<!-- -->, firing after every insert, update and delete. Each notification is a JSON payload with three keys — `table`<!-- -->, `op` (`INSERT`<!-- -->, `UPDATE` or `DELETE`<!-- -->) and `row` — where `row` is the new row, or the OLD row for a delete. Listen for them with `@imqueue/pg-pubsub`<!-- -->, or any `LISTEN` client.
+Creates one shared plpgsql function and attaches a row-level trigger to each table in `models`<!-- -->, firing after every insert, update and delete. Each notification is a JSON payload with four keys — `schema`<!-- -->, `table`<!-- -->, `op` (`INSERT`<!-- -->, `UPDATE` or `DELETE`<!-- -->) and `row` — where `row` is the new row, or the OLD row for a delete. `schema` is what makes a listener able to tell two tables of the same name apart, which is the ordinary case once a service creates schemas of its own. Listen for them with `@imqueue/pg-pubsub`<!-- -->, or any `LISTEN` client.
 
 The whole thing runs in one transaction and is idempotent, so it is safe on every start. It also reconciles in both directions: `models` is the complete desired set, read against `information_schema.triggers`<!-- -->, so a table that carries the trigger but is not listed has it dropped. Calling this with an empty or omitted `models` therefore REMOVES every trigger of that name — it is not a no-op.
+
+Reconciliation is confined to the schemas `models` mentions, plus `schema` itself. A service that installs triggers per tenant schema can therefore reconcile one of them without tearing down the others.
 
 Two limits worth knowing. Postgres caps a notification payload at 8000 bytes and raises an error beyond it, so a table with large rows can make its own writes fail — this is unsuitable for wide or blob-bearing tables. And the trigger fires per row inside the writing transaction, so a bulk write produces one notification per row, delivered only if that transaction commits.
 

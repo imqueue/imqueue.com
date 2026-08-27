@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "pg-prisma",
-  "apiVersion": "1.0.3",
+  "apiVersion": "1.1.0",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-22T06:11:35.992Z",
+  "apiReleased": "2026-08-27T11:29:19.815Z",
   "apiNav": [
     {
       "group": "Functions",
@@ -61,6 +61,10 @@
         {
           "name": "toIsoDates(value)",
           "url": "/api/pg-prisma/latest/pg-prisma.toisodates/"
+        },
+        {
+          "name": "withoutChangeNotify(client, fn, setting)",
+          "url": "/api/pg-prisma/latest/pg-prisma.withoutchangenotify/"
         }
       ]
     },
@@ -143,6 +147,10 @@
         {
           "name": "CHANGE_NOTIFY_FUNCTION_NAME",
           "url": "/api/pg-prisma/latest/pg-prisma.change_notify_function_name/"
+        },
+        {
+          "name": "CHANGE_NOTIFY_SUPPRESS_SETTING",
+          "url": "/api/pg-prisma/latest/pg-prisma.change_notify_suppress_setting/"
         },
         {
           "name": "CHANGE_NOTIFY_TRIGGER_NAME",

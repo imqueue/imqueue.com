@@ -19,5 +19,7 @@ models?: readonly string[];
 
 ## Remarks
 
-Reconciliation is two-way: a table listed here without the trigger gets it, and a table that HAS the trigger but is not listed here has it dropped. So omitting `models` entirely (the default empty array) removes the trigger from every table it is currently on.
+Reconciliation is two-way: a table listed here without the trigger gets it, and a table that HAS the trigger but is not listed here has it dropped.
+
+It is confined to the schemas these names mention, so a call listing only public tables leaves triggers in other schemas alone — otherwise a service that installs per-schema would tear down its own work on the next start. Within those schemas it is absolute: omitting `models` entirely removes the trigger from every table in the default schema.
 

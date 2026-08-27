@@ -65,7 +65,7 @@ command-line tool and wants `npm i -g @imqueue/cli`.
 | [@imqueue/pg-cache](/api/pg-cache/latest/) | 5.1.2 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
 | [@imqueue/tag-cache](/api/tag-cache/latest/) | 3.0.5 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
 | [@imqueue/pg-sequelize](/api/pg-sequelize/latest/) | 4.2.3 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
-| [@imqueue/pg-prisma](/api/pg-prisma/latest/) | 1.0.3 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
+| [@imqueue/pg-prisma](/api/pg-prisma/latest/) | 1.1.0 | GPL-3.0-only | `>=22.12.0` | 2026-08-27 |
 | [@imqueue/async-logger](/api/async-logger/latest/) | 3.2.0 | GPL-3.0-only | `>=22.12.0` | 2026-07-31 |
 | [@imqueue/opentelemetry](/api/opentelemetry/latest/) | 4.1.1 | GPL-3.0-only | `>=22.12.0` | 2026-08-22 |
 | [@imqueue/datadog](/api/datadog/latest/) | 3.2.1 | GPL-3.0-only | not declared | 2026-08-22 |
