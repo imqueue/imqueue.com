@@ -37,6 +37,14 @@ import { copyPeers } from './copy-peer-index.ts';
 
 const ROOT = path.join(import.meta.dirname, '..');
 const ELEVENTY = path.join(ROOT, 'node_modules', '.bin', 'eleventy');
+// Eleventy only AUTO-DISCOVERS eleventy.config.{js,cjs,mjs} — NOT `.mts` (see the
+// note at the top of eleventy.config.mts). Every npm script that runs eleventy
+// (edition:org/com) therefore passes this explicitly, and this spawn has to as well:
+// without it eleventy runs with NO config, which silently drops the input/includes
+// dirs and fails with "layout _includes/base.html does not exist". That is exactly
+// how the Cloudflare Pages build (which runs `npm run build:org`/`build:com`) broke
+// when the config was renamed .js -> .mts and this file kept relying on discovery.
+const CONFIG = 'eleventy.config.mts';
 const EDITIONS = ['org', 'com'];
 
 const edition = process.argv[2] ?? '';
@@ -53,7 +61,7 @@ const peer = EDITIONS.find((name) => name !== edition) ?? '';
 function build(name: string): boolean {
   console.log(`\n[build] EDITION=${name}`);
 
-  const result = spawnSync(ELEVENTY, [], {
+  const result = spawnSync(ELEVENTY, [`--config=${CONFIG}`], {
     cwd: ROOT,
     stdio: 'inherit',
     env: { ...process.env, EDITION: name },
