@@ -62,6 +62,33 @@ export function discoverFunctions(): { endpoints: string[]; apiPackages: string[
   return { endpoints: [...new Set(endpoints)], apiPackages };
 }
 
+/**
+ * Assemble the full enumerated attack surface for the report's Discovery inventory:
+ * endpoints + /api packages from the functions tree, and forms + external origins from
+ * a bounded sample of the site's HTML (pages likely to carry a form are always
+ * included, so the two email forms are never missed). Read-only; a sample, not a full
+ * crawl, because the inventory only needs to name the surface, not exhaust it.
+ */
+export async function discoverSurface(target: Target, sampleLimit = 40): Promise<Surface> {
+  const { endpoints, apiPackages } = discoverFunctions();
+
+  const all = await listHtmlUrls(target);
+  const likelyForm = all.filter((u) => /contact|message|support/i.test(u));
+  const sample = [...new Set([...likelyForm, ...all])].slice(0, Math.max(sampleLimit, likelyForm.length));
+
+  const forms: FormInfo[] = [];
+  const origins = new Set<string>();
+
+  for (const url of sample) {
+    const html = await getHtml(target, url);
+    if (!html) continue;
+    for (const f of discoverForms(html, url)) forms.push(f);
+    for (const host of discoverExternalOrigins(html)) origins.add(host);
+  }
+
+  return { endpoints, apiPackages, forms, externalOrigins: [...origins].sort() };
+}
+
 /* ---- HTML documents to inspect --------------------------------------------- */
 
 /** For local: every built .html file (as a repo-relative site path). For remote: a sample. */

@@ -21,11 +21,23 @@ import { REPO_ROOT } from "../tests/e2e/server/pages-core.ts";
 import { FLOOR } from "./security/policy.ts";
 import { printConsole } from "./security/lib.ts";
 import { runAssessment } from "./security/run.ts";
+import { runSelfTests } from "./security/selftest.ts";
 import { createLocalTarget, type Target } from "./security/target.ts";
 
 const EDITIONS: ("org" | "com")[] = ["org", "com"];
 
 async function main(): Promise<void> {
+  // Tests-of-the-tests FIRST: a check whose regex silently stopped matching would
+  // record a pass and look clean. If a known-bad fixture goes green, fail here before
+  // trusting the run below.
+  const self = await runSelfTests();
+  if (self.failed) {
+    console.error(`check:security — self-tests FAILED (${self.failed}/${self.ran}); the checks themselves are broken:`);
+    for (const f of self.failures) console.error(`  ✗ ${f}`);
+    process.exit(1);
+  }
+  console.log(`check:security — self-tests passed (${self.ran} case(s)).`);
+
   for (const edition of EDITIONS) {
     if (!existsSync(path.join(REPO_ROOT, `_site-${edition}`, "index.html"))) {
       console.error(
@@ -55,6 +67,12 @@ async function main(): Promise<void> {
     }
 
     console.log(`\ncheck:security passed — no findings at or above ${FLOOR} on either edition.`);
+    console.log(
+      "Note: this is the LOCAL gate — it cannot see edge-only behaviour (zone Transform Rules such as a\n" +
+        "re-injected Access-Control-Allow-Origin, TLS/HSTS, WAF/rate-limits, the CDN cache, and the\n" +
+        "Pages-owned /_headers, /_redirects, /robots.txt). Run `npm run pentest -- --target remote`\n" +
+        "after deploy to confirm the live edge.",
+    );
   } finally {
     for (const t of targets) await t.close();
   }

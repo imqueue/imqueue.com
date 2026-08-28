@@ -29,6 +29,15 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 
+# Least privilege: this job only reads the repo and runs offline checks — it never
+# pushes, comments, or touches any other API. Pinning contents:read here drops the
+# default GITHUB_TOKEN from whatever the repo/org default is (often read/write) to the
+# one scope it needs, so a compromised dependency in the build cannot use the token to
+# write. The workflows that DO push (refresh-api-docs, repin-ranker, sync-cli-guide,
+# weekly-maintenance) declare their own broader scope and use BOT_PUSH_TOKEN anyway.
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest

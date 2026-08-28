@@ -16,6 +16,11 @@ concurrency:
   group: indexnow
   cancel-in-progress: true
 
+# Least privilege: this job reads the repo, builds, and pings the IndexNow HTTP API —
+# it never writes back to the repo or any GitHub API, so the token needs read only.
+permissions:
+  contents: read
+
 jobs:
   ping:
     runs-on: ubuntu-latest

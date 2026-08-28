@@ -194,3 +194,45 @@ test('a result leads to the page it names', async ({ page }) => {
   expect(response.status()).toBe(200);
   expect(new URL(page.url()).pathname).toBe(withoutHash(href));
 });
+
+// The query is reflected into the field, the title and the status line, and the
+// results are drawn in the browser from JSON. The renderer builds every node with
+// createElement + textContent (see vendor/search-ranker/src/ui/render.ts), so a query
+// that is markup must be shown as text, never parsed into live DOM or executed. This is
+// the DOM-XSS coverage the server-side pentest harness deliberately does NOT attempt
+// (a static page's body never echoes the query) — it can only be proven in a browser.
+test.describe('a query that is markup is treated as text, never executed', () => {
+  const PAYLOADS = [
+    '<img src=x onerror="window.__xss=1">',
+    '<script>window.__xss=1</script>',
+    '"><svg onload="window.__xss=1">',
+  ];
+
+  for (const payload of PAYLOADS) {
+    test(`neither executes nor injects live DOM: ${payload.slice(0, 24)}…`, async ({ page }) => {
+      let dialogFired = false;
+      page.on('dialog', (d) => {
+        dialogFired = true;
+        void d.dismiss();
+      });
+
+      await page.goto(`/search/?q=${encodeURIComponent(payload)}`);
+      await page.locator('[data-search-page]').waitFor({ state: 'visible' });
+      // Give any (mis)injected handler a tick to run.
+      await page.waitForTimeout(150);
+
+      // 1. No script side-effect ran.
+      expect(await page.evaluate(() => (window as unknown as { __xss?: number }).__xss)).toBeUndefined();
+      expect(dialogFired).toBe(false);
+
+      // 2. The payload was not parsed into live nodes — no injected <img>/<svg>/<script>
+      //    carrying the marker exists in the document.
+      expect(await page.locator('img[src="x"]').count()).toBe(0);
+      expect(await page.locator('svg[onload]').count()).toBe(0);
+
+      // 3. It IS echoed back — as the field value, i.e. as text, proving it round-trips
+      //    without being interpreted.
+      await expect(page.locator('.s-page__input')).toHaveValue(payload);
+    });
+  }
+});

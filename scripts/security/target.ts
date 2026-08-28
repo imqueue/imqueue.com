@@ -174,11 +174,17 @@ export async function createLocalTarget(edition: "org" | "com"): Promise<Target>
 
       res.end(Buffer.from(await response.arrayBuffer()));
     } catch (error) {
-      // Mirror pages-server's fail-visible behaviour, so a probe that trips a real
-      // 500 sees the same shape the disclosure check looks for.
+      // A THROWN handler is a 500 that, on Cloudflare, returns a generic body — the
+      // stack never reaches the client. So the local wrapper must do the same: return a
+      // generic body and log the stack to stderr for the operator. Putting the stack in
+      // the response body instead would manufacture a disclosure/stack-trace finding
+      // that the real edge would never produce (E6). A genuine app-level leak — a
+      // handler that RETURNS a 500 whose body contains a trace — is unaffected: that
+      // response is passed through above and still caught by the disclosure check.
+      console.error(`security-server: handler threw for ${req.method} ${req.url}\n`, error instanceof Error ? error.stack : String(error));
       res.statusCode = 500;
       res.setHeader("content-type", "text/plain; charset=utf-8");
-      res.end(`security-server: ${error instanceof Error ? error.stack : String(error)}`);
+      res.end("Internal Server Error");
     }
   });
 

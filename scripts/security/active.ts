@@ -6,6 +6,9 @@
 // and locally there is no RESEND_API_KEY so the send path returns a config error.
 // A researcher's own site is in scope; sending its owner spam is not.
 
+import { connect as tlsConnect } from "node:tls";
+import { resolveTxt } from "node:dns/promises";
+
 import type { Report, Sink } from "./lib.ts";
 import { rule, SENSITIVE_PATHS } from "./policy.ts";
 import { discoverFunctions } from "./discovery.ts";
@@ -57,6 +60,7 @@ const JSON_HEADERS = { "content-type": "application/json" };
 export async function checkExposure(target: Target, sink: Sink): Promise<void> {
   const leaks: Occurrence[] = [];
   const maps: Occurrence[] = [];
+  const listings: Occurrence[] = [];
 
   for (const p of SENSITIVE_PATHS) {
     const res = await target.fetch(p);
@@ -72,27 +76,36 @@ export async function checkExposure(target: Target, sink: Sink): Promise<void> {
     }
   }
 
-  // A directory that has no index must 404, not list. Probe a couple.
+  // A directory that has no index must 404, not list. Reported under its own rule
+  // (exposure/directory-listing) rather than lumped in with served sensitive files.
   for (const dir of ["/js/", "/images/", "/fonts/"]) {
     const res = await target.fetch(dir);
     if (res.status === 200 && /<title>Index of|Directory listing/i.test(res.body)) {
-      leaks.push({ loc: dir, detail: "directory listing" });
+      listings.push({ loc: dir, detail: "directory listing" });
     }
   }
 
   aggregate(sink, "exposure/sensitive-file", leaks);
   aggregate(sink, "exposure/source-map", maps);
+  aggregate(sink, "exposure/directory-listing", listings);
 }
 
 /* ---- HTTP method tampering ------------------------------------------------- */
 
 export async function checkMethods(target: Target, sink: Sink): Promise<void> {
-  const paths = ["/", "/api/contact", "/api/message"];
+  const { endpoints } = discoverFunctions();
+  // The two form endpoints, root, and every discovered /api route — so a newly
+  // generated package is method-probed automatically (S1), not just the hardcoded two.
+  const paths = [...new Set(["/", "/api/contact", "/api/message", ...endpoints])];
   // fetch() refuses CONNECT/TRACE/TRACK, which is also what a browser does, so they
   // are effectively untestable from here — the ones a client can actually send are.
   const methods = ["PUT", "DELETE", "PATCH"];
   const dangerous: Occurrence[] = [];
   const stacks: Occurrence[] = [];
+
+  // TRACE/TRACK/CONNECT cannot be sent by fetch() (a browser refuses them too), so the
+  // harness genuinely cannot exercise them — recorded as not-exercised, not as a pass.
+  sink.skip("method/dangerous@trace", "TRACE/TRACK/CONNECT are not sendable via fetch() (browser-blocked); only PUT/DELETE/PATCH are exercised");
 
   for (const p of paths) {
     for (const method of methods) {
@@ -202,12 +215,56 @@ export async function checkInjection(target: Target, sink: Sink): Promise<void> 
   const pathXss = await target.fetch(`/${encodeURIComponent(XSS)}`);
   if (pathXss.body.includes(XSS)) reflected.push({ loc: "404 path", detail: "path reflected into 404" });
 
-  // 5. Reflected XSS via the search query string (server returns a static page).
-  const q = await target.fetch(`/search/?q=${encodeURIComponent(XSS)}`);
-  if (q.body.includes(XSS)) reflected.push({ loc: "/search/?q=", detail: "query reflected server-side" });
+  // 5. /search/ renders results in the BROWSER from a static page; the server never
+  //    echoes the query, so asserting on the server body proved nothing (it always
+  //    passed). That assurance is false, so the server-side assertion is dropped — the
+  //    real DOM-XSS coverage lives in the Playwright e2e suite (search-page.spec.ts).
+  sink.skip("input/xss-reflected@search", "/search reflects the query client-side only; DOM-XSS is covered by tests/e2e/specs/search-page.spec.ts, not observable from a server-body grep");
+
+  // 6. Email header (CR/LF) injection — defense-in-depth (O1). No live vuln expected:
+  //    values reach Resend as JSON, and isEmail() rejects whitespace. The probe sends a
+  //    CR/LF payload and confirms it neither crashes the endpoint nor is reflected into
+  //    a RESPONSE header (a header-shaped echo would be the tell).
+  const crlf = "probe\r\nBcc: injected@scanner.invalid";
+  const mailProbe = safeBody(target, {
+    name: crlf,
+    email: "probe@scanner.invalid",
+    subject: crlf,
+    message: "crlf probe",
+  });
+  const mailRes = await target.fetch("/api/message", { method: "POST", headers: JSON_HEADERS, body: mailProbe });
+  // The genuine injection signal is a CR/LF field VALUE surfacing as a response header
+  // (a header the endpoint never sets, or an injected value inside one). A 5xx is NOT
+  // used here: locally a valid submission always 500s ("Mail service is not
+  // configured", no RESEND_API_KEY) — that is the config path, not a CR/LF crash, and
+  // treating it as one is a false positive. A real unhandled crash still shows as a
+  // stack in the body, which looksLikeStack catches.
+  const headerEcho =
+    [...mailRes.headers.keys()].some((k) => /^bcc$|injected/i.test(k)) ||
+    [...mailRes.headers.values()].some((v) => v.includes("injected@scanner.invalid"));
+  if (headerEcho) {
+    sink.add(rule("input/mail-header-injection"), {
+      location: "/api/message",
+      evidence: "a CR/LF field value appeared in a response header",
+    });
+  } else if (looksLikeStack(mailRes.body)) {
+    sink.add(rule("input/mail-header-injection"), {
+      location: "/api/message",
+      evidence: "CR/LF field value produced a stack trace (unhandled input)",
+    });
+  } else {
+    sink.pass("input/mail-header-injection");
+  }
+
+  // On remote the email POST is honeypot-shadowed (it returns ok BEFORE the fields are
+  // processed), so an echo bug in the mail path is not observable there — record the
+  // echo assertions as not-exercised on remote rather than a hollow pass.
+  if (target.kind === "remote") {
+    sink.skip("input/injection-echo", "email endpoint is honeypot-shadowed on remote (returns ok before processing fields); echo behaviour is exercised locally");
+  }
 
   aggregate(sink, "input/xss-reflected", reflected);
-  aggregate(sink, "input/injection-echo", echoed);
+  if (target.kind === "local") aggregate(sink, "input/injection-echo", echoed);
   aggregate(sink, "disclosure/stack-trace", stacks);
   aggregate(sink, "disclosure/verbose-error-500", badStatus);
 }
@@ -221,7 +278,7 @@ export async function checkOversized(target: Target, sink: Sink): Promise<void> 
   // short-circuits before attachments are read, so the cap is not observable without
   // risking a send; it is asserted locally instead.
   if (target.kind !== "local") {
-    sink.pass("input/oversized-accepted");
+    sink.skip("input/oversized-accepted", "the 5 MB attachment cap is asserted locally only; on remote the honeypot short-circuits before attachments are read, so the cap is not observable without risking a send");
     return;
   }
 
@@ -255,6 +312,45 @@ export async function checkOversized(target: Target, sink: Sink): Promise<void> 
   }
 }
 
+/* ---- attachment abuse (local only) ----------------------------------------- */
+
+// Abusive attachments must be rejected with a clean 4xx, never accepted (2xx) and
+// never crash the endpoint (5xx/stack). Local only, for the same reason as oversized:
+// a VALID attachment would reach the mail path, and a bad one is rejected before it.
+export async function checkAttachments(target: Target, sink: Sink): Promise<void> {
+  if (target.kind !== "local") {
+    sink.skip("input/attachment-unvalidated", "attachment validation is asserted locally only; a valid attachment would reach the mail path on remote");
+    return;
+  }
+
+  const cases: { detail: string; attachments: unknown }[] = [
+    { detail: "disallowed type/extension", attachments: [{ filename: "evil.exe", type: "application/x-msdownload", data: "QQ==" }] },
+    { detail: "invalid base64", attachments: [{ filename: "x.png", type: "image/png", data: "@@@ not base64 @@@" }] },
+    { detail: "malformed attachments (not a list)", attachments: "nope" },
+  ];
+
+  const bad: Occurrence[] = [];
+  const stacks: Occurrence[] = [];
+
+  for (const c of cases) {
+    const body = JSON.stringify({
+      name: "Probe",
+      email: "probe@scanner.invalid",
+      subject: "attachment probe",
+      message: "attachment probe",
+      attachments: c.attachments,
+    });
+    const res = await target.fetch("/api/message", { method: "POST", headers: JSON_HEADERS, body });
+
+    if (res.status >= 500) bad.push({ loc: "/api/message", detail: `${c.detail} → ${res.status} (want 4xx)` });
+    else if (res.status >= 200 && res.status < 300) bad.push({ loc: "/api/message", detail: `${c.detail} accepted (2xx, want 4xx)` });
+    if (looksLikeStack(res.body)) stacks.push({ loc: "/api/message", detail: c.detail });
+  }
+
+  aggregate(sink, "input/attachment-unvalidated", bad);
+  if (stacks.length) aggregate(sink, "disclosure/stack-trace", stacks);
+}
+
 /* ---- open redirect --------------------------------------------------------- */
 
 // A distinctive host that appears in NO legitimate redirect target. An open redirect
@@ -269,11 +365,18 @@ export async function checkOpenRedirect(target: Target, sink: Sink): Promise<voi
     `/%2f%2f${REDIRECT_MARKER}/`,
     `/%5c%5c${REDIRECT_MARKER}/`,
     `/.%2e/${REDIRECT_MARKER}`,
-    `/api/core/%2f%2f${REDIRECT_MARKER}`,
     `/?redirect=https://${REDIRECT_MARKER}`,
     `/?url=https://${REDIRECT_MARKER}`,
     `//${REDIRECT_MARKER}/`,
   ];
+
+  // Every discovered /api package is a redirecting catch-all (a bare /api/<pkg> 301s
+  // to /latest/), so probe each for a marker escaping into the Location host (S1),
+  // rather than only the one hardcoded /api/core hop.
+  const { apiPackages } = discoverFunctions();
+  const pkgs = apiPackages.length ? apiPackages : ["core"];
+  for (const pkg of pkgs) vectors.push(`/api/${pkg}/%2f%2f${REDIRECT_MARKER}`);
+
   const hits: Occurrence[] = [];
 
   for (const v of vectors) {
@@ -299,27 +402,197 @@ export async function checkOpenRedirect(target: Target, sink: Sink): Promise<voi
 /* ---- transport (remote only) ---------------------------------------------- */
 
 export async function checkTransport(target: Target, sink: Sink): Promise<void> {
-  if (target.kind !== "remote") return;
-
-  const httpUrl = `http://${target.host}/`;
-  const res = await target.fetch(httpUrl);
-
-  // 0 = the connection failed outright (also acceptable — nothing served over http).
-  if (res.status === 0) {
-    sink.pass("transport/no-https-redirect");
+  if (target.kind !== "remote") {
+    sink.skip("transport/no-https-redirect", "http→https redirect is an edge behaviour, exercised in remote mode only");
     return;
   }
 
-  const redirectsToHttps =
-    res.status >= 300 && res.status < 400 && (res.location ?? "").startsWith("https://");
+  // Probe the apex root, a deep path, and the www host — a redirect rule that covers
+  // only `/` would still leave a deep link interceptable, so all three must redirect.
+  const targets = [
+    `http://${target.host}/`,
+    `http://${target.host}/docs/`,
+    `http://www.${target.host.replace(/^www\./, "")}/`,
+  ];
+  const bad: Occurrence[] = [];
 
-  if (!redirectsToHttps) {
-    sink.add(rule("transport/no-https-redirect"), {
-      location: httpUrl,
-      evidence: `status ${res.status}${res.location ? `, Location: ${res.location}` : ", no redirect"}`,
+  for (const httpUrl of targets) {
+    const res = await target.fetch(httpUrl);
+
+    // 0 = the connection failed outright (also acceptable — nothing served over http).
+    if (res.status === 0) continue;
+
+    const loc = res.location ?? "";
+    const toHttps = res.status >= 300 && res.status < 400 && loc.startsWith("https://");
+    // A permanent (301/308) redirect is what HSTS/graders expect; a 302 works but is
+    // called out as evidence rather than passed silently.
+    if (!toHttps) {
+      bad.push({ loc: httpUrl, detail: `status ${res.status}${loc ? `, Location: ${loc}` : ", no redirect"}` });
+    } else if (res.status !== 301 && res.status !== 308) {
+      bad.push({ loc: httpUrl, detail: `redirects with ${res.status}, prefer a permanent 301` });
+    }
+  }
+
+  aggregate(sink, "transport/no-https-redirect", bad);
+}
+
+/* ---- email-endpoint rate-limiting (tracked, not sent) ---------------------- */
+
+// The one genuinely live gap for these sites, made first-class here (L1). Rate-limiting
+// / anti-automation on the email endpoints is a Cloudflare edge control (a WAF rate
+// rule or Turnstile) that the harness CANNOT verify without sending a burst — exactly
+// the DoS the assessment forbids. So the finding is always emitted for the two email
+// endpoints and folded into an accepted risk (policy.ACCEPTED), which surfaces it in
+// every report's accepted-risk table instead of leaving it buried in prose.
+export async function checkRateLimit(target: Target, sink: Sink): Promise<void> {
+  sink.add(rule("abuse/no-rate-limit"), {
+    location: "/api/contact, /api/message",
+    evidence:
+      "rate-limiting is an edge/WAF control the harness cannot confirm non-destructively; tracked pending owner confirmation of a Cloudflare rate rule / Turnstile",
+  });
+}
+
+/* ---- host-header injection (remote only) ----------------------------------- */
+
+// A crafted Host / X-Forwarded-Host must not reach an absolute URL or a redirect
+// Location. Locally the internal Request host is fixed to the edition, so this is only
+// meaningful against the live edge. No live exposure expected (security.txt/canonical
+// are pinned to editionDomain), so this is a regression tripwire.
+export async function checkHostHeader(target: Target, sink: Sink): Promise<void> {
+  if (target.kind !== "remote") {
+    sink.skip("host-header/injection", "the local target pins the request Host to the edition; crafted-Host behaviour is only observable against the live edge");
+    return;
+  }
+
+  const evil = "scanner-host-injection.example";
+  const hits: Occurrence[] = [];
+
+  for (const p of ["/", "/.well-known/security.txt"]) {
+    for (const header of ["host", "x-forwarded-host"]) {
+      const res = await target.fetch(p, { headers: { [header]: evil } });
+      const loc = res.location ?? "";
+      const bodyHasEvil = res.body.includes(evil);
+      let locHost = "";
+      try {
+        locHost = loc ? new URL(loc, target.origin).host : "";
+      } catch {
+        locHost = loc;
+      }
+      if (locHost.includes(evil) || bodyHasEvil) {
+        hits.push({ loc: `${header} → ${p}`, detail: locHost.includes(evil) ? `reflected into Location: ${loc}` : "reflected into body" });
+      }
+    }
+  }
+
+  aggregate(sink, "host-header/injection", hits);
+}
+
+/* ---- TLS minimum version (remote only) ------------------------------------- */
+
+// A handshake that SUCCEEDS at TLS 1.0/1.1 is the finding. fetch() cannot pin a max
+// version, so this uses a raw TLS socket. Edge-level control (Cloudflare), so remote
+// only. Non-destructive: it opens one socket and closes it.
+export async function checkTls(target: Target, sink: Sink): Promise<void> {
+  if (target.kind !== "remote") {
+    sink.skip("transport/weak-tls", "TLS version negotiation is an edge control, not observable against the local loopback target");
+    return;
+  }
+
+  const host = target.host;
+  const negotiatedOldTls = await new Promise<string | null>((resolve) => {
+    let settled = false;
+    const done = (v: string | null) => {
+      if (!settled) {
+        settled = true;
+        resolve(v);
+      }
+    };
+    // Ask for at most TLS 1.1. If the edge completes the handshake, it accepts a
+    // deprecated version; a healthy edge refuses and the socket errors instead.
+    const socket = tlsConnect(
+      { host, port: 443, servername: host, minVersion: "TLSv1", maxVersion: "TLSv1.1", timeout: 8000 },
+      () => {
+        const proto = socket.getProtocol();
+        socket.end();
+        done(proto ?? "unknown");
+      },
+    );
+    socket.on("error", () => done(null));
+    socket.on("timeout", () => {
+      socket.destroy();
+      done(null);
+    });
+  });
+
+  if (negotiatedOldTls) {
+    sink.add(rule("transport/weak-tls"), {
+      location: `${host}:443`,
+      evidence: `handshake succeeded at ${negotiatedOldTls} (want a minimum of TLS 1.2)`,
     });
   } else {
-    sink.pass("transport/no-https-redirect");
+    sink.pass("transport/weak-tls");
+  }
+}
+
+/* ---- DNS email-auth posture (remote only) ---------------------------------- */
+
+// Email is the site's core function, so a missing SPF or DMARC record is worth
+// flagging — it lets the domain be spoofed in From:. Remote only (needs public DNS).
+export async function checkEmailAuth(target: Target, sink: Sink): Promise<void> {
+  if (target.kind !== "remote") {
+    sink.skip("dns/email-auth-missing", "DNS posture (SPF/DMARC) is checked in remote mode only");
+    return;
+  }
+
+  const domain = target.host.replace(/^www\./i, "");
+  const missing: string[] = [];
+
+  const txt = async (name: string): Promise<string[]> => {
+    try {
+      return (await resolveTxt(name)).map((chunks) => chunks.join(""));
+    } catch {
+      return [];
+    }
+  };
+
+  const root = await txt(domain);
+  if (!root.some((r) => /^v=spf1/i.test(r.trim()))) missing.push("SPF (no v=spf1 TXT on the apex)");
+
+  const dmarc = await txt(`_dmarc.${domain}`);
+  if (!dmarc.some((r) => /^v=DMARC1/i.test(r.trim()))) missing.push("DMARC (no v=DMARC1 TXT at _dmarc)");
+
+  if (missing.length) {
+    sink.add(rule("dns/email-auth-missing"), { location: domain, evidence: missing.join("; ") });
+  } else {
+    sink.pass("dns/email-auth-missing");
+  }
+}
+
+/* ---- agent-analytics header reflection ------------------------------------- */
+
+// The edge tags agent-surface responses with x-agent-analytics, built from the request
+// UA/Referer but as classified enum tokens only. Assert a crafted UA/Referer is never
+// reflected verbatim into that header (S8). Runs on any target that emits the header;
+// where it is absent (analytics off), there is nothing to reflect.
+export async function checkAgentAnalytics(target: Target, sink: Sink): Promise<void> {
+  const marker = "scanner-reflect-9x7";
+  const res = await target.fetch("/llms.txt", {
+    headers: { "user-agent": `${marker}/1.0`, referer: `https://${marker}.example/x` },
+  });
+  const note = res.headers.get("x-agent-analytics");
+
+  if (note === null) {
+    sink.skip("disclosure/agent-analytics-reflection", "no x-agent-analytics header on this response (analytics not configured or not an agent surface)");
+    return;
+  }
+
+  if (note.includes(marker)) {
+    sink.add(rule("disclosure/agent-analytics-reflection"), {
+      location: "/llms.txt",
+      evidence: `x-agent-analytics reflected the crafted UA/Referer: ${note.slice(0, 120)}`,
+    });
+  } else {
+    sink.pass("disclosure/agent-analytics-reflection");
   }
 }
 
@@ -336,8 +609,14 @@ export async function runActiveChecks(target: Target, sink: Sink, report: Report
   await checkCors(target, sink);
   await checkInjection(target, sink);
   await checkOversized(target, sink);
+  await checkAttachments(target, sink);
+  await checkRateLimit(target, sink);
   await checkOpenRedirect(target, sink);
   await checkTransport(target, sink);
+  await checkHostHeader(target, sink);
+  await checkTls(target, sink);
+  await checkEmailAuth(target, sink);
+  await checkAgentAnalytics(target, sink);
 
   report.note(`${target.label}: active probes complete`);
 }

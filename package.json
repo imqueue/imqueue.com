@@ -37,6 +37,7 @@
   "scripts": {
     "test": "npm run check:types && npm run check:redirects && npm run check:agent-analytics && npm run check:dates && npm run check:package-status && npm run sync-cli-guide:check && npm run check:links && npm run check:sitemap && npm run check:llms && npm run check:search-ranker && npm run check:search-index && npm run check:search-ranking && npm run check:kpi && npm run check:search-ui && npm run check:jsonld && npm run check:mermaid && npm run check:email-literals && npm run check:security",
     "check:security": "node scripts/check-security.ts",
+    "check:security:selftest": "node scripts/security/selftest.ts",
     "pentest": "node scripts/pentest.ts",
     "check:redirects": "node scripts/check-redirects.ts",
     "check:agent-analytics": "node scripts/check-agent-analytics.ts",

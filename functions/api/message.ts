@@ -58,7 +58,10 @@ interface ResendEmail {
 const json = (data: unknown, status = 200): Response =>
   new Response(JSON.stringify(data), {
     status,
-    headers: { "Content-Type": "application/json" },
+    // no-store: this is a per-request API response, never a cacheable document.
+    // Keeps an intermediary or the edge from holding one caller's result for another
+    // (CWE-525 / WSTG-ATHN-06), asserted by the headers/cache-sensitive check.
+    headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
 
 const isEmail = (v: unknown): boolean =>

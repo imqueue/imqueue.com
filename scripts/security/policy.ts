@@ -18,7 +18,7 @@
 // gap is a finding the moment a check sees it, and stays one until it is fixed or
 // deliberately accepted here.
 
-import type { Rule, Severity } from "./lib.ts";
+import type { Rule, ScopeInfo, Severity } from "./lib.ts";
 
 /* ---- the tripwire's failure threshold -------------------------------------- */
 
@@ -82,6 +82,22 @@ const CATALOGUE: Rule[] = [
       "Regenerate the CSP hash list from the build output (scripts/lib/csp.ts runs in build:*), or the new inline script will break under the enforcing policy.",
   },
   {
+    id: "headers/csp-style-unsafe-inline",
+    // style-src carries 'unsafe-inline' because ~1,900 pages ship inline style
+    // attributes; removing it would break every one, and style injection is a far
+    // smaller risk than script injection (which takes no such shortcut). Recorded in
+    // policy.ACCEPTED so the trade-off is auditable in the ledger rather than silent.
+    title: "CSP style-src allows 'unsafe-inline'",
+    severity: "low",
+    cwe: [79],
+    owasp: ["A05:2021"],
+    standards: ["OWASP Secure Headers Project", "Mozilla Observatory"],
+    nist: "Discovery",
+    ptes: "Vulnerability Analysis",
+    remediation:
+      "Prefer hashed/nonce'd styles over 'unsafe-inline' in style-src. Accepted here: the site relies on inline style attributes across ~1,900 pages and style injection is low-risk relative to script.",
+  },
+  {
     id: "headers/hsts-missing",
     title: "No Strict-Transport-Security",
     severity: "medium",
@@ -95,9 +111,12 @@ const CATALOGUE: Rule[] = [
   },
   {
     id: "headers/xcto-missing",
+    // CWE-693 (Protection Mechanism Failure) is the accurate class: a missing nosniff
+    // is the absence of a protection, not a wrong-handler deployment (CWE-430) or the
+    // deprecated CWE-16 (Configuration category, not a weakness).
     title: "No X-Content-Type-Options: nosniff",
     severity: "medium",
-    cwe: [430, 16],
+    cwe: [693],
     owasp: ["A05:2021"],
     standards: ["OWASP Secure Headers Project", "Mozilla Observatory"],
     nist: "Discovery",
@@ -151,11 +170,15 @@ const CATALOGUE: Rule[] = [
   },
   {
     id: "headers/coop-missing",
+    // CWE-668 (Exposure of Resource to Wrong Sphere): COOP isolates the browsing
+    // context so a cross-origin opener cannot reach it. Not CWE-1021 (clickjacking),
+    // which is X-Frame-Options / frame-ancestors. Cited to the OWASP Secure Headers
+    // Project — COOP is not in Mozilla Observatory's scored set.
     title: "No Cross-Origin-Opener-Policy",
     severity: "low",
-    cwe: [1021],
+    cwe: [668],
     owasp: ["A05:2021"],
-    standards: ["Mozilla Observatory"],
+    standards: ["OWASP Secure Headers Project"],
     nist: "Discovery",
     ptes: "Vulnerability Analysis",
     remediation: "Add Cross-Origin-Opener-Policy: same-origin on /*.",
@@ -164,8 +187,10 @@ const CATALOGUE: Rule[] = [
     id: "headers/corp-missing",
     title: "No Cross-Origin-Resource-Policy",
     severity: "info",
-    cwe: [200],
-    standards: ["Mozilla Observatory"],
+    cwe: [668],
+    // CORP is not scored by Mozilla Observatory either; the OWASP Secure Headers
+    // Project is the correct provenance.
+    standards: ["OWASP Secure Headers Project"],
     nist: "Discovery",
     ptes: "Vulnerability Analysis",
     remediation: "Add Cross-Origin-Resource-Policy: same-origin on /* (or same-site if cross-subdomain assets are needed).",
@@ -207,9 +232,10 @@ const CATALOGUE: Rule[] = [
   /* RFC 9116 — security.txt -------------------------------------------------- */
   {
     id: "rfc9116/missing",
+    // No CWE: a missing security.txt is a conformance gap with RFC 9116, not an
+    // information-disclosure weakness (CWE-200, which was the reverse of the problem).
     title: "No /.well-known/security.txt",
     severity: "medium",
-    cwe: [200],
     standards: ["RFC 9116"],
     nist: "Discovery",
     ptes: "Intelligence Gathering",
@@ -236,12 +262,36 @@ const CATALOGUE: Rule[] = [
   },
   {
     id: "rfc9116/served-type",
-    title: "security.txt is not served as text/plain",
+    title: "security.txt is not served as text/plain; charset=utf-8",
     severity: "low",
     standards: ["RFC 9116 §3"],
     nist: "Discovery",
     ptes: "Intelligence Gathering",
     remediation: "Serve /.well-known/security.txt with Content-Type: text/plain; charset=utf-8.",
+  },
+  {
+    id: "rfc9116/expires-far",
+    // RFC 9116 §2.5.5 RECOMMENDS (SHOULD) an Expires under a year out — a should, not
+    // a must. Reported low and kept apart from rfc9116/invalid, which is reserved for
+    // MUST/format failures.
+    title: "security.txt Expires is more than a year in the future",
+    severity: "low",
+    standards: ["RFC 9116 §2.5.5"],
+    nist: "Discovery",
+    ptes: "Intelligence Gathering",
+    remediation: "RFC 9116 recommends Expires be less than a year out; shorten it so the file signals active maintenance.",
+  },
+  {
+    id: "rfc9116/unsigned",
+    // RFC 9116 §2.3 RECOMMENDS (SHOULD) a detached OpenPGP signature at
+    // /.well-known/security.txt.sig. Absent by deliberate choice here (a dynamic,
+    // per-request edge endpoint), recorded in ACCEPTED. Info only.
+    title: "security.txt is not digitally signed (no Signature / .sig)",
+    severity: "info",
+    standards: ["RFC 9116 §2.3"],
+    nist: "Discovery",
+    ptes: "Intelligence Gathering",
+    remediation: "Optionally publish a detached OpenPGP signature (Signature field + /.well-known/security.txt.sig), or accept the absence for a dynamically-generated file.",
   },
 
   /* HTML hygiene ------------------------------------------------------------- */
@@ -313,6 +363,24 @@ const CATALOGUE: Rule[] = [
     remediation: "Point every form action at a same-origin https endpoint.",
   },
 
+  {
+    id: "privacy/consent-not-gated",
+    // The site is cookieless by default: GA4 and Clarity ship PARKED as
+    // `type="text/plain"` and are turned into real scripts by js/consent.js only after
+    // a visitor consents. This rule fires if a build ever ships one of those loaders as
+    // a live, executing tag — i.e. analytics that run before consent. The most
+    // realistic privacy regression on an otherwise no-tracking site.
+    title: "Analytics loader is not consent-gated (executes before consent)",
+    severity: "medium",
+    cwe: [359],
+    owasp: ["A01:2021"],
+    standards: ["GDPR/ePrivacy (consent before non-essential tracking)"],
+    nist: "Discovery",
+    ptes: "Vulnerability Analysis",
+    remediation:
+      "Ship GA4/Clarity parked as <script type=\"text/plain\" data-consent> and activate them only from js/consent.js after consent — never as a live <script src> or executing inline script.",
+  },
+
   /* exposure / information disclosure ---------------------------------------- */
   {
     id: "exposure/sensitive-file",
@@ -349,38 +417,62 @@ const CATALOGUE: Rule[] = [
   },
   {
     id: "disclosure/stack-trace",
+    // PTES: observing a leaked trace is Vulnerability Analysis, not Exploitation —
+    // nothing is exploited, the disclosure is simply detected.
     title: "Server error discloses a stack trace or internal path",
     severity: "high",
     cwe: [209],
     owasp: ["A05:2021"],
     standards: ["OWASP Testing Guide (WSTG-ERRH-01)"],
     nist: "Attack",
-    ptes: "Exploitation",
+    ptes: "Vulnerability Analysis",
     remediation: "Return a generic error page; log the detail server-side only.",
   },
 
   /* active endpoint behaviour ------------------------------------------------ */
   {
     id: "disclosure/verbose-error-500",
+    // CWE-209 (Generation of Error Message Containing Sensitive Information). CWE-388
+    // (7PK · Error Handling) is a category pillar, not a mappable weakness — dropped.
+    // PTES: detecting the bad status is Vulnerability Analysis, not Exploitation.
     title: "Endpoint returns a 5xx on malformed input",
     severity: "medium",
-    cwe: [209, 388],
+    cwe: [209],
     owasp: ["A05:2021"],
     standards: ["OWASP Testing Guide (WSTG-ERRH-01)"],
     nist: "Attack",
-    ptes: "Exploitation",
+    ptes: "Vulnerability Analysis",
     remediation: "Return a 4xx for malformed or invalid input; a 5xx there signals an unhandled path that may leak detail.",
   },
   {
     id: "method/dangerous",
+    // CWE-749 (Exposed Dangerous Method or Function) is the accurate class. CWE-650
+    // (Trusting HTTP Permission Methods on the Server Side) is specifically about
+    // relying on GET/POST for access control, which is not what this probe finds.
+    // PTES: enumerating accepted methods is Vulnerability Analysis, not Exploitation.
     title: "Dangerous HTTP method is accepted",
     severity: "medium",
-    cwe: [650],
+    cwe: [749],
     owasp: ["A05:2021"],
     standards: ["OWASP Testing Guide (WSTG-CONF-06)"],
     nist: "Attack",
-    ptes: "Exploitation",
+    ptes: "Vulnerability Analysis",
     remediation: "Reject TRACE/TRACK/PUT/DELETE/CONNECT unless a route genuinely needs them.",
+  },
+  {
+    id: "disclosure/agent-analytics-reflection",
+    // The edge adds an x-agent-analytics response header derived from the request UA
+    // and Referer, but only as CLASSIFIED enum tokens (kind/crawler/surface/ai). This
+    // fires only if a crafted UA/Referer is ever reflected verbatim into that header —
+    // i.e. header injection / echo. Current impl verified to emit enums only.
+    title: "x-agent-analytics header reflects raw request input",
+    severity: "info",
+    cwe: [116],
+    owasp: ["A03:2021"],
+    standards: ["OWASP Testing Guide (WSTG-INPV)"],
+    nist: "Attack",
+    ptes: "Vulnerability Analysis",
+    remediation: "Emit only classified enum values into x-agent-analytics; never copy the raw User-Agent or Referer into a response header.",
   },
   {
     id: "cors/permissive",
@@ -419,9 +511,11 @@ const CATALOGUE: Rule[] = [
   },
   {
     id: "input/injection-echo",
+    // CWE-79 (XSS) is the reachable weakness when a value is echoed into a response.
+    // CWE-74 (Injection) is the parent pillar, not a leaf mapping — dropped.
     title: "Endpoint echoes an injection payload back to the caller",
     severity: "medium",
-    cwe: [79, 74],
+    cwe: [79],
     owasp: ["A03:2021"],
     standards: ["OWASP Testing Guide (WSTG-INPV)"],
     nist: "Attack",
@@ -438,6 +532,54 @@ const CATALOGUE: Rule[] = [
     nist: "Attack",
     ptes: "Exploitation",
     remediation: "Cap request body size and reject early; rate-limit the endpoint (a Cloudflare WAF rate rule for the email endpoints).",
+  },
+  {
+    id: "abuse/no-rate-limit",
+    // The one genuinely live gap for these sites: the two email endpoints have no
+    // anti-automation control the harness can confirm. Rate-limiting is an edge/WAF
+    // control (a Cloudflare rate rule or Turnstile), not observable non-destructively
+    // from here — so this is TRACKED as an accepted risk (policy.ACCEPTED) and surfaced
+    // in every report, rather than living only inside another rule's remediation prose.
+    title: "Email endpoints have no harness-verifiable rate-limiting / anti-automation",
+    severity: "medium",
+    cwe: [770, 799],
+    owasp: ["A04:2021"],
+    standards: ["OWASP API Security Top 10 (API4:2023)", "OWASP Testing Guide (WSTG-BUSL-09)"],
+    nist: "Attack",
+    ptes: "Vulnerability Analysis",
+    remediation:
+      "Front POST /api/contact and POST /api/message with a Cloudflare WAF rate-limiting rule (or Turnstile). This is an owner-side dashboard action; the harness cannot send a burst non-destructively, so the control is tracked in policy.ACCEPTED until confirmed.",
+  },
+  {
+    id: "input/attachment-unvalidated",
+    // The message endpoint accepts base64 attachments. It has real defenses (extension
+    // + MIME allow-list, base64 charset check, per-file and total size caps, filename
+    // slash-stripping). This rule fires if an abusive attachment (bad type, bad base64,
+    // malformed list) is ever accepted (2xx) or crashes the endpoint (5xx) instead of a
+    // clean 4xx. Local only — a valid attachment would reach the mail path.
+    title: "Attachment with a bad type / encoding is not cleanly rejected",
+    severity: "low",
+    cwe: [434, 20],
+    owasp: ["A04:2021"],
+    standards: ["OWASP Testing Guide (WSTG-BUSL-09)"],
+    nist: "Attack",
+    ptes: "Exploitation",
+    remediation: "Reject attachments failing the extension/MIME allow-list, base64 shape or size caps with a 4xx before any further processing.",
+  },
+  {
+    id: "input/mail-header-injection",
+    // Defense-in-depth. No live vuln today — the endpoints reach Resend as JSON field
+    // VALUES (never raw SMTP), and isEmail() rejects any address containing whitespace,
+    // so a CR/LF cannot become a new header. This rule fires only if a CR/LF payload is
+    // ever reflected into a header-shaped position in the response.
+    title: "Endpoint may be vulnerable to email header (CRLF) injection",
+    severity: "medium",
+    cwe: [93],
+    owasp: ["A03:2021"],
+    standards: ["OWASP Testing Guide (WSTG-INPV-16)"],
+    nist: "Attack",
+    ptes: "Exploitation",
+    remediation: "Reject CR/LF in any field used to build an email header; send values as JSON to the mail API, never as raw SMTP.",
   },
   {
     id: "redirect/open",
@@ -460,6 +602,46 @@ const CATALOGUE: Rule[] = [
     nist: "Attack",
     ptes: "Vulnerability Analysis",
     remediation: "Force a 301 from http to https at the edge.",
+  },
+  {
+    id: "transport/weak-tls",
+    // Remote-only. TLS version/cipher is an edge-level (Cloudflare) control, not
+    // observable locally. A handshake that succeeds at TLS 1.0/1.1 is the finding.
+    title: "Edge negotiates a deprecated TLS version (1.0 / 1.1)",
+    severity: "medium",
+    cwe: [326, 327],
+    owasp: ["A02:2021"],
+    standards: ["OWASP Testing Guide (WSTG-CRYP-01)", "Mozilla Observatory"],
+    nist: "Attack",
+    ptes: "Vulnerability Analysis",
+    remediation: "Set the Cloudflare zone minimum TLS version to 1.2 (dashboard → SSL/TLS → Edge Certificates).",
+  },
+  {
+    id: "host-header/injection",
+    // Remote-only. No live exposure expected: security.txt/canonical are pinned to a
+    // fixed editionDomain, not derived from an attacker-controlled Host. Fires only if
+    // a crafted Host / X-Forwarded-Host reaches an absolute URL or a redirect Location.
+    title: "Response reflects an attacker-controlled Host / X-Forwarded-Host",
+    severity: "medium",
+    cwe: [644],
+    owasp: ["A03:2021"],
+    standards: ["OWASP Testing Guide (WSTG-INPV-16)"],
+    nist: "Attack",
+    ptes: "Exploitation",
+    remediation: "Derive absolute URLs and redirect targets from a fixed allow-list, never from the request Host / X-Forwarded-* headers.",
+  },
+  {
+    id: "dns/email-auth-missing",
+    // Remote-only DNS posture. Email is the site's core function, so a missing SPF or
+    // DMARC record is worth flagging — it lets the domain be spoofed in From:.
+    title: "Domain is missing an SPF or DMARC record",
+    severity: "low",
+    cwe: [290],
+    owasp: ["A07:2021"],
+    standards: ["RFC 7208 (SPF)", "RFC 7489 (DMARC)"],
+    nist: "Discovery",
+    ptes: "Intelligence Gathering",
+    remediation: "Publish an SPF TXT record and a _dmarc TXT record (and DKIM for the sending service) so the domain cannot be spoofed.",
   },
 ];
 
@@ -500,8 +682,44 @@ export const SECURITY_HEADERS: HeaderPolicy[] = [
     validate: (v) =>
       /^(deny|sameorigin)$/i.test(v.trim()) ? null : `value is "${v}", expected DENY or SAMEORIGIN`,
   },
-  { name: "referrer-policy", missingRule: "headers/referrer-policy-missing" },
-  { name: "permissions-policy", missingRule: "headers/permissions-policy-missing" },
+  {
+    name: "referrer-policy",
+    missingRule: "headers/referrer-policy-missing",
+    // Present-but-leaky is worse than a clear absence: reject the values that send a
+    // full URL cross-origin. The privacy-preserving set is what the site actually ships.
+    validate: (v) => {
+      const ok = new Set([
+        "no-referrer",
+        "no-referrer-when-downgrade",
+        "same-origin",
+        "strict-origin",
+        "strict-origin-when-cross-origin",
+        "origin",
+        "origin-when-cross-origin",
+      ]);
+      // A Referrer-Policy may be a comma-separated fallback list; the last token the
+      // browser understands wins, so require every token to be an allowed one.
+      const tokens = v.split(",").map((t) => t.trim().toLowerCase()).filter(Boolean);
+      const leaky = tokens.filter((t) => !ok.has(t) || t === "unsafe-url");
+      return leaky.length ? `value "${v}" contains a non-private token (${leaky.join(", ")})` : null;
+    },
+  },
+  {
+    name: "permissions-policy",
+    missingRule: "headers/permissions-policy-missing",
+    // Presence is not enough: a policy that grants a powerful feature to `*` is no
+    // protection. Flag a wildcard allow-list on the features this site never uses.
+    validate: (v) => {
+      const overbroad: string[] = [];
+      for (const m of v.matchAll(/([a-z-]+)\s*=\s*(\*|\([^)]*\*[^)]*\))/gi)) {
+        const feature = (m[1] ?? "").toLowerCase();
+        if (["camera", "microphone", "geolocation", "payment", "usb", "midi", "magnetometer", "gyroscope", "accelerometer"].includes(feature)) {
+          overbroad.push(feature);
+        }
+      }
+      return overbroad.length ? `powerful feature(s) allowed too broadly: ${overbroad.join(", ")}` : null;
+    },
+  },
   { name: "cross-origin-opener-policy", missingRule: "headers/coop-missing" },
   { name: "cross-origin-resource-policy", missingRule: "headers/corp-missing" },
 ];
@@ -603,7 +821,58 @@ export const ACCEPTED: Exception[] = [
     since: "2026-08-27",
     review: "2026-11-01",
   },
+  {
+    id: "abuse/no-rate-limit",
+    reason:
+      "Anti-automation on the two email endpoints is an owner-side edge control (a Cloudflare WAF rate-limiting rule or Turnstile) that the harness cannot verify non-destructively — sending a burst is exactly the DoS the assessment forbids. Tracked as an accepted risk and surfaced in every report so it is visible, not buried in another rule's remediation. Review confirms the WAF rule/Turnstile is in place.",
+    since: "2026-08-28",
+    review: "2026-11-01",
+  },
+  {
+    id: "headers/csp-style-unsafe-inline",
+    reason:
+      "style-src keeps 'unsafe-inline': ~1,900 pages ship inline style attributes, so removing it would break the site, and style injection is low-risk relative to script (script-src takes no such shortcut — it is hash-pinned). Documented trade-off, not an oversight.",
+    since: "2026-08-28",
+  },
+  {
+    id: "rfc9116/unsigned",
+    reason:
+      "security.txt is generated per request at the edge (lib/security-txt.ts), so a static detached OpenPGP signature would not match. RFC 9116 §2.3 makes signing a SHOULD, not a MUST; the file is served over TLS from the canonical origin. Deliberately unsigned.",
+    since: "2026-08-28",
+  },
 ];
+
+/* ---- Planning-phase scope (NIST SP 800-115 §3.1 / PTES Pre-engagement) ------ */
+
+// Coded once so the deliverable carries an explicit scope and rules of engagement,
+// rather than leaving them implicit. Rendered as §2 of the pentest report.
+export const SCOPE: ScopeInfo = {
+  inScope: [
+    "imqueue.org (docs edition) and imqueue.com (commercial edition) — the two Cloudflare Pages projects built from this repository.",
+    "The www.* aliases of both, and the built static output plus the Pages Functions in functions/ (contact, message, the /api/<pkg>/ redirect proxies, the dynamic /.well-known/security.txt).",
+  ],
+  outOfScope: [
+    "mcp.imqueue.org — a separate deployment and repository (the MCP server), not built here. Probe it only with an explicit --url.",
+    "imqueue.net — parked, 301s to the canonical site.",
+    "Third-party services themselves (Resend, Google Analytics, Microsoft Clarity, @fontsource) — only how this site loads and is exposed to them is in scope.",
+    "Availability / load / DoS testing, and any destructive action.",
+  ],
+  rulesOfEngagement: [
+    "Non-destructive only: no data is modified and no mail is ever sent — the email endpoints are exercised solely through the honeypot (remote) or the config-error path (local).",
+    "Local mode boots the built editions behind the real Pages handler and never leaves the machine.",
+    "Remote mode makes plain HTTPS requests to the live edge and reports what it serves; it sends no burst and mutates nothing.",
+    "Authorization: the operator runs this only against origins they own or are permitted to test.",
+  ],
+  assumptions: [
+    "The deployed routes match functions/ in this checkout (the redirect proxies are generated from it).",
+    "Public identifiers that resemble secrets (GA4 measurement ids, the Clarity project id) are listed in PUBLIC_ALLOW and are meant to ship.",
+  ],
+  limitations: [
+    "The gating run (check:security) is LOCAL and cannot see edge-only behaviour: zone-level Transform Rules (a re-injected Access-Control-Allow-Origin), TLS/HSTS, WAF/rate-limits, the CDN cache, and the Pages-owned /_headers, /_redirects and /robots.txt. Those are only observed in a manual `pentest --target remote` run, which gates nothing.",
+    "No logging/monitoring/detection review is performed — an automated run has no access to the edge logs (OWASP A09 is out of scope for this reason).",
+    "Rate-limiting on the email endpoints (abuse/no-rate-limit) is an edge control the harness cannot confirm; it is tracked in the accepted-risk ledger.",
+  ],
+};
 
 /** The accepted exception matching this finding, if any. */
 export function acceptedFor(id: string, target: string): Exception | undefined {

@@ -70,7 +70,18 @@ export async function onRequest(context: PagesContext): Promise<Response> {
     // is the one place in the stack that runs for every request on both editions,
     // which is what makes the endpoint testable locally through the same handler.
     if (url.pathname === SECURITY_TXT_PATH) {
-      return securityTxt(url.hostname);
+      // Read-only endpoint: answer GET/HEAD and refuse everything else with a 405
+      // (and an Allow header), rather than returning the file for PUT/DELETE/PATCH —
+      // which reads as "the endpoint accepts a dangerous method" to a scanner and is
+      // needless method surface either way. Cloudflare strips the body for HEAD.
+      const method = context.request.method;
+      if (method === "GET" || method === "HEAD") {
+        return securityTxt(url.hostname);
+      }
+      return new Response("Method Not Allowed", {
+        status: 405,
+        headers: { Allow: "GET, HEAD", "Content-Type": "text/plain; charset=utf-8" },
+      });
     }
   } catch {
     // Deliberately swallowed — see constraint 1. Falling through to next() means a
