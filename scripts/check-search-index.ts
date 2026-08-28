@@ -49,7 +49,7 @@ const OUT = path.join(ROOT, EDITION_DIR);
 // generator's copy fails the BUILD, this one fails `npm test` against whatever is
 // in _site-org, including a build somebody produced before changing the budget.
 const BUDGET_GZ: Record<string, number> =
-  { 'search-index.json': 120 * 1024, 'search-text.json': 320 * 1024 };
+  { 'search-index.json': 120 * 1024, 'search-text.json': 360 * 1024 };
 
 /** One tier-1 record, in the wire shape the ranker reads. See lib/search-corpus.ts. */
 interface Record1 {

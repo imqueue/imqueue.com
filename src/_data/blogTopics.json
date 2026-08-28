@@ -97,5 +97,6 @@
   "migration": { "label": "Migration" },
   "testing": { "label": "Testing" },
   "versioning": { "label": "Versioning" },
-  "case-study": { "label": "Case studies" }
+  "case-study": { "label": "Case studies" },
+  "security": { "label": "Security" }
 }
