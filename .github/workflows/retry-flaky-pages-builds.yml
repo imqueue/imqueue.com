@@ -1,0 +1,133 @@
+name: Retry flaky Pages builds
+
+# Cloudflare Pages (git integration) intermittently fails the imqueue-org / imqueue-com
+# builds at the `git clone` step, BEFORE build:org/com ever runs:
+#
+#   Cloning repository...
+#   fatal: unable to access 'https://github.com/imqueue/imqueue.com/':
+#          GnuTLS recv error (-110): The TLS connection was non-properly terminated.
+#   Failed: error occurred while fetching repository
+#
+# That is a network flake between Cloudflare's build container and GitHub, not a code or
+# build problem — build:org/com pass locally and .com deploys the same commit fine. On
+# 2026-08-28 it stuck five org commits in a row on the previous (working) deployment, so
+# a shipped fix simply never went live until someone retried by hand.
+#
+# WHY A SCHEDULE, NOT AN EVENT. Cloudflare Pages posts NEITHER a GitHub deployment_status
+# NOR a commit status back to this repo (both APIs return empty), so there is no event to
+# hang a workflow on. This polls the Cloudflare API instead and retries the latest
+# production deployment of each project — but ONLY when its failure is a clone/network
+# flake. A genuine build failure (npm / eleventy) is left red on purpose, and retries are
+# capped per commit so a persistent problem escalates to a human instead of looping.
+#
+# SETUP (one-time, owner action): create a Cloudflare API token scoped to
+#   Account > Cloudflare Pages > Edit
+# and add it as the repo secret CF_API_TOKEN. The account id below is public (it is in
+# every dashboard URL), so it is not a secret. Nothing else is needed.
+
+on:
+  schedule:
+    # Every 15 minutes: a stuck deploy is unblocked within one interval. The job is a
+    # few API calls and a no-op on the common case (latest deployment already succeeded).
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+# Never let two retriers run at once (one could retry a deployment the other just made).
+concurrency:
+  group: cf-retry
+  cancel-in-progress: false
+
+# Only calls the Cloudflare API; it never touches the repo. Least privilege.
+permissions:
+  contents: read
+
+jobs:
+  retry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Do not let a fork's scheduled runs fire against the real Cloudflare account.
+    if: github.repository == 'imqueue/imqueue.com'
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      # Public — it appears in every dash.cloudflare.com/<account>/... URL.
+      CF_ACCOUNT: 9f89c0b91cae03ce412771e96a51ce50
+      # Stop retrying a commit that has clone-flaked this many times; a persistent
+      # failure is then a human's problem, not an infinite loop's.
+      MAX_FAILS_PER_COMMIT: "3"
+    steps:
+      - name: Retry clone-flaked Cloudflare Pages deployments
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CF_API_TOKEN:-}" ]; then
+            echo "::error::CF_API_TOKEN is not set. Add a Cloudflare token scoped to Account > Cloudflare Pages > Edit as the CF_API_TOKEN repo secret."
+            exit 1
+          fi
+
+          base="https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/pages/projects"
+
+          # Fetch + sanitise. Cloudflare echoes the commit_message verbatim, and this
+          # repo's messages contain real newlines, which makes the JSON technically
+          # invalid; stripping control chars (they are only ever inside that one string)
+          # makes it parseable without losing any field we read. LC_ALL=C is required —
+          # under a UTF-8 locale `tr` mishandles the multibyte chars in commit messages
+          # (e.g. an em-dash) and leaves the raw newlines in, so jq still rejects it.
+          cf() { curl -s -H "Authorization: Bearer ${CF_API_TOKEN}" "$@" | LC_ALL=C tr -d '[:cntrl:]'; }
+
+          ok() { echo "$1" | jq -e '.success == true' >/dev/null 2>&1; }
+
+          overall=0
+
+          for proj in imqueue-org imqueue-com; do
+            echo ":: ${proj}"
+
+            latest="$(cf "${base}/${proj}/deployments?per_page=1")"
+            if ! ok "${latest}"; then
+              echo "::error::${proj}: could not list deployments: $(echo "${latest}" | jq -c '.errors? // .')"
+              overall=1; continue
+            fi
+
+            id="$(echo "${latest}" | jq -r '.result[0].id // empty')"
+            # The deployments-LIST endpoint carries the sha at deployment_trigger.metadata
+            # (there is no top-level commit_hash there — that only exists on the single
+            # deployment GET), so read the nested one first and fall back for safety.
+            sha="$(echo "${latest}" | jq -r '.result[0].deployment_trigger.metadata.commit_hash // .result[0].commit_hash // ""')"
+            stage="$(echo "${latest}" | jq -r '.result[0].latest_stage.name // "?"')"
+            status="$(echo "${latest}" | jq -r '.result[0].latest_stage.status // "?"')"
+            echo "   latest: ${id:0:8} sha=${sha:0:7} stage=${stage} status=${status}"
+
+            if [ -z "${id}" ]; then echo "   no deployments — skip"; continue; fi
+            if [ "${status}" != "failure" ]; then echo "   not failed — nothing to do"; continue; fi
+
+            # Is this failure a clone/network flake (retry) or a real build error (leave red)?
+            logs="$(cf "${base}/${proj}/deployments/${id}/history/logs")"
+            if echo "${logs}" | jq -r '.result.data[]?.line // empty' \
+                 | grep -qiE 'unable to access .*github|error occurred while fetching repository|GnuTLS|TLS connection was non-properly terminated|failed to clone'; then
+              echo "   failure is a clone/network flake"
+            else
+              echo "   failure is NOT a clone flake (looks like a real build error) — leaving it red for a human"
+              continue
+            fi
+
+            # Bound retries: how many times has THIS commit already clone-failed?
+            recent="$(cf "${base}/${proj}/deployments?per_page=25")"
+            fails="$(echo "${recent}" | jq -r --arg sha "${sha}" \
+              '[.result[] | select(((.deployment_trigger.metadata.commit_hash // .commit_hash // "") == $sha) and .latest_stage.status == "failure")] | length')"
+            echo "   ${sha:0:7} has failed ${fails} time(s); cap is ${MAX_FAILS_PER_COMMIT}"
+            if [ "${fails}" -ge "${MAX_FAILS_PER_COMMIT}" ]; then
+              echo "::warning::${proj}: ${sha:0:7} has clone-failed ${fails} times — not retrying again; needs a look."
+              continue
+            fi
+
+            echo "   retrying ${id:0:8}…"
+            res="$(cf -X POST "${base}/${proj}/deployments/${id}/retry")"
+            if ok "${res}"; then
+              new="$(echo "${res}" | jq -r '.result.id // empty')"
+              echo "::notice::${proj}: retry started (${new:0:8}) for ${sha:0:7}."
+            else
+              echo "::error::${proj}: retry call failed: $(echo "${res}" | jq -c '.errors? // .')"
+              overall=1
+            fi
+          done
+
+          exit "${overall}"
