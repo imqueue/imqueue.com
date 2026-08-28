@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-27T15:15:44.776Z",
+  "generated": "2026-08-28T12:13:26.429Z",
   "framework": {
     "license": "GPL-3.0-only",
     "licenseNote": "GPL-3.0-only, or a commercial licence for closed-source distribution. Not AGPL: running it as a network service is not distribution, so internal services and SaaS carry no source-release obligation",
@@ -143,14 +143,15 @@
     {
       "name": "pg-prisma",
       "scoped": "@imqueue/pg-prisma",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-08-27",
+      "released": "2026-08-28",
       "firstRelease": "2026-07-22",
-      "releases": 5,
+      "releases": 6,
       "majors": [
-        1
+        1,
+        2
       ],
       "deprecated": false,
       "install": "npm i @imqueue/pg-prisma",
@@ -158,7 +159,7 @@
       "documented": true,
       "npm": "https://www.npmjs.com/package/@imqueue/pg-prisma",
       "repo": "https://github.com/imqueue/pg-prisma",
-      "blurb": "Prisma query extensions — soft-delete, access scoping, authorship and audit trails — plus row archiving, change-notify triggers and down-migrations."
+      "blurb": "Prisma query extensions — soft-delete, access scoping, authorship and audit trails derived from the emitted contract — plus row archiving and change-notify triggers."
     },
     {
       "name": "async-logger",

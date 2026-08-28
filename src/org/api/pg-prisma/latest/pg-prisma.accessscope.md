@@ -1,6 +1,6 @@
 ---
 title: "accessScope() function · @imqueue/pg-prisma"
-description: "Build the query extension that restricts queries to the records the active access levels allow."
+description: "Build the middleware restricting statements to the records a caller may see."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"accessScope","url":"/api/pg-prisma/latest/pg-prisma.accessscope/"}]
 ---
 
@@ -8,12 +8,12 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma",
 
 # accessScope() function
 
-Build the query extension that restricts queries to the records the active access levels allow.
+Build the middleware restricting statements to the records a caller may see.
 
 **Signature:**
 
 ```typescript
-export declare function accessScope(input: AccessScopeOptions): (client: any) => import("@prisma/client/extension").PrismaClientExtends<import("@prisma/client/runtime/client").InternalArgs<{}, {}, {}, {}>>;
+export declare function accessScope(input: AccessScopeOptions): SqlMiddleware;
 ```
 
 ## Parameters
@@ -46,7 +46,7 @@ input
 
 </td><td>
 
-The per-model scope config and one resolver per level.
+Per-table scope config and one resolver per level.
 
 
 </td></tr>
@@ -54,28 +54,13 @@ The per-model scope config and one resolver per level.
 
 **Returns:**
 
-(client: any) =&gt; import("@prisma/client/extension").PrismaClientExtends&lt;import("@prisma/client/runtime/client").InternalArgs&lt;{}, {}, {}, {}&gt;&gt;
+SqlMiddleware
 
-A Prisma extension to pass to `client.$extends()`<!-- -->.
+Middleware for the `middleware` array of the `postgres()` factory.
 
 ## Remarks
 
-For each scoped model, every level whose resolver returns a value contributes an OR across that level's columns; the level filters are AND-ed together and AND-ed onto the caller's `where`<!-- -->. A caller therefore cannot widen out of scope, and no scope column can be spoofed by supplying it in the query. A `null` from a resolver denies by matching nothing (`IN ()`<!-- -->), and an array becomes an `IN` — including an empty array, which also denies.
+The predicate is AND-ed onto whatever the statement already filters by, so a caller cannot widen out of scope and no scope column can be spoofed by supplying it in the query. `insert` is deliberately untouched: there is no existing row to filter, and ownership is stamped by `stamp`<!-- -->.
 
-Coverage is ten operations: the reads (`findMany`<!-- -->, `findFirst`<!-- -->, `findUnique`<!-- -->, their `OrThrow` variants and `count`<!-- -->) plus `update`<!-- -->, `updateMany`<!-- -->, `delete` and `deleteMany`<!-- -->. On the writes the effect is silent rather than an error — an out-of-scope `updateMany` simply affects no rows, and an out-of-scope `update` throws the ordinary not-found. `create` is deliberately untouched: there is no existing row to filter, and ownership is stamped by [authorship()](/api/pg-prisma/latest/pg-prisma.authorship/)<!-- -->.
-
-Relations are never touched. A nested `where`<!-- -->, `include` or `select` is fetched as-is, so reaching a scoped model through a relation bypasses the scope — filter explicitly at those call sites when it matters.
-
-## Example
-
-
-```typescript
-const client = new PrismaClient().$extends(accessScope({
-    models: ACCESS_SCOPE_MODELS,
-    resolvers: {
-        // undefined for an admin: the level does not constrain them at all
-        tenant: () => context.get()?.tenantId,
-    },
-}));
-```
+Reads are filtered across the \*\*whole statement\*\*. Prisma Next compiles a relation read into one statement holding several selects, so a filter on the outermost `from` alone would return out-of-scope rows through any `include` — the exact bypass the Prisma 7 extension documented as a limitation.
 

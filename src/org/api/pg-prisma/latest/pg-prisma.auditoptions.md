@@ -1,6 +1,6 @@
 ---
 title: "AuditOptions interface · @imqueue/pg-prisma"
-description: "Everything audit() needs to build its extension."
+description: "Everything audit() needs to build its middleware."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"AuditOptions","url":"/api/pg-prisma/latest/pg-prisma.auditoptions/"}]
 ---
 
@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma",
 
 # AuditOptions interface
 
-Everything [audit()](/api/pg-prisma/latest/pg-prisma.audit/) needs to build its extension.
+Everything [audit()](/api/pg-prisma/latest/pg-prisma.audit/) needs to build its middleware.
 
 **Signature:**
 
@@ -41,26 +41,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[client](/api/pg-prisma/latest/pg-prisma.auditoptions.client/)
-
-
-</td><td>
-
-
-</td><td>
-
-PrismaClient
-
-
-</td><td>
-
-The UNEXTENDED Prisma client, used to write the audit rows.
-
-
-</td></tr>
-<tr><td>
-
-[config](/api/pg-prisma/latest/pg-prisma.auditoptions.config/)
+[config?](/api/pg-prisma/latest/pg-prisma.auditoptions.config/)
 
 
 </td><td>
@@ -73,7 +54,26 @@ The UNEXTENDED Prisma client, used to write the audit rows.
 
 </td><td>
 
-Where the trail goes and what its columns are called.
+_(Optional)_ Where the trail goes. Omitted entirely, the defaults apply.
+
+
+</td></tr>
+<tr><td>
+
+[connectionString](/api/pg-prisma/latest/pg-prisma.auditoptions.connectionstring/)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Connection string for the trail's own pool.
 
 
 </td></tr>
@@ -98,7 +98,7 @@ Resolves the actor to record, or a falsy value to record none.
 </td></tr>
 <tr><td>
 
-[models](/api/pg-prisma/latest/pg-prisma.auditoptions.models/)
+[stamps?](/api/pg-prisma/latest/pg-prisma.auditoptions.stamps/)
 
 
 </td><td>
@@ -106,12 +106,31 @@ Resolves the actor to record, or a falsy value to record none.
 
 </td><td>
 
-ReadonlySet&lt;string&gt;
+[StampTables](/api/pg-prisma/latest/pg-prisma.stamptables/)
 
 
 </td><td>
 
-Models whose writes are recorded to the audit log.
+_(Optional)_ Soft-delete columns, so a stamped delete is recorded as a delete.
+
+
+</td></tr>
+<tr><td>
+
+[tables](/api/pg-prisma/latest/pg-prisma.auditoptions.tables/)
+
+
+</td><td>
+
+
+</td><td>
+
+Record&lt;string, string&gt;
+
+
+</td><td>
+
+Physical table to model name, for the tables that are recorded.
 
 
 </td></tr>

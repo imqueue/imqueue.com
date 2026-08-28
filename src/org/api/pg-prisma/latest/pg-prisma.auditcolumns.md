@@ -1,6 +1,6 @@
 ---
 title: "AuditColumns interface · @imqueue/pg-prisma"
-description: "Column names in the audit target table."
+description: "Column names within the audit table."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"AuditColumns","url":"/api/pg-prisma/latest/pg-prisma.auditcolumns/"}]
 ---
 
@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma",
 
 # AuditColumns interface
 
-Column names in the audit target table.
+Column names within the audit table.
 
 **Signature:**
 
@@ -18,7 +18,7 @@ export interface AuditColumns
 
 ## Remarks
 
-Every name is required, because the rows are written with raw SQL that quotes these identifiers directly — there is no Prisma model to fall back on. The code generator emits this as `AUDIT_CONFIG`<!-- -->, so it normally comes from your schema rather than being written by hand.
+Every one defaults to its own name, so a table whose columns are spelled the obvious way is configured by saying nothing. Name only what differs.
 
 ## Properties
 
@@ -45,7 +45,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[action](/api/pg-prisma/latest/pg-prisma.auditcolumns.action/)
+[action?](/api/pg-prisma/latest/pg-prisma.auditcolumns.action/)
 
 
 </td><td>
@@ -58,13 +58,13 @@ string
 
 </td><td>
 
-Column holding the action string.
+_(Optional)_ Column holding the action string.
 
 
 </td></tr>
 <tr><td>
 
-[changes](/api/pg-prisma/latest/pg-prisma.auditcolumns.changes/)
+[changes?](/api/pg-prisma/latest/pg-prisma.auditcolumns.changes/)
 
 
 </td><td>
@@ -77,13 +77,13 @@ string
 
 </td><td>
 
-Column holding the JSON payload: the record, or the args plus a count.
+_(Optional)_ Column holding the JSON payload of the written row.
 
 
 </td></tr>
 <tr><td>
 
-[createdAt](/api/pg-prisma/latest/pg-prisma.auditcolumns.createdat/)
+[createdAt?](/api/pg-prisma/latest/pg-prisma.auditcolumns.createdat/)
 
 
 </td><td>
@@ -96,13 +96,13 @@ string
 
 </td><td>
 
-Column stamped with the database's `now()` at insert time.
+_(Optional)_ Column stamped with the database's `now()` at insert time.
 
 
 </td></tr>
 <tr><td>
 
-[model](/api/pg-prisma/latest/pg-prisma.auditcolumns.model/)
+[modelName?](/api/pg-prisma/latest/pg-prisma.auditcolumns.modelname/)
 
 
 </td><td>
@@ -115,13 +115,13 @@ string
 
 </td><td>
 
-Column holding the name of the model that was written.
+_(Optional)_ Column holding the name of the model that was written.
 
 
 </td></tr>
 <tr><td>
 
-[principal](/api/pg-prisma/latest/pg-prisma.auditcolumns.principal/)
+[principal?](/api/pg-prisma/latest/pg-prisma.auditcolumns.principal/)
 
 
 </td><td>
@@ -134,13 +134,13 @@ string
 
 </td><td>
 
-Column holding the JSON actor, as returned by `getPrincipal`<!-- -->.
+_(Optional)_ Column holding the JSON actor, as returned by `getPrincipal`<!-- -->.
 
 
 </td></tr>
 <tr><td>
 
-[recordId](/api/pg-prisma/latest/pg-prisma.auditcolumns.recordid/)
+[recordId?](/api/pg-prisma/latest/pg-prisma.auditcolumns.recordid/)
 
 
 </td><td>
@@ -153,7 +153,7 @@ string
 
 </td><td>
 
-Column holding the affected record's `id`<!-- -->, or `'many'` for a bulk write.
+_(Optional)_ Column holding the affected record's `id`<!-- -->.
 
 
 </td></tr>

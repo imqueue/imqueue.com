@@ -12,7 +12,7 @@ export const API_VERSIONS: ApiVersions = {
   "pg-cache": { "latest": "5.1.2", "archives": [] },
   "tag-cache": { "latest": "3.0.5", "archives": [] },
   "pg-sequelize": { "latest": "4.2.3", "archives": [] },
-  "pg-prisma": { "latest": "1.1.0", "archives": [] },
+  "pg-prisma": { "latest": "2.0.0", "archives": [] },
   "async-logger": { "latest": "3.2.0", "archives": [] },
   "opentelemetry": { "latest": "4.1.1", "archives": [] },
   "datadog": { "latest": "3.2.1", "archives": [] },

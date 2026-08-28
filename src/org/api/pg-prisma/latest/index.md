@@ -1,6 +1,6 @@
 ---
-title: "@imqueue/pg-prisma 1.1.0 · API reference"
-description: "Prisma and Postgres building blocks for @imqueue services."
+title: "@imqueue/pg-prisma 2.0.0 · API reference"
+description: "Prisma Next (8.x) and Postgres building blocks for @imqueue services."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"}]
 ---
 
@@ -8,17 +8,17 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma",
 
 # pg-prisma package
 
-Prisma and Postgres building blocks for `@imqueue` services.
+Prisma Next (8.x) and Postgres building blocks for `@imqueue` services.
 
 Two kinds of thing live here, and they are used at different times.
 
-Query extensions wrap a `PrismaClient` and change what queries do: `softDelete` turns deletes into `deletedAt` stamps and hides stamped rows, `accessScope` narrows every read to the records the caller is allowed to see, `authorship` stamps who created, updated or deleted a row, `audit` writes a trail of every write to a table you nominate, and `isoDates` serializes `Date` values so they survive the RPC wire as ISO strings. Each is independent; each is driven by a per-model config the code generator emits from your Prisma schema.
+Query middlewares rewrite the statement before it is lowered to SQL: `stamp` turns deletes into `deletedAt` stamps, hides stamped rows and records who created, updated or deleted a row; `accessScope` narrows every read to the records the caller is allowed to see; and `audit` writes a trail of every write to a table you nominate. `dataLayer` builds all three from an emitted contract in one call and is the entry point for the ordinary case — the individual factories are there to compose something it does not cover.
 
-Installers and tools run once at startup or by hand rather than per query: `installArchiving` moves aged rows into a mirror `archive` schema on a pg\_cron schedule, `installChangeTriggers` makes Postgres `NOTIFY` on every row change, `migrateDown` rolls applied migrations back (Prisma has no native "down"), and `prettifySql`<!-- -->/`silently`<!-- -->/`isSqlLogSuppressed` are query-logging helpers.
+Installers and tools run once at startup or by hand rather than per query: `installArchiving` moves aged rows into a mirror `archive` schema on a pg\_cron schedule, `installChangeTriggers` makes Postgres `NOTIFY` on every row change, and `prettifySql`<!-- -->/`silently`<!-- -->/`isSqlLogSuppressed` are query-logging helpers.
 
-Ordering matters when extensions are combined, because Prisma runs the first-added query hook outermost. `audit` has to be added first if it is to see operations that `softDelete` reroutes; the individual pages say so where it applies.
+The per-model configuration is \*\*derived from `contract.json`<!-- -->\*\* by `deriveDataLayer` rather than generated: Prisma Next has no custom-generator protocol and needs none, since the contract already names every model, field and physical column. Nothing is written to disk and nothing can go stale against the schema. Access levels are the one thing that cannot be derived — Prisma Next has no schema annotation to carry them — so they are declared where `dataLayer` is called.
 
-The Prisma generator that emits typed `@imqueue/rpc` models from your schema ships separately at `@imqueue/pg-prisma/codegen` and is invoked by Prisma, not imported — it is deliberately absent from this barrel.
+The middlewares commute: `stamp` merges what were two order-dependent Prisma 7 extensions, so there is no ordering left for a caller to get wrong.
 
 ## Functions
 
@@ -40,18 +40,7 @@ Description
 
 </td><td>
 
-Build the query extension that restricts queries to the records the active access levels allow.
-
-
-</td></tr>
-<tr><td>
-
-[accessWhere(where, config, resolvers)](/api/pg-prisma/latest/pg-prisma.accesswhere/)
-
-
-</td><td>
-
-Compose the access-scope `where` clause for a single model.
+Build the middleware restricting statements to the records a caller may see.
 
 
 </td></tr>
@@ -62,18 +51,104 @@ Compose the access-scope `where` clause for a single model.
 
 </td><td>
 
-Build the query extension that records every write to an audited model.
+Build the middleware recording every write to the tables it is given.
 
 
 </td></tr>
 <tr><td>
 
-[authorship(input)](/api/pg-prisma/latest/pg-prisma.authorship/)
+[dataLayer(options)](/api/pg-prisma/latest/pg-prisma.datalayer_1/)
 
 
 </td><td>
 
-Build the query extension that stamps who created, updated or deleted a row.
+Build the whole data layer from an emitted contract, in one call.
+
+
+</td></tr>
+<tr><td>
+
+[dataPool(config, parsers)](/api/pg-prisma/latest/pg-prisma.datapool/)
+
+
+</td><td>
+
+A connection pool whose arrays of enums and JSON columns can be read.
+
+
+</td></tr>
+<tr><td>
+
+[deriveDataLayer(input)](/api/pg-prisma/latest/pg-prisma.derivedatalayer/)
+
+
+</td><td>
+
+Derive the data-layer config from an emitted contract.
+
+
+</td></tr>
+<tr><td>
+
+[emitAll(input)](/api/pg-prisma/latest/pg-prisma.emitall/)
+
+
+</td><td>
+
+Emit every generated file for a contract.
+
+
+</td></tr>
+<tr><td>
+
+[emitEnums(input)](/api/pg-prisma/latest/pg-prisma.emitenums/)
+
+
+</td><td>
+
+Emit the enum constants for a contract.
+
+
+</td></tr>
+<tr><td>
+
+[emitImports(names, map)](/api/pg-prisma/latest/pg-prisma.emitimports/)
+
+
+</td><td>
+
+Emit the import statements for the runtimes a file uses.
+
+
+</td></tr>
+<tr><td>
+
+[emitModels(input)](/api/pg-prisma/latest/pg-prisma.emitmodels/)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[emitRpcTypes(input)](/api/pg-prisma/latest/pg-prisma.emitrpctypes/)
+
+
+</td><td>
+
+Emit the RPC query, input and argument classes for a contract.
+
+
+</td></tr>
+<tr><td>
+
+[hasDatabaseDefault(models, columnsOf)](/api/pg-prisma/latest/pg-prisma.hasdatabasedefault/)
+
+
+</td><td>
+
+Whether the database fills a column in when an insert leaves it out.
 
 
 </td></tr>
@@ -101,12 +176,12 @@ Install Postgres triggers that `NOTIFY` on every row change in the given tables.
 </td></tr>
 <tr><td>
 
-[isoDates()](/api/pg-prisma/latest/pg-prisma.isodates/)
+[isoDates(input)](/api/pg-prisma/latest/pg-prisma.isodates/)
 
 
 </td><td>
 
-Build the query extension that serializes every `Date` in a query result to an ISO-8601 string.
+Read database timestamps back as canonical ISO 8601 instants.
 
 
 </td></tr>
@@ -123,12 +198,32 @@ Whether SQL logging is currently suppressed.
 </td></tr>
 <tr><td>
 
-[migrateDown(options)](/api/pg-prisma/latest/pg-prisma.migratedown/)
+[join(parts, separator)](/api/pg-prisma/latest/pg-prisma.join/)
 
 
 </td><td>
 
-Roll back the most recently applied Prisma migrations.
+Several fragments, one after another.
+
+
+</td></tr>
+<tr><td>
+
+[namespaceOf(contract, namespace, omit)](/api/pg-prisma/latest/pg-prisma.namespaceof/)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[parseImportMap(spec)](/api/pg-prisma/latest/pg-prisma.parseimportmap/)
+
+
+</td><td>
+
+Read an import map from its generator-option spelling.
 
 
 </td></tr>
@@ -145,6 +240,61 @@ Format a one-line SQL string so it is readable in a log.
 </td></tr>
 <tr><td>
 
+[queryLog(input)](/api/pg-prisma/latest/pg-prisma.querylog/)
+
+
+</td><td>
+
+Build the middleware that logs each statement and how long it took.
+
+
+</td></tr>
+<tr><td>
+
+[quoted(value)](/api/pg-prisma/latest/pg-prisma.quoted/)
+
+
+</td><td>
+
+Quote a `@property` type string.
+
+
+</td></tr>
+<tr><td>
+
+[raw(text)](/api/pg-prisma/latest/pg-prisma.raw/)
+
+
+</td><td>
+
+Text spliced in as written, binding nothing.
+
+
+</td></tr>
+<tr><td>
+
+[repositoriesFor(db, input)](/api/pg-prisma/latest/pg-prisma.repositoriesfor/)
+
+
+</td><td>
+
+Build the CRUD façade the RPC surface delegates to.
+
+
+</td></tr>
+<tr><td>
+
+[scopePredicate(qualifier, levels, resolvers)](/api/pg-prisma/latest/pg-prisma.scopepredicate/)
+
+
+</td><td>
+
+Compose the scope predicate for one table, or null when nothing constrains it.
+
+
+</td></tr>
+<tr><td>
+
 [silently(fn)](/api/pg-prisma/latest/pg-prisma.silently/)
 
 
@@ -156,25 +306,100 @@ Run `fn` with SQL logging suppressed.
 </td></tr>
 <tr><td>
 
-[softDelete(input)](/api/pg-prisma/latest/pg-prisma.softdelete/)
+[sql(strings, values)](/api/pg-prisma/latest/pg-prisma.sql/)
 
 
 </td><td>
 
-Build the query extension that turns deletes into `deletedAt` stamps and hides stamped rows from reads.
+SQL as a tagged template, with everything interpolated bound.
 
 
 </td></tr>
 <tr><td>
 
-[toIsoDates(value)](/api/pg-prisma/latest/pg-prisma.toisodates/)
+[sqlRunner(pool)](/api/pg-prisma/latest/pg-prisma.sqlrunner_1/)
 
 
 </td><td>
 
-Recursively replace every `Date` with its ISO-8601 string, structure intact.
+A `query` and a `transaction` that agree about which connection to use.
 
-Exported so it can be tested without a database, like `accessWhere`<!-- -->: what it does to a shape is the whole of this extension, and the interesting cases — a buffer, a nested date, an array of rows — are all reachable from here.
+
+</td></tr>
+<tr><td>
+
+[stamp(input)](/api/pg-prisma/latest/pg-prisma.stamp/)
+
+
+</td><td>
+
+Build the middleware that stamps authorship and turns deletes into stamps.
+
+
+</td></tr>
+<tr><td>
+
+[toOrdering(orderBy)](/api/pg-prisma/latest/pg-prisma.toordering/)
+
+
+</td><td>
+
+Turn a wire ordering into the callbacks `.orderBy()` takes.
+
+
+</td></tr>
+<tr><td>
+
+[toPredicate(relations, model, where)](/api/pg-prisma/latest/pg-prisma.topredicate/)
+
+
+</td><td>
+
+Turn a wire filter into the predicate callback `.where()` takes.
+
+
+</td></tr>
+<tr><td>
+
+[toProjection(relations, model, select)](/api/pg-prisma/latest/pg-prisma.toprojection/)
+
+
+</td><td>
+
+Split a wire projection into its scalar and relation halves.
+
+
+</td></tr>
+<tr><td>
+
+[toQuery(fragment)](/api/pg-prisma/latest/pg-prisma.toquery/)
+
+
+</td><td>
+
+A fragment as the pair `query` takes.
+
+
+</td></tr>
+<tr><td>
+
+[transactionFor(db, options)](/api/pg-prisma/latest/pg-prisma.transactionfor/)
+
+
+</td><td>
+
+Repositories bound to a transaction.
+
+
+</td></tr>
+<tr><td>
+
+[typeOf(field, enums, listEnum)](/api/pg-prisma/latest/pg-prisma.typeof/)
+
+
+</td><td>
+
+The TypeScript spelling of a field, and the `@property` type string.
 
 
 </td></tr>
@@ -186,6 +411,17 @@ Exported so it can be tested without a database, like `accessWhere`<!-- -->: wha
 </td><td>
 
 Run `fn` in a transaction whose row changes notify nobody.
+
+
+</td></tr>
+<tr><td>
+
+[withTransaction(pool, fn)](/api/pg-prisma/latest/pg-prisma.withtransaction/)
+
+
+</td><td>
+
+Run `fn` inside a transaction on one connection.
 
 
 </td></tr>
@@ -211,7 +447,7 @@ Description
 
 </td><td>
 
-Everything [accessScope()](/api/pg-prisma/latest/pg-prisma.accessscope/) needs to build its extension.
+Everything [accessScope()](/api/pg-prisma/latest/pg-prisma.accessscope/) needs to build its middleware.
 
 
 </td></tr>
@@ -228,23 +464,12 @@ One watched table to seed into the archive settings table.
 </td></tr>
 <tr><td>
 
-[ArchiveClient](/api/pg-prisma/latest/pg-prisma.archiveclient/)
-
-
-</td><td>
-
-The raw-SQL surface this installer needs (a Prisma client or its `tx`<!-- -->).
-
-
-</td></tr>
-<tr><td>
-
 [AuditColumns](/api/pg-prisma/latest/pg-prisma.auditcolumns/)
 
 
 </td><td>
 
-Column names in the audit target table.
+Column names within the audit table.
 
 
 </td></tr>
@@ -255,7 +480,7 @@ Column names in the audit target table.
 
 </td><td>
 
-Where the audit trail is written, and under which column names.
+Where the trail goes and what its columns are called.
 
 
 </td></tr>
@@ -266,29 +491,18 @@ Where the audit trail is written, and under which column names.
 
 </td><td>
 
-Everything [audit()](/api/pg-prisma/latest/pg-prisma.audit/) needs to build its extension.
+Everything [audit()](/api/pg-prisma/latest/pg-prisma.audit/) needs to build its middleware.
 
 
 </td></tr>
 <tr><td>
 
-[AuthorshipColumns](/api/pg-prisma/latest/pg-prisma.authorshipcolumns/)
+[BulkCount](/api/pg-prisma/latest/pg-prisma.bulkcount/)
 
 
 </td><td>
 
-Which columns on one model carry authorship, and which one triggers a delete stamp.
-
-
-</td></tr>
-<tr><td>
-
-[AuthorshipOptions](/api/pg-prisma/latest/pg-prisma.authorshipoptions/)
-
-
-</td><td>
-
-Everything [authorship()](/api/pg-prisma/latest/pg-prisma.authorship/) needs to build its extension.
+How many rows a bulk write affected.
 
 
 </td></tr>
@@ -305,6 +519,156 @@ Which tables notify, and under which Postgres object names.
 </td></tr>
 <tr><td>
 
+[ContractJson](/api/pg-prisma/latest/pg-prisma.contractjson/)
+
+
+</td><td>
+
+The slice of an emitted `contract.json` this derivation reads.
+
+
+</td></tr>
+<tr><td>
+
+[DataLayer](/api/pg-prisma/latest/pg-prisma.datalayer/)
+
+
+</td><td>
+
+What [dataLayer()](/api/pg-prisma/latest/pg-prisma.datalayer_1/) hands back.
+
+
+</td></tr>
+<tr><td>
+
+[DataLayerAudit](/api/pg-prisma/latest/pg-prisma.datalayeraudit/)
+
+
+</td><td>
+
+The audit half of [DataLayerOptions](/api/pg-prisma/latest/pg-prisma.datalayeroptions/)<!-- -->, omitted to record nothing.
+
+
+</td></tr>
+<tr><td>
+
+[DataLayerOptions](/api/pg-prisma/latest/pg-prisma.datalayeroptions/)
+
+
+</td><td>
+
+Everything [dataLayer()](/api/pg-prisma/latest/pg-prisma.datalayer_1/) needs.
+
+
+</td></tr>
+<tr><td>
+
+[DerivedDataLayer](/api/pg-prisma/latest/pg-prisma.deriveddatalayer/)
+
+
+</td><td>
+
+The config the middlewares consume, keyed by physical table.
+
+
+</td></tr>
+<tr><td>
+
+[DeriveFields](/api/pg-prisma/latest/pg-prisma.derivefields/)
+
+
+</td><td>
+
+Field names to look for, where they are not the defaults.
+
+
+</td></tr>
+<tr><td>
+
+[DeriveOptions](/api/pg-prisma/latest/pg-prisma.deriveoptions/)
+
+
+</td><td>
+
+Everything [deriveDataLayer()](/api/pg-prisma/latest/pg-prisma.derivedatalayer/) needs.
+
+
+</td></tr>
+<tr><td>
+
+[EmitAllOptions](/api/pg-prisma/latest/pg-prisma.emitalloptions/)
+
+
+</td><td>
+
+Everything [emitAll()](/api/pg-prisma/latest/pg-prisma.emitall/) needs.
+
+
+</td></tr>
+<tr><td>
+
+[EmitContract](/api/pg-prisma/latest/pg-prisma.emitcontract/)
+
+
+</td><td>
+
+The slice of an emitted `contract.json` the emitter reads.
+
+
+</td></tr>
+<tr><td>
+
+[EmitModelsOptions](/api/pg-prisma/latest/pg-prisma.emitmodelsoptions/)
+
+
+</td><td>
+
+Everything [emitModels()](/api/pg-prisma/latest/pg-prisma.emitmodels/) needs.
+
+
+</td></tr>
+<tr><td>
+
+[EmitRpcOptions](/api/pg-prisma/latest/pg-prisma.emitrpcoptions/)
+
+
+</td><td>
+
+Everything [emitRpcTypes()](/api/pg-prisma/latest/pg-prisma.emitrpctypes/) needs.
+
+
+</td></tr>
+<tr><td>
+
+[EnumDef](/api/pg-prisma/latest/pg-prisma.enumdef/)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[Field](/api/pg-prisma/latest/pg-prisma.field/)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[FilterOps](/api/pg-prisma/latest/pg-prisma.filterops/)
+
+
+</td><td>
+
+The comparison operators a caller may send for one field.
+
+
+</td></tr>
+<tr><td>
+
 [InstallArchiveOptions](/api/pg-prisma/latest/pg-prisma.installarchiveoptions/)
 
 
@@ -316,56 +680,228 @@ Everything [installArchiving()](/api/pg-prisma/latest/pg-prisma.installarchiving
 </td></tr>
 <tr><td>
 
-[MigrateDownOptions](/api/pg-prisma/latest/pg-prisma.migratedownoptions/)
+[IsoDateOptions](/api/pg-prisma/latest/pg-prisma.isodateoptions/)
 
 
 </td><td>
 
-Everything [migrateDown()](/api/pg-prisma/latest/pg-prisma.migratedown/) needs: no globals and no environment are read.
+Everything [isoDates()](/api/pg-prisma/latest/pg-prisma.isodates/) needs.
 
 
 </td></tr>
 <tr><td>
 
-[MigrateDownResult](/api/pg-prisma/latest/pg-prisma.migratedownresult/)
+[Model](/api/pg-prisma/latest/pg-prisma.model/)
 
 
 </td><td>
-
-What [migrateDown()](/api/pg-prisma/latest/pg-prisma.migratedown/) did.
 
 
 </td></tr>
 <tr><td>
 
-[RawClient](/api/pg-prisma/latest/pg-prisma.rawclient/)
+[Page](/api/pg-prisma/latest/pg-prisma.page/)
 
 
 </td><td>
 
-A [RawExecutor](/api/pg-prisma/latest/pg-prisma.rawexecutor/) that can also open a transaction.
+A page of entities, and the total when one was asked for.
 
 
 </td></tr>
 <tr><td>
 
-[RawExecutor](/api/pg-prisma/latest/pg-prisma.rawexecutor/)
+[PageOptions](/api/pg-prisma/latest/pg-prisma.pageoptions/)
 
 
 </td><td>
 
-The raw-SQL surface used to install triggers (a Prisma client or its `tx`<!-- -->).
+Paging and whether to count.
 
 
 </td></tr>
 <tr><td>
 
-[SoftDeleteOptions](/api/pg-prisma/latest/pg-prisma.softdeleteoptions/)
+[Projection](/api/pg-prisma/latest/pg-prisma.projection/)
 
 
 </td><td>
 
-Everything [softDelete()](/api/pg-prisma/latest/pg-prisma.softdelete/) needs to build its extension.
+A projection split into what `select` takes and what `include` takes.
+
+
+</td></tr>
+<tr><td>
+
+[QueryLogger](/api/pg-prisma/latest/pg-prisma.querylogger/)
+
+
+</td><td>
+
+Where a query log line goes.
+
+
+</td></tr>
+<tr><td>
+
+[QueryLogOptions](/api/pg-prisma/latest/pg-prisma.querylogoptions/)
+
+
+</td><td>
+
+Everything [queryLog()](/api/pg-prisma/latest/pg-prisma.querylog/) needs.
+
+
+</td></tr>
+<tr><td>
+
+[Relation](/api/pg-prisma/latest/pg-prisma.relation/)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[RelationInfo](/api/pg-prisma/latest/pg-prisma.relationinfo/)
+
+
+</td><td>
+
+One relation, as the query translator needs it.
+
+
+</td></tr>
+<tr><td>
+
+[Repository](/api/pg-prisma/latest/pg-prisma.repository/)
+
+
+</td><td>
+
+The CRUD surface exposed for one model.
+
+
+</td></tr>
+<tr><td>
+
+[RepositoryOptions](/api/pg-prisma/latest/pg-prisma.repositoryoptions/)
+
+
+</td><td>
+
+Everything [repositoriesFor()](/api/pg-prisma/latest/pg-prisma.repositoriesfor/) needs.
+
+
+</td></tr>
+<tr><td>
+
+[RuntimeModule](/api/pg-prisma/latest/pg-prisma.runtimemodule/)
+
+
+</td><td>
+
+A module the generated code imports from, and what it takes from it.
+
+
+</td></tr>
+<tr><td>
+
+[SqlConnection](/api/pg-prisma/latest/pg-prisma.sqlconnection/)
+
+
+</td><td>
+
+A connection held for the length of a transaction.
+
+
+</td></tr>
+<tr><td>
+
+[SqlExecutor](/api/pg-prisma/latest/pg-prisma.sqlexecutor/)
+
+
+</td><td>
+
+The minimum this package needs of a Postgres connection.
+
+
+</td></tr>
+<tr><td>
+
+[SqlFragment](/api/pg-prisma/latest/pg-prisma.sqlfragment/)
+
+
+</td><td>
+
+A statement and the values bound into it.
+
+
+</td></tr>
+<tr><td>
+
+[SqlPool](/api/pg-prisma/latest/pg-prisma.sqlpool/)
+
+
+</td><td>
+
+An executor that can hand out a dedicated connection.
+
+
+</td></tr>
+<tr><td>
+
+[SqlRunner](/api/pg-prisma/latest/pg-prisma.sqlrunner/)
+
+
+</td><td>
+
+What [sqlRunner()](/api/pg-prisma/latest/pg-prisma.sqlrunner_1/) returns.
+
+
+</td></tr>
+<tr><td>
+
+[StampColumns](/api/pg-prisma/latest/pg-prisma.stampcolumns/)
+
+
+</td><td>
+
+Columns a model is stamped with, by physical column name.
+
+
+</td></tr>
+<tr><td>
+
+[StampOptions](/api/pg-prisma/latest/pg-prisma.stampoptions/)
+
+
+</td><td>
+
+Everything [stamp()](/api/pg-prisma/latest/pg-prisma.stamp/) needs to build its middleware.
+
+
+</td></tr>
+<tr><td>
+
+[Transactional](/api/pg-prisma/latest/pg-prisma.transactional/)
+
+
+</td><td>
+
+A client that can run work inside one transaction.
+
+
+</td></tr>
+<tr><td>
+
+[TypeParsers](/api/pg-prisma/latest/pg-prisma.typeparsers/)
+
+
+</td><td>
+
+What `pg-types` offers, of which only these two are wanted.
 
 
 </td></tr>
@@ -391,7 +927,7 @@ Description
 
 </td><td>
 
-The three kinds of write recorded in the audit trail.
+The three write actions the trail records.
 
 
 </td></tr>
@@ -439,6 +975,39 @@ Default name of the per-table change trigger.
 
 
 </td></tr>
+<tr><td>
+
+[EMPTY](/api/pg-prisma/latest/pg-prisma.empty/)
+
+
+</td><td>
+
+A fragment that contributes nothing, for the empty case.
+
+
+</td></tr>
+<tr><td>
+
+[RUNTIME](/api/pg-prisma/latest/pg-prisma.runtime/)
+
+
+</td><td>
+
+Where each runtime lives by default.
+
+
+</td></tr>
+<tr><td>
+
+[TIMESTAMP\_CODECS](/api/pg-prisma/latest/pg-prisma.timestamp_codecs/)
+
+
+</td><td>
+
+Codecs whose values arrive as Postgres' own timestamp text.
+
+
+</td></tr>
 </tbody></table>
 
 ## Type Aliases
@@ -456,45 +1025,199 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[AccessScopeModels](/api/pg-prisma/latest/pg-prisma.accessscopemodels/)
-
-
-</td><td>
-
-Per-model access-scope config: `model → level → columns`<!-- -->. A record is in scope for a level when ANY of the level's columns matches (OR); a model is in scope when EVERY active level matches (AND). See the generated `ACCESS_SCOPE_MODELS`<!-- -->.
-
-
-</td></tr>
-<tr><td>
-
 [AccessScopeResolver](/api/pg-prisma/latest/pg-prisma.accessscoperesolver/)
 
 
 </td><td>
 
-Resolves the current request's value for one access level: - `undefined` — the level does not constrain this request (skip it), - `null` — active but there is no value → deny (match nothing), - a string — match rows where a scope column equals it, - an array — match rows where a scope column is `IN` it (empty → deny).
+Resolves the current request's value for one access level: - `undefined` — the level does not constrain this request (skip it), - `null` — active but valueless, so deny (match nothing), - a string — match rows where a scope column equals it, - an array — match rows where a scope column is `IN` it (empty denies).
 
 
 </td></tr>
 <tr><td>
 
-[AuthorshipModels](/api/pg-prisma/latest/pg-prisma.authorshipmodels/)
+[ArchiveClient](/api/pg-prisma/latest/pg-prisma.archiveclient/)
 
 
 </td><td>
 
-Which models carry authorship, keyed by Prisma model name.
+The raw-SQL surface this installer needs.
 
 
 </td></tr>
 <tr><td>
 
-[SoftDeleteModels](/api/pg-prisma/latest/pg-prisma.softdeletemodels/)
+[Direction](/api/pg-prisma/latest/pg-prisma.direction/)
 
 
 </td><td>
 
-Which models are soft-deleted, and which column carries the stamp.
+Sort direction.
+
+
+</td></tr>
+<tr><td>
+
+[EnumNames](/api/pg-prisma/latest/pg-prisma.enumnames/)
+
+
+</td><td>
+
+Member names per enum, where the label is not the name.
+
+
+</td></tr>
+<tr><td>
+
+[Fields](/api/pg-prisma/latest/pg-prisma.fields/)
+
+
+</td><td>
+
+The object a predicate callback is handed.
+
+
+</td></tr>
+<tr><td>
+
+[ImportMap](/api/pg-prisma/latest/pg-prisma.importmap/)
+
+
+</td><td>
+
+Original specifier to the specifier to emit in its place.
+
+
+</td></tr>
+<tr><td>
+
+[OrderBy](/api/pg-prisma/latest/pg-prisma.orderby/)
+
+
+</td><td>
+
+An ordering as it arrives over the wire: `{ createdAt: 'desc' }`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[RawClient](/api/pg-prisma/latest/pg-prisma.rawclient/)
+
+
+</td><td>
+
+A [RawExecutor](/api/pg-prisma/latest/pg-prisma.rawexecutor/) that can also open a transaction.
+
+
+</td></tr>
+<tr><td>
+
+[RawExecutor](/api/pg-prisma/latest/pg-prisma.rawexecutor/)
+
+
+</td><td>
+
+The raw-SQL surface used to install triggers. A `pg.Pool` satisfies it.
+
+
+</td></tr>
+<tr><td>
+
+[RelationMap](/api/pg-prisma/latest/pg-prisma.relationmap/)
+
+
+</td><td>
+
+Relations per model, by field name.
+
+
+</td></tr>
+<tr><td>
+
+[RowOf](/api/pg-prisma/latest/pg-prisma.rowof/)
+
+
+</td><td>
+
+A model as a row that was read whole.
+
+
+</td></tr>
+<tr><td>
+
+[RuntimeName](/api/pg-prisma/latest/pg-prisma.runtimename/)
+
+
+</td><td>
+
+A runtime the generated code can import from.
+
+
+</td></tr>
+<tr><td>
+
+[ScopeTables](/api/pg-prisma/latest/pg-prisma.scopetables/)
+
+
+</td><td>
+
+Scope columns per physical table, per access level.
+
+
+</td></tr>
+<tr><td>
+
+[Select](/api/pg-prisma/latest/pg-prisma.select/)
+
+
+</td><td>
+
+A projection as it arrives over the wire: `{ id: true, user: { … } }`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[StampTables](/api/pg-prisma/latest/pg-prisma.stamptables/)
+
+
+</td><td>
+
+Stamp columns per physical table.
+
+
+</td></tr>
+<tr><td>
+
+[StorageTables](/api/pg-prisma/latest/pg-prisma.storagetables/)
+
+
+</td><td>
+
+Storage columns per physical table.
+
+
+</td></tr>
+<tr><td>
+
+[ValidationRules](/api/pg-prisma/latest/pg-prisma.validationrules/)
+
+
+</td><td>
+
+Zod suffixes per model per field, as the schema's `@validate` declared.
+
+
+</td></tr>
+<tr><td>
+
+[Where](/api/pg-prisma/latest/pg-prisma.where/)
+
+
+</td><td>
+
+A filter as it arrives over the wire.
 
 
 </td></tr>

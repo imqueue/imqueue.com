@@ -19,5 +19,5 @@ resolvers: Record<string, AccessScopeResolver>;
 
 ## Remarks
 
-A level named in `models` but missing here is skipped entirely, so an unregistered resolver silently widens access rather than denying it. Keep the two keyed consistently.
+A level named in `tables` but missing here is skipped entirely, so an unregistered resolver silently widens access rather than denying it.
 

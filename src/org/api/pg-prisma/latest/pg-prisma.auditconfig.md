@@ -1,6 +1,6 @@
 ---
 title: "AuditConfig interface · @imqueue/pg-prisma"
-description: "Where the audit trail is written, and under which column names."
+description: "Where the trail goes and what its columns are called."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"AuditConfig","url":"/api/pg-prisma/latest/pg-prisma.auditconfig/"}]
 ---
 
@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma",
 
 # AuditConfig interface
 
-Where the audit trail is written, and under which column names.
+Where the trail goes and what its columns are called.
 
 **Signature:**
 
@@ -41,7 +41,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[columns](/api/pg-prisma/latest/pg-prisma.auditconfig.columns/)
+[columns?](/api/pg-prisma/latest/pg-prisma.auditconfig.columns/)
 
 
 </td><td>
@@ -54,13 +54,13 @@ Description
 
 </td><td>
 
-Column names within that table.
+_(Optional)_ Column names within that table, where they differ from the defaults.
 
 
 </td></tr>
 <tr><td>
 
-[model](/api/pg-prisma/latest/pg-prisma.auditconfig.model/)
+[table?](/api/pg-prisma/latest/pg-prisma.auditconfig.table/)
 
 
 </td><td>
@@ -73,7 +73,7 @@ string
 
 </td><td>
 
-Table the trail is inserted into.
+_(Optional)_ Table the trail is inserted into. Default `AuditLog`<!-- -->.
 
 
 </td></tr>

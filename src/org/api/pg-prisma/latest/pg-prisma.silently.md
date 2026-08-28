@@ -66,6 +66,6 @@ The previous state is restored in a `finally`<!-- -->, so nesting works and a th
 
 
 ```typescript
-await silently(() => client.$executeRawUnsafe(startupDdl));
+await silently(() => pool.query(startupDdl));
 ```
 

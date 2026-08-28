@@ -14,10 +14,5 @@ Column holding the action string.
 **Signature:**
 
 ```typescript
-action: string;
+action?: string;
 ```
-
-## Remarks
-
-One of the three [AuditAction](/api/pg-prisma/latest/pg-prisma.auditaction/) values. The member selector is required because the const and the type share the name, and an ambiguous `{@link}` renders as nothing at all rather than as an error.
-

@@ -14,5 +14,5 @@ Column holding the JSON actor, as returned by `getPrincipal`<!-- -->.
 **Signature:**
 
 ```typescript
-principal: string;
+principal?: string;
 ```

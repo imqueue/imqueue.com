@@ -1,6 +1,6 @@
 ---
 title: "AccessScopeResolver type · @imqueue/pg-prisma"
-description: "Resolves the current request's value for one access level: - undefined — the level does not constrain this request (skip it), - null — active but there is no…"
+description: "Resolves the current request's value for one access level: - undefined — the level does not constrain this request (skip it), - null — active but valueless…"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"AccessScopeResolver","url":"/api/pg-prisma/latest/pg-prisma.accessscoperesolver/"}]
 ---
 
@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma",
 
 # AccessScopeResolver type
 
-Resolves the current request's value for one access level: - `undefined` — the level does not constrain this request (skip it), - `null` — active but there is no value → deny (match nothing), - a string — match rows where a scope column equals it, - an array — match rows where a scope column is `IN` it (empty → deny).
+Resolves the current request's value for one access level: - `undefined` — the level does not constrain this request (skip it), - `null` — active but valueless, so deny (match nothing), - a string — match rows where a scope column equals it, - an array — match rows where a scope column is `IN` it (empty denies).
 
 **Signature:**
 

@@ -104,8 +104,8 @@ Nothing is emitted afterwards to say what changed — a caller that suppresses i
 
 
 ```typescript
-await withoutChangeNotify(prisma, async tx => {
-    await tx.$executeRawUnsafe(bulkUpsert);
+await withoutChangeNotify(pool, async tx => {
+    await tx.query(bulkUpsert);
 });
 ```
 

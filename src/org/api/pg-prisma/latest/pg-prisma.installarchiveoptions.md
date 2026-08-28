@@ -73,7 +73,7 @@ _(Optional)_ Archive schema name (default `archive`<!-- -->).
 
 </td><td>
 
-The raw-SQL surface to install through — a Prisma client or a transaction.
+The raw-SQL surface to install through — a `pg.Pool`<!-- -->, or any executor.
 
 
 </td></tr>

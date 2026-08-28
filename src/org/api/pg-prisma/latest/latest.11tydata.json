@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "pg-prisma",
-  "apiVersion": "1.1.0",
+  "apiVersion": "2.0.0",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-27T11:29:19.815Z",
+  "apiReleased": "2026-08-28T08:48:03.484Z",
   "apiNav": [
     {
       "group": "Functions",
@@ -15,16 +15,44 @@
           "url": "/api/pg-prisma/latest/pg-prisma.accessscope/"
         },
         {
-          "name": "accessWhere(where, config, resolvers)",
-          "url": "/api/pg-prisma/latest/pg-prisma.accesswhere/"
-        },
-        {
           "name": "audit(input)",
           "url": "/api/pg-prisma/latest/pg-prisma.audit/"
         },
         {
-          "name": "authorship(input)",
-          "url": "/api/pg-prisma/latest/pg-prisma.authorship/"
+          "name": "dataLayer(options)",
+          "url": "/api/pg-prisma/latest/pg-prisma.datalayer_1/"
+        },
+        {
+          "name": "dataPool(config, parsers)",
+          "url": "/api/pg-prisma/latest/pg-prisma.datapool/"
+        },
+        {
+          "name": "deriveDataLayer(input)",
+          "url": "/api/pg-prisma/latest/pg-prisma.derivedatalayer/"
+        },
+        {
+          "name": "emitAll(input)",
+          "url": "/api/pg-prisma/latest/pg-prisma.emitall/"
+        },
+        {
+          "name": "emitEnums(input)",
+          "url": "/api/pg-prisma/latest/pg-prisma.emitenums/"
+        },
+        {
+          "name": "emitImports(names, map)",
+          "url": "/api/pg-prisma/latest/pg-prisma.emitimports/"
+        },
+        {
+          "name": "emitModels(input)",
+          "url": "/api/pg-prisma/latest/pg-prisma.emitmodels/"
+        },
+        {
+          "name": "emitRpcTypes(input)",
+          "url": "/api/pg-prisma/latest/pg-prisma.emitrpctypes/"
+        },
+        {
+          "name": "hasDatabaseDefault(models, columnsOf)",
+          "url": "/api/pg-prisma/latest/pg-prisma.hasdatabasedefault/"
         },
         {
           "name": "installArchiving(options)",
@@ -35,7 +63,7 @@
           "url": "/api/pg-prisma/latest/pg-prisma.installchangetriggers/"
         },
         {
-          "name": "isoDates()",
+          "name": "isoDates(input)",
           "url": "/api/pg-prisma/latest/pg-prisma.isodates/"
         },
         {
@@ -43,28 +71,88 @@
           "url": "/api/pg-prisma/latest/pg-prisma.issqllogsuppressed/"
         },
         {
-          "name": "migrateDown(options)",
-          "url": "/api/pg-prisma/latest/pg-prisma.migratedown/"
+          "name": "join(parts, separator)",
+          "url": "/api/pg-prisma/latest/pg-prisma.join/"
+        },
+        {
+          "name": "namespaceOf(contract, namespace, omit)",
+          "url": "/api/pg-prisma/latest/pg-prisma.namespaceof/"
+        },
+        {
+          "name": "parseImportMap(spec)",
+          "url": "/api/pg-prisma/latest/pg-prisma.parseimportmap/"
         },
         {
           "name": "prettifySql(sql)",
           "url": "/api/pg-prisma/latest/pg-prisma.prettifysql/"
         },
         {
+          "name": "queryLog(input)",
+          "url": "/api/pg-prisma/latest/pg-prisma.querylog/"
+        },
+        {
+          "name": "quoted(value)",
+          "url": "/api/pg-prisma/latest/pg-prisma.quoted/"
+        },
+        {
+          "name": "raw(text)",
+          "url": "/api/pg-prisma/latest/pg-prisma.raw/"
+        },
+        {
+          "name": "repositoriesFor(db, input)",
+          "url": "/api/pg-prisma/latest/pg-prisma.repositoriesfor/"
+        },
+        {
+          "name": "scopePredicate(qualifier, levels, resolvers)",
+          "url": "/api/pg-prisma/latest/pg-prisma.scopepredicate/"
+        },
+        {
           "name": "silently(fn)",
           "url": "/api/pg-prisma/latest/pg-prisma.silently/"
         },
         {
-          "name": "softDelete(input)",
-          "url": "/api/pg-prisma/latest/pg-prisma.softdelete/"
+          "name": "sql(strings, values)",
+          "url": "/api/pg-prisma/latest/pg-prisma.sql/"
         },
         {
-          "name": "toIsoDates(value)",
-          "url": "/api/pg-prisma/latest/pg-prisma.toisodates/"
+          "name": "sqlRunner(pool)",
+          "url": "/api/pg-prisma/latest/pg-prisma.sqlrunner_1/"
+        },
+        {
+          "name": "stamp(input)",
+          "url": "/api/pg-prisma/latest/pg-prisma.stamp/"
+        },
+        {
+          "name": "toOrdering(orderBy)",
+          "url": "/api/pg-prisma/latest/pg-prisma.toordering/"
+        },
+        {
+          "name": "toPredicate(relations, model, where)",
+          "url": "/api/pg-prisma/latest/pg-prisma.topredicate/"
+        },
+        {
+          "name": "toProjection(relations, model, select)",
+          "url": "/api/pg-prisma/latest/pg-prisma.toprojection/"
+        },
+        {
+          "name": "toQuery(fragment)",
+          "url": "/api/pg-prisma/latest/pg-prisma.toquery/"
+        },
+        {
+          "name": "transactionFor(db, options)",
+          "url": "/api/pg-prisma/latest/pg-prisma.transactionfor/"
+        },
+        {
+          "name": "typeOf(field, enums, listEnum)",
+          "url": "/api/pg-prisma/latest/pg-prisma.typeof/"
         },
         {
           "name": "withoutChangeNotify(client, fn, setting)",
           "url": "/api/pg-prisma/latest/pg-prisma.withoutchangenotify/"
+        },
+        {
+          "name": "withTransaction(pool, fn)",
+          "url": "/api/pg-prisma/latest/pg-prisma.withtransaction/"
         }
       ]
     },
@@ -80,10 +168,6 @@
           "url": "/api/pg-prisma/latest/pg-prisma.archivablemodel/"
         },
         {
-          "name": "ArchiveClient",
-          "url": "/api/pg-prisma/latest/pg-prisma.archiveclient/"
-        },
-        {
           "name": "AuditColumns",
           "url": "/api/pg-prisma/latest/pg-prisma.auditcolumns/"
         },
@@ -96,40 +180,156 @@
           "url": "/api/pg-prisma/latest/pg-prisma.auditoptions/"
         },
         {
-          "name": "AuthorshipColumns",
-          "url": "/api/pg-prisma/latest/pg-prisma.authorshipcolumns/"
-        },
-        {
-          "name": "AuthorshipOptions",
-          "url": "/api/pg-prisma/latest/pg-prisma.authorshipoptions/"
+          "name": "BulkCount",
+          "url": "/api/pg-prisma/latest/pg-prisma.bulkcount/"
         },
         {
           "name": "ChangeTriggerConfig",
           "url": "/api/pg-prisma/latest/pg-prisma.changetriggerconfig/"
         },
         {
+          "name": "ContractJson",
+          "url": "/api/pg-prisma/latest/pg-prisma.contractjson/"
+        },
+        {
+          "name": "DataLayer",
+          "url": "/api/pg-prisma/latest/pg-prisma.datalayer/"
+        },
+        {
+          "name": "DataLayerAudit",
+          "url": "/api/pg-prisma/latest/pg-prisma.datalayeraudit/"
+        },
+        {
+          "name": "DataLayerOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.datalayeroptions/"
+        },
+        {
+          "name": "DerivedDataLayer",
+          "url": "/api/pg-prisma/latest/pg-prisma.deriveddatalayer/"
+        },
+        {
+          "name": "DeriveFields",
+          "url": "/api/pg-prisma/latest/pg-prisma.derivefields/"
+        },
+        {
+          "name": "DeriveOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.deriveoptions/"
+        },
+        {
+          "name": "EmitAllOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.emitalloptions/"
+        },
+        {
+          "name": "EmitContract",
+          "url": "/api/pg-prisma/latest/pg-prisma.emitcontract/"
+        },
+        {
+          "name": "EmitModelsOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.emitmodelsoptions/"
+        },
+        {
+          "name": "EmitRpcOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.emitrpcoptions/"
+        },
+        {
+          "name": "EnumDef",
+          "url": "/api/pg-prisma/latest/pg-prisma.enumdef/"
+        },
+        {
+          "name": "Field",
+          "url": "/api/pg-prisma/latest/pg-prisma.field/"
+        },
+        {
+          "name": "FilterOps",
+          "url": "/api/pg-prisma/latest/pg-prisma.filterops/"
+        },
+        {
           "name": "InstallArchiveOptions",
           "url": "/api/pg-prisma/latest/pg-prisma.installarchiveoptions/"
         },
         {
-          "name": "MigrateDownOptions",
-          "url": "/api/pg-prisma/latest/pg-prisma.migratedownoptions/"
+          "name": "IsoDateOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.isodateoptions/"
         },
         {
-          "name": "MigrateDownResult",
-          "url": "/api/pg-prisma/latest/pg-prisma.migratedownresult/"
+          "name": "Model",
+          "url": "/api/pg-prisma/latest/pg-prisma.model/"
         },
         {
-          "name": "RawClient",
-          "url": "/api/pg-prisma/latest/pg-prisma.rawclient/"
+          "name": "Page",
+          "url": "/api/pg-prisma/latest/pg-prisma.page/"
         },
         {
-          "name": "RawExecutor",
-          "url": "/api/pg-prisma/latest/pg-prisma.rawexecutor/"
+          "name": "PageOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.pageoptions/"
         },
         {
-          "name": "SoftDeleteOptions",
-          "url": "/api/pg-prisma/latest/pg-prisma.softdeleteoptions/"
+          "name": "Projection",
+          "url": "/api/pg-prisma/latest/pg-prisma.projection/"
+        },
+        {
+          "name": "QueryLogger",
+          "url": "/api/pg-prisma/latest/pg-prisma.querylogger/"
+        },
+        {
+          "name": "QueryLogOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.querylogoptions/"
+        },
+        {
+          "name": "Relation",
+          "url": "/api/pg-prisma/latest/pg-prisma.relation/"
+        },
+        {
+          "name": "RelationInfo",
+          "url": "/api/pg-prisma/latest/pg-prisma.relationinfo/"
+        },
+        {
+          "name": "Repository",
+          "url": "/api/pg-prisma/latest/pg-prisma.repository/"
+        },
+        {
+          "name": "RepositoryOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.repositoryoptions/"
+        },
+        {
+          "name": "RuntimeModule",
+          "url": "/api/pg-prisma/latest/pg-prisma.runtimemodule/"
+        },
+        {
+          "name": "SqlConnection",
+          "url": "/api/pg-prisma/latest/pg-prisma.sqlconnection/"
+        },
+        {
+          "name": "SqlExecutor",
+          "url": "/api/pg-prisma/latest/pg-prisma.sqlexecutor/"
+        },
+        {
+          "name": "SqlFragment",
+          "url": "/api/pg-prisma/latest/pg-prisma.sqlfragment/"
+        },
+        {
+          "name": "SqlPool",
+          "url": "/api/pg-prisma/latest/pg-prisma.sqlpool/"
+        },
+        {
+          "name": "SqlRunner",
+          "url": "/api/pg-prisma/latest/pg-prisma.sqlrunner/"
+        },
+        {
+          "name": "StampColumns",
+          "url": "/api/pg-prisma/latest/pg-prisma.stampcolumns/"
+        },
+        {
+          "name": "StampOptions",
+          "url": "/api/pg-prisma/latest/pg-prisma.stampoptions/"
+        },
+        {
+          "name": "Transactional",
+          "url": "/api/pg-prisma/latest/pg-prisma.transactional/"
+        },
+        {
+          "name": "TypeParsers",
+          "url": "/api/pg-prisma/latest/pg-prisma.typeparsers/"
         }
       ]
     },
@@ -155,6 +355,18 @@
         {
           "name": "CHANGE_NOTIFY_TRIGGER_NAME",
           "url": "/api/pg-prisma/latest/pg-prisma.change_notify_trigger_name/"
+        },
+        {
+          "name": "EMPTY",
+          "url": "/api/pg-prisma/latest/pg-prisma.empty/"
+        },
+        {
+          "name": "RUNTIME",
+          "url": "/api/pg-prisma/latest/pg-prisma.runtime/"
+        },
+        {
+          "name": "TIMESTAMP_CODECS",
+          "url": "/api/pg-prisma/latest/pg-prisma.timestamp_codecs/"
         }
       ]
     },
@@ -162,20 +374,76 @@
       "group": "Type Aliases",
       "items": [
         {
-          "name": "AccessScopeModels",
-          "url": "/api/pg-prisma/latest/pg-prisma.accessscopemodels/"
-        },
-        {
           "name": "AccessScopeResolver",
           "url": "/api/pg-prisma/latest/pg-prisma.accessscoperesolver/"
         },
         {
-          "name": "AuthorshipModels",
-          "url": "/api/pg-prisma/latest/pg-prisma.authorshipmodels/"
+          "name": "ArchiveClient",
+          "url": "/api/pg-prisma/latest/pg-prisma.archiveclient/"
         },
         {
-          "name": "SoftDeleteModels",
-          "url": "/api/pg-prisma/latest/pg-prisma.softdeletemodels/"
+          "name": "Direction",
+          "url": "/api/pg-prisma/latest/pg-prisma.direction/"
+        },
+        {
+          "name": "EnumNames",
+          "url": "/api/pg-prisma/latest/pg-prisma.enumnames/"
+        },
+        {
+          "name": "Fields",
+          "url": "/api/pg-prisma/latest/pg-prisma.fields/"
+        },
+        {
+          "name": "ImportMap",
+          "url": "/api/pg-prisma/latest/pg-prisma.importmap/"
+        },
+        {
+          "name": "OrderBy",
+          "url": "/api/pg-prisma/latest/pg-prisma.orderby/"
+        },
+        {
+          "name": "RawClient",
+          "url": "/api/pg-prisma/latest/pg-prisma.rawclient/"
+        },
+        {
+          "name": "RawExecutor",
+          "url": "/api/pg-prisma/latest/pg-prisma.rawexecutor/"
+        },
+        {
+          "name": "RelationMap",
+          "url": "/api/pg-prisma/latest/pg-prisma.relationmap/"
+        },
+        {
+          "name": "RowOf",
+          "url": "/api/pg-prisma/latest/pg-prisma.rowof/"
+        },
+        {
+          "name": "RuntimeName",
+          "url": "/api/pg-prisma/latest/pg-prisma.runtimename/"
+        },
+        {
+          "name": "ScopeTables",
+          "url": "/api/pg-prisma/latest/pg-prisma.scopetables/"
+        },
+        {
+          "name": "Select",
+          "url": "/api/pg-prisma/latest/pg-prisma.select/"
+        },
+        {
+          "name": "StampTables",
+          "url": "/api/pg-prisma/latest/pg-prisma.stamptables/"
+        },
+        {
+          "name": "StorageTables",
+          "url": "/api/pg-prisma/latest/pg-prisma.storagetables/"
+        },
+        {
+          "name": "ValidationRules",
+          "url": "/api/pg-prisma/latest/pg-prisma.validationrules/"
+        },
+        {
+          "name": "Where",
+          "url": "/api/pg-prisma/latest/pg-prisma.where/"
         }
       ]
     }

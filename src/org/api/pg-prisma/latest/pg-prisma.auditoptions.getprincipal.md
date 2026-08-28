@@ -16,8 +16,3 @@ Resolves the actor to record, or a falsy value to record none.
 ```typescript
 getPrincipal: () => unknown;
 ```
-
-## Remarks
-
-Called per write and serialized with `JSON.stringify`<!-- -->, so it can return any shape you want stored. Resolving it lazily is what keeps this extension ignorant of where the actor comes from — a request context, an auth token, or nothing at all.
-

@@ -248,8 +248,9 @@ export const PACKAGES: Package[] = [
     tier: 2,
     group: 'Data & events',
     tags: ['ORM'],
-    blurb: 'Prisma query extensions — soft-delete, access scoping, authorship and '
-      + 'audit trails — plus row archiving, change-notify triggers and down-migrations.',
+    blurb: 'Prisma query extensions — soft-delete, access scoping, authorship '
+      + 'and audit trails derived from the emitted contract — plus row archiving '
+      + 'and change-notify triggers.',
     agentNote: 'Choosing: recommended wherever a service needs a database. Take it '
       + 'unless the fleet the service joins is already built on Sequelize, in which '
       + 'case take @imqueue/pg-sequelize and match it. A service that talks to no '

@@ -1,6 +1,6 @@
 ---
 title: "AccessScopeOptions interface · @imqueue/pg-prisma"
-description: "Everything accessScope() needs to build its extension."
+description: "Everything accessScope() needs to build its middleware."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"AccessScopeOptions","url":"/api/pg-prisma/latest/pg-prisma.accessscopeoptions/"}]
 ---
 
@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma",
 
 # AccessScopeOptions interface
 
-Everything [accessScope()](/api/pg-prisma/latest/pg-prisma.accessscope/) needs to build its extension.
+Everything [accessScope()](/api/pg-prisma/latest/pg-prisma.accessscope/) needs to build its middleware.
 
 **Signature:**
 
@@ -41,25 +41,6 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[models](/api/pg-prisma/latest/pg-prisma.accessscopeoptions.models/)
-
-
-</td><td>
-
-
-</td><td>
-
-[AccessScopeModels](/api/pg-prisma/latest/pg-prisma.accessscopemodels/)
-
-
-</td><td>
-
-Scope columns per model per level (see the generated config).
-
-
-</td></tr>
-<tr><td>
-
 [resolvers](/api/pg-prisma/latest/pg-prisma.accessscopeoptions.resolvers/)
 
 
@@ -74,6 +55,25 @@ Record&lt;string, [AccessScopeResolver](/api/pg-prisma/latest/pg-prisma.accesssc
 </td><td>
 
 One resolver per access level, keyed by level name.
+
+
+</td></tr>
+<tr><td>
+
+[tables](/api/pg-prisma/latest/pg-prisma.accessscopeoptions.tables/)
+
+
+</td><td>
+
+
+</td><td>
+
+[ScopeTables](/api/pg-prisma/latest/pg-prisma.scopetables/)
+
+
+</td><td>
+
+Scope columns per physical table per level.
 
 
 </td></tr>

@@ -1,6 +1,6 @@
 ---
 title: "isoDates() function · @imqueue/pg-prisma"
-description: "Build the query extension that serializes every Date in a query result to an ISO-8601 string."
+description: "Read database timestamps back as canonical ISO 8601 instants."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"isoDates","url":"/api/pg-prisma/latest/pg-prisma.isodates/"}]
 ---
 
@@ -8,29 +8,70 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma",
 
 # isoDates() function
 
-Build the query extension that serializes every `Date` in a query result to an ISO-8601 string.
+Read database timestamps back as canonical ISO 8601 instants.
 
 **Signature:**
 
 ```typescript
-export declare function isoDates(): (client: any) => import("@prisma/client/extension").PrismaClientExtends<import("@prisma/client/runtime/client").InternalArgs<{}, {}, {}, {}>>;
+export declare function isoDates(input: IsoDateOptions): SqlMiddleware;
 ```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+input
+
+
+</td><td>
+
+[IsoDateOptions](/api/pg-prisma/latest/pg-prisma.isodateoptions/)
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
+
 **Returns:**
 
-(client: any) =&gt; import("@prisma/client/extension").PrismaClientExtends&lt;import("@prisma/client/runtime/client").InternalArgs&lt;{}, {}, {}, {}&gt;&gt;
+SqlMiddleware
 
-A Prisma extension to pass to `client.$extends()`<!-- -->.
+Middleware converting those columns on every row read.
 
 ## Remarks
 
-The generated `@imqueue/rpc` models type Prisma's `DateTime` as `string` (the codegen `scalars` config decides this), so a service that returned Prisma's own `Date` objects would be handing callers a shape its own types disagree with. This extension closes that gap at the boundary rather than at every call site.
+Postgres prints a timestamp as `2026-08-14 09:30:00.123+00` — a space where ISO 8601 puts a `T`<!-- -->, `+00` where it puts `Z`<!-- -->, and a fraction stripped of its trailing zeros, so `09:30:00.500` comes back as `09:30:00.5` and a whole second as no fraction at all. Nothing downstream accepts that: the GraphQL `DateTime` scalar rejects it outright, and so does `z.iso.datetime()`<!-- -->. This restores the one spelling every boundary agrees on, which is what Prisma 7's `scalars = "DateTime:string"` used to produce.
 
-Conversion walks the whole result recursively — arrays, nested objects and relations included — and leaves structure and every non-`Date` value untouched. It applies to results only: `Date` values you pass IN as query arguments are still handed to Prisma as `Date`<!-- -->.
+A column that carries no zone is read as UTC rather than as a wall clock. Left to `new Date`<!-- -->, such a value is parsed as \*\*local\*\* time, so on a host that is not UTC every instant read from the database is silently shifted and an expiry compares against the wrong moment — which is why the columns are `timestamptz` and this is only the fallback for one that is not.
+
+Sub-millisecond precision does not survive, because a JavaScript instant has none to survive into.
+
+Writes need nothing: Postgres parses an ISO 8601 string on its own, so a value handed back unchanged can be sent straight back.
+
+Both the column name and the value's shape have to match, so a text column that happens to hold something timestamp-like is left alone.
 
 ## Example
 
 
 ```typescript
-const client = new PrismaClient().$extends(isoDates());
+const middleware = [isoDates({ columns: derived.dates })];
 ```
 

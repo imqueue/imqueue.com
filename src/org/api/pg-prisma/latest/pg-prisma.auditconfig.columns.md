@@ -1,6 +1,6 @@
 ---
 title: "AuditConfig.columns property · @imqueue/pg-prisma"
-description: "Column names within that table."
+description: "Column names within that table, where they differ from the defaults."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"AuditConfig","url":"/api/pg-prisma/latest/pg-prisma.auditconfig/"},{"name":"columns","url":"/api/pg-prisma/latest/pg-prisma.auditconfig.columns/"}]
 sitemap: false
 ---
@@ -9,10 +9,10 @@ sitemap: false
 
 # AuditConfig.columns property
 
-Column names within that table.
+Column names within that table, where they differ from the defaults.
 
 **Signature:**
 
 ```typescript
-columns: AuditColumns;
+columns?: AuditColumns;
 ```

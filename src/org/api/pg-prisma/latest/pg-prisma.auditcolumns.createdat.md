@@ -14,5 +14,5 @@ Column stamped with the database's `now()` at insert time.
 **Signature:**
 
 ```typescript
-createdAt: string;
+createdAt?: string;
 ```

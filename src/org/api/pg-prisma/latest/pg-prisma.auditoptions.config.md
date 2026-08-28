@@ -1,6 +1,6 @@
 ---
 title: "AuditOptions.config property · @imqueue/pg-prisma"
-description: "Where the trail goes and what its columns are called."
+description: "Where the trail goes. Omitted entirely, the defaults apply."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"AuditOptions","url":"/api/pg-prisma/latest/pg-prisma.auditoptions/"},{"name":"config","url":"/api/pg-prisma/latest/pg-prisma.auditoptions.config/"}]
 sitemap: false
 ---
@@ -9,10 +9,10 @@ sitemap: false
 
 # AuditOptions.config property
 
-Where the trail goes and what its columns are called.
+Where the trail goes. Omitted entirely, the defaults apply.
 
 **Signature:**
 
 ```typescript
-config: AuditConfig;
+config?: AuditConfig;
 ```

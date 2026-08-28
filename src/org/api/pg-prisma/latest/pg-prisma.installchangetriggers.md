@@ -86,6 +86,6 @@ Two limits worth knowing. Postgres caps a notification payload at 8000 bytes and
 
 
 ```typescript
-await installChangeTriggers(prisma, { models: ['User', 'Order'] });
+await installChangeTriggers(pool, { models: ['User', 'Order'] });
 ```
 

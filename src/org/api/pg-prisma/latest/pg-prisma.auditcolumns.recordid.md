@@ -1,6 +1,6 @@
 ---
 title: "AuditColumns.recordId property · @imqueue/pg-prisma"
-description: "Column holding the affected record's id, or 'many' for a bulk write."
+description: "Column holding the affected record's id."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"AuditColumns","url":"/api/pg-prisma/latest/pg-prisma.auditcolumns/"},{"name":"recordId","url":"/api/pg-prisma/latest/pg-prisma.auditcolumns.recordid/"}]
 sitemap: false
 ---
@@ -9,10 +9,10 @@ sitemap: false
 
 # AuditColumns.recordId property
 
-Column holding the affected record's `id`<!-- -->, or `'many'` for a bulk write.
+Column holding the affected record's `id`<!-- -->.
 
 **Signature:**
 
 ```typescript
-recordId: string;
+recordId?: string;
 ```

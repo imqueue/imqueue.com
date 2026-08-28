@@ -1,6 +1,6 @@
 ---
 title: "InstallArchiveOptions.client property · @imqueue/pg-prisma"
-description: "The raw-SQL surface to install through — a Prisma client or a transaction."
+description: "The raw-SQL surface to install through — a pg.Pool, or any executor."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"InstallArchiveOptions","url":"/api/pg-prisma/latest/pg-prisma.installarchiveoptions/"},{"name":"client","url":"/api/pg-prisma/latest/pg-prisma.installarchiveoptions.client/"}]
 sitemap: false
 ---
@@ -9,7 +9,7 @@ sitemap: false
 
 # InstallArchiveOptions.client property
 
-The raw-SQL surface to install through — a Prisma client or a transaction.
+The raw-SQL surface to install through — a `pg.Pool`<!-- -->, or any executor.
 
 **Signature:**
 

@@ -1,6 +1,6 @@
 ---
 title: "AuditAction variable · @imqueue/pg-prisma"
-description: "The three kinds of write recorded in the audit trail."
+description: "The three write actions the trail records."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"AuditAction","url":"/api/pg-prisma/latest/pg-prisma.auditaction/"}]
 ---
 
@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma",
 
 # AuditAction variable
 
-The three kinds of write recorded in the audit trail.
+The three write actions the trail records.
 
 **Signature:**
 
@@ -21,12 +21,3 @@ AuditAction: {
 
 export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction];
 ```
-
-## Remarks
-
-These are the literal strings written to the audit table's action column, so they are part of the stored data, not just an internal enum — a reader querying the trail matches on `'INSERT'`<!-- -->, `'UPDATE'` or `'DELETE'`<!-- -->.
-
-The mapping from Prisma operations is not one-to-one: `create` records `INSERT`<!-- -->, `update` and `updateMany` record `UPDATE`<!-- -->, `delete` and `deleteMany` record `DELETE`<!-- -->. A soft delete is recorded as `DELETE`<!-- -->, since it is the caller's `delete` that is seen — but only when [audit()](/api/pg-prisma/latest/pg-prisma.audit/) is added before [softDelete()](/api/pg-prisma/latest/pg-prisma.softdelete/)<!-- -->, because the reroute goes to the unextended client and otherwise never reaches the audit extension at all.
-
-The value and the type share a name and a page, as the const-plus-derived-union idiom requires.
-

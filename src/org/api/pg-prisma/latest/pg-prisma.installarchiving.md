@@ -79,7 +79,7 @@ The division of ownership in step 3 is the part worth understanding. While the h
 
 ```typescript
 await installArchiving({
-    client: prisma,
+    client: pool,
     models: [{ name: 'AuditLog', periodSeconds: 7 * 24 * 3600 }],
 });
 ```

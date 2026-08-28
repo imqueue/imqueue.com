@@ -1,6 +1,6 @@
 ---
 title: "AuditColumns.changes property · @imqueue/pg-prisma"
-description: "Column holding the JSON payload: the record, or the args plus a count."
+description: "Column holding the JSON payload of the written row."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"AuditColumns","url":"/api/pg-prisma/latest/pg-prisma.auditcolumns/"},{"name":"changes","url":"/api/pg-prisma/latest/pg-prisma.auditcolumns.changes/"}]
 sitemap: false
 ---
@@ -9,10 +9,10 @@ sitemap: false
 
 # AuditColumns.changes property
 
-Column holding the JSON payload: the record, or the args plus a count.
+Column holding the JSON payload of the written row.
 
 **Signature:**
 
 ```typescript
-changes: string;
+changes?: string;
 ```
