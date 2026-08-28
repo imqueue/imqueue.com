@@ -60,8 +60,11 @@ jobs:
           set -euo pipefail
 
           if [ -z "${CF_API_TOKEN:-}" ]; then
-            echo "::error::CF_API_TOKEN is not set. Add a Cloudflare token scoped to Account > Cloudflare Pages > Edit as the CF_API_TOKEN repo secret."
-            exit 1
+            # Not an error — the workflow is simply not configured yet. Skip cleanly
+            # (a green run with a warning) so the Actions tab is not flooded with red
+            # every 15 minutes before the one-time secret is added.
+            echo "::warning::CF_API_TOKEN is not set — skipping. Add a Cloudflare token scoped to Account > Cloudflare Pages > Edit as the CF_API_TOKEN repo secret to enable auto-retry."
+            exit 0
           fi
 
           base="https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/pages/projects"
