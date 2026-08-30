@@ -3,9 +3,9 @@ layout: post.html
 permalink: /blog/graceful-shutdown-zero-drop-deploys/
 templateEngineOverride: md
 title: "Graceful shutdown and zero-drop deploys"
-summary: "Every deploy sends a kill signal to a process that is probably in the middle of something. Nothing 500s, no dashboard turns red, and the work is gone anyway. Here's what actually happens to an in-flight message on SIGTERM, and the drain that keeps it."
+summary: "Every deploy sends a kill signal to a process that is probably in the middle of something. Nothing 500s, no dashboard turns red, and the work is gone anyway. Here's what actually happens to an in-flight message on SIGTERM, and the built-in drain that keeps it."
 description: "Shut down Node.js queue consumers without losing in-flight work: what SIGTERM does to a message mid-process, how to drain, and how to size a grace period."
-keywords: "graceful shutdown nodejs, zero downtime deploy microservices, sigterm nodejs worker, drain in-flight requests, rolling deploy message queue, imqueue"
+keywords: "graceful shutdown nodejs, zero downtime deploy microservices, sigterm nodejs worker, drain in-flight requests, rolling deploy message queue, IMQ_DRAIN_ENABLE, imqueue"
 date: 2026-07-28
 author: andrii
 illustration: shutdown
@@ -73,7 +73,9 @@ on the next microtask. The exact timing doesn't matter much, though, because
 neither path waits for a handler: there is no ack, no in-flight counter, and no
 drain hook anywhere in the framework.
 
-So the framework does step 3 for you, and steps 1 and 2 are yours.
+That was the whole story until `@imqueue/rpc` 3.8, which ships the drain itself
+behind an opt-in. Steps 1 and 2 are now a flag rather than code you write — but
+the levers underneath it are unchanged, and they are worth knowing either way.
 
 ## Two levers, and the order matters
 
@@ -87,10 +89,92 @@ So the framework does step 3 for you, and steps 1 and 2 are yours.
 Getting these backwards is the classic mistake: `destroy()` first closes the very
 connection your in-flight reply still needs.
 
-## A drain that actually drains
+## Turning the drain on
 
-Since nothing counts in-flight work for you, count it yourself. One small helper
-is enough:
+One environment variable:
+
+~~~bash
+IMQ_DRAIN_ENABLE=1
+~~~
+
+That is the whole opt-in. `SIGTERM` and `SIGINT` now run the sequence above in
+the order above: log the drain and how much is in flight, `stop()`, wait for the
+outstanding handlers, `destroy()`, exit `0`.
+
+The same service as before — the same three-second method, the same `SIGTERM`
+50 ms in — with the flag set:
+
+~~~
+HANDLER START  ...110
+SIGTERM        ...160   (2.95s of work still outstanding)
+HANDLER DONE   ...111  (+2951ms)
+REPLY SENT     ...112
+PROCESS EXIT code=0
+~~~
+
+The reply is the point. The work didn't just finish, it finished *visibly*: the
+caller's promise settled instead of hanging for the life of its process.
+
+Both controls are also constructor options, for services that would rather
+configure in code than in the environment:
+
+~~~typescript
+import { IMQService, expose } from '@imqueue/rpc';
+
+class OrderService extends IMQService {
+    @expose()
+    public async placeOrder(order: Order): Promise<Receipt> {
+        // no wrapper, no registration — every @expose()d method is tracked
+    }
+}
+
+const service = new OrderService({ drain: true, drainTimeout: 4000 });
+
+await service.start();
+~~~
+
+| control | option | default |
+|---|---|---|
+| enable draining | `drain` | `IMQ_DRAIN_ENABLE`, itself `0` |
+| drain budget, ms | `drainTimeout` | `IMQ_DRAIN_TIMEOUT`, itself `4000` |
+
+Both variables are read numerically, the same as the rest of the `IMQ_*` family
+— and a value that isn't a number throws at construction rather than quietly
+reading as *off*, because `IMQ_DRAIN_ENABLE=true` coercing to `NaN` and
+disabling the feature is precisely the failure worth being loud about.
+
+### What the opt-in changes, and what it doesn't
+
+Left off — the default — nothing moves. The signal handlers, the timing and the
+dispatch path are what they have always been, down to the tracking set that is
+never allocated. This is a feature you turn on, not a behaviour that changes
+under you on upgrade.
+
+Turned on, three things follow:
+
+- **Every exposed method is tracked, automatically.** Tracking sits at the one
+  point where an incoming message is dispatched, so there is no per-method
+  wrapper to add — and therefore no method anyone can forget to wrap, which is
+  the failure this exists to remove. The bookkeeping watches a *derived*
+  promise, so a handler's rejection stays its caller's to handle and never
+  surfaces as an unhandled rejection.
+- **The drain takes over the framework's own signal handlers.** All of them, and
+  only them: `IMQService`'s fixed-timer handler, any client's in the same
+  process, each removed by the exact function reference that was registered.
+  Handlers belonging to unrelated libraries are left alone, which is the part
+  `process.removeAllListeners()` cannot do.
+- **The queue's handler is suppressed.** Enabling the drain forces
+  [`handleSignals: false`](/api/core/latest/core.imqoptions.handlesignals/) on
+  the service's queue, since that handler exits the process without waiting and
+  would otherwise cut the drain short from the side.
+
+A second signal during a drain exits immediately — the double-interrupt
+convention, for when you have changed your mind about waiting.
+
+### Doing it by hand
+
+On a release older than 3.8, or draining work that isn't an `@expose()`d method,
+the same sequence is about thirty lines. Count the work yourself:
 
 ~~~typescript
 const inFlight = new Set<Promise<unknown>>();
@@ -109,11 +193,10 @@ function tracked<T>(work: Promise<T>): Promise<T> {
 }
 ~~~
 
-Wrap the actual work in it:
+Wrap the actual work in it — every method, remembering that the one you miss is
+the one that drops work:
 
 ~~~typescript
-import { IMQService, expose } from '@imqueue/rpc';
-
 class OrderService extends IMQService {
     @expose()
     public async placeOrder(order: Order): Promise<Receipt> {
@@ -166,20 +249,9 @@ for (const signal of ['SIGTERM', 'SIGINT'] as const) {
 `removeAllListeners()` is blunt — it drops any other listener for that signal
 too, including ones a library you depend on may have installed. Doing it directly
 after `start()` keeps the blast radius to the framework's own handlers, which is
-the point. Note also that `handleSignals: false` is not a substitute: it silences
-the queue's handler, but `IMQService`'s is unconditional.
-
-The same service, the same three-second method, the same `SIGTERM` 50 ms in:
-
-~~~
-DRAIN START SIGTERM inFlight=1
-HANDLER DONE
-DRAIN END inFlight=0
-PROCESS EXIT code=0
-~~~
-
-2971 ms from signal to exit, and the caller got its `{ receipt: 'ok' }` back.
-That reply is the whole point: the work didn't just finish, it finished *visibly*.
+the point, and is the one thing the built-in drain does more precisely. Note also
+that `handleSignals: false` is not a substitute by itself: it silences the
+queue's handler, but `IMQService`'s is unconditional unless the drain owns it.
 
 ## The caller's half
 
@@ -217,19 +289,33 @@ system](/blog/scheduled-work-without-a-job-system/).
 Draining, in other words, isn't an optimisation layered on top of safe delivery.
 It's the only mechanism that finishes work already in progress.
 
+`@imqueue/job` ships the same opt-in, under the same `IMQ_DRAIN_ENABLE`, with one
+addition that follows directly from the paragraph above. Because a job's worker
+key is released the moment the job reaches the handler, a job the drain gives up
+on at its budget is checked out to nobody and nothing would ever bring it back —
+so `drainRequeue`, on by default, pushes it back before the process exits. That
+buys a possible duplicate in exchange for a certain loss, which is the trade
+at-least-once was already making.
+
 ## Sizing it for a real deploy
 
 - **The grace period has to exceed the drain budget.** Kubernetes sends
   `SIGTERM`, waits `terminationGracePeriodSeconds` (30 by default), then sends
   `SIGKILL`. A 25-second drain under a 30-second grace period leaves room; a
   60-second drain under it is decoration.
-- **The signal has to reach PID 1.** A shell wrapper that spawns node as a child
-  usually doesn't forward signals, so nothing you wired up ever runs. The project
-  template gets this right with `exec npm start` — `exec` replaces the shell
-  rather than parenting a process under it.
 - **Locally, `imq stop` is stricter than your cluster.** It signals the process
-  group, polls for about five seconds, then escalates to `SIGKILL`. Keep local
-  drain budgets inside that, or test shutdown by signalling the process directly.
+  group, polls for about five seconds, then escalates to `SIGKILL` — six times
+  tighter than the Kubernetes default. That window, not the cluster's, is what
+  sets `IMQ_DRAIN_TIMEOUT`'s 4000 ms default: it leaves roughly a second for
+  `stop()`, `destroy()` and process teardown inside the five seconds the CLI
+  allows. Raise it for a cluster deployment by all means — but then either stop
+  using `imq stop` on that service or expect the local CLI to be the harsher of
+  the two.
+- **The signal has to reach PID 1.** A shell wrapper that spawns node as a child
+  usually doesn't forward signals, so nothing you wired up ever runs — the
+  built-in drain included, since it is registered on the process that never gets
+  signalled. The project template gets this right with `exec npm start` — `exec`
+  replaces the shell rather than parenting a process under it.
 - **Rolling deploys need no traffic choreography.** There is no load balancer to
   drain and no registry to deregister from: the new instance starts popping, the
   old one stops, and the queue is the handover point. Start the replacement
@@ -246,9 +332,17 @@ And a producer is not exempt: `send()` resolves against a locally generated id
 before the broker confirms the write, so a process that exits immediately after
 enqueuing has proven nothing about durability.
 
+Safe delivery's own lease is worth one more line here, because the drain does not
+change it: the worker key is released as soon as the message is handed to the
+listener, not when the handler settles. That is what makes safe delivery a
+guarantee about the hand-off rather than about the processing, and it is why
+draining and safe delivery solve different halves of the same sentence.
+
 None of that argues against draining. It argues for treating the drain as what it
 is: the cheapest large reduction in dropped work available to a queue-based
-service, and about thirty lines of code. [Getting Started](/get-started/) gets
-you a service to try it on, and the
-[API reference](/api/rpc/latest/rpc.imqservice/) has the exact `stop()` and
+service, and now a single environment variable. [Getting Started](/get-started/)
+gets you a service to try it on;
+[`IMQServiceOptions`](/api/rpc/latest/rpc.imqserviceoptions/) documents `drain`
+and `drainTimeout`, and
+[`IMQService`](/api/rpc/latest/rpc.imqservice/) has the exact `stop()` and
 `destroy()` semantics.
