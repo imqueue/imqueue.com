@@ -6,8 +6,8 @@ docLabel: FAQ
 crumbLeaf: FAQ
 heading: Frequently Asked Questions
 lead: "Direct answers to the questions developers are actually asking — each one linking the reference for the symbols it names."
-description: "@imqueue FAQ: expose a method, generate a typed client, cache and invalidate, validate arguments, delay and retry jobs, trace, log, auto-scale and rate-limit."
-keywords: "imqueue faq, expose service method, imqueue generate typed client, classType property decorators, removeComments false imqueue, pg-cache cacheBy, imqueue job delay retry, PgPubSub singleListener, graphql N+1 microservices, ImqueueInstrumentation, LOGGER_TRANSPORTS, imqueue send does not throw, JobQueue push error, imqueue silent failure logging, imqueue metrics server queue_length, kubernetes HPA queue length autoscaling, redis-broker-promoter, redis-broker-unicaster, UDPClusterManager, HttpProtect express middleware, CIDR membership Node.js"
+description: "@imqueue FAQ: expose a method, generate a typed client, cache and invalidate, validate arguments, delay and retry jobs, trace, log, auto-scale, drain on deploy and rate-limit."
+keywords: "imqueue faq, expose service method, imqueue generate typed client, classType property decorators, removeComments false imqueue, pg-cache cacheBy, imqueue job delay retry, PgPubSub singleListener, graphql N+1 microservices, ImqueueInstrumentation, LOGGER_TRANSPORTS, imqueue send does not throw, JobQueue push error, imqueue silent failure logging, imqueue metrics server queue_length, kubernetes HPA queue length autoscaling, graceful shutdown nodejs, IMQ_DRAIN_ENABLE, drain in-flight requests, redis-broker-promoter, redis-broker-unicaster, UDPClusterManager, HttpProtect express middleware, CIDR membership Node.js"
 relatedTopics: [rpc, dx, patterns, jobs]
 faqPage: true
 ---
@@ -878,6 +878,118 @@ Reference: [`UDPClusterManager`](/api/core/latest/core.udpclustermanager/) ·
 [`IMQOptions.clusterManagers`](/api/core/latest/core.imqoptions.clustermanagers/) ·
 [`IMQOptions.cluster`](/api/core/latest/core.imqoptions.cluster/) ·
 [`ClusteredRedisQueue`](/api/core/latest/core.clusteredredisqueue/)
+
+## Deploys and shutdown
+
+### How do I stop a deploy from dropping in-flight requests?
+
+Set `IMQ_DRAIN_ENABLE=1`. `SIGTERM` and `SIGINT` then stop the service consuming,
+wait for the requests already running to finish and publish their replies, tear
+the transport down and exit `0` — instead of the default, which starts `destroy()`
+without awaiting it and force-exits on a fixed timer, abandoning the handler and
+leaving its caller on a promise that never settles.
+
+~~~bash
+IMQ_DRAIN_ENABLE=1
+~~~
+
+That is the whole opt-in. There is nothing to wrap and nothing to register:
+tracking sits at the single point where a request is dispatched, so every
+`@expose()`d method is covered automatically. Both controls are constructor
+options too, for services that would rather configure in code:
+
+~~~typescript
+const service = new OrderService({ drain: true, drainTimeout: 4000 });
+~~~
+
+| control | option | environment | default |
+| --- | --- | --- | --- |
+| run a drain on `SIGTERM`/`SIGINT` | `drain` | `IMQ_DRAIN_ENABLE` | off |
+| drain budget, milliseconds | `drainTimeout` | `IMQ_DRAIN_TIMEOUT` | `4000` |
+
+Both are read numerically, like the rest of the `IMQ_*` family — and a
+non-numeric value throws at construction rather than being quietly read as *off*,
+which is the failure mode that would otherwise leave you believing a deploy was
+draining when it was not. A well-meant `IMQ_DRAIN_ENABLE=true` is the exact case:
+it coerces to `NaN`, and silence there would be worse than a crash.
+
+A second signal during a drain exits immediately, so an impatient operator or a
+supervisor escalating to a second `SIGTERM` is never blocked by it.
+
+Available from `@imqueue/rpc` **3.8.0** and `@imqueue/job` **3.2.0**. It is opt-in
+precisely so that upgrading changes nothing: left off, shutdown behaves exactly as
+it always has.
+
+Delivery is **at-least-once** either way. A drain narrows the window in which
+in-flight work is lost — `SIGKILL`, an OOM kill or a lost node still take it with
+them — so handlers must stay idempotent regardless.
+
+Reference: [`IMQService`](/api/rpc/latest/rpc.imqservice/) ·
+[`IMQServiceOptions`](/api/rpc/latest/rpc.imqserviceoptions/) ·
+[`expose()`](/api/rpc/latest/rpc.expose/). Measured end to end in
+[graceful shutdown and zero-drop deploys](/blog/graceful-shutdown-zero-drop-deploys/).
+
+### How long should the drain budget be?
+
+Longer than your slowest handler, and shorter than whatever is about to `SIGKILL`
+the process — the budget is only useful in the gap between those two. The `4000`
+default is sized for the tighter of the two common cases, not the friendlier one.
+
+Two windows tend to bound it:
+
+| what stops the process | window | what fits |
+| --- | --- | --- |
+| `imq stop` | ~5 s `SIGTERM` → `SIGKILL` | the `4000` default, with about a second to spare for `destroy()` |
+| Kubernetes | 30 s `terminationGracePeriodSeconds` | raise `drainTimeout` to match, or the pod waits on a drain that gave up at 4 s |
+
+Overrunning is bounded rather than fatal: the wait always ends, whatever has not
+finished is abandoned, the outcome is logged, and the process exits `0`. So the
+cost of setting it too low is the very thing you turned the drain on to avoid,
+while the cost of setting it too high is a slower rollout — an easy trade to get
+right in one direction and not the other.
+
+Under `multiProcess`, each forked worker drains the work it is holding, and the
+cluster primary — which runs a consumer of its own — drains only what that
+consumer had. The budget is per process, so a rollout does not pay it N times.
+
+Reference: [`IMQServiceOptions`](/api/rpc/latest/rpc.imqserviceoptions/) ·
+[`IMQService`](/api/rpc/latest/rpc.imqservice/)
+
+### Do background jobs drain too?
+
+Yes, under the same `IMQ_DRAIN_ENABLE` and `IMQ_DRAIN_TIMEOUT`, with one addition
+that matters more for jobs than for RPC: whatever has not finished when the budget
+runs out is **put back on the queue** rather than dropped.
+
+That difference follows from where a job is in its life when the signal lands. An
+abandoned RPC request leaves a caller waiting, and that caller will time out and
+can retry; an abandoned job has already been popped, so without re-queueing there
+is nobody left holding it and nothing to notice it is gone. Re-queueing turns a
+deploy that overruns its window into a re-run rather than a silent loss — which
+again asks that handlers be idempotent, exactly as at-least-once delivery already
+did.
+
+Reference: [`JobQueue`](/api/job/latest/job.jobqueue/) ·
+[`JobQueueOptions`](/api/job/latest/job.jobqueueoptions/)
+
+### Why does enabling the drain turn off handleSignals?
+
+Because the queue layer registers its own `SIGTERM`/`SIGINT` handlers that exit
+the process without waiting for anything, and one of those firing mid-drain would
+end the process from the side, at an arbitrary point, with handlers still running.
+Enabling `drain` therefore forces
+[`handleSignals`](/api/core/latest/core.imqoptions.handlesignals/) to `false` on
+the service's queue.
+
+It is worth knowing what this does *not* touch. The drain takes over only the
+handlers this framework registered, matched by exact function reference — not by
+clearing the signal's listener list — so a handler installed by your application,
+by a tracing SDK or by any other library keeps working exactly as before. A drain
+that silently unhooked another library's shutdown logic would trade one class of
+lost work for another.
+
+Reference: [`IMQOptions.handleSignals`](/api/core/latest/core.imqoptions.handlesignals/) ·
+[`IMQServiceOptions`](/api/rpc/latest/rpc.imqserviceoptions/)
 
 ## Hardening an HTTP gateway
 
