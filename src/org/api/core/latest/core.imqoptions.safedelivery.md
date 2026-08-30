@@ -11,7 +11,11 @@ sitemap: false
 
 Enable guaranteed message delivery. When enabled, reading a message moves it atomically out of the queue into a worker-owned key instead of popping it outright, so a worker that dies before it even starts on a message leaves that message behind for the watcher to re-queue rather than taking it down with the process.
 
-The guarantee covers that hand-off, not the processing. The worker key is released as soon as the message is dispatched to the `message` listener, so a worker killed while its handler is still running loses that message exactly as it would with safe delivery off — draining in-flight work before exit is up to the application. Delivery is at-least-once in either mode, so handlers should be idempotent.
+The guarantee covers the processing too, not only the hand-off: the worker key is held until the `message` listener has finished with the message, which for a listener returning a promise means until that promise settles. A worker killed at any point before then leaves the message behind to be re-queued.
+
+A message comes back on either of two counts. The owning process leaving the broker's client list catches it dying — a fact the broker holds rather than an inference from a clock, so it is noticed as fast as the socket closes and nothing has to be renewed to keep a live lease alive. [IMQOptions.safeDeliveryTtl](/api/core/latest/core.imqoptions.safedeliveryttl/) catches what liveness cannot see: one handler wedged inside a worker that is otherwise up and serving.
+
+Delivery is at-least-once in either mode, so handlers should be idempotent: this narrows the window in which in-flight work is lost, it does not close it.
 
 **Signature:**
 

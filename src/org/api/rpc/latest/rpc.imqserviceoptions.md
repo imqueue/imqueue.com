@@ -103,6 +103,44 @@ Workers to fork per CPU core. Ignored unless [IMQServiceOptions.multiProcess](/a
 </td></tr>
 <tr><td>
 
+[drain?](/api/rpc/latest/rpc.imqserviceoptions.drain/)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Drain in-flight requests before shutting down on `SIGTERM`<!-- -->/`SIGINT` instead of exiting on a fixed timer.
+
+
+</td></tr>
+<tr><td>
+
+[drainTimeout?](/api/rpc/latest/rpc.imqserviceoptions.draintimeout/)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Milliseconds a drain waits for in-flight requests before giving up on them and exiting anyway. Ignored unless [IMQServiceOptions.drain](/api/rpc/latest/rpc.imqserviceoptions.drain/) is on.
+
+
+</td></tr>
+<tr><td>
+
 [metricsServer?](/api/rpc/latest/rpc.imqserviceoptions.metricsserver/)
 
 

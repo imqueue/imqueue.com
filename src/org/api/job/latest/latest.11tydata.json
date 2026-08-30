@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "job",
-  "apiVersion": "3.1.1",
+  "apiVersion": "3.2.0",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-22T06:04:57.985Z",
+  "apiReleased": "2026-08-30T07:46:37.988Z",
   "apiNav": [
     {
       "group": "Classes",
@@ -59,6 +59,15 @@
         {
           "name": "PushOptions",
           "url": "/api/job/latest/job.pushoptions/"
+        }
+      ]
+    },
+    {
+      "group": "Variables",
+      "items": [
+        {
+          "name": "DEFAULT_IMQ_DRAIN_TIMEOUT",
+          "url": "/api/job/latest/job.default_imq_drain_timeout/"
         }
       ]
     }

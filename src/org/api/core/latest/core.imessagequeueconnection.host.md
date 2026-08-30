@@ -1,6 +1,6 @@
 ---
 title: "IMessageQueueConnection.host property · @imqueue/core"
-description: "Host name or IP address of the queue host. Defaults to localhost."
+description: "Host name or IP address of the queue host."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"IMessageQueueConnection","url":"/api/core/latest/core.imessagequeueconnection/"},{"name":"host","url":"/api/core/latest/core.imessagequeueconnection.host/"}]
 sitemap: false
 ---
@@ -9,10 +9,15 @@ sitemap: false
 
 # IMessageQueueConnection.host property
 
-Host name or IP address of the queue host. Defaults to `localhost`<!-- -->.
+Host name or IP address of the queue host.
 
 **Signature:**
 
 ```typescript
 host: string;
 ```
+
+## Default Value
+
+"localhost"
+

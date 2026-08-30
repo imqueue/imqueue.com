@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/opentelemetry 4.1.1 · API reference"
+title: "@imqueue/opentelemetry 4.1.2 · API reference"
 description: "OpenTelemetry instrumentation for @imqueue/rpc — distributed traces across IMQ service calls, with no changes to service or client code."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/opentelemetry","url":"/api/opentelemetry/latest/"}]
 ---

@@ -16,3 +16,10 @@ Emitted for every message consumed from the queue, with the payload, the message
 ```typescript
 message: [data: JsonObject, id: string, from: string];
 ```
+
+## Remarks
+
+Under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/) the value a listener \*\*returns\*\* decides when the message counts as handled. Return a promise and the message stays checked out until it settles, so a worker that dies mid-handler leaves it behind to be re-queued. Return anything else and it is released as the listener returns, which is all a synchronous handler can offer — and is also how to opt out, by starting the work and returning nothing.
+
+Every registered listener is consulted, and the message is released once all the promises they returned have settled — settled, not fulfilled: a handler that throws has still had its turn, and re-delivering on a rejection would retry a poison message forever.
+

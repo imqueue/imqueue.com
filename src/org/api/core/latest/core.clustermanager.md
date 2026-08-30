@@ -52,7 +52,7 @@ Description
 
 </td><td>
 
-Constructs a new instance of the `ClusterManager` class
+Protected so that a manager is only ever obtained through a subclass — this base class holds the registry but implements no transport of its own.
 
 
 </td></tr>

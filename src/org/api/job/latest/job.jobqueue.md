@@ -25,7 +25,7 @@ export default class JobQueue<T> extends BaseJobQueue<JobQueue<T>, T> implements
 
 ## Remarks
 
-On SIGTERM, SIGINT or SIGABRT the underlying `@imqueue/core` queue releases its watcher locks and exits the process. That is orderly, but it is not a drain: a handler still running is not awaited, so the job it was working on loses that attempt. Do the draining yourself if a half-finished job would leave a mess.
+On SIGTERM, SIGINT or SIGABRT the underlying `@imqueue/core` queue releases its watcher locks and exits the process. That is orderly, but it is not a drain: a handler still running is not awaited, so the job it was working on loses that attempt. Turn on [JobQueueOptions.drain](/api/job/latest/job.jobqueueoptions.drain/) — or set `IMQ_DRAIN_ENABLE=1` — to wait for it instead.
 
 ## Example
 

@@ -1,6 +1,6 @@
 ---
 title: "IMessageQueueConnection.port property · @imqueue/core"
-description: "TCP port of the queue host. Defaults to 6379."
+description: "TCP port of the queue host."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"IMessageQueueConnection","url":"/api/core/latest/core.imessagequeueconnection/"},{"name":"port","url":"/api/core/latest/core.imessagequeueconnection.port/"}]
 sitemap: false
 ---
@@ -9,10 +9,15 @@ sitemap: false
 
 # IMessageQueueConnection.port property
 
-TCP port of the queue host. Defaults to `6379`<!-- -->.
+TCP port of the queue host.
 
 **Signature:**
 
 ```typescript
 port: number;
 ```
+
+## Default Value
+
+6379
+

@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/type-graphql-dependency 3.0.4 · API reference"
+title: "@imqueue/type-graphql-dependency 3.0.5 · API reference"
 description: "@imqueue/graphql-dependency for type-graphql — declare cross-service dependencies on the decorated classes you already have, instead of on raw…"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/type-graphql-dependency","url":"/api/type-graphql-dependency/latest/"}]
 ---

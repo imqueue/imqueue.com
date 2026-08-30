@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/validation 1.1.1 · API reference"
+title: "@imqueue/validation 1.1.2 · API reference"
 description: "Zod-backed input validation for @imqueue services, expressed as native (TC39) decorators rather than as a schema kept alongside the class it describes."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/validation","url":"/api/validation/latest/"}]
 ---

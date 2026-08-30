@@ -1,6 +1,6 @@
 ---
 title: "IMQOptions.cleanup property · @imqueue/core"
-description: "Turns on/off the watcher's periodic removal of orphaned keys. Defaults to false."
+description: "Turns on/off the watcher's periodic removal of orphaned keys."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"IMQOptions","url":"/api/core/latest/core.imqoptions/"},{"name":"cleanup","url":"/api/core/latest/core.imqoptions.cleanup/"}]
 sitemap: false
 ---
@@ -9,13 +9,17 @@ sitemap: false
 
 # IMQOptions.cleanup property
 
-Turns on/off the watcher's periodic removal of orphaned keys. Defaults to `false`<!-- -->.
+Turns on/off the watcher's periodic removal of orphaned keys.
 
 **Signature:**
 
 ```typescript
 cleanup: boolean;
 ```
+
+## Default Value
+
+false
 
 ## Remarks
 

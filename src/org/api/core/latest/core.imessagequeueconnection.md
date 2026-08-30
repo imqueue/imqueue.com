@@ -59,7 +59,7 @@ string
 
 </td><td>
 
-Host name or IP address of the queue host. Defaults to `localhost`<!-- -->.
+Host name or IP address of the queue host.
 
 
 </td></tr>
@@ -97,7 +97,7 @@ number
 
 </td><td>
 
-TCP port of the queue host. Defaults to `6379`<!-- -->.
+TCP port of the queue host.
 
 
 </td></tr>

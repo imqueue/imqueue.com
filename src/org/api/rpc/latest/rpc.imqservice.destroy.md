@@ -22,5 +22,5 @@ Promise&lt;void&gt;
 
 ## Remarks
 
-It does not close the metrics server — if [IMQMetricsServerOptions.enabled](/api/rpc/latest/rpc.imqmetricsserveroptions.enabled/) was set, close `service.metricsServer` yourself, otherwise the open listener keeps the process alive. In-flight requests are not awaited.
+It does not close the metrics server — if [IMQMetricsServerOptions.enabled](/api/rpc/latest/rpc.imqmetricsserveroptions.enabled/) was set, close `service.metricsServer` yourself, otherwise the open listener keeps the process alive. In-flight requests are not awaited — a graceful drain awaits them \*before\* reaching here, see [IMQServiceOptions.drain](/api/rpc/latest/rpc.imqserviceoptions.drain/)<!-- -->.
 

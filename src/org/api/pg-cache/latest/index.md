@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/pg-cache 5.1.2 · API reference"
+title: "@imqueue/pg-cache 5.1.3 · API reference"
 description: "PostgreSQL-managed cache on Redis for @imqueue service methods: results are memoised, and PostgreSQL itself says when to drop them."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-cache","url":"/api/pg-cache/latest/"}]
 ---

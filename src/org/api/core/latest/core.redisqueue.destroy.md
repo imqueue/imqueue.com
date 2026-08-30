@@ -63,7 +63,7 @@ The writer connection is shared per `host:port` and reference-counted, so it sta
 
 All event listeners are removed, including the caller's `message` and `error` handlers — and because [RedisQueue.start()](/api/core/latest/core.redisqueue.start/) can revive the instance, re-register them if you restart it or messages will be consumed and silently discarded.
 
-With `clearData` set, only the main and delayed keys are removed: messages currently leased to a worker key under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/) are not, and the watcher will re-queue them once their lease expires — so messages can reappear after a clearing destroy.
+With `clearData` set, only the main and delayed keys are removed: messages currently checked out to a worker key under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/) are not, and the watcher returns them to the queue once their worker is gone or their [IMQOptions.safeDeliveryTtl](/api/core/latest/core.imqoptions.safedeliveryttl/) is spent — so messages can reappear after a clearing destroy.
 
 Never rejects; unlock and clear failures are logged.
 
