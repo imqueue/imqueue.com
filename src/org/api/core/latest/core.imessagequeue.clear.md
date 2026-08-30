@@ -24,7 +24,7 @@ this queue instance
 
 ## Remarks
 
-Other queues in the namespace, the watcher lock, and messages currently leased to a worker under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/) are all untouched — a leased message can be re-queued by the watcher once its lease expires, so this does not guarantee the queue stays empty.
+Other queues in the namespace, the watcher lock, and messages currently checked out to a worker under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/) are all untouched — such a message returns to the queue if its worker dies or overruns [IMQOptions.safeDeliveryTtl](/api/core/latest/core.imqoptions.safedeliveryttl/)<!-- -->, so this does not guarantee the queue stays empty. A message is checked out for as long as its handler runs, so that window is as long as your slowest handler.
 
 It never rejects: with no writer connection it silently does nothing, and host failures are logged rather than raised, so success cannot be inferred from a resolved promise.
 

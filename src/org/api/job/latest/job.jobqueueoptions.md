@@ -62,6 +62,63 @@ _(Optional)_ Broker nodes to connect to, as host/port pairs. The broker is Redis
 </td></tr>
 <tr><td>
 
+[drain?](/api/job/latest/job.jobqueueoptions.drain/)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Drain jobs still being handled before shutting down on `SIGTERM`<!-- -->/`SIGINT`<!-- -->, instead of exiting from under them.
+
+
+</td></tr>
+<tr><td>
+
+[drainRequeue?](/api/job/latest/job.jobqueueoptions.drainrequeue/)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Put jobs the drain gave up on back on the queue before exiting.
+
+
+</td></tr>
+<tr><td>
+
+[drainTimeout?](/api/job/latest/job.jobqueueoptions.draintimeout/)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Milliseconds a drain waits for jobs in flight before giving up on them. Ignored unless [JobQueueOptions.drain](/api/job/latest/job.jobqueueoptions.drain/) is on.
+
+
+</td></tr>
+<tr><td>
+
 [logger?](/api/job/latest/job.jobqueueoptions.logger/)
 
 

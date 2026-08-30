@@ -1,6 +1,6 @@
 ---
 title: "IMQOptions.logger property · @imqueue/core"
-description: "Logger used for queue diagnostics. Defaults to console."
+description: "Logger used for queue diagnostics."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"IMQOptions","url":"/api/core/latest/core.imqoptions/"},{"name":"logger","url":"/api/core/latest/core.imqoptions.logger/"}]
 sitemap: false
 ---
@@ -9,13 +9,17 @@ sitemap: false
 
 # IMQOptions.logger property
 
-Logger used for queue diagnostics. Defaults to `console`<!-- -->.
+Logger used for queue diagnostics.
 
 **Signature:**
 
 ```typescript
 logger?: ILogger;
 ```
+
+## Default Value
+
+console
 
 ## Remarks
 

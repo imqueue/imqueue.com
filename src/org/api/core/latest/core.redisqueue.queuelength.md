@@ -24,5 +24,7 @@ count of messages waiting to be consumed
 
 ## Remarks
 
-Delayed messages that are not yet due, and messages currently leased to a worker under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/)<!-- -->, are not counted — so this is not the amount of outstanding work. Returns `0` when the queue has no writer connection, which makes "disconnected" indistinguishable from "empty"; it never throws.
+Delayed messages that are not yet due, and messages currently checked out to a worker under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/)<!-- -->, are not counted — so this is not the amount of outstanding work. Under safe delivery a message is checked out for as long as its handler runs, so on a busy queue the shortfall is roughly everything in flight, not a rounding error.
+
+Returns `0` when the queue has no writer connection, which makes "disconnected" indistinguishable from "empty"; it never throws.
 

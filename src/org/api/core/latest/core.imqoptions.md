@@ -63,7 +63,7 @@ boolean
 
 </td><td>
 
-Turns on/off the watcher's periodic removal of orphaned keys. Defaults to `false`<!-- -->.
+Turns on/off the watcher's periodic removal of orphaned keys.
 
 
 </td></tr>
@@ -82,7 +82,7 @@ string
 
 </td><td>
 
-Redis glob pattern, appended to the prefix as `<prefix>:<cleanupFilter>`<!-- -->, selecting which keys the cleanup sweep considers. Defaults to `'*'` — every key in the namespace.
+Redis glob pattern, appended to the prefix as `<prefix>:<cleanupFilter>`<!-- -->, selecting which keys the cleanup sweep considers. The default matches every key in the namespace.
 
 
 </td></tr>
@@ -158,7 +158,7 @@ _(Optional)_ Enable process signal handling (SIGTERM, SIGINT, SIGABRT) by the qu
 
 </td><td>
 
-_(Optional)_ Logger used for queue diagnostics. Defaults to `console`<!-- -->.
+_(Optional)_ Logger used for queue diagnostics.
 
 
 </td></tr>
@@ -177,7 +177,7 @@ string
 
 </td><td>
 
-_(Optional)_ Global key namespace for everything this queue writes. Defaults to `'imq'`<!-- -->.
+_(Optional)_ Global key namespace for everything this queue writes.
 
 
 </td></tr>
@@ -198,7 +198,11 @@ boolean
 
 _(Optional)_ Enable guaranteed message delivery. When enabled, reading a message moves it atomically out of the queue into a worker-owned key instead of popping it outright, so a worker that dies before it even starts on a message leaves that message behind for the watcher to re-queue rather than taking it down with the process.
 
-The guarantee covers that hand-off, not the processing. The worker key is released as soon as the message is dispatched to the `message` listener, so a worker killed while its handler is still running loses that message exactly as it would with safe delivery off — draining in-flight work before exit is up to the application. Delivery is at-least-once in either mode, so handlers should be idempotent.
+The guarantee covers the processing too, not only the hand-off: the worker key is held until the `message` listener has finished with the message, which for a listener returning a promise means until that promise settles. A worker killed at any point before then leaves the message behind to be re-queued.
+
+A message comes back on either of two counts. The owning process leaving the broker's client list catches it dying — a fact the broker holds rather than an inference from a clock, so it is noticed as fast as the socket closes and nothing has to be renewed to keep a live lease alive. [IMQOptions.safeDeliveryTtl](/api/core/latest/core.imqoptions.safedeliveryttl/) catches what liveness cannot see: one handler wedged inside a worker that is otherwise up and serving.
+
+Delivery is at-least-once in either mode, so handlers should be idempotent: this narrows the window in which in-flight work is lost, it does not close it.
 
 
 </td></tr>
@@ -217,9 +221,7 @@ number
 
 </td><td>
 
-_(Optional)_ Lease deadline (in milliseconds) stamped onto the worker key when safeDelivery moves a message out of the queue, and the interval on which the watcher sweeps for expired keys. A worker key still present once its deadline has passed is treated as abandoned, and its message is moved back onto the main queue.
-
-This is a recovery deadline for an abandoned hand-off, not a processing deadline. The key is released when the message is dispatched, so a slow handler is neither interrupted nor re-queued for taking too long, and raising this value extends no protection over long-running work — tune it for how quickly an abandoned message should come back.
+_(Optional)_ The longest (in milliseconds) a message may be worked on before it is treated as abandoned and moved back onto the queue.
 
 
 </td></tr>
@@ -257,7 +259,7 @@ string
 
 </td><td>
 
-_(Optional)_ Queue adapter vendor name. Defaults to `'Redis'`<!-- -->, which is the only supported value.
+_(Optional)_ Queue adapter vendor name, and the only supported value.
 
 
 </td></tr>
@@ -314,7 +316,7 @@ number
 
 </td><td>
 
-_(Optional)_ Interval in milliseconds of the periodic watcher check. Defaults to 5000.
+_(Optional)_ Interval in milliseconds of the periodic watcher check.
 
 
 </td></tr>

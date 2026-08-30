@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "rpc",
-  "apiVersion": "3.7.2",
+  "apiVersion": "3.8.0",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-22T08:06:54.437Z",
+  "apiReleased": "2026-08-30T07:48:29.510Z",
   "apiNav": [
     {
       "group": "Classes",
@@ -255,6 +255,10 @@
           "url": "/api/rpc/latest/rpc.default_imq_client_options/"
         },
         {
+          "name": "DEFAULT_IMQ_DRAIN_TIMEOUT",
+          "url": "/api/rpc/latest/rpc.default_imq_drain_timeout/"
+        },
+        {
           "name": "DEFAULT_IMQ_METRICS_SERVER_OPTIONS",
           "url": "/api/rpc/latest/rpc.default_imq_metrics_server_options/"
         },
@@ -265,6 +269,10 @@
         {
           "name": "DEFAULT_REDIS_CACHE_OPTIONS",
           "url": "/api/rpc/latest/rpc.default_redis_cache_options/"
+        },
+        {
+          "name": "DRAIN_SIGNALS",
+          "url": "/api/rpc/latest/rpc.drain_signals/"
         },
         {
           "name": "REDIS_CLIENT_INIT_ERROR",

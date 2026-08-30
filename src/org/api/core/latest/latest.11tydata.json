@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "core",
-  "apiVersion": "3.4.2",
+  "apiVersion": "3.4.3",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-22T05:59:34.017Z",
+  "apiReleased": "2026-08-30T07:46:07.935Z",
   "apiNav": [
     {
       "group": "Classes",

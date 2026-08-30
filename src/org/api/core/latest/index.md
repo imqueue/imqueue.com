@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/core 3.4.2 · API reference"
+title: "@imqueue/core 3.4.3 · API reference"
 description: "Redis-backed message queue engine for the @imqueue framework — the transport shared by @imqueue/rpc and the job packages."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"}]
 ---
@@ -17,6 +17,8 @@ Start from `IMQ.create()`<!-- -->, which picks a queue adapter from the options 
 Every queue follows the same lifecycle: construct, `start()`<!-- -->, then either consume `message` events or `send()`<!-- -->, and finally `destroy()` to release the connections. `start()` is required before `publish()` or `subscribe()`<!-- -->; `send()` starts the queue implicitly. `stop()` only stops consuming — it keeps the writer, the watcher lock and the maintenance timers alive, so `destroy()` is what actually releases resources.
 
 Delivery is at-least-once, so message handlers must be idempotent. Within a single process, writer and watcher connections are shared per `host:port` and reference-counted, and exactly one queue per key prefix is elected as the watcher that releases delayed messages and performs maintenance.
+
+Under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/) a message stays checked out to its worker until the `message` listener has finished with it, and what a listener \*\*returns\*\* is how it says so: return a promise and the message is held until that promise settles, so a worker that dies mid-handler leaves the message to be re-queued rather than taking it down. Return anything else — as the synchronous example below does — and it is released as the listener returns.
 
 ## Example
 

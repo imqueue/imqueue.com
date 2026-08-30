@@ -1,6 +1,6 @@
 ---
 title: "IMQOptions.vendor property · @imqueue/core"
-description: "Queue adapter vendor name. Defaults to 'Redis', which is the only supported value."
+description: "Queue adapter vendor name, and the only supported value."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"IMQOptions","url":"/api/core/latest/core.imqoptions/"},{"name":"vendor","url":"/api/core/latest/core.imqoptions.vendor/"}]
 sitemap: false
 ---
@@ -9,13 +9,17 @@ sitemap: false
 
 # IMQOptions.vendor property
 
-Queue adapter vendor name. Defaults to `'Redis'`<!-- -->, which is the only supported value.
+Queue adapter vendor name, and the only supported value.
 
 **Signature:**
 
 ```typescript
 vendor?: string;
 ```
+
+## Default Value
+
+"Redis"
 
 ## Remarks
 

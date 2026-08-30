@@ -24,3 +24,5 @@ Promise&lt;void&gt;
 
 Connections, signal handlers and the metrics server are all left in place — use [IMQService.destroy()](/api/rpc/latest/rpc.imqservice.destroy/) for full teardown. Calling this first is not a prerequisite for `destroy()`<!-- -->.
 
+Only the reader connection is dropped; the writer stays up, which is what lets a drain publish the replies of requests that were already running when the shutdown signal arrived.
+

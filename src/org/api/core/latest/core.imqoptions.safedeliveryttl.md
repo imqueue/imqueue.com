@@ -1,6 +1,6 @@
 ---
 title: "IMQOptions.safeDeliveryTtl property · @imqueue/core"
-description: "Lease deadline (in milliseconds) stamped onto the worker key when safeDelivery moves a message out of the queue, and the interval on which the watcher sweeps…"
+description: "The longest (in milliseconds) a message may be worked on before it is treated as abandoned and moved back onto the queue."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"IMQOptions","url":"/api/core/latest/core.imqoptions/"},{"name":"safeDeliveryTtl","url":"/api/core/latest/core.imqoptions.safedeliveryttl/"}]
 sitemap: false
 ---
@@ -9,9 +9,7 @@ sitemap: false
 
 # IMQOptions.safeDeliveryTtl property
 
-Lease deadline (in milliseconds) stamped onto the worker key when safeDelivery moves a message out of the queue, and the interval on which the watcher sweeps for expired keys. A worker key still present once its deadline has passed is treated as abandoned, and its message is moved back onto the main queue.
-
-This is a recovery deadline for an abandoned hand-off, not a processing deadline. The key is released when the message is dispatched, so a slow handler is neither interrupted nor re-queued for taking too long, and raising this value extends no protection over long-running work — tune it for how quickly an abandoned message should come back.
+The longest (in milliseconds) a message may be worked on before it is treated as abandoned and moved back onto the queue.
 
 **Signature:**
 
@@ -21,11 +19,15 @@ safeDeliveryTtl?: number;
 
 ## Default Value
 
-5000
+300000
 
 ## Remarks
 
-This value applies whether or not [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/) is on: it always sets the period of the watcher's maintenance sweep, which also drives the [IMQOptions.cleanup](/api/core/latest/core.imqoptions.cleanup/) pass. Setting it to `null` or `undefined` disables that interval altogether, so neither lease recovery nor cleanup runs.
+Set it to the longest a handler in this system can legitimately take, with headroom. A slow upstream is the usual reason for a large value — a data vendor with no job API, screen-scraping behind an HTTP call, anything that can take minutes — and a budget below that reclaims a message from a worker still legitimately working on it, handing somebody else a duplicate.
 
-In safe-delivery mode it additionally sets the reader's blocking-pop timeout to half the TTL, with a 100 ms floor, after which the reader regenerates the lease and blocks again. Very small values therefore increase Redis round-trips without further reducing latency.
+This is the \*\*only\*\* thing that recovers a message from a worker that is alive, connected and serving other messages while one handler has wedged on this one. Death of the whole process is caught separately and far faster, by the owner leaving the broker's client list, so this value does not govern how quickly an ordinary crash is recovered from.
+
+Two internals follow this value but deliberately do not scale with it:
+
+- The watcher's maintenance sweep — which recovers abandoned leases and drives the [IMQOptions.cleanup](/api/core/latest/core.imqoptions.cleanup/) pass — runs on [IMQOptions.watcherCheckDelay](/api/core/latest/core.imqoptions.watchercheckdelay/)<!-- -->, so a dead worker is still noticed within seconds however generous the budget is. Setting this to `null` or `undefined` disables that sweep altogether, so neither lease recovery nor cleanup runs. - The reader's blocking pop is half this value capped at 5000 ms, with a 100 ms floor. The cap matters: a lease deadline is stamped before the pop that fills the key, so an uncapped wait would hand a message a sizeable part of its budget already spent.
 

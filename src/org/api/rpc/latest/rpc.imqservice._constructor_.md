@@ -77,5 +77,7 @@ TypeError when [IMQService](/api/rpc/latest/rpc.imqservice/) is instantiated dir
 
 Constructing a service installs process signal handlers for `SIGTERM`<!-- -->, `SIGINT`<!-- -->, `SIGHUP` and `SIGQUIT`<!-- -->. On any of them the service tears the queue down, closes the metrics server, and then force-exits with code 0 after `IMQ_SHUTDOWN_TIMEOUT` — a fixed timer, not a drain: requests still being processed are not awaited.
 
+With [IMQServiceOptions.drain](/api/rpc/latest/rpc.imqserviceoptions.drain/) on — or `IMQ_DRAIN_ENABLE=1` — `SIGTERM` and `SIGINT` instead start a graceful drain: stop consuming, await the requests already in flight for at most [IMQServiceOptions.drainTimeout](/api/rpc/latest/rpc.imqserviceoptions.draintimeout/)<!-- -->, then tear down and exit `0`<!-- -->. That drain takes over from every signal handler this package registered, including this service's own for `SIGHUP`<!-- -->/`SIGQUIT` and any client's in the same process, and forces `handleSignals: false` on the queue so the queue layer does not exit mid-drain. Handlers registered by anything other than this package are never touched.
+
 The merged options are passed straight to the queue factory, so `vendor` and `cluster`<!-- -->/`clusterManagers` select the transport implementation.
 

@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/job 3.1.1 · API reference"
+title: "@imqueue/job 3.2.0 · API reference"
 description: "Simple, safe-by-default Redis job queue for @imqueue services — delayed and scheduled jobs, at-least-once delivery, and re-scheduling driven by whatever the…"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/job","url":"/api/job/latest/"}]
 ---
@@ -18,7 +18,9 @@ Delivery is at-least-once, so handlers must be idempotent. Safe delivery is on b
 
 Job data travels as JSON, so anything that does not survive `JSON.stringify` — class instances, `Date`<!-- -->, `undefined` properties, cycles — does not arrive as it left. Push a plain object and re-hydrate it in the handler.
 
-Shutdown is worth knowing about before it matters in production. `@imqueue/core` installs process-wide SIGTERM, SIGINT and SIGABRT handlers by default; they release the queue's watcher locks and then exit the process without waiting for a running handler to return. So a job in flight when the signal arrives loses that attempt, and is re-delivered later only if safe delivery had the job checked out. Drain work yourself if a half-finished job would do damage.
+Shutdown is worth knowing about before it matters in production. By default `@imqueue/core` installs process-wide SIGTERM, SIGINT and SIGABRT handlers; they release the queue's watcher locks and then exit the process without waiting for a running handler to return. So a job in flight when the signal arrives loses that attempt, and is re-delivered later only if safe delivery had the job checked out — which it does not once the job has reached the handler.
+
+Set `IMQ_DRAIN_ENABLE=1`<!-- -->, or [JobQueueOptions.drain](/api/job/latest/job.jobqueueoptions.drain/)<!-- -->, and SIGTERM/SIGINT instead stop popping, wait for the handlers already running, put back anything the budget ran out on, and exit `0`<!-- -->. It is off by default, so nothing about an existing worker changes until you turn it on.
 
 ## Example
 
@@ -209,6 +211,32 @@ The handler's return value is the re-scheduling instruction, so the retry policy
 </td><td>
 
 Per-job scheduling options for [JobQueuePublisher.push()](/api/job/latest/job.jobqueuepublisher.push/) and [JobQueue.push()](/api/job/latest/job.jobqueue.push/) — when the job may first run, and how long it stays worth retrying.
+
+
+</td></tr>
+</tbody></table>
+
+## Variables
+
+<table><thead><tr><th>
+
+Variable
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[DEFAULT\_IMQ\_DRAIN\_TIMEOUT](/api/job/latest/job.default_imq_drain_timeout/)
+
+
+</td><td>
+
+Default drain budget in milliseconds, used when neither [JobQueueOptions.drainTimeout](/api/job/latest/job.jobqueueoptions.draintimeout/) nor `IMQ_DRAIN_TIMEOUT` is set.
 
 
 </td></tr>

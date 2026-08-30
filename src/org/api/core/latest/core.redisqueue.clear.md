@@ -24,5 +24,5 @@ this queue instance
 
 ## Remarks
 
-A no-op that resolves successfully when the queue has no writer connection. In-flight messages held in worker keys under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/) are not removed and may be re-queued by the watcher after their lease expires, so this does not guarantee the queue stays empty. Errors are logged rather than thrown, so success cannot be inferred from a resolved promise.
+A no-op that resolves successfully when the queue has no writer connection. In-flight messages held in worker keys under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/) are not removed, and the watcher returns them to the queue once their worker is gone or their [IMQOptions.safeDeliveryTtl](/api/core/latest/core.imqoptions.safedeliveryttl/) is spent — so this does not guarantee the queue stays empty. Errors are logged rather than thrown, so success cannot be inferred from a resolved promise.
 

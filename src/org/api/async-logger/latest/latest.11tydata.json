@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "async-logger",
-  "apiVersion": "3.2.0",
+  "apiVersion": "3.2.1",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-07-31T19:13:34.672Z",
+  "apiReleased": "2026-08-30T07:43:59.062Z",
   "apiNav": [
     {
       "group": "Classes",

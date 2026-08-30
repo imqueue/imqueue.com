@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "graphql-dependency",
-  "apiVersion": "3.1.1",
+  "apiVersion": "3.1.2",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-22T06:11:16.638Z",
+  "apiReleased": "2026-08-30T07:46:25.379Z",
   "apiNav": [
     {
       "group": "Classes",

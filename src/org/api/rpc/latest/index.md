@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/rpc 3.7.2 · API reference"
+title: "@imqueue/rpc 3.8.0 · API reference"
 description: "Type-safe RPC over a message queue — services, clients and the decorators that describe them, built on @imqueue/core."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/latest/"}]
 ---
@@ -749,6 +749,17 @@ Default options applied to every generated IMQ client: the core queue defaults, 
 </td></tr>
 <tr><td>
 
+[DEFAULT\_IMQ\_DRAIN\_TIMEOUT](/api/rpc/latest/rpc.default_imq_drain_timeout/)
+
+
+</td><td>
+
+Default drain budget in milliseconds, used when neither [IMQServiceOptions.drainTimeout](/api/rpc/latest/rpc.imqserviceoptions.draintimeout/) nor the `IMQ_DRAIN_TIMEOUT` environment variable is set.
+
+
+</td></tr>
+<tr><td>
+
 [DEFAULT\_IMQ\_METRICS\_SERVER\_OPTIONS](/api/rpc/latest/rpc.default_imq_metrics_server_options/)
 
 
@@ -777,6 +788,17 @@ Default options applied to every IMQ service: the core queue defaults, plus clea
 </td><td>
 
 Default options for [RedisCache](/api/rpc/latest/rpc.rediscache/)<!-- -->: the standard queue defaults, with `prefix` overridden to `imq-cache` so cache keys never collide with queue keys under the `imq` prefix.
+
+
+</td></tr>
+<tr><td>
+
+[DRAIN\_SIGNALS](/api/rpc/latest/rpc.drain_signals/)
+
+
+</td><td>
+
+Signals that trigger a graceful drain when draining is enabled.
 
 
 </td></tr>

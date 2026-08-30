@@ -9,13 +9,17 @@ sitemap: false
 
 # IMQOptions.cleanupFilter property
 
-Redis glob pattern, appended to the prefix as `<prefix>:<cleanupFilter>`<!-- -->, selecting which keys the cleanup sweep considers. Defaults to `'*'` — every key in the namespace.
+Redis glob pattern, appended to the prefix as `<prefix>:<cleanupFilter>`<!-- -->, selecting which keys the cleanup sweep considers. The default matches every key in the namespace.
 
 **Signature:**
 
 ```typescript
 cleanupFilter: string;
 ```
+
+## Default Value
+
+"\*"
 
 ## Remarks
 

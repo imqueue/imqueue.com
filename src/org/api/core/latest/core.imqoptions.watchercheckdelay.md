@@ -1,6 +1,6 @@
 ---
 title: "IMQOptions.watcherCheckDelay property · @imqueue/core"
-description: "Interval in milliseconds of the periodic watcher check. Defaults to 5000."
+description: "Interval in milliseconds of the periodic watcher check."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"IMQOptions","url":"/api/core/latest/core.imqoptions/"},{"name":"watcherCheckDelay","url":"/api/core/latest/core.imqoptions.watchercheckdelay/"}]
 sitemap: false
 ---
@@ -9,7 +9,7 @@ sitemap: false
 
 # IMQOptions.watcherCheckDelay property
 
-Interval in milliseconds of the periodic watcher check. Defaults to 5000.
+Interval in milliseconds of the periodic watcher check.
 
 **Signature:**
 
@@ -17,7 +17,13 @@ Interval in milliseconds of the periodic watcher check. Defaults to 5000.
 watcherCheckDelay?: number;
 ```
 
+## Default Value
+
+5000
+
 ## Remarks
 
 Each tick re-elects a watcher owner if none exists and, on worker-capable instances, releases due delayed messages — acting as the fallback when Redis keyspace notifications are unavailable. That makes this value the worst-case extra latency for a delayed message. Setting it to `0` disables both behaviours.
+
+It also paces the watcher's maintenance sweep, which recovers the messages of workers that have died and drives the [IMQOptions.cleanup](/api/core/latest/core.imqoptions.cleanup/) pass — so this, not [IMQOptions.safeDeliveryTtl](/api/core/latest/core.imqoptions.safedeliveryttl/)<!-- -->, is the worst-case latency for a crashed worker's message coming back. With the check disabled the sweep falls back to `safeDeliveryTtl`<!-- -->, which on a large budget is very slow; leave it on if safe delivery matters.
 

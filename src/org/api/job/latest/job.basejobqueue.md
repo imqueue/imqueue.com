@@ -84,6 +84,75 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[drainRequeues](/api/job/latest/job.basejobqueue.drainrequeues/)
+
+
+</td><td>
+
+`protected`
+
+`readonly`
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+Whether abandoned jobs are pushed back on the way out.
+
+
+</td></tr>
+<tr><td>
+
+[drains](/api/job/latest/job.basejobqueue.drains/)
+
+
+</td><td>
+
+`protected`
+
+`readonly`
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+Whether this queue drains before shutting down. Resolved once, at construction, from [JobQueueOptions.drain](/api/job/latest/job.jobqueueoptions.drain/) falling back to `IMQ_DRAIN_ENABLE`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[drainTimeout](/api/job/latest/job.basejobqueue.draintimeout/)
+
+
+</td><td>
+
+`protected`
+
+`readonly`
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Milliseconds a drain waits before abandoning what is left.
+
+
+</td></tr>
+<tr><td>
+
 [handler?](/api/job/latest/job.basejobqueue.handler/)
 
 
@@ -121,6 +190,29 @@ IMessageQueue
 </td><td>
 
 The underlying `@imqueue/core` message queue this job queue runs on.
+
+
+</td></tr>
+<tr><td>
+
+[inFlight?](/api/job/latest/job.basejobqueue.inflight/)
+
+
+</td><td>
+
+`protected`
+
+`readonly`
+
+
+</td><td>
+
+Set&lt;InFlight&gt;
+
+
+</td><td>
+
+_(Optional)_ Work this queue is waiting on, allocated only while [BaseJobQueue.drains](/api/job/latest/job.basejobqueue.drains/) is on — with draining off there is nothing to track and nothing to allocate.
 
 
 </td></tr>
@@ -223,6 +315,78 @@ Destroys the job queue, closing the broker connection and releasing its resource
 </td></tr>
 <tr><td>
 
+[drainDestroy()](/api/job/latest/job.basejobqueue.draindestroy/)
+
+
+</td><td>
+
+
+</td><td>
+
+Drain step four: release the transport. Last, because it closes the connection every step above needed.
+
+
+</td></tr>
+<tr><td>
+
+[drainRequeue()](/api/job/latest/job.basejobqueue.drainrequeue/)
+
+
+</td><td>
+
+
+</td><td>
+
+Drain step three: put back whatever the budget ran out on.
+
+
+</td></tr>
+<tr><td>
+
+[drainStop(signal)](/api/job/latest/job.basejobqueue.drainstop/)
+
+
+</td><td>
+
+
+</td><td>
+
+Drain step one: stop consuming. The reader goes, the writer stays — which is what lets the rest of the drain publish anything at all.
+
+
+</td></tr>
+<tr><td>
+
+[drainWait()](/api/job/latest/job.basejobqueue.drainwait/)
+
+
+</td><td>
+
+
+</td><td>
+
+Drain step two: wait for work already in flight, bounded by [JobQueueOptions.drainTimeout](/api/job/latest/job.jobqueueoptions.draintimeout/)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[handleMessage(message, id)](/api/job/latest/job.basejobqueue.handlemessage/)
+
+
+</td><td>
+
+`protected`
+
+
+</td><td>
+
+Handles one popped message: runs the handler, then acts on what it asked for.
+
+
+</td></tr>
+<tr><td>
+
 [start()](/api/job/latest/job.basejobqueue.start/)
 
 
@@ -246,6 +410,22 @@ Starts processing the job queue.
 </td><td>
 
 Stops processing the job queue, leaving it able to start again.
+
+
+</td></tr>
+<tr><td>
+
+[track(work, message)](/api/job/latest/job.basejobqueue.track/)
+
+
+</td><td>
+
+`protected`
+
+
+</td><td>
+
+Records a unit of work as in flight until it settles.
 
 
 </td></tr>

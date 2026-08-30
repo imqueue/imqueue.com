@@ -27,5 +27,7 @@ When safe delivery is enabled a job is moved atomically out of the queue into a 
 
 The guarantee covers that hand-off and not the processing: the key is released as soon as the job reaches the handler, so a worker killed part-way through `onPop` loses that attempt. Jobs are delivered at-least-once, so handlers should be idempotent.
 
+[JobQueueOptions.drain](/api/job/latest/job.jobqueueoptions.drain/) is what covers the processing, for an orderly shutdown at least — it waits for the handler rather than relying on a lease that has already been released. Neither covers `SIGKILL`<!-- -->.
+
 Note this defaults to `true` here while `@imqueue/core` defaults it to `false` — a job queue is the case where the extra round-trip is worth it.
 

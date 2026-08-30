@@ -1,6 +1,6 @@
 ---
 title: "IMQOptions.prefix property · @imqueue/core"
-description: "Global key namespace for everything this queue writes. Defaults to 'imq'."
+description: "Global key namespace for everything this queue writes."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"IMQOptions","url":"/api/core/latest/core.imqoptions/"},{"name":"prefix","url":"/api/core/latest/core.imqoptions.prefix/"}]
 sitemap: false
 ---
@@ -9,13 +9,17 @@ sitemap: false
 
 # IMQOptions.prefix property
 
-Global key namespace for everything this queue writes. Defaults to `'imq'`<!-- -->.
+Global key namespace for everything this queue writes.
 
 **Signature:**
 
 ```typescript
 prefix?: string;
 ```
+
+## Default Value
+
+"imq"
 
 ## Remarks
 

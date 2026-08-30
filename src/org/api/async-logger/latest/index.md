@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/async-logger 3.2.0 · API reference"
+title: "@imqueue/async-logger 3.2.1 · API reference"
 description: "Non-blocking logger for @imqueue services: writes to the console without holding up the caller, and ships the same records to file or HTTP transports…"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/async-logger","url":"/api/async-logger/latest/"}]
 ---

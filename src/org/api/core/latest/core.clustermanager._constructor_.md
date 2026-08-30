@@ -1,6 +1,6 @@
 ---
 title: "ClusterManager.(constructor) · @imqueue/core"
-description: "Constructs a new instance of the ClusterManager class"
+description: "Protected so that a manager is only ever obtained through a subclass — this base class holds the registry but implements no transport of its own."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"ClusterManager","url":"/api/core/latest/core.clustermanager/"},{"name":"(constructor)","url":"/api/core/latest/core.clustermanager._constructor_/"}]
 sitemap: false
 ---
@@ -9,7 +9,7 @@ sitemap: false
 
 # ClusterManager.(constructor)
 
-Constructs a new instance of the `ClusterManager` class
+Protected so that a manager is only ever obtained through a subclass — this base class holds the registry but implements no transport of its own.
 
 **Signature:**
 

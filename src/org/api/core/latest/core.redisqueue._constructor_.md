@@ -15,7 +15,8 @@ Creates a queue handle. No connection is opened here — call [RedisQueue.start(
 
 ```typescript
 constructor(
-    name: string, options?: Partial<IMQOptions>, mode?: IMQMode);
+    name: string, options?: Partial<IMQOptions>, 
+    mode?: IMQMode);
 ```
 
 ## Parameters
