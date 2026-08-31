@@ -21,5 +21,7 @@ cluster?: IMessageQueueConnection[];
 
 Each entry carries its own host, port and optional `id` used for cluster-membership matching. Sends are distributed across the servers by health-aware round-robin, preferring ones whose connection is ready.
 
-Note that per-entry `username` and `password` are currently ignored — the underlying queues authenticate with the top-level credentials.
+An entry may carry its own `tls`<!-- -->, overriding the top-level one for that server alone — for a cluster whose members do not share trust anchors. An entry that leaves it out falls back to the top level.
+
+Per-entry `username` and `password` remain ignored: the underlying queues authenticate with the top-level credentials.
 

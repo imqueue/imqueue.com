@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/job 3.2.0 · API reference"
+title: "@imqueue/job 3.3.0 · API reference"
 description: "Simple, safe-by-default Redis job queue for @imqueue services — delayed and scheduled jobs, at-least-once delivery, and re-scheduling driven by whatever the…"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/job","url":"/api/job/latest/"}]
 ---

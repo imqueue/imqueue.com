@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/rpc 3.8.0 · API reference"
+title: "@imqueue/rpc 3.9.0 · API reference"
 description: "Type-safe RPC over a message queue — services, clients and the decorators that describe them, built on @imqueue/core."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/latest/"}]
 ---

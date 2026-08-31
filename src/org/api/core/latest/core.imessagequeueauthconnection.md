@@ -1,6 +1,6 @@
 ---
 title: "IMessageQueueAuthConnection interface · @imqueue/core"
-description: "Optional credentials for a queue host, forwarded to the Redis client as username and password."
+description: "Optional credentials for a queue host, forwarded to the Redis client as username and password, plus the transport security to reach it with."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"IMessageQueueAuthConnection","url":"/api/core/latest/core.imessagequeueauthconnection/"}]
 ---
 
@@ -8,9 +8,9 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url"
 
 # IMessageQueueAuthConnection interface
 
-Optional credentials for a queue host, forwarded to the Redis client as `username` and `password`<!-- -->.
+Optional credentials for a queue host, forwarded to the Redis client as `username` and `password`<!-- -->, plus the transport security to reach it with.
 
-Supply both for a Redis ACL user, or just `password` for a `requirepass`<!-- -->-only server. Omit both to connect unauthenticated, which is the default.
+Supply both credentials for a Redis ACL user, or just `password` for a `requirepass`<!-- -->-only server. Omit both to connect unauthenticated, which is the default.
 
 **Signature:**
 
@@ -57,6 +57,27 @@ string
 </td><td>
 
 _(Optional)_ Password for the queue host.
+
+
+</td></tr>
+<tr><td>
+
+[tls?](/api/core/latest/core.imessagequeueauthconnection.tls/)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean \| TlsOptions
+
+
+</td><td>
+
+_(Optional)_ Encrypts this connection with TLS. `true` connects with Node's defaults, verifying the server against the system trust store; an object is handed to `tls.connect()` as given, so supply `ca` for a private certificate authority and `cert` with `key` for mutual TLS.
+
+Applies to every channel the queue opens — reader, writer, watcher and subscription alike — so enabling it here encrypts the whole bus. The broker must be listening for TLS (`tls-port`<!-- -->); a server that is not will refuse the handshake rather than fall back to plaintext.
 
 
 </td></tr>

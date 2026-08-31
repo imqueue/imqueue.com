@@ -235,6 +235,25 @@ _(Optional)_ How long, in milliseconds, a job may sit checked out to a worker du
 </td></tr>
 <tr><td>
 
+[tls?](/api/job/latest/job.jobqueueoptions.tls/)
+
+
+</td><td>
+
+
+</td><td>
+
+IMQOptions\['tls'\]
+
+
+</td><td>
+
+_(Optional)_ Encrypts the broker connection with TLS. `true` connects with Node's defaults, verifying the broker against the system trust store; an object is handed to `tls.connect()` as given, so supply `ca` for a private certificate authority and `cert` with `key` for mutual TLS.
+
+
+</td></tr>
+<tr><td>
+
 [username?](/api/job/latest/job.jobqueueoptions.username/)
 
 

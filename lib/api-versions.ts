@@ -6,20 +6,20 @@
 import type { ApiVersions } from "./api-types.ts";
 
 export const API_VERSIONS: ApiVersions = {
-  "core": { "latest": "3.4.3", "archives": ["2.0.26","1.15.0"] },
-  "rpc": { "latest": "3.8.0", "archives": ["2.1.0","1.17.1"] },
+  "core": { "latest": "3.5.0", "archives": ["2.0.26","1.15.0"] },
+  "rpc": { "latest": "3.9.0", "archives": ["2.1.0","1.17.1"] },
   "pg-pubsub": { "latest": "3.0.8", "archives": [] },
-  "pg-cache": { "latest": "5.1.3", "archives": [] },
-  "tag-cache": { "latest": "3.0.6", "archives": [] },
-  "pg-sequelize": { "latest": "4.2.4", "archives": [] },
+  "pg-cache": { "latest": "5.1.4", "archives": [] },
+  "tag-cache": { "latest": "3.0.7", "archives": [] },
+  "pg-sequelize": { "latest": "4.2.5", "archives": [] },
   "pg-prisma": { "latest": "2.0.0", "archives": [] },
   "async-logger": { "latest": "3.2.1", "archives": [] },
   "opentelemetry": { "latest": "4.1.2", "archives": [] },
-  "datadog": { "latest": "3.2.2", "archives": [] },
+  "datadog": { "latest": "3.2.3", "archives": [] },
   "graphql-dependency": { "latest": "3.1.2", "archives": [] },
   "type-graphql-dependency": { "latest": "3.0.5", "archives": [] },
   "net": { "latest": "3.0.5", "archives": [] },
   "http-protect": { "latest": "3.0.2", "archives": [] },
   "validation": { "latest": "1.1.2", "archives": [] },
-  "job": { "latest": "3.2.0", "archives": [] }
+  "job": { "latest": "3.3.0", "archives": [] }
 };

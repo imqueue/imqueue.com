@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/core 3.4.3 · API reference"
+title: "@imqueue/core 3.5.0 · API reference"
 description: "Redis-backed message queue engine for the @imqueue framework — the transport shared by @imqueue/rpc and the job packages."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"}]
 ---
@@ -16,7 +16,7 @@ Start from `IMQ.create()`<!-- -->, which picks a queue adapter from the options 
 
 Every queue follows the same lifecycle: construct, `start()`<!-- -->, then either consume `message` events or `send()`<!-- -->, and finally `destroy()` to release the connections. `start()` is required before `publish()` or `subscribe()`<!-- -->; `send()` starts the queue implicitly. `stop()` only stops consuming — it keeps the writer, the watcher lock and the maintenance timers alive, so `destroy()` is what actually releases resources.
 
-Delivery is at-least-once, so message handlers must be idempotent. Within a single process, writer and watcher connections are shared per `host:port` and reference-counted, and exactly one queue per key prefix is elected as the watcher that releases delayed messages and performs maintenance.
+Delivery is at-least-once, so message handlers must be idempotent. Within a single process, writer and watcher connections are shared per `host:port` and TLS configuration and reference-counted, and exactly one queue per key prefix is elected as the watcher that releases delayed messages and performs maintenance.
 
 Under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/) a message stays checked out to its worker until the `message` listener has finished with it, and what a listener \*\*returns\*\* is how it says so: return a promise and the message is held until that promise settles, so a worker that dies mid-handler leaves the message to be re-queued rather than taking it down. Return anything else — as the synchronous example below does — and it is released as the listener returns.
 
@@ -180,6 +180,23 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[envTls()](/api/core/latest/core.envtls/)
+
+
+</td><td>
+
+Builds a TLS configuration from the environment, for turning encryption on across a fleet without touching application code.
+
+TLS is enabled by `IMQ_REDIS_TLS`<!-- -->, or implicitly by supplying any TLS material; `IMQ_REDIS_TLS=0` wins over both and disables it outright. The recognised variables are:
+
+- `IMQ_REDIS_TLS` — enables TLS with Node's default verification against the system trust store - `IMQ_REDIS_TLS_CA_FILE` — PEM bundle of the trust anchors to verify the broker against, for a private CA - `IMQ_REDIS_TLS_CERT_FILE`<!-- -->, `IMQ_REDIS_TLS_KEY_FILE` — client certificate and its private key, for mutual TLS - `IMQ_REDIS_TLS_KEY_PASSPHRASE` — passphrase of an encrypted private key - `IMQ_REDIS_TLS_SERVERNAME` — expected certificate name, needed when the broker is reached at an address the certificate does not carry - `IMQ_REDIS_TLS_REJECT_UNAUTHORIZED` — set to `0` to accept an unverified certificate. This reduces the connection to encryption without authentication and leaves it open to interception; use it for a local experiment, never in a deployment.
+
+Certificate files are read eagerly, and an unreadable one throws rather than yielding a configuration that would connect in the clear.
+
+
+</td></tr>
+<tr><td>
+
 [logDebugInfo(input)](/api/core/latest/core.logdebuginfo/)
 
 
@@ -197,6 +214,19 @@ Emits the profiling output for a single call: the elapsed time computed from `in
 </td><td>
 
 Wraps a class method so that its execution time and/or its call arguments are logged through the `logger` property of the decorated instance.
+
+
+</td></tr>
+<tr><td>
+
+[tlsFingerprint(tls)](/api/core/latest/core.tlsfingerprint/)
+
+
+</td><td>
+
+Computes a stable fingerprint of a TLS configuration, used to keep connections that differ in their transport security out of the same connection pool slot.
+
+Two configurations that are equal by value share a fingerprint, so pooling still works across independently built option literals. Any difference in the trust anchors, the client certificate, the verification callbacks or the expected server name yields a different one.
 
 
 </td></tr>
@@ -320,9 +350,9 @@ A queue is an `EventEmitter` typed by [EventMap](/api/core/latest/core.eventmap/
 
 </td><td>
 
-Optional credentials for a queue host, forwarded to the Redis client as `username` and `password`<!-- -->.
+Optional credentials for a queue host, forwarded to the Redis client as `username` and `password`<!-- -->, plus the transport security to reach it with.
 
-Supply both for a Redis ACL user, or just `password` for a `requirepass`<!-- -->-only server. Omit both to connect unauthenticated, which is the default.
+Supply both credentials for a Redis ACL user, or just `password` for a `requirepass`<!-- -->-only server. Omit both to connect unauthenticated, which is the default.
 
 
 </td></tr>

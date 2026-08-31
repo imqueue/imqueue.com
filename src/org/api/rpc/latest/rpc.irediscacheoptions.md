@@ -19,7 +19,9 @@ export interface IRedisCacheOptions extends Partial<IMQOptions>
 
 ## Remarks
 
-This inherits the queue option shape, but the adapter only honours `host`<!-- -->, `port`<!-- -->, `username`<!-- -->, `password`<!-- -->, `prefix`<!-- -->, `logger` and `conn`<!-- -->. All other inherited queue options are accepted by the type and silently ignored.
+This inherits the queue option shape, but the adapter only honours `host`<!-- -->, `port`<!-- -->, `username`<!-- -->, `password`<!-- -->, `tls`<!-- -->, `prefix`<!-- -->, `logger` and `conn`<!-- -->. All other inherited queue options are accepted by the type and silently ignored.
+
+`tls` encrypts the cache connection exactly as it encrypts a queue's: `true` for Node's defaults, an object handed to `tls.connect()` as given, and when omitted the `IMQ_REDIS_TLS*` environment variables are consulted, so a deployment can encrypt its caches and its queues with one setting. Pass `false` to decline that fallback.
 
 ## Properties
 

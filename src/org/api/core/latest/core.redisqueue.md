@@ -21,7 +21,7 @@ export declare class RedisQueue extends EventEmitter<EventMap> implements IMessa
 
 ## Remarks
 
-Connection model: the reader is per instance and exists only in [IMQMode.BOTH](/api/core/latest/core.imqmode/) or [IMQMode.WORKER](/api/core/latest/core.imqmode/) mode, while the writer and watcher connections are shared per `host:port` across every queue in the process and reference-counted. Exactly one queue per key prefix is elected as the watcher through a `<prefix>:watch:lock` key, and that owner also releases delayed messages, recovers abandoned safe-delivery hand-offs and — when [IMQOptions.cleanup](/api/core/latest/core.imqoptions.cleanup/) is on — prunes orphaned keys.
+Connection model: the reader is per instance and exists only in [IMQMode.BOTH](/api/core/latest/core.imqmode/) or [IMQMode.WORKER](/api/core/latest/core.imqmode/) mode, while the writer and watcher connections are shared per `host:port` — and per TLS configuration — across every queue in the process and reference-counted. Exactly one queue per key prefix is elected as the watcher through a `<prefix>:watch:lock` key, and that owner also releases delayed messages, recovers abandoned safe-delivery hand-offs and — when [IMQOptions.cleanup](/api/core/latest/core.imqoptions.cleanup/) is on — prunes orphaned keys.
 
 Lifecycle: [RedisQueue.start()](/api/core/latest/core.redisqueue.start/) is required before consuming or publishing, while [RedisQueue.send()](/api/core/latest/core.redisqueue.send/) starts the queue lazily. [RedisQueue.stop()](/api/core/latest/core.redisqueue.stop/) only stops consuming; use [RedisQueue.destroy()](/api/core/latest/core.redisqueue.destroy/) to release the watcher lock, the timers and the connections.
 

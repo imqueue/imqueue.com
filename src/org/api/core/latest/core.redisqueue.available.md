@@ -19,5 +19,5 @@ get available(): boolean;
 
 ## Remarks
 
-The writer connection is shared per `host:port` within the process, so this reflects the health of that server connection rather than of this instance alone — every queue pointing at the same server reports the same value.
+The writer connection is shared per `host:port` and TLS configuration within the process, so this reflects the health of that server connection rather than of this instance alone — every queue pointing at the same server the same way reports the same value.
 

@@ -42,6 +42,25 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[\_\_guarded\_\_?](/api/core/latest/core.iredisclient.__guarded__/)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Internal flag marking a connection whose socket has been given a durable `error` listener, so that the guard is installed at most once per connection. Not part of the supported API.
+
+
+</td></tr>
+<tr><td>
+
 [\_\_imq?](/api/core/latest/core.iredisclient.__imq/)
 
 

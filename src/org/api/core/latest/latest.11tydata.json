@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "core",
-  "apiVersion": "3.4.3",
+  "apiVersion": "3.5.0",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-30T07:46:07.935Z",
+  "apiReleased": "2026-08-31T23:19:31.870Z",
   "apiNav": [
     {
       "group": "Classes",
@@ -54,12 +54,20 @@
       "group": "Functions",
       "items": [
         {
+          "name": "envTls()",
+          "url": "/api/core/latest/core.envtls/"
+        },
+        {
           "name": "logDebugInfo(input)",
           "url": "/api/core/latest/core.logdebuginfo/"
         },
         {
           "name": "profile(options)",
           "url": "/api/core/latest/core.profile/"
+        },
+        {
+          "name": "tlsFingerprint(tls)",
+          "url": "/api/core/latest/core.tlsfingerprint/"
         },
         {
           "name": "verifyLogLevel(level)",
