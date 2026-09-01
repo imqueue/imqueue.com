@@ -106,6 +106,15 @@ redis-server --port 0 --tls-port 6380 \
 `--port 0` is the part that matters. Encryption you can opt out of is a
 suggestion; a broker with no plaintext listener is a guarantee.
 
+If your brokers announce themselves so services can discover them, reach for the
+[redis-broker](https://github.com/imqueue/redis-broker) image rather than those
+flags. From **v1.2.0** it composes them from `IMQ_TLS_*`, keeps the TLS listener
+on 6379 so no port changes anywhere, and — the part that matters here —
+advertises the port it is actually listening on. With an announcer module from
+before that release, a broker configured by hand as above advertised `<ip>:0`:
+`port` was what it announced, and `port` is now `0`. See
+[encrypting the fleet](/blog/horizontally-scalable-redis-broker/#encrypting-the-fleet).
+
 ## It fails closed — and it will not tell you why
 
 The reassuring half of this is that nothing quietly downgrades. There is no
@@ -427,7 +436,23 @@ certificate issued for a hostname does not match a bare IP unless it carries
 that IP as a subject alternative name. Either reach the broker by the name on
 its certificate, set `servername` to that name, or reissue the certificate with
 an IP SAN. This is standard TLS behaviour rather than anything specific to the
-queue.
+queue. If the address comes from discovery and changes with every reschedule,
+only the middle option survives — see the next answer.
+
+### How do I encrypt a broker fleet that services discover at runtime?
+
+The same `tls` option, plus the one thing discovery changes: the address is not
+knowable in advance. Brokers announce whatever IP the scheduler gave them, so no
+certificate can carry it and there is no name to connect by. Issue **one
+certificate for the fleet**, with a name that will never be resolved —
+`CN=imq-broker.internal` and a matching DNS SAN — and pin it on the services
+with `IMQ_REDIS_TLS_SERVERNAME`. Node checks that name against the certificate
+while the connection still goes to the announced IP, so a broker pod that dies
+and returns on a different address needs nothing reissued. On the broker side,
+`ghcr.io/imqueue/redis-broker` v1.2.0 or newer advertises whichever port is
+really listening; before that a TLS broker announced port `0` and disappeared
+from the fleet. The longer version is in
+[auto-scaling Redis broker](/blog/horizontally-scalable-redis-broker/#encrypting-the-fleet).
 
 ### Is rejectUnauthorized: false acceptable in production?
 

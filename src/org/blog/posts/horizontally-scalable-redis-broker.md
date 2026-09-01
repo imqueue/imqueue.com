@@ -7,6 +7,7 @@ summary: "One Redis behind your message bus is a ceiling and a single point of f
 description: "Run a horizontally auto-scaling Redis broker with @imqueue: client-side clustering, UDP broker discovery, and a unicast path for GCP/Kubernetes."
 keywords: "horizontally scalable redis broker, redis broker auto-scaling, horizontal auto-scaling redis, scale redis message queue, redis broker cluster, redis broker discovery, redis-broker-promoter, redis-broker-unicaster, imqueue cluster, udp broadcast discovery, GCP redis broker, kubernetes redis broker"
 date: 2026-07-24
+dateModified: 2026-09-01
 author: serhiy-morenko
 illustration: broker-fleet
 topics: [discovery, queue, architecture, patterns]
@@ -75,12 +76,14 @@ Each broker loads a small C module that periodically emits a one-line,
 tab-separated UDP datagram:
 
 ~~~
-imq-broker  2cc7c345-3569-44bb-b57a-b72d729d7012  up    10.0.4.12:6379  1
+imq-broker  2cc7c345-3569-44bb-b57a-b72d729d7012  up    10.0.4.12:6379  1  plain
 imq-broker  2cc7c345-3569-44bb-b57a-b72d729d7012  down  10.0.4.12:6379
 ~~~
 
 That's `name`, a per-process GUID, `up`/`down`, the advertised `host:port`, and
-— for `up` — the announce interval in seconds. On the service side,
+— for `up` — the announce interval in seconds and whether that port speaks TLS
+(`tls` or `plain`, from redis-broker v1.2.0; see
+[encrypting the fleet](#encrypting-the-fleet)). On the service side,
 [`UDPClusterManager`](/api/core/latest/core.udpclustermanager/) listens on UDP
 port `63000` (its default) in a worker thread and translates datagrams into
 cluster changes:
@@ -93,8 +96,9 @@ cluster changes:
   interval) is evicted, which covers crashes and network partitions.
 
 Both modules read the same environment variables — `REDIS_BROADCAST_NAME`
-(default `imq-broker`), `REDIS_BROADCAST_INTERVAL` (seconds, default `1`) —
-and emit byte-identical messages. They differ **only in how the datagram
+(default `imq-broker`), `REDIS_BROADCAST_INTERVAL` (seconds, default `1`),
+`REDIS_BROADCAST_TLS` (unset, and covered under *encrypting the fleet*) — and
+emit byte-identical messages. They differ **only in how the datagram
 travels**, which is exactly why the client side doesn't care which one you run.
 
 ## Recipe 1: networks that deliver broadcast — redis-broker-promoter
@@ -231,6 +235,63 @@ One rule matters: **apply the same cluster options to every service and every
 client**. Requests and replies flow through the whole fleet, so a client pinned
 to a single broker will miss responses that round-robin landed elsewhere.
 
+## Encrypting the fleet
+
+Everything above puts Redis traffic on the network in the clear. That is
+defensible inside a namespace you already trust, and indefensible the moment a
+compliance questionnaire asks about encryption in transit. Both halves are one
+setting each.
+
+On the broker, mount a certificate:
+
+~~~bash
+docker run -v /path/to/tls:/run/tls:ro \
+    -e IMQ_TLS_CERT_FILE=/run/tls/broker.crt \
+    -e IMQ_TLS_KEY_FILE=/run/tls/broker.key \
+    -e IMQ_TLS_CA_FILE=/run/tls/ca.crt \
+    ghcr.io/imqueue/redis-broker:7.4
+~~~
+
+The TLS listener takes **6379** — the port the Service, the `NetworkPolicy` and
+the probes already name — so encrypting a fleet moves no ports and rewrites no
+manifests. Client certificates are required by default; `IMQ_TLS_AUTH_CLIENTS=no`
+encrypts without authenticating callers.
+
+**The announcement has to follow the listener.** Redis serves TLS by setting
+`port 0` and `tls-port <n>`, and the announcer modules used to advertise `port`
+verbatim — so a TLS broker announced `10.0.4.12:0`, an address nothing can
+connect to and one that `UDPClusterManager` discards as malformed. The fleet
+discovered no broker at all, and nothing in any log said why: the announcement
+went out, it was just useless. From redis-broker **v1.2.0** the modules advertise
+whichever listener is up and mark the datagram `tls` or `plain`. When both are up
+the plaintext port is announced, because that is what a running fleet is already
+connected to; `REDIS_BROADCAST_TLS=1` picks the TLS port instead.
+
+**One certificate for the fleet, with no address in it.** A broker takes the IP
+the scheduler hands it and announces that, so no certificate can name it in
+advance, and there is no DNS name to fall back on either — the fleet is found by
+announcement, not by lookup. Issue one certificate for the whole fleet carrying a
+name that will never be resolved, and have services pin it:
+
+~~~bash
+IMQ_REDIS_TLS_CA_FILE=/run/tls/ca.crt
+IMQ_REDIS_TLS_SERVERNAME=imq-broker.internal   # compared, never resolved
+~~~
+
+`servername` is not a host to connect to: Node checks it against the certificate
+while the connection still goes to the announced IP. That is what lets a broker
+pod die and come back on a different address without anything being reissued —
+and it is the reason an auto-scaling fleet can be encrypted at all.
+
+Turning it on for a fleet that is already running is a **cutover rather than an
+overlap**, because the announcement carries one transport for everybody: bring
+the brokers up with both listeners (`IMQ_TLS_PLAINTEXT=on`, which parks TLS on
+6380 and leaves the announcement alone), then roll the services with their TLS
+options and the brokers with `REDIS_BROADCAST_TLS=1` together, then drop both
+flags. The client half — one option covering every channel a queue opens, the
+`IMQ_REDIS_TLS*` environment fallback, mutual TLS, and what it costs — is
+[a post of its own](/blog/tls-redis-broker-nodejs/).
+
 ## Life of the fleet
 
 - **A broker joins.** Discovered within about one announce interval; @imqueue
@@ -248,6 +309,10 @@ to a single broker will miss responses that round-robin landed elsewhere.
   it returns — the fleet keeps flowing through the remaining brokers meanwhile.
 - **Auth.** Give every broker the same credentials (one shared ACL file works
   well), because any service may connect to any discovered broker.
+- **Transport.** The same rule, for the same reason: one transport for the whole
+  fleet. The announcement carries a single `host:port`, so a broker serving TLS
+  among neighbours serving plaintext is discovered and then unreachable by
+  everything configured for the other one.
 - **Security.** The datagrams are plain, unauthenticated UDP — anyone who can
   reach the port can inject or evict brokers. That is a deliberate trade with
   controls attached rather than an oversight, and it is worth stating in full
@@ -257,8 +322,8 @@ to a single broker will miss responses that round-robin landed elsewhere.
 
 Anyone who can send a UDP datagram to port `63000` on the discovery address can
 announce a broker `up`, or announce a real one `down`. There is no signature and
-no shared secret; the datagram carries a name, a GUID, a status and a
-`host:port`, and any of them can be fabricated. Reaching the port is the whole
+no shared secret; the datagram carries a name, a GUID, a status, a `host:port`
+and a transport marker, and any of them can be fabricated. Reaching the port is the whole
 of the attack.
 
 **Announcing a hostile broker** puts an attacker-controlled address into every
@@ -274,13 +339,15 @@ default `REDIS_BROADCAST_NAME` discover each other's brokers with nobody
 attacking anything. The accident and the attack are the same mechanism, and the
 accident is far more likely.
 
-Four controls, and the first is the one that matters:
+Five controls, and the first is the one that matters:
 
 1. A `NetworkPolicy` confining `63000/udp` and `6379/tcp` to the namespace.
 2. A distinct `REDIS_BROADCAST_NAME`, and preferably port, per fleet.
 3. `SELECTED_INTERFACES` pinned to the pod CIDR, so a broker never announces an
    address the fleet cannot reach.
 4. RBAC scoped to `list` on `pods` in one namespace, for the unicaster.
+5. TLS with client certificates on the brokers — which does not authenticate
+   discovery either, but bounds what announcing a hostile broker is worth.
 
 **Why this is an acceptable design.** The trust boundary is the namespace, and it
 is the same boundary that already protects Redis itself: an attacker who can send
@@ -290,6 +357,15 @@ add a perimeter — it sits inside the one you already have to defend. Setting a
 password does not change that either: it protects the data path, while the
 datagram stays unauthenticated, so it turns "can read your queues" into "can
 disrupt your routing".
+
+TLS moves that line further without moving the boundary. With client
+certificates and a CA of your own, a broker announced at an attacker's address
+has to present a certificate signed by that CA before any service will send it a
+message — so announcing a hostile broker stops being a way to read traffic and
+becomes only a way to lose it. Announcing `down` is untouched: evicting a real
+broker needs no certificate. And the `tls` marker on the datagram is not a signal
+to trust — no client turns encryption on or off because of it, since that would
+let an unsigned UDP packet decide whether a connection is encrypted.
 
 There is **no signing or HMAC on the announcement today**, and it is not planned:
 it would need a secret distributed to every broker and client and kept in step

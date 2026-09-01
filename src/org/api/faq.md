@@ -1138,6 +1138,19 @@ redis-server --port 0 --tls-port 6380 \
   --tls-ca-cert-file /etc/redis/ca.crt
 ~~~
 
+If the brokers announce themselves for discovery, use the
+[redis-broker](https://github.com/imqueue/redis-broker) image instead of those
+flags — from v1.2.0 it composes them from `IMQ_TLS_*`, keeps TLS on 6379 so no
+port moves, and announces the port it is really listening on:
+
+~~~bash
+docker run -v /path/to/tls:/run/tls:ro \
+  -e IMQ_TLS_CERT_FILE=/run/tls/broker.crt \
+  -e IMQ_TLS_KEY_FILE=/run/tls/broker.key \
+  -e IMQ_TLS_CA_FILE=/run/tls/ca.crt \
+  ghcr.io/imqueue/redis-broker:7.4
+~~~
+
 There is no negotiation step and therefore no downgrade: a plaintext client
 cannot reach a TLS-only broker, and an encrypted client cannot be talked into
 plaintext by a broker that is not configured for TLS. Both simply fail.
@@ -1214,6 +1227,46 @@ alone, so pass the certificate material rather than a prebuilt context.
 Reference: [`tlsFingerprint()`](/api/core/latest/core.tlsfingerprint/) ·
 [`IMQOptions.cluster`](/api/core/latest/core.imqoptions.cluster/) ·
 [`IMessageQueueAuthConnection.tls`](/api/core/latest/core.imessagequeueauthconnection.tls/)
+
+### How do I encrypt a broker fleet that services discover over UDP?
+
+Exactly as above, with one difference that discovery forces: the broker's
+address is not knowable in advance. Brokers announce whatever IP the scheduler
+gave them, so no certificate can carry it, and there is no name to connect by
+either — the fleet is found by announcement rather than by lookup.
+
+Issue **one certificate for the whole fleet**, carrying a name that will never be
+resolved, and pin that name on the services:
+
+~~~bash
+# broker: ghcr.io/imqueue/redis-broker v1.2.0+
+IMQ_TLS_CERT_FILE=/run/tls/broker.crt     # CN/SAN: imq-broker.internal
+IMQ_TLS_KEY_FILE=/run/tls/broker.key
+IMQ_TLS_CA_FILE=/run/tls/ca.crt           # signs the client certificates
+
+# service
+IMQ_REDIS_TLS_CA_FILE=/run/tls/ca.crt
+IMQ_REDIS_TLS_SERVERNAME=imq-broker.internal
+~~~
+
+`servername` is not a host to connect to — Node compares it against the
+certificate while the connection goes to the announced IP — so a broker pod that
+dies and comes back on a different address needs nothing reissued.
+
+Two things are the broker's side of it. Redis serves TLS by setting `port 0` and
+`tls-port`, and the announcer modules advertise the port that is **listening**:
+before redis-broker v1.2.0 they advertised `port` verbatim, so a TLS broker
+announced `<ip>:0` — an address nothing can connect to, and one
+`UDPClusterManager` discards as malformed, leaving the fleet with no broker and
+no error. And the announcement carries one transport for everybody, so switching
+a running fleet is a cutover: brokers up with both listeners
+(`IMQ_TLS_PLAINTEXT=on`), then the services and `REDIS_BROADCAST_TLS=1` together,
+then drop both.
+
+Reference: [auto-scaling Redis broker](/blog/horizontally-scalable-redis-broker/#encrypting-the-fleet) ·
+[TLS to the broker](/blog/tls-redis-broker-nodejs/) ·
+[`UDPClusterManager`](/api/core/latest/core.udpclustermanager/) ·
+[`envTls()`](/api/core/latest/core.envtls/)
 
 ### Why does my TLS connection to the broker fail with "Connection is closed"?
 
