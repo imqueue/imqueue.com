@@ -6,9 +6,9 @@ docLabel: FAQ
 crumbLeaf: FAQ
 heading: Frequently Asked Questions
 lead: "Direct answers to the questions developers are actually asking — each one linking the reference for the symbols it names."
-description: "@imqueue FAQ: expose a method, generate a typed client, cache and invalidate, validate arguments, delay and retry jobs, trace, log, auto-scale, drain on deploy and rate-limit."
-keywords: "imqueue faq, expose service method, imqueue generate typed client, classType property decorators, removeComments false imqueue, pg-cache cacheBy, imqueue job delay retry, PgPubSub singleListener, graphql N+1 microservices, ImqueueInstrumentation, LOGGER_TRANSPORTS, imqueue send does not throw, JobQueue push error, imqueue silent failure logging, imqueue metrics server queue_length, kubernetes HPA queue length autoscaling, graceful shutdown nodejs, IMQ_DRAIN_ENABLE, drain in-flight requests, redis-broker-promoter, redis-broker-unicaster, UDPClusterManager, HttpProtect express middleware, CIDR membership Node.js"
-relatedTopics: [rpc, dx, patterns, jobs]
+description: "@imqueue FAQ: expose a method, generate a typed client, cache and invalidate, validate arguments, delay and retry jobs, trace, log, auto-scale, drain on deploy, rate-limit and encrypt the broker connection with TLS."
+keywords: "imqueue faq, expose service method, imqueue generate typed client, classType property decorators, removeComments false imqueue, pg-cache cacheBy, imqueue job delay retry, PgPubSub singleListener, graphql N+1 microservices, ImqueueInstrumentation, LOGGER_TRANSPORTS, imqueue send does not throw, JobQueue push error, imqueue silent failure logging, imqueue metrics server queue_length, kubernetes HPA queue length autoscaling, graceful shutdown nodejs, IMQ_DRAIN_ENABLE, drain in-flight requests, redis-broker-promoter, redis-broker-unicaster, UDPClusterManager, HttpProtect express middleware, CIDR membership Node.js, redis tls nodejs, IMQ_REDIS_TLS, encrypt broker connection, redis mutual tls, envTls, tlsFingerprint"
+relatedTopics: [rpc, dx, patterns, jobs, security]
 faqPage: true
 ---
 
@@ -1101,6 +1101,145 @@ Reference: [`Networks`](/api/net/latest/net.networks/) ·
 [`isValid()`](/api/net/latest/net.isvalid/) ·
 [`cidrToRange()`](/api/net/latest/net.cidrtorange/) ·
 [`ipToInt()`](/api/net/latest/net.iptoint/)
+
+## Encrypting the broker connection
+
+### How do I encrypt the connection between my services and the broker?
+
+Set `tls` on the queue options. A queue opens several connections — reader,
+writer, watcher and subscription — and they are all built by the same factory,
+so one setting encrypts the whole bus.
+
+~~~typescript
+import IMQ from '@imqueue/core';
+import { readFileSync } from 'node:fs';
+
+const queue = IMQ.create('user-service', {
+    host: 'redis.internal',
+    port: 6380,
+    tls: { ca: readFileSync('/etc/ssl/internal-ca.crt') },
+});
+~~~
+
+`true` connects with Node's defaults, verifying the broker against the system
+trust store — right for a managed Redis with a publicly signed certificate. An
+object is handed to `tls.connect()` as given, so anything Node accepts works.
+`@imqueue/rpc` caches and `@imqueue/job` queues take the same option and behave
+the same way.
+
+The broker has to be listening for TLS, which in Redis means `tls-port`. Turn
+the plaintext port off as well, because encryption you can opt out of is a
+suggestion rather than a guarantee:
+
+~~~bash
+redis-server --port 0 --tls-port 6380 \
+  --tls-cert-file /etc/redis/server.crt \
+  --tls-key-file /etc/redis/server.key \
+  --tls-ca-cert-file /etc/redis/ca.crt
+~~~
+
+There is no negotiation step and therefore no downgrade: a plaintext client
+cannot reach a TLS-only broker, and an encrypted client cannot be talked into
+plaintext by a broker that is not configured for TLS. Both simply fail.
+
+Reference: [`IMessageQueueAuthConnection.tls`](/api/core/latest/core.imessagequeueauthconnection.tls/) ·
+[`JobQueueOptions.tls`](/api/job/latest/job.jobqueueoptions.tls/) ·
+[`IRedisCacheOptions`](/api/rpc/latest/rpc.irediscacheoptions/)
+
+### How do I turn on TLS across a fleet without changing application code?
+
+Leave `tls` unset and configure the environment instead. When the option is
+absent, `@imqueue/core` builds one from `IMQ_REDIS_TLS` and its companions, so
+encrypting every service becomes a deployment change in one place rather than a
+pull request per repository.
+
+~~~bash
+IMQ_REDIS_TLS=1
+IMQ_REDIS_TLS_CA_FILE=/etc/ssl/internal-ca.crt      # private CA
+IMQ_REDIS_TLS_CERT_FILE=/etc/ssl/service.crt        # mutual TLS
+IMQ_REDIS_TLS_KEY_FILE=/etc/ssl/service.key
+IMQ_REDIS_TLS_KEY_PASSPHRASE=…                      # encrypted key
+IMQ_REDIS_TLS_SERVERNAME=redis.internal             # expected cert name
+IMQ_REDIS_TLS_REJECT_UNAUTHORIZED=0                 # local experiments only
+~~~
+
+Three rules govern how they combine. **Supplying key material is enough on its
+own** — naming a CA file enables TLS, because there is no other reason to have
+named one. **The off switch beats everything**: `IMQ_REDIS_TLS=0` disables TLS
+even when certificates are configured, and short-circuits before the files are
+read, so a rollback works even if the certificates are already gone from the
+image. And **options that only shape a connection cannot start one** — setting
+`IMQ_REDIS_TLS_REJECT_UNAUTHORIZED=0` or `IMQ_REDIS_TLS_SERVERNAME` by itself
+does not enable anything.
+
+The same variables cover `@imqueue/core`, `@imqueue/rpc` caches and
+`@imqueue/job` queues. Passing `tls: false` explicitly declines the fallback for
+a service that must stay in plaintext; leaving it unset means "ask the
+environment".
+
+Reference: [`envTls()`](/api/core/latest/core.envtls/) ·
+[`IMessageQueueAuthConnection.tls`](/api/core/latest/core.imessagequeueauthconnection.tls/)
+
+### How do I connect to a broker with a private CA or mutual TLS?
+
+Pass your trust anchor as `ca` to verify the broker, and add `cert` and `key` to
+have the broker verify you:
+
+~~~typescript
+const tls = {
+    ca:   readFileSync('/etc/ssl/internal-ca.crt'),
+    cert: readFileSync('/etc/ssl/user-service.crt'),  // mutual TLS
+    key:  readFileSync('/etc/ssl/user-service.key'),
+};
+~~~
+
+With `tls-auth-clients yes` on the broker, a client without a certificate signed
+by that CA is refused at the handshake, before it can send `AUTH`.
+
+Two things catch people. The certificate is verified against the host you
+connected to, so reaching a broker by bare IP needs that address in the
+certificate as an IP SAN — otherwise set `servername` to the name the
+certificate carries, or connect by that name. And `rejectUnauthorized: false`
+keeps encryption while discarding authentication, which protects you from
+someone reading the wire and not at all from someone intercepting it; the queue
+logs a warning at construction whenever it is set, for that reason.
+
+Connections are pooled per broker within a process, and the pool key includes a
+fingerprint of the TLS configuration, so a queue asking for an encrypted
+connection is never handed a plaintext socket that another queue opened first.
+Configurations equal by value still share a connection. One caveat: an opaque
+object such as a prebuilt `SecureContext` is fingerprinted by its class name
+alone, so pass the certificate material rather than a prebuilt context.
+
+Reference: [`tlsFingerprint()`](/api/core/latest/core.tlsfingerprint/) ·
+[`IMQOptions.cluster`](/api/core/latest/core.imqoptions.cluster/) ·
+[`IMessageQueueAuthConnection.tls`](/api/core/latest/core.imessagequeueauthconnection.tls/)
+
+### Why does my TLS connection to the broker fail with "Connection is closed"?
+
+Because TLS verification fails below the queue, and what comes back up is a
+closed socket rather than the reason. A wrong trust anchor, a name the
+certificate does not carry, a missing client certificate and a broker that is
+not listening for TLS all report the same message. Only the timing differs: a
+plaintext client against a TLS broker is rejected immediately, while an
+encrypted client against a plaintext broker takes about ten seconds to give up.
+
+Get the real error from the broker directly, with the same trust anchors:
+
+~~~bash
+openssl s_client -connect redis.internal:6380 \
+  -CAfile /etc/ssl/internal-ca.crt -servername redis.internal
+~~~
+
+The one TLS failure that *is* diagnostic is unreadable key material. If a
+certificate file is named but cannot be read — a mistyped path, a secret that
+did not mount — construction throws an error with the code
+`IMQ_TLS_MATERIAL_UNREADABLE` naming the variable at fault, rather than falling
+back to an unencrypted connection. A broken TLS configuration stops the service;
+it never quietly starts one that talks in the clear.
+
+Reference: [`envTls()`](/api/core/latest/core.envtls/) ·
+[`RedisQueue`](/api/core/latest/core.redisqueue/)
 
 ## Where to look next
 
