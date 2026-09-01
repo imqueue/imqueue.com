@@ -3,9 +3,9 @@ layout: post.html
 permalink: /blog/horizontally-scalable-redis-broker/
 templateEngineOverride: md
 title: "Auto-scaling Redis broker: with and without broadcast"
-summary: "One Redis behind your message bus is a ceiling and a single point of failure. The promoter and unicaster modules turn a fleet of plain Redis instances into a horizontally auto-scaling broker — here are the recipes for networks that deliver broadcast and for clouds like GCP that don't."
-description: "Run a horizontally auto-scaling Redis broker with @imqueue: client-side clustering, UDP broker discovery, and a unicast path for GCP/Kubernetes."
-keywords: "horizontally scalable redis broker, redis broker auto-scaling, horizontal auto-scaling redis, scale redis message queue, redis broker cluster, redis broker discovery, redis-broker-promoter, redis-broker-unicaster, imqueue cluster, udp broadcast discovery, GCP redis broker, kubernetes redis broker"
+summary: "One Redis behind your message bus is a ceiling and a single point of failure. The promoter and unicaster modules turn a fleet of plain Redis instances into a horizontally auto-scaling broker — here are the recipes for networks that deliver broadcast and for clouds like GCP that don't, and how to encrypt the result when the brokers announce addresses no certificate can carry."
+description: "Run a horizontally auto-scaling Redis broker with @imqueue: client-side clustering, UDP broker discovery, a unicast path for GCP/Kubernetes, and TLS on a fleet whose broker addresses come from the scheduler."
+keywords: "horizontally scalable redis broker, redis broker auto-scaling, horizontal auto-scaling redis, scale redis message queue, redis broker cluster, redis broker discovery, redis-broker-promoter, redis-broker-unicaster, imqueue cluster, udp broadcast discovery, GCP redis broker, kubernetes redis broker, redis broker tls, encrypt redis broker fleet, redis tls-port announcement, IMQ_REDIS_TLS_SERVERNAME"
 date: 2026-07-24
 dateModified: 2026-09-01
 author: serhiy-morenko
