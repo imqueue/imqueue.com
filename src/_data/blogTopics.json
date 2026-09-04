@@ -87,11 +87,15 @@
     "title": "Node.js microservice frameworks",
     "description": "Articles comparing Node.js microservice frameworks — @imqueue, Moleculer and NestJS microservices — and where a focused RPC transport fits instead."
   },
+  "performance": {
+    "label": "Performance",
+    "title": "Node.js service performance, measured",
+    "description": "Measured performance work on Node.js services: benchmarked queue throughput, what each cache invalidation strategy costs, one GraphQL query that became twenty-six service calls, and autoscaling on backlog rather than CPU."
+  },
   "graphql": { "label": "GraphQL" },
   "cache": { "label": "Caching" },
   "observability": { "label": "Observability" },
   "backpressure": { "label": "Back-pressure" },
-  "performance": { "label": "Performance" },
   "benchmark": { "label": "Benchmarks" },
   "load-balancing": { "label": "Load balancing" },
   "migration": { "label": "Migration" },
