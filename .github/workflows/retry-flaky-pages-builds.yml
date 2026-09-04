@@ -20,14 +20,20 @@ name: Retry flaky Pages builds
 # flake. A genuine build failure (npm / eleventy) is left red on purpose, and retries are
 # capped per commit so a persistent problem escalates to a human instead of looping.
 #
-# SETUP (one-time, owner action): create a Cloudflare API token scoped to
-#   Account > Cloudflare Pages > Edit
-# and add it as the repo secret CF_API_TOKEN. The account id below is public (it is in
-# every dashboard URL), so it is not a secret. Nothing else is needed.
+# SETUP (done 2026-09-04): the repo secret CF_API_TOKEN holds a Cloudflare API token
+# scoped to Account > Cloudflare Pages > Edit. The account id below is public (it is in
+# every dashboard URL), so it is not a secret. If that secret ever goes missing this job
+# FAILS rather than skipping — see the guard in the step below for why.
+#
+# CADENCE, measured rather than assumed: over the 40 runs from 2026-08-29 to 2026-09-04
+# the gap between scheduled runs was min 105 min, median 209 min, max 459 min. GitHub
+# deprioritises schedules, so `*/15` below is a request and not a promise, and a stuck
+# deploy is cleared in hours rather than minutes. Read that as the real SLA.
 
 on:
   schedule:
-    # Every 15 minutes: a stuck deploy is unblocked within one interval. The job is a
+    # Asks for every 15 minutes. GitHub actually delivers a median of ~3.5h (see the
+    # measured cadence above), so do not read this as the recovery time. The job is a
     # few API calls and a no-op on the common case (latest deployment already succeeded).
     - cron: "*/15 * * * *"
   workflow_dispatch:
@@ -60,11 +66,18 @@ jobs:
           set -euo pipefail
 
           if [ -z "${CF_API_TOKEN:-}" ]; then
-            # Not an error — the workflow is simply not configured yet. Skip cleanly
-            # (a green run with a warning) so the Actions tab is not flooded with red
-            # every 15 minutes before the one-time secret is added.
-            echo "::warning::CF_API_TOKEN is not set — skipping. Add a Cloudflare token scoped to Account > Cloudflare Pages > Edit as the CF_API_TOKEN repo secret to enable auto-retry."
-            exit 0
+            # FAIL, do not skip. This used to `exit 0` with a warning so the Actions tab
+            # would not be red every run before the one-time secret was added — and the
+            # cost of that kindness was that the secret then went unset for a week while
+            # this workflow reported success on every single run. A green history for a
+            # job that has never once done its work is worse than no job at all: on
+            # 2026-09-04 `6aaee87` sat 404 behind a clone flake that this was built to
+            # clear, and the retry loop had been "passing" the whole time.
+            #
+            # The secret exists now, so absence means it was revoked, expired, or renamed
+            # — a disarmed safety net, which is exactly the thing that must be loud.
+            echo "::error::CF_API_TOKEN is not set — the Pages auto-retry is DISARMED and a clone-flaked deploy will sit until someone retries it by hand. Add a Cloudflare API token scoped to Account > Cloudflare Pages > Edit as the CF_API_TOKEN repo secret."
+            exit 1
           fi
 
           base="https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/pages/projects"
