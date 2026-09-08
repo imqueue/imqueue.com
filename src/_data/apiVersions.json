@@ -7,7 +7,7 @@
     ]
   },
   "rpc": {
-    "latest": "3.9.0",
+    "latest": "3.9.1",
     "archives": [
       "2.1.0",
       "1.17.1"
@@ -18,15 +18,15 @@
     "archives": []
   },
   "pg-cache": {
-    "latest": "5.1.4",
+    "latest": "5.1.5",
     "archives": []
   },
   "tag-cache": {
-    "latest": "3.0.7",
+    "latest": "3.0.8",
     "archives": []
   },
   "pg-sequelize": {
-    "latest": "4.2.5",
+    "latest": "4.2.6",
     "archives": []
   },
   "pg-prisma": {
@@ -42,7 +42,7 @@
     "archives": []
   },
   "datadog": {
-    "latest": "3.2.3",
+    "latest": "3.2.4",
     "archives": []
   },
   "graphql-dependency": {
@@ -66,7 +66,7 @@
     "archives": []
   },
   "job": {
-    "latest": "3.3.0",
+    "latest": "3.3.1",
     "archives": []
   }
 }

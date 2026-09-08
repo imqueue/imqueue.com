@@ -1,6 +1,6 @@
 ---
-title: "@imqueue/job 3.3.0 · API reference"
-description: "Simple, safe-by-default Redis job queue for @imqueue services — delayed and scheduled jobs, at-least-once delivery, and re-scheduling driven by whatever the…"
+title: "@imqueue/job 3.3.1 · API reference"
+description: "Simple, safe-by-default Redis job queue for @imqueue services — delayed and scheduled jobs, at-least-once delivery, and retry by re-scheduling, driven by…"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/job","url":"/api/job/latest/"}]
 ---
 
@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/job","url":
 
 # job package
 
-Simple, safe-by-default Redis job queue for `@imqueue` services — delayed and scheduled jobs, at-least-once delivery, and re-scheduling driven by whatever the handler returns.
+Simple, safe-by-default Redis job queue for `@imqueue` services — delayed and scheduled jobs, at-least-once delivery, and retry by re-scheduling, driven by whatever the handler returns.
 
 Pick one of three shapes. [JobQueue](/api/job/latest/job.jobqueue/)<!-- -->, the default export, both pushes and handles jobs in one process. [JobQueuePublisher](/api/job/latest/job.jobqueuepublisher/) only pushes and [JobQueueWorker](/api/job/latest/job.jobqueueworker/) only handles, for the usual split where an API enqueues work that a pool of workers drains — those two must be constructed with the same [JobQueueOptions.name](/api/job/latest/job.jobqueueoptions.name/)<!-- -->, which is what makes them the same queue.
 

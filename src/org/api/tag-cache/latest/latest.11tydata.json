@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "tag-cache",
-  "apiVersion": "3.0.7",
+  "apiVersion": "3.0.8",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-08-31T23:32:34.923Z",
+  "apiReleased": "2026-09-08T18:52:51.940Z",
   "apiNav": [
     {
       "group": "Classes",

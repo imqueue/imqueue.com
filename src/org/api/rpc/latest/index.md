@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/rpc 3.9.0 · API reference"
+title: "@imqueue/rpc 3.9.1 · API reference"
 description: "Type-safe RPC over a message queue — services, clients and the decorators that describe them, built on @imqueue/core."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/latest/"}]
 ---
@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":
 
 # rpc package
 
-Type-safe RPC over a message queue — services, clients and the decorators that describe them, built on `@imqueue/core`<!-- -->.
+Type-safe RPC over a message queue — services, clients and the decorators that describe them, built on `@imqueue/core`<!-- -->. An exposed method's JSDoc is the runtime type source, so consuming projects must compile with `removeComments: false`<!-- -->.
 
 Write a service by extending `IMQService` and marking each remotely callable method with `@expose()`<!-- -->. Complex argument and return types need a class-level `@classType()` (or `@indexed()`<!-- -->) plus `@property()` on each field. Then generate a typed client for that service with `IMQClient.create()`<!-- -->, which reads the running service's own description.
 
