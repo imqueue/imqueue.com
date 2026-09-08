@@ -577,21 +577,26 @@ function main(): void {
   const reach = all.results.filter((r) => r.mustReach);
 
   if (reach.length) {
-    const inSix = reach.filter((r) => r.mustReachRank >= 1 && r.mustReachRank <= 6).length;
-    const found = reach.filter((r) => r.mustReachRank >= 1).length;
-    const missed = reach.filter((r) => !(r.mustReachRank >= 1 && r.mustReachRank <= 6));
+    const inSix = reach.filter((r) => r.mustReachGroupRank >= 1 && r.mustReachGroupRank <= 6).length;
+    const exact = reach.filter((r) => r.mustReachRank >= 1 && r.mustReachRank <= 6).length;
+    const found = reach.filter((r) => r.mustReachGroupRank >= 1).length;
+    const missed = reach.filter((r) => !(r.mustReachGroupRank >= 1 && r.mustReachGroupRank <= 6));
 
-    console.log(section('REACHABILITY — the reference page, whether or not it is the best answer'));
+    console.log(section('REACHABILITY — the reference, whether or not it is the best answer'));
     console.log(
       `${reach.length} cases name a page that has to be FINDABLE even though something else answers\n`
-      + 'better — on the agent queries, the API reference page the build actually needed. This is a\n'
-      + 'second requirement, and it gets a second number instead of being forced into P@1.\n',
+      + 'better — on the agent queries, the API reference the build actually needed. This is a\n'
+      + 'second requirement, and it gets a second number instead of being forced into P@1.\n\n'
+      + 'Scored over the PACKAGE, because the labels name a package index and a member page\n'
+      + 'interchangeably and the ranker rightly prefers the more specific one. The exact-URL\n'
+      + 'number is printed underneath: it is the one that moves when ranking really regresses.\n',
     );
-    console.log(`  in the top 6         ${pct((inSix / reach.length) * 100)}  (${inSix}/${reach.length})`);
+    console.log(`  package in the top 6 ${pct((inSix / reach.length) * 100)}  (${inSix}/${reach.length})`);
+    console.log(`  exact page in top 6  ${pct((exact / reach.length) * 100)}  (${exact}/${reach.length})`);
     console.log(`  returned at all      ${pct((found / reach.length) * 100)}`);
 
     for (const r of missed) {
-      console.log(`    #${String(r.mustReachRank || '—').padStart(3)}  ${r.mustReach}\n          for "${r.query}"`);
+      console.log(`    #${String(r.mustReachGroupRank || '—').padStart(3)}  ${r.mustReach}\n          for "${r.query}"`);
     }
   }
 

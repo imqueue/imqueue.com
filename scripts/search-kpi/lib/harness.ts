@@ -70,6 +70,11 @@ export interface ScoredResult extends TestCase {
   targetRank: number;
   /** Rank of `mustReach`, unbounded; 0 when it never came back. */
   mustReachRank: number;
+  /**
+   * Rank of the first hit from `mustReach`'s reference group, unbounded; 0 when none came back.
+   * Never worse than `mustReachRank` — the exact page is itself a member of its own group.
+   */
+  mustReachGroupRank: number;
   accuracy: number;
   ndcg: number;
   returned: number;
@@ -359,6 +364,18 @@ function baseline(ref: string): string {
 
 const page = (url: unknown): string => String(url).split('#')[0] ?? '';
 
+// The REFERENCE GROUP a `mustReach` page belongs to: an API package's whole tree, or — for the
+// one non-API case — the page itself.
+//
+// Reachability asks whether the reader can get to the package's reference at all, not whether one
+// chosen URL outranks its own siblings. Anchoring it to `/api/<pkg>/` is what makes the two
+// different questions, and the reason it has to be the group is that the labels name the two
+// interchangeably: 11 of the 18 name a package index, 6 name a member, with no rule behind the
+// split. Scored per-URL that inconsistency reads as a ranking failure — a package index sitting
+// behind its own more specific children, which is the ordering a reader wants.
+const referenceGroup = (url: unknown): string =>
+  (page(url).match(/^\/api\/[^/]+\//) || [])[0] ?? page(url);
+
 // max(0, 100 - 10*(position-1)); absent scores 0.
 function accuracyFor(position: number): number {
   return position >= 1 && position <= 10 ? 100 - 10 * (position - 1) : 0;
@@ -470,6 +487,7 @@ function evaluate(
         // threw on produced. Set here rather than left absent so every caller
         // can compare it as a number.
         mustReachRank: 0,
+        mustReachGroupRank: 0,
         accuracy: 0,
         ndcg: 0,
         returned: 0,
@@ -508,9 +526,12 @@ function evaluate(
     // read 5.3% on a set that was working. Two requirements, two numbers.
     const mustReach = testCase.mustReach && !strict ? page(testCase.mustReach) : testCase.mustReach;
 
+    const mustReachIn = mustReach ? referenceGroup(mustReach) : '';
+
     let rank = 0;
     let targetRank = 0;
     let mustReachRank = 0;
+    let mustReachGroupRank = 0;
     let ndcg = 0;
 
     for (let i = 0; i < candidates.length; i++) {
@@ -518,6 +539,9 @@ function evaluate(
       const url = strict ? found : page(found);
 
       if (mustReach && !mustReachRank && url === mustReach) mustReachRank = i + 1;
+      if (mustReach && !mustReachGroupRank && referenceGroup(found) === mustReachIn) {
+        mustReachGroupRank = i + 1;
+      }
       if (!expected.includes(url)) continue;
 
       const gain = spec.grades ? Number(spec.grades[url]) || 1 : 1;
@@ -545,6 +569,7 @@ function evaluate(
       // The UNBOUNDED rank of the named best page: 0 means the ranker never returns it at all.
       targetRank: wanted ? targetRank : rank,
       mustReachRank,
+      mustReachGroupRank,
       accuracy: accuracyFor(position),
       ndcg: ndcg * 100,
       // All three read the CANDIDATE list, so "what came back on top" is what came back on top of

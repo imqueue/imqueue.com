@@ -164,7 +164,8 @@ It asserts five things, each of which has really gone wrong:
   ok    recall@6 micro 90.4%                     (floor 88.5%)
   ok    intent recall@6 100.0%                   (floor 100.0%)
   ok    seo P@1 (held out, still gated) 81.3%    (floor 79.0%)
-  ok    reference page in top 6 66.7%            (floor 61.0%)
+  ok    reference in top 6 (18/18) 100.0%        (floor 94.4%)
+        the exact page, not just its package: 72.2%  (13/18)
   ok    targets never returned 3.8%              (ceiling 4.5%)
 ```
 
@@ -261,7 +262,7 @@ groups are pooled and why the two differ by nine points.
 | **MRR@target** | reciprocal rank of the `target` | the number to tune on: #4 → #2 is a large move here and nearly invisible in P@1 |
 | **recall@6** | is any acceptable page in the first six | the agent metric — `search_docs` returns six and an agent reads all six, so membership is the question and rank inside the set is noise |
 | **nDCG@10** | graded: `target` = 3, `also` = 1, log-discounted | the only one that can say "not the best answer, but not a miss either" |
-| **reachability** | is the `mustReach` page in the top six | a second requirement, for pages that must stay findable even where something answers better. Its own number, because forcing it into `target` is what broke these labels once already |
+| **reachability** | is the `mustReach` page's PACKAGE in the top six | a second requirement, for references that must stay findable even where something answers better. Its own number, because forcing it into `target` is what broke these labels once already. Scored over `/api/<pkg>/` rather than one URL since 2026-09-08 — the labels name an index and a member interchangeably, so per-URL it reported a package index sitting behind its own children as a failure. The exact-URL number is still printed, ungated |
 
 Position is read from the flat merged list — what `/search/` renders as "Everything". The dialog also
 splits results into Answers/Docs/API groups, so a hit at flat position 4 can be the first row of its
@@ -508,12 +509,18 @@ mislabelling.
 
 **And the requirement the bad label was smuggling now has its own number.** `mustReach` names the
 reference page that has to stay findable even where something else answers better, and it reports
-separately — currently **66.7% in the top 6, 100% returned at all**. When the labels were false it
-read 42.3% in the top six with 38.5% never returned at all, and that list of nine unreachable
-reference pages was a real defect the mislabelled 5.3% had been hiding.
+separately — currently **100% of packages in the top 6, 100% returned at all**. When the labels
+were false it read 42.3% in the top six with 38.5% never returned at all, and that list of nine
+unreachable reference pages was a real defect the mislabelled 5.3% had been hiding.
 
-The six that are still outside the top six are named in the report, `/api/validation/latest/` and
-`/api/pg-cache/latest/` at #8 among them.
+Scored per-URL it read 61.1%, and that number was retired on 2026-09-08 rather than chased: six of
+its seven misses were a package index ranking behind its own more specific children, which is the
+ordering a reader wants. The two that were real closed upstream, in the packages' own TSDoc summary
+paragraph — the only tier-1 text an `/api/<pkg>/latest/` page has besides its title. `@imqueue/job`
+said "re-scheduling" where every other surface says retry, so `pg-pubsub`'s `RETRY_DELAY` outranked
+every job page; `@imqueue/rpc` never said JSDoc or `removeComments` outside its Remarks. Those two
+edits moved the exact-URL number 61.1% -> 72.2% with 0 gained and 0 lost across all 985 scored
+queries.
 
 ## What was tried and rejected
 
