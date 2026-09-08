@@ -1,0 +1,57 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- many callers converge on one execution -->
+    <g stroke="var(--muted)" stroke-width="1.2">
+      <path d="M 36 40 L 196 122"/>
+      <path d="M 36 56 L 196 124"/>
+      <path d="M 36 72 L 196 126"/>
+      <path d="M 36 88 L 196 128"/>
+      <path d="M 36 104 L 196 130"/>
+      <path d="M 36 120 L 196 132"/>
+      <path d="M 36 136 L 196 132"/>
+      <path d="M 36 152 L 196 134"/>
+      <path d="M 36 168 L 196 136"/>
+      <path d="M 36 184 L 196 138"/>
+      <path d="M 36 200 L 196 140"/>
+      <path d="M 36 216 L 196 142"/>
+    </g>
+    <g fill="var(--muted)" stroke="none">
+      <circle cx="36" cy="40" r="3"/><circle cx="36" cy="56" r="3"/><circle cx="36" cy="72" r="3"/>
+      <circle cx="36" cy="88" r="3"/><circle cx="36" cy="104" r="3"/><circle cx="36" cy="120" r="3"/>
+      <circle cx="36" cy="136" r="3"/><circle cx="36" cy="152" r="3"/><circle cx="36" cy="168" r="3"/>
+      <circle cx="36" cy="184" r="3"/><circle cx="36" cy="200" r="3"/><circle cx="36" cy="216" r="3"/>
+    </g>
+
+    <!-- the one execution -->
+    <rect x="196" y="112" width="88" height="40" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 284 132 L 300 132" stroke="var(--accent)" stroke-width="2.5"/>
+
+    <!-- one result fans back out to everyone -->
+    <g stroke="var(--accent)" stroke-width="1.2" stroke-opacity="0.7">
+      <path d="M 300 132 L 444 40"/>
+      <path d="M 300 132 L 444 56"/>
+      <path d="M 300 132 L 444 72"/>
+      <path d="M 300 132 L 444 88"/>
+      <path d="M 300 132 L 444 104"/>
+      <path d="M 300 132 L 444 120"/>
+      <path d="M 300 132 L 444 136"/>
+      <path d="M 300 132 L 444 152"/>
+      <path d="M 300 132 L 444 168"/>
+      <path d="M 300 132 L 444 184"/>
+      <path d="M 300 132 L 444 200"/>
+      <path d="M 300 132 L 444 216"/>
+    </g>
+    <g fill="var(--accent)" stroke="none">
+      <circle cx="444" cy="40" r="3"/><circle cx="444" cy="56" r="3"/><circle cx="444" cy="72" r="3"/>
+      <circle cx="444" cy="88" r="3"/><circle cx="444" cy="104" r="3"/><circle cx="444" cy="120" r="3"/>
+      <circle cx="444" cy="136" r="3"/><circle cx="444" cy="152" r="3"/><circle cx="444" cy="168" r="3"/>
+      <circle cx="444" cy="184" r="3"/><circle cx="444" cy="200" r="3"/><circle cx="444" cy="216" r="3"/>
+    </g>
+  </g>
+  <g font-family="'JetBrains Mono',monospace" text-anchor="middle" stroke="none">
+    <text x="240" y="137" font-size="11" fill="var(--accent)">runs once</text>
+    <text x="60" y="244" font-size="10" fill="var(--muted)">fifty callers</text>
+    <text x="240" y="244" font-size="10" fill="var(--muted)">one execution</text>
+    <text x="420" y="244" font-size="10" fill="var(--muted)">fifty results</text>
+  </g>
+</svg>
