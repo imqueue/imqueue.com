@@ -1,6 +1,6 @@
 ---
 title: "Field.nullable property · @imqueue/pg-prisma"
-description: "Field.nullable property — @imqueue/pg-prisma 2.0.0 API reference."
+description: "Field.nullable property — @imqueue/pg-prisma 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"Field","url":"/api/pg-prisma/latest/pg-prisma.field/"},{"name":"nullable","url":"/api/pg-prisma/latest/pg-prisma.field.nullable/"}]
 sitemap: false
 ---

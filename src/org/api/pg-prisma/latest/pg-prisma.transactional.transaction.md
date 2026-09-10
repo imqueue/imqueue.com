@@ -1,6 +1,6 @@
 ---
 title: "Transactional.transaction() method · @imqueue/pg-prisma"
-description: "Transactional.transaction() method — @imqueue/pg-prisma 2.0.0 API reference."
+description: "Transactional.transaction() method — @imqueue/pg-prisma 2.1.0 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"Transactional","url":"/api/pg-prisma/latest/pg-prisma.transactional/"},{"name":"transaction","url":"/api/pg-prisma/latest/pg-prisma.transactional.transaction/"}]
 sitemap: false
 ---
