@@ -274,28 +274,31 @@ frees them. Set it on every client, drain or no drain.
 ## What safe delivery does not cover
 
 The natural objection is that guaranteed delivery should make all of this moot.
-It doesn't, and the shape of the gap is worth being precise about.
+It comes closer than it looks, and the shape of what remains is worth being
+precise about.
 
 Safe delivery is off by default in `@imqueue/core` and `@imqueue/rpc`, and on in
-`@imqueue/job`. What it protects is the **hand-off**: the move from the shared
-queue into a worker's own holding area, so a process that dies *between* taking a
-message and starting on it doesn't swallow it. What it does not protect is the
-part that takes time. A worker killed three seconds into `await chargeCard()`
-loses that attempt in either mode — the same limit behind
-[what guaranteed delivery costs](/blog/guaranteed-message-delivery-cost/) and the
-deferred work in [scheduled work without a job
-system](/blog/scheduled-work-without-a-job-system/).
+`@imqueue/job`. What it protects is the **whole attempt**: the move from the
+shared queue into a worker's own holding area happens as the message is popped,
+and that holding key is held until the handler's promise settles. A worker killed
+three seconds into `await chargeCard()` leaves the message checked out to a
+process that no longer exists, and the watcher returns it to the queue within
+seconds of that process leaving the broker's client list — see
+[what guaranteed delivery costs](/blog/guaranteed-message-delivery-cost/).
 
-Draining, in other words, isn't an optimisation layered on top of safe delivery.
-It's the only mechanism that finishes work already in progress.
+What it does not do is *finish* anything. The recovered message is re-run from
+the start on another worker: `chargeCard()` runs again, and whether that is
+harmless depends entirely on the handler being idempotent. Draining, in other
+words, is not what saves the work — the lease does that. Draining is what lets
+the work complete *here*, in the handler that already has it, instead of being
+abandoned and replayed elsewhere.
 
-`@imqueue/job` ships the same opt-in, under the same `IMQ_DRAIN_ENABLE`, with one
-addition that follows directly from the paragraph above. Because a job's worker
-key is released the moment the job reaches the handler, a job the drain gives up
-on at its budget is checked out to nobody and nothing would ever bring it back —
-so `drainRequeue`, on by default, pushes it back before the process exits. That
-buys a possible duplicate in exchange for a certain loss, which is the trade
-at-least-once was already making.
+`@imqueue/job` ships the same opt-in, under the same `IMQ_DRAIN_ENABLE`, plus
+`drainRequeue`, on by default, which pushes whatever the budget ran out on back
+onto the queue before exiting. Under safe delivery that job was still checked out
+and would have come back through the lease anyway, so the re-push adds a second
+copy rather than rescuing the first. Turn it off with safe delivery on; it is the
+sole recovery only when safe delivery is off.
 
 ## Sizing it for a real deploy
 
@@ -333,10 +336,10 @@ before the broker confirms the write, so a process that exits immediately after
 enqueuing has proven nothing about durability.
 
 Safe delivery's own lease is worth one more line here, because the drain does not
-change it: the worker key is released as soon as the message is handed to the
-listener, not when the handler settles. That is what makes safe delivery a
-guarantee about the hand-off rather than about the processing, and it is why
-draining and safe delivery solve different halves of the same sentence.
+change it: the worker key is held until the handler settles, so a message the
+drain abandons is not lost but replayed. That is why draining and safe delivery
+solve different halves of the same sentence — one finishes the attempt, the other
+makes sure there is another.
 
 None of that argues against draining. It argues for treating the drain as what it
 is: the cheapest large reduction in dropped work available to a queue-based

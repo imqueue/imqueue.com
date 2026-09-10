@@ -142,9 +142,11 @@ coming. Nothing carries the job body or an error text.
 
 **Delivery mode.** `safeDelivery` defaults to `false` in `@imqueue/core` and
 `@imqueue/rpc`, and to `true` through `@imqueue/job` (whose `safeLockTtl` maps
-to `safeDeliveryTtl`). The lease covers the hand-off only, so a process killed
-mid-handler still loses that attempt. At-least-once is the guarantee either way:
-make deferred handlers re-runnable. See
+to `safeDeliveryTtl`). The lease is held until the handler settles, so a process
+killed mid-handler leaves the job checked out, and it is re-queued for another
+worker within seconds of the owner leaving the broker's client list — re-run from
+the start. At-least-once is the guarantee either way: make deferred handlers
+re-runnable. See
 [/blog/guaranteed-message-delivery-cost/](/blog/guaranteed-message-delivery-cost/).
 
 **Promotion path.** The producer parks the packed message in the sorted set

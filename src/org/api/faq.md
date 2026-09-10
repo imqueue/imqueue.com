@@ -403,6 +403,38 @@ Reference: [`JobQueue`](/api/job/latest/job.jobqueue/) ·
 [`JobQueueWorker`](/api/job/latest/job.jobqueueworker/) ·
 [`JobQueuePublisher`](/api/job/latest/job.jobqueuepublisher/)
 
+### What happens to a job if the worker dies while handling it?
+
+It comes back, within seconds. Under safe delivery — on by default in
+`@imqueue/job` — popping a job moves it into a key owned by that worker, and the
+key is held until the `onPop` handler's promise settles, not merely until the
+handler starts. Kill the process at any point before then, `SIGKILL` included, and
+the job is still checked out to a worker that no longer exists. The watcher reads
+the broker's `CLIENT LIST` on each sweep — every
+[`watcherCheckDelay`](/api/core/latest/core.imqoptions.watchercheckdelay/), 5
+seconds by default — sees the owner has gone, and moves the job back onto the
+queue for another worker.
+
+Death is detected from the broker's connection state, not from a clock, so
+recovery does not wait for
+[`safeLockTtl`](/api/job/latest/job.jobqueueoptions.safelockttl/). That deadline
+covers the one case liveness cannot see: a handler wedged inside a worker that is
+still up and serving other jobs. Which makes it a *processing* deadline — set it
+above your longest handler, with headroom, or a live worker's job is reclaimed
+mid-run and handed to someone else. Its default is 10 seconds in `@imqueue/job`,
+against 300 in `@imqueue/core`.
+
+What safe delivery does not do is finish the attempt: a recovered job runs again
+from the start. Delivery is at-least-once, so handlers must be idempotent. The
+behaviour is `@imqueue/core`'s, and its
+[`safeDelivery`](/api/core/latest/core.imqoptions.safedelivery/) and
+[`safeDeliveryTtl`](/api/core/latest/core.imqoptions.safedeliveryttl/) pages are
+the contract.
+
+Reference: [`JobQueueOptions.safe`](/api/job/latest/job.jobqueueoptions.safe/) ·
+[`JobQueueOptions.safeLockTtl`](/api/job/latest/job.jobqueueoptions.safelockttl/) ·
+[`IMQOptions.safeDelivery`](/api/core/latest/core.imqoptions.safedelivery/)
+
 ## PostgreSQL notifications
 
 ### How do I listen for Postgres notifications with only one replica handling each?
@@ -920,9 +952,15 @@ Available from `@imqueue/rpc` **3.8.0** and `@imqueue/job` **3.2.0**. It is opt-
 precisely so that upgrading changes nothing: left off, shutdown behaves exactly as
 it always has.
 
-Delivery is **at-least-once** either way. A drain narrows the window in which
-in-flight work is lost — `SIGKILL`, an OOM kill or a lost node still take it with
-them — so handlers must stay idempotent regardless.
+Delivery is **at-least-once** either way. Without safe delivery — the default for
+an RPC service — a drain narrows the window in which in-flight work is lost, and
+`SIGKILL`, an OOM kill or a lost node still take it with them. With it on, as
+`@imqueue/job` defaults, the work is not lost but re-run: the job stays checked
+out until its handler settles and comes back to another worker once this process
+is gone (see
+[what happens to a job if the worker dies while handling it](#what-happens-to-a-job-if-the-worker-dies-while-handling-it)).
+A drain is what lets it finish here instead. Handlers must stay idempotent
+regardless.
 
 Reference: [`IMQService`](/api/rpc/latest/rpc.imqservice/) ·
 [`IMQServiceOptions`](/api/rpc/latest/rpc.imqserviceoptions/) ·
@@ -957,20 +995,22 @@ Reference: [`IMQServiceOptions`](/api/rpc/latest/rpc.imqserviceoptions/) ·
 
 ### Do background jobs drain too?
 
-Yes, under the same `IMQ_DRAIN_ENABLE` and `IMQ_DRAIN_TIMEOUT`, with one addition
-that matters more for jobs than for RPC: whatever has not finished when the budget
-runs out is **put back on the queue** rather than dropped.
+Yes, under the same `IMQ_DRAIN_ENABLE` and `IMQ_DRAIN_TIMEOUT`. One addition is
+specific to jobs and needs care: `drainRequeue`, on by default, pushes whatever
+the budget ran out on back onto the queue before exiting.
 
-That difference follows from where a job is in its life when the signal lands. An
-abandoned RPC request leaves a caller waiting, and that caller will time out and
-can retry; an abandoned job has already been popped, so without re-queueing there
-is nobody left holding it and nothing to notice it is gone. Re-queueing turns a
-deploy that overruns its window into a re-run rather than a silent loss — which
-again asks that handlers be idempotent, exactly as at-least-once delivery already
-did.
+Under safe delivery that job was never lost. It is still checked out to this
+worker — its handler has not settled — and the lease returns it to the queue once
+the process is gone. The re-push therefore adds a second copy rather than rescuing
+the first, and the abandoned handler may still complete before exit as well. Turn
+`drainRequeue` off with safe delivery on, or accept the duplicate as the
+at-least-once cost handlers already have to survive; it is the sole recovery only
+with `safe: false`. The drain itself is still worth having for jobs — finishing a
+handler in place beats re-running it from the start elsewhere.
 
 Reference: [`JobQueue`](/api/job/latest/job.jobqueue/) ·
-[`JobQueueOptions`](/api/job/latest/job.jobqueueoptions/)
+[`JobQueueOptions`](/api/job/latest/job.jobqueueoptions/) ·
+[`JobQueueOptions.drainRequeue`](/api/job/latest/job.jobqueueoptions.drainrequeue/)
 
 ### Why does enabling the drain turn off handleSignals?
 

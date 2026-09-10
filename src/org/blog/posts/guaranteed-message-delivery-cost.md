@@ -33,7 +33,7 @@ What *is* achievable is **exactly-once processing**, and the distinction is the 
 
 **Unreliable (fast) delivery.** A consumer takes a message and processes it. If it crashes before finishing, that message is gone. This is the fastest mode — there's no bookkeeping — and it's the right default for work that is frequent, idempotent-on-retry-elsewhere, or simply not costly to miss (think best-effort notifications, cache warmups, telemetry).
 
-**Guaranteed (safe) delivery.** As a consumer takes a message, it's atomically moved into that consumer's own "processing" holding area, so a process that dies *between* taking a message and starting on it leaves the message behind to be **rescheduled** to another instance instead of swallowing it. The protection covers that hand-off rather than the whole handler: the entry is released once the message reaches your code, so a consumer killed part-way through the work loses that attempt like any other. This is still what you want for work that must not vanish — placing an order, charging a card, kicking off a payout — paired with a [drain on shutdown](/blog/graceful-shutdown-zero-drop-deploys/) for the planned case.
+**Guaranteed (safe) delivery.** As a consumer takes a message, it's atomically moved into that consumer's own "processing" holding area, so a process that dies *between* taking a message and starting on it leaves the message behind to be **rescheduled** to another instance instead of swallowing it. The protection covers the whole handler, not just the hand-off: the entry is held until the listener's promise settles, so a consumer killed part-way through the work — `SIGKILL` included — leaves the message checked out, and the watcher returns it to the queue within seconds of the owner dropping off the broker's client list. What it does not do is finish the attempt: the message is re-run from the start elsewhere. This is still what you want for work that must not vanish — placing an order, charging a card, kicking off a payout — paired with a [drain on shutdown](/blog/graceful-shutdown-zero-drop-deploys/) for the planned case.
 
 ## What guaranteed delivery costs
 
@@ -45,7 +45,7 @@ That's a very reasonable price for "never lose this message," and the key insigh
 
 Guaranteed mode stamps each hand-off with a **time-to-live** (`safeDeliveryTtl`, default 5 seconds; `safeLockTtl` through `@imqueue/job`). A sweep running on that same interval reclaims holding-area entries whose TTL has passed and puts them back on the queue. That's the mechanism behind rescheduling — and it is easy to read more into it than it does:
 
-> A slow-but-healthy task is **not** re-queued for being slow, and raising `safeDeliveryTtl` does not extend any protection over a long-running handler. The entry is released when the message reaches your code, so the TTL is a recovery deadline for an abandoned hand-off, not a processing deadline.
+> A slow-but-healthy task **is** re-queued for being slow: `safeDeliveryTtl` is a processing deadline, and a handler that outlives it has its message reclaimed from a live worker and handed to another one, so it runs twice. Set it above your longest handler, with headroom. It is not how a dead worker is detected — that comes from the broker's client list, within seconds, regardless of the TTL.
 
 So tune it for recovery latency rather than against your p99: shorter brings an abandoned message back sooner, longer sweeps less often. What survives a restart that lands mid-handler is a [drain on shutdown](/blog/graceful-shutdown-zero-drop-deploys/), not this TTL.
 

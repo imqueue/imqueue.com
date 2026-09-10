@@ -75,7 +75,7 @@ when you want a job library that happens to store rows in Postgres. Both use
 
 ### @imqueue/job — minimal and safe-by-default
 
-[`@imqueue/job`](https://github.com/imqueue/job) is the Redis-backed job queue inside the `@imqueue` framework. Its point of difference is being **small and safe by default**: guaranteed delivery is on out of the box, so a job a dying worker was holding is re-queued for another worker after a lock TTL — the lease covers the hand-off rather than your handler, making *at-least-once* the real guarantee — with delayed/scheduled jobs to millisecond granularity and programmable retry/backoff. It's TypeScript-first and has a single dependency.
+[`@imqueue/job`](https://github.com/imqueue/job) is the Redis-backed job queue inside the `@imqueue` framework. Its point of difference is being **small and safe by default**: guaranteed delivery is on out of the box, so a job a dying worker was holding is re-queued for another worker within seconds of the worker dropping off the broker — the lease is held for the whole handler, and *at-least-once* is the real guarantee — with delayed/scheduled jobs to millisecond granularity and programmable retry/backoff. It's TypeScript-first and has a single dependency.
 
 It makes most sense when you **already use `@imqueue` for service-to-service RPC** (the job queue shares the same core, serialization and conventions), or when you specifically want a tiny queue where "don't lose jobs" is the default rather than something you configure.
 

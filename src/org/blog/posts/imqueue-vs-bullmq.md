@@ -23,7 +23,7 @@ If you need to run background jobs on Redis in Node.js, [BullMQ](https://docs.bu
 
 `@imqueue/job` is a Redis-backed job queue with a small, focused feature set:
 
-- **Guaranteed delivery by default.** Safe delivery is on out of the box, with a per-worker lease TTL (`safeLockTtl`) deciding when a holder counts as dead: a job a dying worker was holding is re-queued for another worker rather than vanishing with the process. The lease covers the hand-off, not your handler — a worker killed three seconds into an `await` still loses that attempt — so *at-least-once* is the honest guarantee, and handlers should be safe to re-run.
+- **Guaranteed delivery by default.** Safe delivery is on out of the box, so a job a dying worker was holding is re-queued for another worker rather than vanishing with the process, within seconds of that worker leaving the broker's client list. The lease is held for the whole handler — a worker killed three seconds into an `await` leaves the job checked out, and it is re-run from the start elsewhere — so *at-least-once* is the honest guarantee, and handlers should be safe to re-run. `safeLockTtl` is the processing deadline for a handler wedged inside a live worker; set it above your slowest job.
 - **Concurrent workers** on one queue — competing consumers with natural load balancing, no separate balancer.
 - **Delayed / scheduled jobs** to millisecond granularity: `push(data, { delay })`.
 - **Job expiration (TTL)** — a job can live forever or expire after a set time.

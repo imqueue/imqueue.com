@@ -156,7 +156,7 @@ the ones that fail silently.
 | Types | **The library.** The client is generated from the running service, so drift becomes a compile error in the caller's build. |
 | Redis operations | **The library**, as far as reconnection and blocking reads go. Clustering and failover are still your infrastructure. |
 | Timeouts | **You, by opting in.** `callTimeout` is unset by default, so an unconfigured client waits forever on a service that never answers. |
-| Delivery semantics | **You.** Delivery is at-least-once in both modes, so handlers must be idempotent. `safeDelivery` protects the hand-off, not the processing — a worker killed mid-handler loses that message either way. |
+| Delivery semantics | **You.** Delivery is at-least-once in both modes, so handlers must be idempotent. `safeDelivery` holds the lease until the handler settles, so a worker killed mid-handler leaves the message checked out and it is re-delivered to another worker within seconds — from the start, which is why idempotent. |
 | Serialization | **You.** Messages are plain JSON, so the `Date`/`Map`/`Set`/`BigInt` losses listed above apply unchanged. Convert rich types explicitly on both sides. |
 | Back-pressure | **Shared.** The queue absorbs a spike instead of turning it into a cascade, but nothing watches queue depth or pushes back for you — see [back-pressure for Node.js services](/blog/backpressure-nodejs-services/). |
 
