@@ -23,5 +23,5 @@ the `IMQ_DRAIN_TIMEOUT` environment variable, itself [DEFAULT\_IMQ\_DRAIN\_TIMEO
 
 ## Remarks
 
-The wait is always bounded and the process always exits. This is the number to raise for jobs that legitimately take longer than a few seconds — the 4000 default is sized for the `imq stop` CLI, not for your handlers. Whatever is still running when it expires is abandoned, and [JobQueueOptions.drainRequeue](/api/job/latest/job.jobqueueoptions.drainrequeue/) decides whether it comes back.
+The wait is always bounded and the process always exits. This is the number to raise for jobs that legitimately take longer than a few seconds — the 4000 default is sized for the `imq stop` CLI, not for your handlers. Whatever is still running when it expires is abandoned. Under safe delivery it is still checked out and comes back through the lease once the process is gone; [JobQueueOptions.drainRequeue](/api/job/latest/job.jobqueueoptions.drainrequeue/) only decides whether a second copy is pushed as well.
 

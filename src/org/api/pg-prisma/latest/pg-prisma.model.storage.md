@@ -1,6 +1,6 @@
 ---
 title: "Model.storage property · @imqueue/pg-prisma"
-description: "Model.storage property — @imqueue/pg-prisma 2.1.0 API reference."
+description: "Model.storage property — @imqueue/pg-prisma 2.2.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"Model","url":"/api/pg-prisma/latest/pg-prisma.model/"},{"name":"storage","url":"/api/pg-prisma/latest/pg-prisma.model.storage/"}]
 sitemap: false
 ---

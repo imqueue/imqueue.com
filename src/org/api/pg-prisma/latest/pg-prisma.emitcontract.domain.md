@@ -1,6 +1,6 @@
 ---
 title: "EmitContract.domain property · @imqueue/pg-prisma"
-description: "EmitContract.domain property — @imqueue/pg-prisma 2.1.0 API reference."
+description: "EmitContract.domain property — @imqueue/pg-prisma 2.2.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"EmitContract","url":"/api/pg-prisma/latest/pg-prisma.emitcontract/"},{"name":"domain","url":"/api/pg-prisma/latest/pg-prisma.emitcontract.domain/"}]
 sitemap: false
 ---

@@ -23,11 +23,11 @@ the `IMQ_DRAIN_ENABLE` environment variable, itself `false`
 
 ## Remarks
 
-Opt-in, and nothing about a queue with it off differs from before it existed. Left off, `@imqueue/core`<!-- -->'s own signal handlers release the watcher locks and exit without waiting, so a job in flight loses that attempt.
+Opt-in, and nothing about a queue with it off differs from before it existed. Left off, `@imqueue/core`<!-- -->'s own signal handlers release the watcher locks and exit without waiting, so a job in flight is abandoned mid-handler — under safe delivery it stays checked out and is re-run from the start on another worker; without it, that attempt is lost.
 
 Turned on, `SIGTERM` and `SIGINT` instead stop popping, wait up to [JobQueueOptions.drainTimeout](/api/job/latest/job.jobqueueoptions.draintimeout/) for the handlers already running — including the re-schedule a handler asked for — then release the connection and exit `0`<!-- -->. Enabling it also suppresses the queue layer's own handlers, which would otherwise exit the process mid-drain.
 
 Every drain-enabled queue in the process drains together under one signal handler, so a publisher and a worker side by side do not exit from under each other.
 
-Delivery stays at-least-once. A drain narrows the window in which an attempt is lost; it does not close it.
+Delivery stays at-least-once. A drain narrows the window in which an attempt is abandoned and replayed — or, without safe delivery, lost; it does not close it.
 

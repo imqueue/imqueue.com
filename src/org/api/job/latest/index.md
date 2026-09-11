@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/job 3.3.1 · API reference"
+title: "@imqueue/job 3.3.2 · API reference"
 description: "Simple, safe-by-default Redis job queue for @imqueue services — delayed and scheduled jobs, at-least-once delivery, and retry by re-scheduling, driven by…"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/job","url":"/api/job/latest/"}]
 ---
@@ -14,13 +14,15 @@ Pick one of three shapes. [JobQueue](/api/job/latest/job.jobqueue/)<!-- -->, the
 
 ## Remarks
 
-Delivery is at-least-once, so handlers must be idempotent. Safe delivery is on by default here, which is the opposite of `@imqueue/core`<!-- -->'s own default, and it covers the hand-off of a job to a worker rather than its processing — see [JobQueueOptions.safe](/api/job/latest/job.jobqueueoptions.safe/) for what that does and does not guarantee. Two further core defaults are overridden: the key prefix is `imq-job` rather than `imq`<!-- -->, and the safe-delivery TTL is 10 seconds rather than 5.
+Delivery is at-least-once, so handlers must be idempotent. Safe delivery is on by default here, which is the opposite of `@imqueue/core`<!-- -->'s own default, and it covers the whole of a job's processing, not only its hand-off to a worker — see [JobQueueOptions.safe](/api/job/latest/job.jobqueueoptions.safe/) for what that does and does not guarantee. Two further core defaults are overridden: the key prefix is `imq-job` rather than `imq`<!-- -->, and the safe-delivery deadline ([JobQueueOptions.safeLockTtl](/api/job/latest/job.jobqueueoptions.safelockttl/)<!-- -->) is 10 seconds rather than core's 300 — a processing deadline, so read that option before running a handler that can take longer.
 
 Job data travels as JSON, so anything that does not survive `JSON.stringify` — class instances, `Date`<!-- -->, `undefined` properties, cycles — does not arrive as it left. Push a plain object and re-hydrate it in the handler.
 
-Shutdown is worth knowing about before it matters in production. By default `@imqueue/core` installs process-wide SIGTERM, SIGINT and SIGABRT handlers; they release the queue's watcher locks and then exit the process without waiting for a running handler to return. So a job in flight when the signal arrives loses that attempt, and is re-delivered later only if safe delivery had the job checked out — which it does not once the job has reached the handler.
+What happens to a job if the worker dies while handling it: it comes back. Under safe delivery — the default here — a job is moved into a key owned by the worker as it is popped, and that key is held until the `onPop` handler's promise settles, not merely until the handler starts. Kill the process at any point in between, `SIGKILL` included, and the job is still checked out to the dead worker; the watcher sees the owner has left the broker's client list on its next sweep — every [watcherCheckDelay](https://imqueue.org/api/core/latest/core.imqoptions.watchercheckdelay/)<!-- -->, 5 seconds by default — and moves the job back onto the queue for another worker. Death is detected from the broker's connection state, not from a clock, so recovery does not wait for [JobQueueOptions.safeLockTtl](/api/job/latest/job.jobqueueoptions.safelockttl/)<!-- -->; that deadline covers the one case liveness cannot see, a handler wedged inside a worker that is still up and serving. Delivery is therefore at-least-once — a recovered job runs again from the start — and handlers must be idempotent. The contract is `@imqueue/core`<!-- -->'s: [IMQOptions.safeDelivery](https://imqueue.org/api/core/latest/core.imqoptions.safedelivery/)<!-- -->.
 
-Set `IMQ_DRAIN_ENABLE=1`<!-- -->, or [JobQueueOptions.drain](/api/job/latest/job.jobqueueoptions.drain/)<!-- -->, and SIGTERM/SIGINT instead stop popping, wait for the handlers already running, put back anything the budget ran out on, and exit `0`<!-- -->. It is off by default, so nothing about an existing worker changes until you turn it on.
+Shutdown is worth knowing about before it matters in production. By default `@imqueue/core` installs process-wide SIGTERM, SIGINT and SIGABRT handlers; they release the queue's watcher locks and then exit the process without waiting for a running handler to return. A job in flight when the signal arrives is not lost — it is still checked out and comes back as above — but it does not finish either: it is re-run from the start on another worker, seconds later.
+
+Set `IMQ_DRAIN_ENABLE=1`<!-- -->, or [JobQueueOptions.drain](/api/job/latest/job.jobqueueoptions.drain/)<!-- -->, and SIGTERM/SIGINT instead stop popping, wait for the handlers already running, and exit `0`<!-- -->, so the work completes here rather than being replayed elsewhere. Whatever the budget ran out on is still checked out and comes back through the lease; see [JobQueueOptions.drainRequeue](/api/job/latest/job.jobqueueoptions.drainrequeue/) before leaving that option on. The drain is off by default, so nothing about an existing worker changes until you turn it on.
 
 ## Example
 

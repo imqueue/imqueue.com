@@ -1,6 +1,6 @@
 ---
 title: "emitModels() function · @imqueue/pg-prisma"
-description: "emitModels() function — @imqueue/pg-prisma 2.1.0 API reference."
+description: "emitModels() function — @imqueue/pg-prisma 2.2.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"emitModels","url":"/api/pg-prisma/latest/pg-prisma.emitmodels/"}]
 ---
 

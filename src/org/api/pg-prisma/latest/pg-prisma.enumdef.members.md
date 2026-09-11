@@ -1,6 +1,6 @@
 ---
 title: "EnumDef.members property · @imqueue/pg-prisma"
-description: "EnumDef.members property — @imqueue/pg-prisma 2.1.0 API reference."
+description: "EnumDef.members property — @imqueue/pg-prisma 2.2.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"EnumDef","url":"/api/pg-prisma/latest/pg-prisma.enumdef/"},{"name":"members","url":"/api/pg-prisma/latest/pg-prisma.enumdef.members/"}]
 sitemap: false
 ---

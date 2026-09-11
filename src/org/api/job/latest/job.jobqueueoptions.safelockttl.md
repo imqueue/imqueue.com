@@ -1,6 +1,6 @@
 ---
 title: "JobQueueOptions.safeLockTtl property · @imqueue/job"
-description: "How long, in milliseconds, a job may sit checked out to a worker during safe delivery before it is treated as abandoned."
+description: "The longest, in milliseconds, a job may be worked on before it is treated as abandoned and moved back onto the queue for another worker."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/job","url":"/api/job/latest/"},{"name":"JobQueueOptions","url":"/api/job/latest/job.jobqueueoptions/"},{"name":"safeLockTtl","url":"/api/job/latest/job.jobqueueoptions.safelockttl/"}]
 sitemap: false
 ---
@@ -9,7 +9,7 @@ sitemap: false
 
 # JobQueueOptions.safeLockTtl property
 
-How long, in milliseconds, a job may sit checked out to a worker during safe delivery before it is treated as abandoned.
+The longest, in milliseconds, a job may be worked on before it is treated as abandoned and moved back onto the queue for another worker.
 
 **Signature:**
 
@@ -23,7 +23,7 @@ safeLockTtl?: number;
 
 ## Remarks
 
-A worker key still present once this expires is treated as abandoned and its job is moved back onto the queue, so this bounds how long an abandoned hand-off takes to come back. It is not a processing deadline: a job that takes longer than this to handle is neither interrupted nor re-queued.
+This is a processing deadline. Set it above the longest an `onPop` handler can legitimately take, with headroom: a worker that is alive and still working on a job past this budget has that job reclaimed and handed to another worker, so it runs twice. The 10 second default is far below `@imqueue/core`<!-- -->'s own 300000 — this package lowers it, it does not raise it — and a handler that awaits a slow upstream for longer than that is duplicated under default settings. Raise it before that happens.
 
-`@imqueue/core`<!-- -->'s own default is 5000; this package raises it to 10000.
+It is not how a dead worker's job is recovered. Process death is detected from the owner leaving the broker's client list on the watcher's next sweep, within seconds and regardless of this value; the deadline exists for the case liveness cannot see — a handler wedged inside a worker that is otherwise up and serving. Maps to [IMQOptions.safeDeliveryTtl](https://imqueue.org/api/core/latest/core.imqoptions.safedeliveryttl/)<!-- -->, whose documentation is the contract.
 

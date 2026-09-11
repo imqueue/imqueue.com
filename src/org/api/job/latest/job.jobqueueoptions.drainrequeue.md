@@ -23,9 +23,7 @@ the `IMQ_DRAIN_REQUEUE` environment variable, itself `true`
 
 ## Remarks
 
-This closes the hole the drain itself opens. Safe delivery releases a job's worker key as soon as the job reaches the handler, so a job the drain abandons at its budget is not checked out to anybody and nothing re-queues it — it is simply gone. Re-pushing it on the way out makes that attempt recoverable.
+Under safe delivery this is not what brings an abandoned job back — the lease is. A job the drain abandons at its budget is still checked out to this worker, because its handler has not settled, and once the process exits the watcher returns it to the queue on its next sweep. Re-pushing it here as well delivers it twice: once from the re-push and once from the lease recovery — and the abandoned handler may still complete before the exit, so the same job can execute up to three times.
 
-The cost is the usual at-least-once one, and it is worth stating plainly: the abandoned handler is still running when its job is pushed back, so the job can both complete and be delivered again. That is the same duplicate a lease expiry would produce, and the reason handlers must be idempotent.
-
-Turn it off if a duplicate is worse than a lost attempt.
+It is the sole recovery only with safe delivery off ([JobQueueOptions.safe](/api/job/latest/job.jobqueueoptions.safe/) `false`<!-- -->), where nothing else holds the job. With safe delivery on — the default — turn it off, or accept the extra copy as part of the at-least-once contract handlers already have to survive.
 

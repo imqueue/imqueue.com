@@ -1,6 +1,6 @@
 ---
 title: "JobQueueOptions.safe property · @imqueue/job"
-description: "Whether a job is handed to a worker under a lock, so that a worker dying before it starts does not take the job with it."
+description: "Whether a job is handed to a worker under a lease, so that a worker dying at any point before its handler settles does not take the job with it."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/job","url":"/api/job/latest/"},{"name":"JobQueueOptions","url":"/api/job/latest/job.jobqueueoptions/"},{"name":"safe","url":"/api/job/latest/job.jobqueueoptions.safe/"}]
 sitemap: false
 ---
@@ -9,7 +9,7 @@ sitemap: false
 
 # JobQueueOptions.safe property
 
-Whether a job is handed to a worker under a lock, so that a worker dying before it starts does not take the job with it.
+Whether a job is handed to a worker under a lease, so that a worker dying at any point before its handler settles does not take the job with it.
 
 **Signature:**
 
@@ -23,11 +23,9 @@ true
 
 ## Remarks
 
-When safe delivery is enabled a job is moved atomically out of the queue into a worker-owned key as it is popped, so a process that dies before it even starts on that job leaves the job data behind to be re-queued for another worker instead of losing it.
+When safe delivery is enabled a job is moved atomically out of the queue into a worker-owned key as it is popped, and that key is held until the `onPop` handler's promise settles. A process that dies before then — before the handler starts, part-way through it, `SIGKILL` included — leaves the job checked out to a worker that no longer exists, and the watcher moves it back onto the queue for another worker on its next sweep, once the owner has left the broker's client list. The guarantee covers the processing, not only the hand-off.
 
-The guarantee covers that hand-off and not the processing: the key is released as soon as the job reaches the handler, so a worker killed part-way through `onPop` loses that attempt. Jobs are delivered at-least-once, so handlers should be idempotent.
+It does not make the attempt finish: a recovered job runs again from the start, so delivery is at-least-once and handlers must be idempotent. [JobQueueOptions.drain](/api/job/latest/job.jobqueueoptions.drain/) is the complement for an orderly shutdown — it lets the running handler complete instead of being re-run elsewhere.
 
-[JobQueueOptions.drain](/api/job/latest/job.jobqueueoptions.drain/) is what covers the processing, for an orderly shutdown at least — it waits for the handler rather than relying on a lease that has already been released. Neither covers `SIGKILL`<!-- -->.
-
-Note this defaults to `true` here while `@imqueue/core` defaults it to `false` — a job queue is the case where the extra round-trip is worth it.
+The behaviour is `@imqueue/core`<!-- -->'s and its contract is documented there: [IMQOptions.safeDelivery](https://imqueue.org/api/core/latest/core.imqoptions.safedelivery/)<!-- -->. This package defaults it to `true` while core defaults to `false` — a job queue is the case where the extra round-trip is worth it.
 

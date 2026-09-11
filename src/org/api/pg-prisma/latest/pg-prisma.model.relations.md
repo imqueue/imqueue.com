@@ -1,6 +1,6 @@
 ---
 title: "Model.relations property · @imqueue/pg-prisma"
-description: "Model.relations property — @imqueue/pg-prisma 2.1.0 API reference."
+description: "Model.relations property — @imqueue/pg-prisma 2.2.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"Model","url":"/api/pg-prisma/latest/pg-prisma.model/"},{"name":"relations","url":"/api/pg-prisma/latest/pg-prisma.model.relations/"}]
 sitemap: false
 ---

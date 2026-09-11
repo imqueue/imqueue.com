@@ -1,6 +1,6 @@
 ---
 title: "Relation.to property · @imqueue/pg-prisma"
-description: "Relation.to property — @imqueue/pg-prisma 2.1.0 API reference."
+description: "Relation.to property — @imqueue/pg-prisma 2.2.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"Relation","url":"/api/pg-prisma/latest/pg-prisma.relation/"},{"name":"to","url":"/api/pg-prisma/latest/pg-prisma.relation.to/"}]
 sitemap: false
 ---

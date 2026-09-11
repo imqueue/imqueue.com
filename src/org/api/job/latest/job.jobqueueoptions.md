@@ -210,7 +210,7 @@ boolean
 
 </td><td>
 
-_(Optional)_ Whether a job is handed to a worker under a lock, so that a worker dying before it starts does not take the job with it.
+_(Optional)_ Whether a job is handed to a worker under a lease, so that a worker dying at any point before its handler settles does not take the job with it.
 
 
 </td></tr>
@@ -229,7 +229,7 @@ number
 
 </td><td>
 
-_(Optional)_ How long, in milliseconds, a job may sit checked out to a worker during safe delivery before it is treated as abandoned.
+_(Optional)_ The longest, in milliseconds, a job may be worked on before it is treated as abandoned and moved back onto the queue for another worker.
 
 
 </td></tr>

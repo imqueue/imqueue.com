@@ -1,6 +1,6 @@
 ---
 title: "TypeParsers.setTypeParser property · @imqueue/pg-prisma"
-description: "TypeParsers.setTypeParser property — @imqueue/pg-prisma 2.1.0 API reference."
+description: "TypeParsers.setTypeParser property — @imqueue/pg-prisma 2.2.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"TypeParsers","url":"/api/pg-prisma/latest/pg-prisma.typeparsers/"},{"name":"setTypeParser","url":"/api/pg-prisma/latest/pg-prisma.typeparsers.settypeparser/"}]
 sitemap: false
 ---

@@ -1,6 +1,6 @@
 ---
 title: "EmitContract.storage property · @imqueue/pg-prisma"
-description: "EmitContract.storage property — @imqueue/pg-prisma 2.1.0 API reference."
+description: "EmitContract.storage property — @imqueue/pg-prisma 2.2.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"EmitContract","url":"/api/pg-prisma/latest/pg-prisma.emitcontract/"},{"name":"storage","url":"/api/pg-prisma/latest/pg-prisma.emitcontract.storage/"}]
 sitemap: false
 ---

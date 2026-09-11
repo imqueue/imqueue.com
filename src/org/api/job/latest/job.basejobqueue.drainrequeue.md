@@ -22,7 +22,7 @@ Promise&lt;void&gt;
 
 ## Remarks
 
-Only jobs, and only with [JobQueueOptions.drainRequeue](/api/job/latest/job.jobqueueoptions.drainrequeue/) on. Safe delivery released each job's worker key the moment the job reached the handler, so an abandoned job is checked out to nobody and nothing else would ever bring it back.
+Only jobs, and only with [JobQueueOptions.drainRequeue](/api/job/latest/job.jobqueueoptions.drainrequeue/) on. Under safe delivery each abandoned job is still checked out — its handler has not settled, so its worker key is held — and the lease returns it to the queue once this process is gone. This step therefore adds a copy rather than rescuing one; it is the sole recovery only when safe delivery is off.
 
-The abandoned handler is still running as this pushes its job back, so the job may both finish and be delivered again — the at-least-once duplicate a lease expiry would have produced anyway.
+The abandoned handler is still running as this pushes its job back, so the job may finish here and also be delivered again — twice, counting the lease recovery.
 

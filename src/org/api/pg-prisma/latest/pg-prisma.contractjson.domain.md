@@ -1,6 +1,6 @@
 ---
 title: "ContractJson.domain property · @imqueue/pg-prisma"
-description: "ContractJson.domain property — @imqueue/pg-prisma 2.1.0 API reference."
+description: "ContractJson.domain property — @imqueue/pg-prisma 2.2.1 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"ContractJson","url":"/api/pg-prisma/latest/pg-prisma.contractjson/"},{"name":"domain","url":"/api/pg-prisma/latest/pg-prisma.contractjson.domain/"}]
 sitemap: false
 ---
