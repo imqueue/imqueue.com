@@ -1,0 +1,32 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the queue -->
+    <rect x="24" y="104" width="120" height="52" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <line x1="52" y1="104" x2="52" y2="156" stroke="var(--accent)" stroke-width="1.2"/>
+    <line x1="80" y1="104" x2="80" y2="156" stroke="var(--accent)" stroke-width="1.2"/>
+    <line x1="108" y1="104" x2="108" y2="156" stroke="var(--accent)" stroke-width="1.2"/>
+
+    <!-- hand-off to worker A -->
+    <path d="M 144 130 L 208 130" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 200 124 L 208 130 L 200 136" stroke="var(--accent)" stroke-width="2"/>
+
+    <!-- worker A, dying mid-job: box with a struck-through outline -->
+    <rect x="208" y="96" width="96" height="68" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5"/>
+    <path d="M 226 114 L 286 146 M 286 114 L 226 146" stroke="var(--muted)" stroke-width="2.2"/>
+
+    <!-- the job's lease, still held: the job comes back around -->
+    <path d="M 256 164 L 256 204 Q 256 220 240 220 L 100 220 Q 84 220 84 204 L 84 160" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M 78 168 L 84 160 L 90 168" stroke="var(--accent)" stroke-width="2"/>
+
+    <!-- worker B, alive, receives it -->
+    <path d="M 304 130 L 368 130" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 4"/>
+    <rect x="368" y="96" width="88" height="68" rx="8" fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 392 132 l 10 10 l 22 -24" stroke="var(--accent)" stroke-width="2.5"/>
+  </g>
+  <g font-family="'JetBrains Mono',monospace" text-anchor="middle" stroke="none">
+    <text x="84" y="80" font-size="10" fill="var(--muted)">queue</text>
+    <text x="256" y="80" font-size="10" fill="var(--muted)">worker, killed</text>
+    <text x="412" y="80" font-size="10" fill="var(--muted)">another worker</text>
+    <text x="170" y="240" font-size="10" fill="var(--accent)">still checked out — comes back in seconds</text>
+  </g>
+</svg>
