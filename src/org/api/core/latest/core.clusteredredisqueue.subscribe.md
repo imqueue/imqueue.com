@@ -75,11 +75,17 @@ Promise&lt;void&gt;
 
 ## Exceptions
 
-TypeError when a different channel name is supplied while a subscription is already open on the underlying queues
+TypeError when no channel name is given, or when a different channel name is supplied while this instance already remembers one - both are raised here, so they fire on an empty cluster too, where there is no underlying queue to raise them
 
 ## Remarks
 
-Only one channel per instance is supported. Calling this again with the same channel registers the handler a second time; calling it with a different channel rejects — and the remembered subscription is left pointing at the rejected name, which is what newly joining servers would then use.
+Only one channel per instance is supported. Calling this again with the same channel registers an additional handler — every registration is remembered and all of them are invoked, including the same function registered twice. Calling it with a different channel throws before any state is touched, so the remembered channel keeps naming the channel that is actually subscribed.
+
+Servers joining later are given every handler registered before they joined, in registration order.
+
+Subscription uses its own connection and does not require start(), even when a host's startup fails or stalls. Subscription changes serialise per host, so a call can wait behind an earlier operation that never settles.
+
+A rejected call is not retryable: its registration remains remembered and may already be installed on some hosts. Calling again adds another copy, including for future hosts. To rebuild a known registration set, await unsubscribe() and then register the desired handlers again.
 
 The handler receives one invocation per host that delivers the message.
 

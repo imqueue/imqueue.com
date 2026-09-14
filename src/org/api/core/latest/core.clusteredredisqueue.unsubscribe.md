@@ -1,6 +1,6 @@
 ---
 title: "ClusteredRedisQueue.unsubscribe() method · @imqueue/core"
-description: "Unsubscribes from the channel on every redis host and forgets the remembered subscription, so servers joining later are no longer subscribed automatically."
+description: "Unsubscribes from the channel on every redis host and forgets every remembered handler, so servers joining later are no longer subscribed automatically."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"ClusteredRedisQueue","url":"/api/core/latest/core.clusteredredisqueue/"},{"name":"unsubscribe","url":"/api/core/latest/core.clusteredredisqueue.unsubscribe/"}]
 sitemap: false
 ---
@@ -9,7 +9,7 @@ sitemap: false
 
 # ClusteredRedisQueue.unsubscribe() method
 
-Unsubscribes from the channel on every redis host and forgets the remembered subscription, so servers joining later are no longer subscribed automatically.
+Unsubscribes from the channel on every redis host and forgets every remembered handler, so servers joining later are no longer subscribed automatically.
 
 **Signature:**
 
@@ -23,4 +23,6 @@ Promise&lt;void&gt;
 ## Remarks
 
 Resolves without effect on an empty cluster.
+
+Clears the remembered channel and handlers immediately, then queues each host's teardown behind its current subscription work. A stalled operation on that host therefore also stalls unsubscribe(). Later catch-up reads the cluster's installation count after teardown, even if an earlier run temporarily installed handlers from the replacement list.
 

@@ -1,6 +1,6 @@
 ---
 title: "ClusteredRedisQueue.destroy() method · @imqueue/core"
-description: "Destroys every server's queue — closing their connections and removing their event listeners — then unregisters this cluster from all configured cluster…"
+description: "Destroys every server's queue — closing their connections and removing their event listeners — and unregisters this cluster from all configured cluster…"
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"ClusteredRedisQueue","url":"/api/core/latest/core.clusteredredisqueue/"},{"name":"destroy","url":"/api/core/latest/core.clusteredredisqueue.destroy/"}]
 sitemap: false
 ---
@@ -9,7 +9,7 @@ sitemap: false
 
 # ClusteredRedisQueue.destroy() method
 
-Destroys every server's queue — closing their connections and removing their event listeners — then unregisters this cluster from all configured cluster managers.
+Destroys every server's queue — closing their connections and removing their event listeners — and unregisters this cluster from all configured cluster managers.
 
 **Signature:**
 
@@ -24,5 +24,5 @@ Promise&lt;void&gt;
 
 Unregistering shuts a manager down entirely once it has no clusters left, which for [UDPClusterManager](/api/core/latest/core.udpclustermanager/) also terminates its shared UDP worker.
 
-The instance must not be reused afterwards: internal routing state is not cleared, so a subsequent [ClusteredRedisQueue.send()](/api/core/latest/core.clusteredredisqueue.send/) would silently re-open a connection.
+Routing membership and remembered subscriptions are cleared synchronously, so queued subscription work cannot reopen a destroyed host. Teardown does not wait for the subscription chain; concurrent callers await the same teardown, including manager removal. Every independent cleanup is attempted; failures are reported together in an AggregateError. A later destroy() retries only failed tasks; successful tasks are not repeated. Membership admission stays closed, including during retries. The instance must not be reused.
 

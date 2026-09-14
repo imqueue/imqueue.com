@@ -16,3 +16,8 @@ Queue instance created for this host. Present once the server has been registere
 ```typescript
 imq?: RedisQueue;
 ```
+
+## Remarks
+
+Exposed to inspect or address one specific host. Subscribing through it directly is safe only on the channel the cluster itself uses: a queue accepts one channel, so a direct subscription to another name makes every later cluster registration on that host fail. `unsubscribe()` and `destroy()` on it are not supported: the cluster tracks how many of its own registrations a host has taken, and it cannot see a handler removed behind its back, so a registration made afterwards would be installed while an earlier one stayed missing. Use [ClusteredRedisQueue.unsubscribe()](/api/core/latest/core.clusteredredisqueue.unsubscribe/) and [ClusteredRedisQueue.removeServer()](/api/core/latest/core.clusteredredisqueue.removeserver/) instead.
+

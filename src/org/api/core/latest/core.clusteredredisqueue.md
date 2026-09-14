@@ -21,7 +21,7 @@ export declare class ClusteredRedisQueue implements IMessageQueue, EventEmitter<
 
 Distribution is asymmetric, and this is the most important thing to know about the class: [ClusteredRedisQueue.send()](/api/core/latest/core.clusteredredisqueue.send/) routes each message to exactly one server, chosen by health-aware round-robin that skips instances whose writer connection is not ready. Every other operation — `start`<!-- -->, `stop`<!-- -->, `clear`<!-- -->, `destroy`<!-- -->, `publish`<!-- -->, `subscribe`<!-- -->, `unsubscribe` and `queueLength` — fans out to every server.
 
-Every fan-out uses `Promise.all`<!-- -->, so one failing host fails the whole call with no partial-failure reporting and no rollback.
+Fan-out normally uses `Promise.all`<!-- -->, with no rollback on failure. Destroy attempts every cleanup task and reports failures together in an AggregateError.
 
 The class only `implements` the `EventEmitter` interface rather than extending it, so `instanceof EventEmitter` is false and every emitter method is a delegating shim — see the individual methods for their fan-out semantics, and note in particular that [ClusteredRedisQueue.once()](/api/core/latest/core.clusteredredisqueue.once/) is per-server.
 
@@ -194,7 +194,7 @@ Deletes this queue's data on every redis host in the cluster, concurrently.
 
 </td><td>
 
-Destroys every server's queue — closing their connections and removing their event listeners — then unregisters this cluster from all configured cluster managers.
+Destroys every server's queue — closing their connections and removing their event listeners — and unregisters this cluster from all configured cluster managers.
 
 
 </td></tr>
@@ -504,7 +504,7 @@ Subscribes the given handler on every redis host in the cluster, and remembers t
 
 </td><td>
 
-Unsubscribes from the channel on every redis host and forgets the remembered subscription, so servers joining later are no longer subscribed automatically.
+Unsubscribes from the channel on every redis host and forgets every remembered handler, so servers joining later are no longer subscribed automatically.
 
 
 </td></tr>

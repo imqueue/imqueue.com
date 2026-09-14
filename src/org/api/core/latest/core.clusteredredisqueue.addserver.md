@@ -63,5 +63,5 @@ the registration record: the resolved `id`<!-- -->, `host` and `port` plus the [
 
 Registration is idempotent, and the match rule is broader than an id comparison: a server counts as already present when its `id` matches an existing entry or when its host and port do. Two different ids on the same host and port are therefore treated as one server, and the existing record is returned unchanged without creating a queue.
 
-For a genuinely new server this returns as soon as the record is created — starting the queue and re-applying any active subscription happen asynchronously afterwards.
+For a genuinely new server this returns as soon as the record is created — starting the queue and re-applying any active subscription happen asynchronously afterwards. Once destroy() begins, discovery is ignored: the returned address has no queue and is not admitted to membership.
 
