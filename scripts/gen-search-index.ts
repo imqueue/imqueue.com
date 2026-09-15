@@ -49,13 +49,15 @@ const RANGES = "search-sections.json";
 // Both are gzipped sizes, which is what Cloudflare actually serves.
 //
 // Tier 2 was raised 320 -> 360 KB on 2026-08-28, when a 3.3k-word post took the
-// measured size from 313.9 to 321.6 KB. It is not a UX number: the dialog fetches
-// tier 2 only once a query is longer than one character and never awaits it, so
-// tier-1 results paint first and the list re-ranks when the prose corpus lands.
+// measured size from 313.9 to 321.6 KB, and 360 -> 400 KB on 2026-09-15, when a
+// 3.5k-word post took it from 360.9 to 368.3 KB with tier 1 at 89.9 of 120 KB.
+// It is not a UX number: the dialog fetches tier 2 only once a query is longer
+// than one character and never awaits it, so tier-1 results paint first and the
+// list re-ranks when the prose corpus lands.
 // The ceiling exists to make growth visible, so keep it close — a budget with
 // years of slack in it stops reporting anything. Raise it again when it fires,
 // after checking that tier 1 still has room.
-const BUDGET_GZ: Record<string, number> = { [TIER1]: 120 * 1024, [TIER2]: 360 * 1024, [RANGES]: 40 * 1024 };
+const BUDGET_GZ: Record<string, number> = { [TIER1]: 120 * 1024, [TIER2]: 400 * 1024, [RANGES]: 40 * 1024 };
 
 function gzipSize(text: string): number {
   return zlib.gzipSync(Buffer.from(text), { level: 9 }).length;

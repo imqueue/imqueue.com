@@ -25,3 +25,11 @@
   bio: >
     Software engineer and a maintainer of the @imqueue framework, contributing
     across its packages and developer tooling.
+- slug: yauheniya-habrykava
+  name: Yauheniya Habrykava
+  occupation: Maintainer, @imqueue
+  avatar: /images/authors/yauheniya-habrykava.png
+  github: https://github.com/Gabriellji
+  bio: >
+    Software engineer and a maintainer of the @imqueue framework, working on
+    the clustered queue, broker discovery and the core's test suites.

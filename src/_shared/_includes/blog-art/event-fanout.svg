@@ -1,0 +1,31 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- one publish -->
+    <rect x="24" y="110" width="104" height="40" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+
+    <!-- fans out to every broker in the fleet -->
+    <path d="M 128 130 L 160 130 L 160 84 L 200 84" stroke="var(--accent)" stroke-width="1.6"/>
+    <path d="M 160 130 L 160 176 L 200 176" stroke="var(--accent)" stroke-width="1.6"/>
+    <path d="M 192 78 L 200 84 L 192 90" stroke="var(--accent)" stroke-width="1.6"/>
+    <path d="M 192 170 L 200 176 L 192 182" stroke="var(--accent)" stroke-width="1.6"/>
+    <rect x="200" y="66" width="80" height="36" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <rect x="200" y="158" width="80" height="36" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+
+    <!-- every broker delivers to the subscriber: one copy per broker -->
+    <path d="M 280 84 L 312 84 L 312 130 L 344 130" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 4"/>
+    <path d="M 280 176 L 312 176 L 312 130" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 4"/>
+    <path d="M 336 124 L 344 130 L 336 136" stroke="var(--accent)" stroke-width="1.6"/>
+
+    <!-- the handler, keyed by event id, acts once -->
+    <rect x="344" y="104" width="112" height="52" rx="8" fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)" stroke-width="2"/>
+  </g>
+  <g font-family="'JetBrains Mono',monospace" stroke="none">
+    <text x="76" y="134" text-anchor="middle" font-size="10" fill="var(--accent)">publish(event)</text>
+    <text x="240" y="88" text-anchor="middle" font-size="10" fill="var(--accent)">broker 1</text>
+    <text x="240" y="180" text-anchor="middle" font-size="10" fill="var(--accent)">broker 2</text>
+    <text x="312" y="122" text-anchor="middle" font-size="9" fill="var(--muted)">×2</text>
+    <text x="400" y="126" text-anchor="middle" font-size="10" fill="var(--accent)">handler</text>
+    <text x="400" y="142" text-anchor="middle" font-size="9" fill="var(--muted)">seen(id)? skip</text>
+    <text x="240" y="236" text-anchor="middle" font-size="10" fill="var(--accent)">one copy per broker — act once, by event id</text>
+  </g>
+</svg>
