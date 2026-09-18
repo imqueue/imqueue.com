@@ -102,5 +102,9 @@
   "testing": { "label": "Testing" },
   "versioning": { "label": "Versioning" },
   "case-study": { "label": "Case studies" },
-  "security": { "label": "Security" }
+  "security": {
+    "label": "Security",
+    "title": "Securing Node.js services and their broker",
+    "description": "Security articles for Node.js service fleets: encrypting the Redis broker connection with TLS, least-privilege Redis ACL users for a message queue, and checking a caller's IP against thousands of allowed networks."
+  }
 }
