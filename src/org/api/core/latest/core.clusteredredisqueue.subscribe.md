@@ -87,5 +87,7 @@ Subscription uses its own connection and does not require start(), even when a h
 
 A rejected call is not retryable: its registration remains remembered and may already be installed on some hosts. Calling again adds another copy, including for future hosts. To rebuild a known registration set, await unsubscribe() and then register the desired handlers again.
 
+A host that refused the registration is not left behind: the cluster retries its catch-up on its own, with capped backoff, until it succeeds, the host leaves or the cluster is destroyed. A rejection therefore reports that a host was unreachable when the call was made, not that it stays unsubscribed.
+
 The handler receives one invocation per host that delivers the message.
 
