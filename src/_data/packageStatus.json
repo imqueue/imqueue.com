@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-18T12:53:26.489Z",
+  "generated": "2026-09-19T08:48:44.297Z",
   "framework": {
     "license": "GPL-3.0-only",
     "licenseNote": "GPL-3.0-only, or a commercial licence for closed-source distribution. Not AGPL: running it as a network service is not distribution, so internal services and SaaS carry no source-release obligation",
@@ -380,12 +380,12 @@
     {
       "name": "mcp",
       "scoped": "@imqueue/mcp",
-      "version": "3.7.8",
+      "version": "3.7.9",
       "license": "GPL-3.0-only",
       "node": ">=18",
-      "released": "2026-08-30",
+      "released": "2026-09-18",
       "firstRelease": "2026-07-22",
-      "releases": 45,
+      "releases": 46,
       "majors": [
         1,
         2,

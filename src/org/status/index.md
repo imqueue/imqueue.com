@@ -76,7 +76,7 @@ command-line tool and wants `npm i -g @imqueue/cli`.
 | [@imqueue/validation](/api/validation/latest/) | 1.2.1 | GPL-3.0-only | `>=22.12.0` | 2026-09-10 |
 | [@imqueue/job](/api/job/latest/) | 3.3.4 | GPL-3.0-only | `>=22.12.0` | 2026-09-18 |
 | [@imqueue/cli](/cli/) | 5.2.9 | GPL-3.0-only | `>=22.12.0` | 2026-09-18 |
-| [@imqueue/mcp](/mcp/) | 3.7.8 | GPL-3.0-only | `>=18` | 2026-08-30 |
+| [@imqueue/mcp](/mcp/) | 3.7.9 | GPL-3.0-only | `>=18` | 2026-09-18 |
 <!-- status:end packages -->
 
 Two pairs are mutually exclusive: pick **either** `@imqueue/pg-prisma` **or**
