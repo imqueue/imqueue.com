@@ -58,7 +58,7 @@ The file content.
 
 ## Remarks
 
-These are the shapes a caller sends over the queue, and they have to be decorated classes rather than types: `@classType`<!-- -->/`@property` are what the client generator reads, and an undecorated type is dropped from the client with no error at generation time.
+These are the shapes a caller sends over the queue, and for an  service they have to be decorated classes rather than types: `@classType`<!-- -->/`@property` are what the client generator reads, and an undecorated type is dropped from the client with no error at generation time. With `decorators: false` they are plain classes, for a service that is not an  service; validation rules are then not emitted either.
 
 Validation is the one thing not derivable from the contract — see `validation`<!-- -->.
 

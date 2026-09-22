@@ -60,6 +60,25 @@ The emitted contract, read from `contract.json`<!-- -->.
 </td></tr>
 <tr><td>
 
+[decorators?](/api/pg-prisma/latest/pg-prisma.emitmodelsoptions.decorators/)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Whether the classes carry the  decorators. Defaults to `true`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [enums?](/api/pg-prisma/latest/pg-prisma.emitmodelsoptions.enums/)
 
 
