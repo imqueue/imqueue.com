@@ -9,6 +9,7 @@
  *   node scripts/indexnow-ping.ts com                 # submit every URL in _site-com/sitemap.xml
  *   node scripts/indexnow-ping.ts org                 # same for the .org edition
  *   node scripts/indexnow-ping.ts com /license/ /support/   # submit only specific paths
+ *   node scripts/indexnow-ping.ts org $(node scripts/changed-urls.ts org A..B)  # or absolute URLs
  *   node scripts/indexnow-ping.ts org --exclude=/api/ # skip URLs whose path contains /api/
  *   node scripts/indexnow-ping.ts com --dry-run       # print what would be sent, submit nothing
  *   node scripts/indexnow-ping.ts org --print-urls    # resolved URL set, one per line
@@ -98,6 +99,21 @@ async function urlsFromLiveSitemap(host: string): Promise<string[]> {
     return out;
 }
 
+// A positional argument is a path, or an absolute URL on this edition's host —
+// changed-urls.ts prints absolute URLs, and the two workflows that pipe its
+// output in here submitted https://imqueue.org/https://imqueue.org/api/… for
+// weeks: IndexNow answers 200 for any list whose key verifies, so nothing
+// noticed. Any other origin is an error, not something to prefix.
+function toUrl(host: string, arg: string): string {
+    if (!/^https?:\/\//i.test(arg)) {
+        return `https://${host}${arg.startsWith('/') ? arg : '/' + arg}`;
+    }
+    if (new URL(arg).host !== host) {
+        throw new Error(`${arg} is not on ${host} — refusing to submit it`);
+    }
+    return arg;
+}
+
 async function main() {
     const [edition = '', ...rest] = process.argv.slice(2);
 
@@ -130,7 +146,7 @@ async function main() {
 
     const key = readKey();
     let urlList = paths.length
-        ? paths.map(p => `https://${host}${p.startsWith('/') ? p : '/' + p}`)
+        ? paths.map(p => toUrl(host, p))
         : urlsFromSitemap(edition);
 
     if (excludes.length) {
