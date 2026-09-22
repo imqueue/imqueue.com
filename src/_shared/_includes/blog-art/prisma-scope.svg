@@ -1,0 +1,34 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <text x="16" y="30" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">one filter, every select in the statement</text>
+
+    <rect x="16" y="46" width="150" height="64" rx="10" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.6"/>
+    <text x="91" y="74" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">Project</text>
+    <text x="91" y="95" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">.include('tasks')</text>
+
+    <path d="M 166 78 l 40 0" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 206 78 l -8 -4 m 8 4 l -8 4" stroke="var(--accent)" stroke-width="2"/>
+
+    <rect x="206" y="57" width="110" height="42" rx="21" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="261" y="84" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="14" fill="var(--accent)" stroke="none">data layer</text>
+
+    <path d="M 316 78 l 30 0" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 346 78 l -8 -4 m 8 4 l -8 4" stroke="var(--accent)" stroke-width="2"/>
+
+    <rect x="346" y="46" width="118" height="64" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="405" y="74" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--accent)" stroke="none">postgres</text>
+    <text x="405" y="95" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">one statement</text>
+
+    <rect x="16" y="130" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.8"/>
+    <text x="30" y="150" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">SELECT … FROM project</text>
+    <text x="450" y="150" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">live · workspace w1</text>
+
+    <rect x="36" y="168" width="428" height="30" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.8"/>
+    <text x="50" y="188" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">SELECT … FROM task</text>
+    <text x="450" y="188" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">live · workspace w1</text>
+
+    <rect x="36" y="206" width="428" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="50" y="226" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">"Draft copy", deleted</text>
+    <text x="450" y="226" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">not returned</text>
+  </g>
+</svg>
