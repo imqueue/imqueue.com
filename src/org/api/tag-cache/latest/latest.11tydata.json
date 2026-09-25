@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "tag-cache",
-  "apiVersion": "3.0.11",
+  "apiVersion": "3.0.12",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-09-18T12:49:42.219Z",
+  "apiReleased": "2026-09-25T14:59:45.083Z",
   "apiNav": [
     {
       "group": "Classes",
@@ -19,6 +19,10 @@
     {
       "group": "Variables",
       "items": [
+        {
+          "name": "INVALIDATE_BATCH",
+          "url": "/api/tag-cache/latest/tag-cache.invalidate_batch/"
+        },
         {
           "name": "REDIS_INIT_ERROR",
           "url": "/api/tag-cache/latest/tag-cache.redis_init_error/"

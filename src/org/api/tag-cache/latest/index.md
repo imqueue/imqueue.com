@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/tag-cache 3.0.11 · API reference"
+title: "@imqueue/tag-cache 3.0.12 · API reference"
 description: "Tagged cache over Redis: every value is stored with a set of tags, and invalidating a tag drops everything stored under it."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/tag-cache","url":"/api/tag-cache/latest/"}]
 ---
@@ -16,7 +16,7 @@ Start from [TagCache](/api/tag-cache/latest/tag-cache.tagcache/)<!-- -->, built 
 
 This exists for the case plain key-based caching cannot express: one cached value that several unrelated events should invalidate. Tagging a result with every entity it derives from means any one of those entities changing drops it, whatever key it was stored under.
 
-Reads and writes never throw on a Redis failure — they log and report it in the return value, so an outage degrades to cache misses. Note that [TagCache.get()](/api/tag-cache/latest/tag-cache.tagcache.get/) returning `null` therefore means "not cached OR lookup failed", and [TagCache.invalidate()](/api/tag-cache/latest/tag-cache.tagcache.invalidate/) resolves once the work is ISSUED, not once the keys are gone.
+Reads and writes never throw on a Redis failure — they log and report it in the return value, so an outage degrades to cache misses. Note that [TagCache.get()](/api/tag-cache/latest/tag-cache.tagcache.get/) returning `null` therefore means "not cached OR lookup failed". [TagCache.invalidate()](/api/tag-cache/latest/tag-cache.tagcache.invalidate/) resolves once the tagged keys are gone, working through a tag in bounded batches however large it is.
 
 ## Example
 
@@ -87,6 +87,17 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
+
+[INVALIDATE\_BATCH](/api/tag-cache/latest/tag-cache.invalidate_batch/)
+
+
+</td><td>
+
+How many members of a tag set [TagCache.invalidate()](/api/tag-cache/latest/tag-cache.tagcache.invalidate/) reads and deletes per round trip. A `COUNT` hint to `SSCAN`<!-- -->, so a batch may come back somewhat larger or smaller.
+
+
+</td></tr>
+<tr><td>
 
 [REDIS\_INIT\_ERROR](/api/tag-cache/latest/tag-cache.redis_init_error/)
 

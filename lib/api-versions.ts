@@ -10,7 +10,7 @@ export const API_VERSIONS: ApiVersions = {
   "rpc": { "latest": "3.9.4", "archives": ["2.1.0","1.17.1"] },
   "pg-pubsub": { "latest": "3.0.9", "archives": [] },
   "pg-cache": { "latest": "5.1.8", "archives": [] },
-  "tag-cache": { "latest": "3.0.11", "archives": [] },
+  "tag-cache": { "latest": "3.0.12", "archives": [] },
   "pg-sequelize": { "latest": "4.2.9", "archives": [] },
   "pg-prisma": { "latest": "2.3.0", "archives": [] },
   "async-logger": { "latest": "3.2.2", "archives": [] },

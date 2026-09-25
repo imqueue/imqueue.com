@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-25T09:37:07.668Z",
+  "generated": "2026-09-25T15:06:18.602Z",
   "framework": {
     "license": "GPL-3.0-only",
     "licenseNote": "GPL-3.0-only, or a commercial licence for closed-source distribution. Not AGPL: running it as a network service is not distribution, so internal services and SaaS carry no source-release obligation",
@@ -101,12 +101,12 @@
     {
       "name": "tag-cache",
       "scoped": "@imqueue/tag-cache",
-      "version": "3.0.11",
+      "version": "3.0.12",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-09-18",
+      "released": "2026-09-25",
       "firstRelease": "2019-10-31",
-      "releases": 35,
+      "releases": 36,
       "majors": [
         1,
         2,

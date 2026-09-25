@@ -235,11 +235,11 @@ A redis failure is not thrown: it is logged as a warning and reported as `null`<
 
 Invalidates data under given tags
 
-Collects every key held by the given tags, deletes those keys, and then removes them from all other tag sets so no tag is left pointing at a key that no longer exists.
+Walks each given tag's set in batches of [INVALIDATE\_BATCH](/api/tag-cache/latest/tag-cache.invalidate_batch/) members, deleting those keys and removing them from that tag, one awaited `MULTI` per batch. Memory and command size are bounded by the batch, whatever the size of the tag or of the keyspace.
 
-Two properties worth knowing, because neither is obvious from the signature:
+Three properties worth knowing, because none is obvious from the signature:
 
-- \*\*It resolves before the work is confirmed.\*\* The deletion is dispatched as a `MULTI` whose result is not awaited — a failure is logged, not returned. So a `true` result means "the invalidation was issued", not "the keys are gone". Do not use it to order a subsequent read. - \*\*The cleanup pass scans every tag\*\*, not just the ones passed in, since a key may be held by tags other than those being invalidated. Cost therefore grows with the total number of tags in the keyspace rather than with the size of `tags`<!-- -->.
+- \*\*It resolves once the keys are gone.\*\* Every batch is awaited, so a `true` result means the tagged values have been deleted. - \*\*Other tags are not scrubbed.\*\* A deleted key may still be a member of a tag that was not invalidated. That is harmless — invalidating that tag later deletes a key that no longer exists, and a tag set given a ttl expires with it. Scrubbing every tag here costs tags x keys, which is what took a service's heap from 564MB to 15GB on one invalidation of a tag holding 15,000 keys in a keyspace of 3,000 tags. - \*\*A value cached during the invalidation stays tagged.\*\* Only the members that were scanned are removed from the tag, so a later invalidation still reaches anything added meanwhile.
 
 
 </td></tr>
