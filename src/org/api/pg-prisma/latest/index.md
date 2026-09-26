@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/pg-prisma 3.0.0 · API reference"
+title: "@imqueue/pg-prisma 3.0.2 · API reference"
 description: "Prisma Next (8.x) and Postgres building blocks for @imqueue services."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"}]
 ---

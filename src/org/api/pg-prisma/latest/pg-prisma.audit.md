@@ -68,5 +68,5 @@ Rows are captured as the database returns them, so the trail holds what was actu
 
 The actor is resolved at the \*\*first row\*\*, inside the statement's own async context, for the same reason.
 
-Call  when shutting down, or the pool keeps the process alive.
+Call `close()` on the returned middleware when shutting down, or the pool keeps the process alive.
 

@@ -1,6 +1,6 @@
 ---
 title: "EnumDef interface · @imqueue/pg-prisma"
-description: "EnumDef interface — @imqueue/pg-prisma 3.0.0 API reference."
+description: "EnumDef interface — @imqueue/pg-prisma 3.0.2 API reference."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"EnumDef","url":"/api/pg-prisma/latest/pg-prisma.enumdef/"}]
 ---
 

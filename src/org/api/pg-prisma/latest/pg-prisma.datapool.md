@@ -76,7 +76,9 @@ The pool.
 
 ## Remarks
 
-Registers the parsers  explains, and guards the pool with [survivesLostConnections()](/api/pg-prisma/latest/pg-prisma.surviveslostconnections/)<!-- -->.
+Tells `node-postgres` to leave `json` and `jsonb` columns as text, and guards the pool with [survivesLostConnections()](/api/pg-prisma/latest/pg-prisma.surviveslostconnections/)<!-- -->.
+
+\*\*JSON is parsed once, by the ORM.\*\* Its codec parses what it is handed, and `node-postgres` would have parsed it already. An object survives the second parse; a JSON \*\*string\*\* does not — `JSON.parse('Payment')` throws, and a column holding `"5"` quietly comes back as the number `5`<!-- -->. `json[]` and `jsonb[]` need nothing: the runtime reads every built-in array as raw text itself.
 
 \*\*Arrays of enums are the runtime's own.\*\* An enum's array type is numbered when the enum is created, so `node-postgres` cannot know it and hands the literal text `{EMAIL,SMS}` back. Prisma Next up to 8.0.0-rc.11 could not read that, and this pool used to parse it into an array first. From 8.0.0-rc.12 the runtime decodes that text itself and refuses anything already parsed — `RUNTIME.DECODE_FAILED`<!-- -->, "expected raw text for a Postgres array" — so the text is now left exactly as the driver gives it.
 
