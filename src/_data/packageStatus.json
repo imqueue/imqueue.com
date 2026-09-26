@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-26T09:21:47.753Z",
+  "generated": "2026-09-26T20:47:52.580Z",
   "framework": {
     "license": "GPL-3.0-only",
     "licenseNote": "GPL-3.0-only, or a commercial licence for closed-source distribution. Not AGPL: running it as a network service is not distribution, so internal services and SaaS carry no source-release obligation",
@@ -143,15 +143,16 @@
     {
       "name": "pg-prisma",
       "scoped": "@imqueue/pg-prisma",
-      "version": "2.3.0",
+      "version": "3.0.0",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-09-22",
+      "released": "2026-09-26",
       "firstRelease": "2026-07-22",
-      "releases": 10,
+      "releases": 11,
       "majors": [
         1,
-        2
+        2,
+        3
       ],
       "deprecated": false,
       "install": "npm i @imqueue/pg-prisma",

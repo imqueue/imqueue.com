@@ -1,6 +1,6 @@
 ---
 title: "dataPool() function · @imqueue/pg-prisma"
-description: "A connection pool whose arrays of enums and JSON columns can be read."
+description: "A connection pool whose JSON columns can be read."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"dataPool","url":"/api/pg-prisma/latest/pg-prisma.datapool/"}]
 ---
 
@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma",
 
 # dataPool() function
 
-A connection pool whose arrays of enums and JSON columns can be read.
+A connection pool whose JSON columns can be read.
 
 **Signature:**
 
@@ -76,15 +76,11 @@ The pool.
 
 ## Remarks
 
-`node-postgres` parses a value by its type's oid, and it knows only the built-in ones. An enum is numbered when it is created, so its array type is numbered too, and neither number can be known ahead of time — the driver therefore hands back the literal text `{EMAIL,SMS}` where the ORM requires an array, and every read of the column fails with `RUNTIME.DECODE_FAILED`<!-- -->. A scalar enum is unaffected, because its text \*is\* its value.
+Registers the parsers  explains, and guards the pool with [survivesLostConnections()](/api/pg-prisma/latest/pg-prisma.surviveslostconnections/)<!-- -->.
 
-So the oids are asked for, once, and those columns are parsed the way a `text[]` is — which is what an array of enums is on the wire. The JSON types are corrected at the same time, for the reason on .
+\*\*Arrays of enums are the runtime's own.\*\* An enum's array type is numbered when the enum is created, so `node-postgres` cannot know it and hands the literal text `{EMAIL,SMS}` back. Prisma Next up to 8.0.0-rc.11 could not read that, and this pool used to parse it into an array first. From 8.0.0-rc.12 the runtime decodes that text itself and refuses anything already parsed — `RUNTIME.DECODE_FAILED`<!-- -->, "expected raw text for a Postgres array" — so the text is now left exactly as the driver gives it.
 
-The lookup is deferred to the first connection rather than done here, because a pool is built where a client is built and that is not a place where anything can be awaited. It runs once; a query that arrives while it is in flight waits for it rather than starting a second one.
-
-The registry is the one the \*runtime\* reads, not the one a pool carries: the ORM passes its own `types` to every query, and that object falls through to `pg-types` for anything it does not handle itself. A parser set on the pool is therefore never consulted.
-
-Three things follow from the registry being global. A raw `pg` query in the same process reads a JSON column as text and has to parse it itself, which is the trade for the ORM reading it correctly. An enum type created \*after\* the first connection is not picked up — which is a migration applied to a running process, and migrations run at start, before anything connects. And a process holding pools onto two different databases would have them share one numbering, which no service here does: a service owns one database.
+The registry is the one the \*runtime\* reads, not the one a pool carries: the ORM passes its own `types` to every query, and that object falls through to `pg-types` for anything it does not handle itself. A parser set on the pool is therefore never consulted. It follows that the registry is global, and a raw `pg` query in the same process reads a JSON column as text and has to parse it itself — the trade for the ORM reading it correctly.
 
 ## Example
 

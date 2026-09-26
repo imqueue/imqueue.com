@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/pg-prisma 2.3.0 · API reference"
+title: "@imqueue/pg-prisma 3.0.0 · API reference"
 description: "Prisma Next (8.x) and Postgres building blocks for @imqueue services."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"}]
 ---
@@ -73,7 +73,7 @@ Build the whole data layer from an emitted contract, in one call.
 
 </td><td>
 
-A connection pool whose arrays of enums and JSON columns can be read.
+A connection pool whose JSON columns can be read.
 
 
 </td></tr>
@@ -334,6 +334,17 @@ A `query` and a `transaction` that agree about which connection to use.
 </td><td>
 
 Build the middleware that stamps authorship and turns deletes into stamps.
+
+
+</td></tr>
+<tr><td>
+
+[survivesLostConnections(pool)](/api/pg-prisma/latest/pg-prisma.surviveslostconnections/)
+
+
+</td><td>
+
+Keep a pool's lost idle connection from ending the process.
 
 
 </td></tr>
@@ -901,7 +912,7 @@ A client that can run work inside one transaction.
 
 </td><td>
 
-What `pg-types` offers, of which only these two are wanted.
+What `pg-types` offers, of which only this one is wanted.
 
 
 </td></tr>

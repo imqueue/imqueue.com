@@ -1,6 +1,6 @@
 ---
 title: "TypeParsers interface · @imqueue/pg-prisma"
-description: "What pg-types offers, of which only these two are wanted."
+description: "What pg-types offers, of which only this one is wanted."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma","url":"/api/pg-prisma/latest/"},{"name":"TypeParsers","url":"/api/pg-prisma/latest/pg-prisma.typeparsers/"}]
 ---
 
@@ -8,7 +8,7 @@ apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/pg-prisma",
 
 # TypeParsers interface
 
-What `pg-types` offers, of which only these two are wanted.
+What `pg-types` offers, of which only this one is wanted.
 
 **Signature:**
 
@@ -40,23 +40,6 @@ Description
 
 </th></tr></thead>
 <tbody><tr><td>
-
-[getTypeParser](/api/pg-prisma/latest/pg-prisma.typeparsers.gettypeparser/)
-
-
-</td><td>
-
-
-</td><td>
-
-(oid: number, format?: string) =&gt; unknown
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
 
 [setTypeParser](/api/pg-prisma/latest/pg-prisma.typeparsers.settypeparser/)
 

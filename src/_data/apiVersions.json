@@ -30,7 +30,7 @@
     "archives": []
   },
   "pg-prisma": {
-    "latest": "2.3.0",
+    "latest": "3.0.0",
     "archives": []
   },
   "async-logger": {
