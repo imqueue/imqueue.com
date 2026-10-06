@@ -1,0 +1,26 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <text x="16" y="30" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">1,010 messages, then kill -9 redis</text>
+
+    <rect x="16" y="46" width="448" height="34" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="30" y="68" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">save ""</text>
+    <text x="450" y="68" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">0 left</text>
+
+    <rect x="16" y="90" width="448" height="34" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="30" y="112" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">snapshots (default)</text>
+    <text x="450" y="112" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">0 left</text>
+
+    <rect x="16" y="134" width="448" height="34" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.8"/>
+    <text x="30" y="156" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">appendonly yes</text>
+    <rect x="190" y="145" width="160" height="12" rx="3" fill="var(--accent)" stroke="none" opacity="0.75"/>
+    <text x="450" y="156" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">1,010 left</text>
+
+    <text x="16" y="198" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">memory full, two queues</text>
+
+    <rect x="16" y="208" width="216" height="34" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.8"/>
+    <text x="124" y="230" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">noeviction · OOM, kept</text>
+
+    <rect x="248" y="208" width="216" height="34" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="356" y="230" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">allkeys-lru · wiped</text>
+  </g>
+</svg>

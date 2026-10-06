@@ -50,7 +50,7 @@
   "resilience": {
     "label": "Resilience",
     "title": "Resilience and safe deploys",
-    "description": "Articles on keeping Node.js services healthy under load and during deploys: back-pressure, graceful shutdown, zero-drop deploys and delivery guarantees."
+    "description": "Articles on keeping Node.js services healthy under load and during deploys: back-pressure, graceful shutdown, zero-drop deploys, delivery guarantees, and what survives a Redis restart."
   },
   "jobs": {
     "label": "Jobs & scheduling",
