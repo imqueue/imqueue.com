@@ -36,7 +36,7 @@ layout: base.html
         {% if lead %}<p class="muted" style="font-size:17px;line-height:1.65;max-width:680px;margin:0;">{{ lead }}</p>{% endif %}
       </header>
       {% endif %}
-      <article class="prose">
+      <article class="prose{% if stackTables %} stack-tables{% endif %}">
         {%- comment -%}
         A page that declares itself an FAQ gets its question headings wrapped into
         an accordion — see the faqAccordion filter in eleventy.config.js for why

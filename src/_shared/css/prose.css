@@ -75,6 +75,42 @@
 .prose th :not(pre) > code, .prose td :not(pre) > code { overflow-wrap: normal; }
 .prose th { font-family: var(--font-mono); font-size: 13.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 
+/* Phone-friendly tables, for a page with `stackTables: true` (/status/). Each row
+   becomes a card and each cell prints its column's name from `data-label`, which
+   scripts/lib/md-stack-tables.ts copies from the header at build time — along with
+   the ARIA roles that keep the restacked table announced as a table.
+
+   700px because that is where the widest one stops fitting: /status/'s five-column
+   package table needs 595px, and the content column is the viewport less 64px, so it
+   starts scrolling just under 660px. The extra 40px is room for a longer package
+   name, and 700px is the breakpoint the footer already folds at.
+
+   A cell without a label — a key/value table with empty headers — prints its value
+   alone, so its first cell reads as the row's title. */
+@media (max-width: 700px) {
+  .prose.stack-tables table,
+  .prose.stack-tables tbody,
+  .prose.stack-tables tr,
+  .prose.stack-tables td { display: block; width: 100%; }
+  .prose.stack-tables table { overflow: visible; }
+  .prose.stack-tables thead { display: none; }
+  .prose.stack-tables tr {
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 14px; margin: 0 0 10px;
+  }
+  .prose.stack-tables td { border: none; padding: 3px 0; }
+  .prose.stack-tables td:first-child { font-weight: 600; padding-bottom: 6px; }
+  .prose.stack-tables td[data-label] { display: flex; gap: 12px; justify-content: space-between; }
+  .prose.stack-tables td[data-label]::before {
+    content: attr(data-label); flex: none;
+    font-family: var(--font-mono); font-size: 12.5px; font-weight: 400; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--muted); padding-top: 2px;
+  }
+  /* the first cell names the row; its column label would only repeat that */
+  .prose.stack-tables td[data-label]:first-child::before { content: none; }
+  .prose.stack-tables td[data-label] > * { text-align: right; }
+}
+
 /* The "@imqueue at a glance" fact table on /intro/. Not inside .prose — that page is
    hand-built HTML sections, not rendered markdown — so it needs its own rules rather
    than inheriting the .prose table ones above.

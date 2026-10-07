@@ -153,6 +153,11 @@ a.card:hover { border-color: var(--accent); text-decoration: none; }
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 .grid-2 { grid-template-columns: repeat(2, 1fr); }
 .grid-4 { grid-template-columns: repeat(4, 1fr); }
+/* Opt-in for a two-column grid whose item count is not fixed (/docs/): when the
+   last item would sit alone in the left column, it spans both instead, so the
+   grid always ends on a full row. An even count is left as it is. Below 480px
+   .grid-2 is one column and the span changes nothing. */
+.grid-2.grid-fill-last > :last-child:nth-child(odd) { grid-column: 1 / -1; }
 
 .section { padding-top: 44px; padding-bottom: 44px; }
 /* container-query context (kept for any component that opts into @container) */

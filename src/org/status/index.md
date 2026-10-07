@@ -8,6 +8,7 @@ description: "Current version, licence and minimum Node version for every publis
 keywords: "imqueue version, imqueue license, @imqueue/core version, @imqueue/rpc version, imqueue node version requirement, imqueue package list, imqueue npm packages, imqueue GPL"
 relatedTopics: [tooling, dx]
 wide: true
+stackTables: true
 ---
 
 <!--

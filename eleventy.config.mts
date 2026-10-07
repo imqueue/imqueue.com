@@ -31,6 +31,7 @@ import { buildAssetManifest, emitBrowserScripts } from "./scripts/lib/asset-mani
 import { stampCsp } from "./scripts/lib/csp.ts";
 import type { CollectionItem } from "./scripts/lib/eleventy.ts";
 import { slugify } from "./scripts/lib/md-slug.ts";
+import { stackTables } from "./scripts/lib/md-stack-tables.ts";
 import blogTopicMeta from "./src/_data/blogTopics.json" with { type: "json" };
 import pageDates from "./src/_data/pageDates.json" with { type: "json" };
 
@@ -75,7 +76,11 @@ export default function (eleventyConfig: UserConfig) {
       // reason the "On this page" hrefs matched the heading ids before; passing
       // it to one and not the other would silently break every TOC link.
       slugify,
-    });
+    })
+    // `stackTables: true` in a page's front matter: label every table cell with
+    // its column so prose.css can restack rows into cards on a phone. Off for
+    // every other page; see scripts/lib/md-stack-tables.ts.
+    .use(stackTables);
 
   eleventyConfig.setLibrary("md", md);
   eleventyConfig.addPlugin(syntaxHighlight);
