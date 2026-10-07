@@ -161,11 +161,21 @@ onto the ready list; failing that, workers sweep every `watcherCheckDelay`
 the current value, appends only the missing `E`/`x` (`A` already covers `x`), and
 skips `CONFIG SET` when the configuration suffices — so a flag an operator or
 another consumer set on that server survives. On `<= 3.3.2` it wrote the literal
-`Ex` on every connection establishment, dropping every other flag, and again
-after each reconnect. Where `CONFIG GET` is unavailable — ElastiCache disables
+`Ex` whenever it armed a watcher, dropping every other flag. Where `CONFIG GET`
+is unavailable — ElastiCache disables
 `CONFIG` — 3.3.3 reports through `OnConfig` and changes nothing, because being
 unable to read the flags is exactly when writing a literal would do the damage.
 Enable it out of band there, or accept the sweep.
+
+**Reconnects.** The expiry subscription and its handler live on the watcher's
+socket, so a replaced connection has to be re-armed. From `@imqueue/core`
+**3.5.4** the owner does that on every reconnect — it re-subscribes and
+re-applies any missing keyspace flags — from both the writer and the watcher
+reconnect, because arming needs both and they return in either order. On
+**2.0.24–3.5.3** it did not: after any watcher reconnect (a broker restart, a
+dropped socket, a proxy closing idle connections) promotion fell back to the
+`watcherCheckDelay` sweep until the owning process restarted, and nothing was
+logged. `@imqueue/rpc` 3.9.5 and `@imqueue/job` 3.3.5 require core `^3.5.4`.
 
 **Accuracy is "no earlier than."** Pass whole integer milliseconds: a
 fractional delay fails to set the alarm key and waits for the next sweep, and an
@@ -270,6 +280,9 @@ Seeding rules — the part that breaks in production:
 # prompt promotion requires keyspace expiry events (look for E and x)
 redis-cli CONFIG GET notify-keyspace-events
 
+# ...and a watcher listening for them: non-zero while one is up
+redis-cli PUBSUB NUMPAT
+
 # what is parked right now, and when it is due (scores are due-time in ms)
 redis-cli --scan --pattern 'imq:*:delayed'
 redis-cli ZRANGE imq:<ServiceName>:delayed 0 -1 WITHSCORES
@@ -294,6 +307,7 @@ you chose; and run the handler twice to prove it is idempotent.
 | A skipped optional param arrives as `null` and its default never fires | `undefined` serializes to `null`; placeholders are dropped only on a *delayed* call, and on 3.3.1 only one was dropped | pass the real value, declare the param nullable, or upgrade to `>= 3.4.0` |
 | Delayed call never settles in the caller | caller restarted, or no `callTimeout` set | set `callTimeout`; never `await` a long delay in a request handler |
 | Everything arrives ~5 s late | keyspace notifications lack `Ex`, so the polling fallback is doing the work | on `>= 3.3.3` the watcher adds the missing flags itself unless `CONFIG` is unavailable (ElastiCache) — check the `OnConfig` report, then enable `notify-keyspace-events Ex` out of band, or accept the `watcherCheckDelay` sweep |
+| Delays run up to `watcherCheckDelay` late after a broker restart or a dropped connection, though `notify-keyspace-events` is intact | on `2.0.24`–`3.5.3` a reconnected watcher was not re-armed; `PUBSUB NUMPAT` reads `0` | upgrade to core `>= 3.5.4` (rpc `>= 3.9.5`, job `>= 3.3.5`), or restart the process that owns the watcher |
 | A flag another consumer needed disappeared from `notify-keyspace-events` | on `<= 3.3.2` the watcher wrote the literal `Ex` on every connection establishment | upgrade to `>= 3.3.3`, which appends only the missing `E`/`x` |
 | Delay ignored entirely | fractional milliseconds, or an unrecognised `IMQDelay` unit | pass whole integer ms and a valid unit |
 | Job dropped instead of retried | handler threw, and the job was pushed without a delay | catch the error and return a delay number; on `>= 3.1.0` the handler-failure line reads `no retry` and names the message id, so confirm there first |

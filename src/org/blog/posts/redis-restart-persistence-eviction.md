@@ -28,7 +28,7 @@ The rest depends on how your services reconnect, and on what your code does
 with a write that failed.
 
 This post goes through each one. Every behaviour below was **measured**, not
-taken from documentation: `@imqueue/core` 3.5.3 and `@imqueue/rpc` 3.9.4 against
+taken from documentation: `@imqueue/core` 3.5.4 and `@imqueue/rpc` 3.9.5 against
 Redis 8.10, restarting it on purpose and counting what was left.
 
 ## The short version
@@ -38,8 +38,8 @@ Redis 8.10, restarting it on purpose and counting what was left.
 - **Keep `maxmemory-policy noeviction`.** Under `allkeys-lru`, Redis quietly
   deleted queues to make room, including a queue nobody was writing to, and no
   service saw an error.
-- **Set `notify-keyspace-events Ex` in the Redis config**, not only at runtime.
-  A restart forgets what was set at runtime.
+- **Set `notify-keyspace-events Ex` in the Redis config.** The services put it
+  back themselves after a restart, but only where they may run `CONFIG SET`.
 - **A message sent while Redis is down is not retried.** `send()` still
   resolves. Pass an error handler and decide what to do with the failure.
 - **Set `callTimeout` on RPC clients.** A call that was in flight when Redis went
@@ -47,8 +47,9 @@ Redis 8.10, restarting it on purpose and counting what was left.
 - **Expect services to come back a little after Redis does.** Reconnect attempts
   back off from 1 s up to 30 s. In our test, an 8.5 s outage meant 15 s
   without delivery.
-- **After a broker restart, restart your services too.** Until you do, delayed
-  messages are released by a periodic check instead of on time.
+- **Delayed messages survive and stay on time.** With the append-only file they
+  are kept through a crash, and once the services reconnect they are released on
+  time again, with no restart on your side.
 
 ## Where your messages live
 
@@ -123,12 +124,12 @@ delayed ones. `Orders` had no consumer, and we sent it 6,000 messages of about
 
 | `maxmemory-policy` | what the sender saw | left in `Orders` | left in `Mail` |
 |---|---|---|---|
-| `noeviction` (Redis default) | `OOM` errors, logged | 2,772 | 20 + 5 delayed |
-| `allkeys-lru` | **nothing** | 455 | **0 + 0 delayed** |
+| `noeviction` (Redis default) | `OOM` errors, logged | 2,777 | 20 + 5 delayed |
+| `allkeys-lru` | **nothing** | 451 | **0 + 0 delayed** |
 | `volatile-lru` | `OOM` errors, logged | 2,772 | 20 + 5 delayed |
 
 Read the `allkeys-lru` row twice. Redis deleted the whole `Orders` list several
-times over to make room (5 evicted keys), so only the last 455 messages were
+times over to make room (5 evicted keys), so only the last 451 messages were
 left. Worse, it also deleted `Mail`, a queue that was not being written to at
 all. The sender saw no error and the log stayed empty, because from Redis's
 point of view nothing went wrong. It did what that policy says.
@@ -168,7 +169,7 @@ Now the outage itself. We ran a consumer and a sender, sending 10 messages a
 second, and stopped Redis for about 8.5 seconds:
 
 ```text
-sent 218, received 69, error handler fired for 149, lost 149
+sent 218, received 69, errorHandler: 149 messages / 298 calls, lost 149
 ```
 
 Every message sent while Redis was unreachable was lost: 149 of 149. Nothing
@@ -219,9 +220,9 @@ outbox. The framework won't choose for you, and it shouldn't: only your code
 knows which messages matter.
 
 One detail to plan for: the handler **can be called more than once for the same
-message**. When Redis was out of memory, it fired 6,456 times for 3,228 rejected
-writes, exactly twice each, because the client reports one failure through two
-paths. Key what you keep by something that identifies the message, as the `Map`
+message**. During the outage it was called 298 times for the 149 lost messages,
+and when Redis was out of memory 6,446 times for 3,223 rejected writes: exactly
+twice each, because the client reports one failure through two paths. Key what you keep by something that identifies the message, as the `Map`
 above does, rather than counting calls.
 
 ## Recipe 4: give every RPC call a deadline
@@ -279,7 +280,8 @@ changed through options:
 
 That means services rarely come back the moment Redis does. In our outage test,
 Redis was down for about 8.5 s. The attempts at 1, 3 and 7 s found nothing
-there, and the next one came at 15 s, **6.6 s after Redis was already back**.
+there, and the next one came at 15 s, **6–7 s after Redis was already back**
+(two runs).
 So 8.5 seconds of downtime became 15 seconds without delivery.
 
 After a long outage, that tail can reach 30 seconds. Nothing is wrong when it
@@ -303,56 +305,53 @@ reconnected. A delayed message that came due during the outage is not lost; it
 is late.
 
 Timing is the part to watch. On time, a delayed message is released by a
-Redis event: its timer key expires, Redis announces the expiry, and the
-service holding the queue's "watcher" moves the message into the queue. That
+Redis event: its timer key expires, Redis announces the expiry, and the one
+service that holds the queue's "watcher" moves the message into the queue. That
 needs two things: Redis publishing expiry events, and the watcher listening for
 them.
 
-**The first one is a Redis setting.** The service turns on
-`notify-keyspace-events` when it starts, but only for the running Redis. We
-checked it before and after a restart:
+**Both come back on their own.** When the watcher's connection is replaced, the
+service that owns it subscribes to expiry events again on the new connection,
+and turns `notify-keyspace-events` back on if the restart dropped it. We sent
+five messages with a 1 s delay before and after each kind of interruption:
+
+| when | arrival after a 1 s delay |
+|---|---|
+| before the Redis restart | 1.01 – 1.14 s |
+| after a restart, flag set by the services | 1.02 – 1.15 s |
+| after a restart, flag in the Redis config | 1.03 – 1.20 s |
+| after only the watcher's connection dropped | 1.07 – 1.08 s |
+
+No service was restarted for any of these. The flag shows why the config file
+still matters:
 
 ```text
-after the services started:  notify-keyspace-events = xE
-after Redis restarted:       notify-keyspace-events = (empty)
+before the restart:      notify-keyspace-events = xE
+right after the restart: notify-keyspace-events = (empty)
+after the reconnect:     notify-keyspace-events = xE
 ```
 
-A restart reloads the configuration file, and the setting made at runtime is
-gone. Put it in the configuration:
+A restart reloads the configuration file, so a value set at runtime is gone
+until a service puts it back, and a service can only do that if it is allowed to
+run `CONFIG SET`. Managed Redis services often block `CONFIG`, and the
+[ACL post](/blog/redis-acl-least-privilege-nodejs/) recommends not granting
+`config|set`. In both cases the setting has to come from the configuration:
 
 ```conf
 notify-keyspace-events Ex
 ```
 
-On managed Redis services that block `CONFIG SET`, this is the only way to
-enable it anyway. The
-[ACL post](/blog/redis-acl-least-privilege-nodejs/) covers that case and the
-permissions involved.
-
-**The second one is a restart of your own.** With the setting in the config, we
-sent five messages with a 1 s delay before and after a Redis restart:
-
-| when | arrival after a 1 s delay |
-|---|---|
-| before the Redis restart | 1.02 – 1.12 s |
-| after Redis restarted, same services | 1.04 – 5.05 s |
-| after the services were restarted too | 1.01 – 1.09 s |
-
-After the restart, the reconnected watcher did not listen for expiry events
-again. Redis reported zero pattern subscriptions. Delayed messages were still
-delivered, but by the watcher's periodic check, which runs every
+Without it, delayed messages still arrive, released by the watcher's periodic
+check every
 [`watcherCheckDelay`](/api/core/latest/core.imqoptions.watchercheckdelay/)
-(5 s by default), so up to about 5 s late. Restarting the services restored
-on-time delivery.
+(5 s by default), so up to about 5 s late.
 
-So the procedure after a broker restart is:
+So after a broker restart, check two things:
 
-1. Confirm Redis came back with its data (`INFO persistence`, `DBSIZE`).
-2. Do a rolling restart of the services that use it.
-
-If you can't restart the fleet straight away, a smaller `watcherCheckDelay` keeps
-delayed messages closer to on time in the meantime, at the cost of a few more
-Redis commands per second.
+1. Redis came back with its data: `INFO persistence` and `DBSIZE`.
+2. The services came back to it: every channel logs a `connected` line, and
+   `redis-cli PUBSUB NUMPAT` is not zero, which means the watcher is listening
+   again.
 
 ## The configuration, in one place
 
@@ -426,19 +425,20 @@ settles. Set `callTimeout`. A timeout doesn't mean the work didn't happen.
 
 Attempts start 1 s after the connection drops and double each time, up to 30 s
 between attempts. Services usually come back some seconds after Redis does: in
-our test, 6.6 s after an 8.5 s outage.
+our tests, 6–7 s after an 8.5 s outage.
 
 ### Are delayed messages lost when Redis restarts?
 
-Not with `appendonly yes`. They are kept and delivered once the service
-reconnects. Until the services themselves are restarted, they're released by
-the periodic watcher check, up to about 5 s late by default.
+Not with `appendonly yes`. They are kept, and any that came due during the
+outage are delivered as soon as the service reconnects. After that, delayed
+messages are on time again without restarting anything.
 
-### Why are delayed messages late after a Redis restart?
+### Why are delayed messages a few seconds late after a Redis restart?
 
-Two reasons. A `notify-keyspace-events` value set at runtime is lost on restart,
-so set it in the Redis configuration. And the reconnected watcher does not
-resume listening for expiry events, so restart your services after the broker.
+Usually because `notify-keyspace-events` is empty. A restart drops a value set
+at runtime, and the services can only set it again where `CONFIG SET` is
+allowed. Put `notify-keyspace-events Ex` in the Redis configuration. Without
+it, delayed messages are released by the periodic check, up to about 5 s late.
 
 ## Reference
 
