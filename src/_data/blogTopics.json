@@ -94,7 +94,11 @@
   },
   "graphql": { "label": "GraphQL" },
   "cache": { "label": "Caching" },
-  "observability": { "label": "Observability" },
+  "observability": {
+    "label": "Observability",
+    "title": "Seeing inside a Node.js service fleet",
+    "description": "Observability for Node.js services over a message queue: tracing a call through every service it touches, the failures that never throw, and carrying a request ID and the user from the edge through every downstream call."
+  },
   "backpressure": { "label": "Back-pressure" },
   "benchmark": { "label": "Benchmarks" },
   "load-balancing": { "label": "Load balancing" },

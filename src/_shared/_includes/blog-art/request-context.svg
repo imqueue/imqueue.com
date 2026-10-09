@@ -1,0 +1,34 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <text x="16" y="30" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">one request, three services, one id</text>
+
+    <rect x="16" y="46" width="128" height="58" rx="10" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.6"/>
+    <text x="80" y="71" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">gateway</text>
+    <text x="80" y="91" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">sets r-7 · alice</text>
+
+    <path d="M 144 75 l 32 0" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 176 75 l -8 -4 m 8 4 l -8 4" stroke="var(--accent)" stroke-width="2"/>
+
+    <rect x="176" y="46" width="128" height="58" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="240" y="71" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--accent)" stroke="none">orders</text>
+    <text x="240" y="91" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">reads r-7 · alice</text>
+
+    <path d="M 304 75 l 32 0" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 336 75 l -8 -4 m 8 4 l -8 4" stroke="var(--accent)" stroke-width="2"/>
+
+    <rect x="336" y="46" width="128" height="58" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="400" y="71" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--accent)" stroke="none">billing</text>
+    <text x="400" y="91" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">reads r-7 · alice</text>
+
+    <rect x="16" y="130" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.8"/>
+    <text x="30" y="150" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">[r-7] charge failed: card declined</text>
+
+    <rect x="16" y="168" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="30" y="188" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">without the hook</text>
+    <text x="450" y="188" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">billing sees nothing</text>
+
+    <rect x="16" y="206" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="30" y="226" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">100 calls at once</text>
+    <text x="450" y="226" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">0 mixed up</text>
+  </g>
+</svg>
