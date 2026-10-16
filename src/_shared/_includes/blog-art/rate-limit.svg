@@ -1,0 +1,35 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <text x="16" y="30" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">three gateways, one counter</text>
+
+    <rect x="16" y="44" width="96" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="64" y="64" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">gateway 1</text>
+    <rect x="16" y="82" width="96" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="64" y="102" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">gateway 2</text>
+    <rect x="16" y="120" width="96" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="64" y="140" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">gateway 3</text>
+
+    <path d="M 112 59 L 150 90 M 112 97 L 150 97 M 112 135 L 150 104" stroke="var(--accent)" stroke-width="1.8"/>
+
+    <rect x="150" y="72" width="104" height="50" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="202" y="94" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--accent)" stroke="none">redis</text>
+    <text x="202" y="112" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--muted)" stroke="none">one count</text>
+
+    <rect x="276" y="44" width="188" height="30" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.8"/>
+    <text x="290" y="64" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">1–100</text>
+    <text x="450" y="64" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">200</text>
+    <rect x="276" y="82" width="188" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="290" y="102" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">101–250</text>
+    <text x="450" y="102" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">429</text>
+    <rect x="276" y="120" width="188" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="290" y="140" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">251 on</text>
+    <text x="450" y="140" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">418 · banned</text>
+
+    <rect x="16" y="176" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="30" y="196" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">X-Forwarded-For from anyone</text>
+    <text x="450" y="196" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">customer banned</text>
+    <rect x="16" y="214" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.8"/>
+    <text x="30" y="234" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">trusted from your proxy only</text>
+    <text x="450" y="234" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">attacker banned</text>
+  </g>
+</svg>
