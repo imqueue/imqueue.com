@@ -1,0 +1,24 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <text x="16" y="30" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">billing down 20 s · 175 orders</text>
+
+    <rect x="16" y="44" width="216" height="58" rx="10" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.6"/>
+    <text x="124" y="68" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">the caller was told</text>
+    <text x="124" y="90" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">95 ok · 80 failed</text>
+
+    <rect x="248" y="44" width="216" height="58" rx="10" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.6"/>
+    <text x="356" y="68" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">billing charged</text>
+    <text x="356" y="90" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">265</text>
+
+    <rect x="16" y="122" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="30" y="142" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">"payment failed", charged anyway</text>
+    <text x="450" y="142" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">80</text>
+    <rect x="16" y="160" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="30" y="180" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">retried, charged twice</text>
+    <text x="450" y="180" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">90</text>
+
+    <rect x="16" y="206" width="448" height="34" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="30" y="228" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">with a deadline on every call</text>
+    <text x="450" y="228" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">95 charges · 170 skipped</text>
+  </g>
+</svg>
