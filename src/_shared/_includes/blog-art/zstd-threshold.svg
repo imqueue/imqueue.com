@@ -1,0 +1,23 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <text x="16" y="30" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">compressAbove: 1024</text>
+
+    <rect x="16" y="46" width="448" height="34" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="30" y="68" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">130 chars</text>
+    <text x="450" y="68" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">plain JSON · 212 B</text>
+
+    <rect x="16" y="90" width="448" height="34" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.8"/>
+    <text x="30" y="112" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">10 KB</text>
+    <text x="450" y="112" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">zstd · 3.1 KB</text>
+
+    <rect x="16" y="134" width="448" height="34" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.8"/>
+    <text x="30" y="156" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">1 MB</text>
+    <text x="450" y="156" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">zstd · 258 KB</text>
+
+    <text x="16" y="198" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">10,000 queued messages</text>
+    <rect x="16" y="208" width="216" height="34" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="124" y="230" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">plain · 98 MB</text>
+    <rect x="248" y="208" width="216" height="34" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.8"/>
+    <text x="356" y="230" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">zstd · 30 MB</text>
+  </g>
+</svg>
