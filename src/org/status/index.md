@@ -60,13 +60,13 @@ command-line tool and wants `npm i -g @imqueue/cli`.
 <!-- status:begin packages -->
 | Package | Version | Licence | Node | Last release |
 |---|---|---|---|---|
-| [@imqueue/core](/api/core/latest/) | 3.5.4 | GPL-3.0-only | `>=22.12.0` | 2026-10-07 |
-| [@imqueue/rpc](/api/rpc/latest/) | 3.9.5 | GPL-3.0-only | `>=22.12.0` | 2026-10-07 |
+| [@imqueue/core](/api/core/latest/) | 3.6.0 | GPL-3.0-only | `>=22.12.0` | 2026-11-12 |
+| [@imqueue/rpc](/api/rpc/latest/) | 3.11.0 | GPL-3.0-only | `>=22.12.0` | 2026-11-12 |
 | [@imqueue/pg-pubsub](/api/pg-pubsub/latest/) | 3.0.9 | GPL-3.0-only | `>=22.12.0` | 2026-09-11 |
 | [@imqueue/pg-cache](/api/pg-cache/latest/) | 5.1.9 | GPL-3.0-only | `>=22.12.0` | 2026-10-07 |
 | [@imqueue/tag-cache](/api/tag-cache/latest/) | 3.0.13 | GPL-3.0-only | `>=22.12.0` | 2026-10-07 |
 | [@imqueue/pg-sequelize](/api/pg-sequelize/latest/) | 4.2.10 | GPL-3.0-only | `>=22.12.0` | 2026-10-07 |
-| [@imqueue/pg-prisma](/api/pg-prisma/latest/) | 3.0.3 | GPL-3.0-only | `>=22.12.0` | 2026-10-07 |
+| [@imqueue/pg-prisma](/api/pg-prisma/latest/) | 3.1.0 | GPL-3.0-only | `>=22.12.0` | 2026-11-12 |
 | [@imqueue/async-logger](/api/async-logger/latest/) | 3.2.2 | GPL-3.0-only | `>=22.12.0` | 2026-09-10 |
 | [@imqueue/opentelemetry](/api/opentelemetry/latest/) | 4.1.3 | GPL-3.0-only | `>=22.12.0` | 2026-09-11 |
 | [@imqueue/datadog](/api/datadog/latest/) | 3.2.7 | GPL-3.0-only | not declared | 2026-10-07 |

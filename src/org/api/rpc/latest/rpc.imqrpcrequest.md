@@ -120,5 +120,24 @@ Name of the service method to invoke.
 
 
 </td></tr>
+<tr><td>
+
+[sentAt?](/api/rpc/latest/rpc.imqrpcrequest.sentat/)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ When the client handed the call to the queue, in milliseconds since the epoch by the caller's clock.
+
+
+</td></tr>
 </tbody></table>
 

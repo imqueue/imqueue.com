@@ -6,13 +6,13 @@
 import type { ApiVersions } from "./api-types.ts";
 
 export const API_VERSIONS: ApiVersions = {
-  "core": { "latest": "3.5.4", "archives": ["2.0.26","1.15.0"] },
-  "rpc": { "latest": "3.9.5", "archives": ["2.1.0","1.17.1"] },
+  "core": { "latest": "3.6.0", "archives": ["2.0.26","1.15.0"] },
+  "rpc": { "latest": "3.11.0", "archives": ["2.1.0","1.17.1"] },
   "pg-pubsub": { "latest": "3.0.9", "archives": [] },
   "pg-cache": { "latest": "5.1.9", "archives": [] },
   "tag-cache": { "latest": "3.0.13", "archives": [] },
   "pg-sequelize": { "latest": "4.2.10", "archives": [] },
-  "pg-prisma": { "latest": "3.0.3", "archives": [] },
+  "pg-prisma": { "latest": "3.1.0", "archives": [] },
   "async-logger": { "latest": "3.2.2", "archives": [] },
   "opentelemetry": { "latest": "4.1.3", "archives": [] },
   "datadog": { "latest": "3.2.7", "archives": [] },

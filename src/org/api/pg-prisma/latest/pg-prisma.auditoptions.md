@@ -98,6 +98,25 @@ Resolves the actor to record, or a falsy value to record none.
 </td></tr>
 <tr><td>
 
+[pool?](/api/pg-prisma/latest/pg-prisma.auditoptions.pool/)
+
+
+</td><td>
+
+
+</td><td>
+
+Omit&lt;pg.PoolConfig, 'connectionString'&gt;
+
+
+</td><td>
+
+_(Optional)_ Settings for the trail's own pool — its size, how long an idle connection is kept, timeouts. Omitted, `pg`<!-- -->'s defaults apply.
+
+
+</td></tr>
+<tr><td>
+
 [stamps?](/api/pg-prisma/latest/pg-prisma.auditoptions.stamps/)
 
 

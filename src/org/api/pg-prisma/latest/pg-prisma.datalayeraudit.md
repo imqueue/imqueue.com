@@ -96,5 +96,24 @@ Resolves the actor to record, or a falsy value to record none.
 
 
 </td></tr>
+<tr><td>
+
+[pool?](/api/pg-prisma/latest/pg-prisma.datalayeraudit.pool/)
+
+
+</td><td>
+
+
+</td><td>
+
+[AuditOptions](/api/pg-prisma/latest/pg-prisma.auditoptions/)<!-- -->\['pool'\]
+
+
+</td><td>
+
+_(Optional)_ Settings for the trail's own pool. Omitted, `pg`<!-- -->'s defaults.
+
+
+</td></tr>
 </tbody></table>
 

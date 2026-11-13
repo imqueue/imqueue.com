@@ -99,6 +99,25 @@ The originating request, echoed back in full — method, arguments and metadata 
 </td></tr>
 <tr><td>
 
+[timing?](/api/rpc/latest/rpc.imqrpcresponse.timing/)
+
+
+</td><td>
+
+
+</td><td>
+
+[IMQRPCTiming](/api/rpc/latest/rpc.imqrpctiming/)
+
+
+</td><td>
+
+_(Optional)_ When the service took the request off the queue, started the method and finished it, in milliseconds since the epoch by the service's clock.
+
+
+</td></tr>
+<tr><td>
+
 [to](/api/rpc/latest/rpc.imqrpcresponse.to/)
 
 

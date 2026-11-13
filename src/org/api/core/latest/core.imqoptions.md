@@ -126,6 +126,25 @@ _(Optional)_ Cluster managers that discover and maintain cluster servers dynamic
 </td></tr>
 <tr><td>
 
+[compressAbove?](/api/core/latest/core.imqoptions.compressabove/)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Compress a queue message with zstd when its JSON is longer than this many characters. `0`<!-- -->, the default, never does. Read from `IMQ_COMPRESS_ABOVE` when not given.
+
+
+</td></tr>
+<tr><td>
+
 [handleSignals?](/api/core/latest/core.imqoptions.handlesignals/)
 
 

@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "rpc",
-  "apiVersion": "3.9.5",
+  "apiVersion": "3.11.0",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-10-07T07:53:46.240Z",
+  "apiReleased": "2026-11-12T21:08:52.665Z",
   "apiNav": [
     {
       "group": "Classes",
@@ -57,6 +57,10 @@
       "group": "Functions",
       "items": [
         {
+          "name": "callTiming(request, response, answeredAt)",
+          "url": "/api/rpc/latest/rpc.calltiming/"
+        },
+        {
           "name": "classType()",
           "url": "/api/rpc/latest/rpc.classtype/"
         },
@@ -85,6 +89,14 @@
           "url": "/api/rpc/latest/rpc.indexed/"
         },
         {
+          "name": "localService(name)",
+          "url": "/api/rpc/latest/rpc.localservice/"
+        },
+        {
+          "name": "localServiceNames()",
+          "url": "/api/rpc/latest/rpc.localservicenames/"
+        },
+        {
           "name": "lock(enabledOrOptions)",
           "url": "/api/rpc/latest/rpc.lock/"
         },
@@ -101,6 +113,10 @@
           "url": "/api/rpc/latest/rpc.property/"
         },
         {
+          "name": "registerLocalService(service)",
+          "url": "/api/rpc/latest/rpc.registerlocalservice/"
+        },
+        {
           "name": "registerType(ctor, metadata, indexType)",
           "url": "/api/rpc/latest/rpc.registertype/"
         },
@@ -115,6 +131,14 @@
         {
           "name": "send(request, response, service)",
           "url": "/api/rpc/latest/rpc.send/"
+        },
+        {
+          "name": "unregisterLocalService(service)",
+          "url": "/api/rpc/latest/rpc.unregisterlocalservice/"
+        },
+        {
+          "name": "wireCopy(value)",
+          "url": "/api/rpc/latest/rpc.wirecopy/"
         }
       ]
     },
@@ -150,8 +174,16 @@
           "url": "/api/rpc/latest/rpc.imqbeforecall/"
         },
         {
+          "name": "IMQCallTiming",
+          "url": "/api/rpc/latest/rpc.imqcalltiming/"
+        },
+        {
           "name": "IMQClientOptions",
           "url": "/api/rpc/latest/rpc.imqclientoptions/"
+        },
+        {
+          "name": "IMQLocalService",
+          "url": "/api/rpc/latest/rpc.imqlocalservice/"
         },
         {
           "name": "IMQLockMetadata",
@@ -176,6 +208,10 @@
         {
           "name": "IMQRPCResponse",
           "url": "/api/rpc/latest/rpc.imqrpcresponse/"
+        },
+        {
+          "name": "IMQRPCTiming",
+          "url": "/api/rpc/latest/rpc.imqrpctiming/"
         },
         {
           "name": "IMQServiceOptions",

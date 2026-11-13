@@ -19,7 +19,9 @@ useGzip?: boolean;
 
 ## Remarks
 
-Must be set identically on every producer and consumer of a queue: a mismatch makes deserialization fail, which emits an `error` event with the event name `OnMessage` and drops the message — permanently, even under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/)<!-- -->: a message that cannot be unpacked reaches no listener, so nothing is pending on it and its lease is released at once. Re-delivering it would only fail the same way.
+It decides how this queue writes. Every queue reads plain, gzipped and zstd messages alike, so producers and consumers need not agree on it. A consumer older than that reader still has to agree: there a mismatch fails deserialization, emits an `error` event named `OnMessage` and drops the message permanently, even under [IMQOptions.safeDelivery](/api/core/latest/core.imqoptions.safedelivery/)<!-- -->.
+
+Every gzipped byte travels as a character of a UTF-8 string, so about half of them take two bytes on the wire; [IMQOptions.compressAbove](/api/core/latest/core.imqoptions.compressabove/) is usually the better choice.
 
 Applies to queue messages only. [IMessageQueue.publish()](/api/core/latest/core.imessagequeue.publish/) and [IMessageQueue.subscribe()](/api/core/latest/core.imessagequeue.subscribe/) payloads are always plain JSON.
 

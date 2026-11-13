@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/rpc 3.9.5 · API reference"
+title: "@imqueue/rpc 3.11.0 · API reference"
 description: "Type-safe RPC over a message queue — services, clients and the decorators that describe them, built on @imqueue/core."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/rpc","url":"/api/rpc/latest/"}]
 ---
@@ -194,6 +194,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[callTiming(request, response, answeredAt)](/api/rpc/latest/rpc.calltiming/)
+
+
+</td><td>
+
+Splits a call's round trip from the request a client sent and the response it was answered with.
+
+
+</td></tr>
+<tr><td>
+
 [classType()](/api/rpc/latest/rpc.classtype/)
 
 
@@ -271,6 +282,28 @@ Exposes a complex service type that carries an index signature.
 </td></tr>
 <tr><td>
 
+[localService(name)](/api/rpc/latest/rpc.localservice/)
+
+
+</td><td>
+
+The service this process serves under the given name, if it serves one.
+
+
+</td></tr>
+<tr><td>
+
+[localServiceNames()](/api/rpc/latest/rpc.localservicenames/)
+
+
+</td><td>
+
+The name of every service this process serves itself, sorted.
+
+
+</td></tr>
+<tr><td>
+
 [lock(enabledOrOptions)](/api/rpc/latest/rpc.lock/)
 
 
@@ -317,6 +350,17 @@ Marks a class field as part of an exposed complex type, so it is described to cl
 </td></tr>
 <tr><td>
 
+[registerLocalService(service)](/api/rpc/latest/rpc.registerlocalservice/)
+
+
+</td><td>
+
+Makes a service reachable in process under its name.
+
+
+</td></tr>
+<tr><td>
+
 [registerType(ctor, metadata, indexType)](/api/rpc/latest/rpc.registertype/)
 
 
@@ -358,6 +402,28 @@ The binding is scoped to the function: it is established for the duration of the
 </td><td>
 
 Sends IMQ response with support of after call optional hook
+
+
+</td></tr>
+<tr><td>
+
+[unregisterLocalService(service)](/api/rpc/latest/rpc.unregisterlocalservice/)
+
+
+</td><td>
+
+Stops reaching a service in process. Its clients go back to the queue.
+
+
+</td></tr>
+<tr><td>
+
+[wireCopy(value)](/api/rpc/latest/rpc.wirecopy/)
+
+
+</td><td>
+
+Copies a value the way the queue does: through JSON and back.
 
 
 </td></tr>
@@ -455,12 +521,34 @@ Hook invoked before a call is dispatched.
 </td></tr>
 <tr><td>
 
+[IMQCallTiming](/api/rpc/latest/rpc.imqcalltiming/)
+
+
+</td><td>
+
+One call's round trip, split into where it went, in milliseconds.
+
+
+</td></tr>
+<tr><td>
+
 [IMQClientOptions](/api/rpc/latest/rpc.imqclientoptions/)
 
 
 </td><td>
 
 Options accepted by a generated IMQ client.
+
+
+</td></tr>
+<tr><td>
+
+[IMQLocalService](/api/rpc/latest/rpc.imqlocalservice/)
+
+
+</td><td>
+
+A service this process serves itself, as a client in the same process reaches it.
 
 
 </td></tr>
@@ -529,6 +617,17 @@ Wire format of a remote call, produced by a client and consumed by a service.
 </td><td>
 
 Response message data structure that a service replies with to handled requests.
+
+
+</td></tr>
+<tr><td>
+
+[IMQRPCTiming](/api/rpc/latest/rpc.imqrpctiming/)
+
+
+</td><td>
+
+Where a service spent a call, by its own clock.
 
 
 </td></tr>

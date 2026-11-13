@@ -141,6 +141,25 @@ _(Optional)_ Milliseconds a drain waits for in-flight requests before giving up 
 </td></tr>
 <tr><td>
 
+[local?](/api/rpc/latest/rpc.imqserviceoptions.local/)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Serve this service in process as well: a client in the same process calls it directly, with no trip through the queue.
+
+
+</td></tr>
+<tr><td>
+
 [metricsServer?](/api/rpc/latest/rpc.imqserviceoptions.metricsserver/)
 
 

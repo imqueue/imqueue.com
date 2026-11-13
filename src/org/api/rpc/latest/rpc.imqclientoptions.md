@@ -122,6 +122,25 @@ Transpile the generated client and evaluate it in-process, returning its exports
 </td></tr>
 <tr><td>
 
+[local?](/api/rpc/latest/rpc.imqclientoptions.local/)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Call a service this process serves itself directly, rather than through the queue.
+
+
+</td></tr>
+<tr><td>
+
 [path](/api/rpc/latest/rpc.imqclientoptions.path/)
 
 
