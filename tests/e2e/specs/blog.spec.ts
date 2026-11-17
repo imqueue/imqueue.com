@@ -43,6 +43,48 @@ test.describe('the listing', () => {
     await expect(page.locator('nav.pagination a[href="/blog/"]').first()).toBeAttached();
   });
 
+  // The pager used to list every page, one button per five posts, so it grew
+  // without limit. It now keeps the first and last pages, the current one and its
+  // neighbours, and a non-link gap for each run it leaves out
+  // (scripts/lib/page-window.ts). Checked at both ends and in the middle, so the
+  // rule is tested rather than today's page count.
+  test('the pager shows at most seven pages, and always the ones that matter', async ({ page }) => {
+    await page.goto('/blog/');
+
+    const lastHref = await attr(
+      page.locator('nav.pagination a').filter({ hasText: /^\d+$/ }).last(),
+      'href',
+    );
+    const total = Number(lastHref.match(/\/page\/(\d+)\//)?.[1] ?? 1);
+
+    for (const current of [1, Math.ceil(total / 2), total]) {
+      await page.goto(current === 1 ? '/blog/' : `/blog/page/${current}/`);
+
+      const pager = page.locator('nav.pagination');
+      // every slot between the two arrows
+      const slots = (await pager.locator(':scope > *').allTextContents())
+        .map(text => text.trim())
+        .slice(1, -1);
+
+      expect(slots.length, `page ${current}`).toBeLessThanOrEqual(7);
+      expect(slots[0]).toBe('1');
+      expect(slots.at(-1)).toBe(String(total));
+      await expect(pager.locator('[aria-current="page"]')).toHaveText(String(current));
+
+      for (const neighbour of [current - 1, current + 1]) {
+        if (neighbour >= 1 && neighbour <= total) {
+          expect(slots, `page ${current}`).toContain(String(neighbour));
+        }
+      }
+
+      // a gap is a marker, not a link, and hidden from screen readers
+      for (const gap of await pager.locator('.gap').all()) {
+        await expect(gap).toHaveAttribute('aria-hidden', 'true');
+        expect(await gap.evaluate(el => el.tagName)).toBe('SPAN');
+      }
+    }
+  });
+
   test('the last page exists and is reachable in one click', async ({ page }) => {
     await page.goto('/blog/');
 

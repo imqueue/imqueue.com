@@ -372,6 +372,16 @@ html.lightbox-open { overflow: hidden; }
 .pagination a:hover { border-color: var(--accent); color: var(--accent); }
 .pagination .current { background: var(--accent-fill, var(--accent)); color: var(--on-accent-fill, var(--on-accent)); border-color: transparent; }
 .pagination .disabled { opacity: .4; pointer-events: none; }
+/* A run of pages the pager leaves out (scripts/lib/page-window.ts). Not a
+   button, so no border: it reads as a break in the row, not as something to press. */
+.pagination .gap { min-width: 0; padding: 0 2px; border-color: transparent; color: var(--muted); }
+/* At most seven numbers and two arrows. Below 480px they are made narrow enough to
+   stay on one row at 360px: nine 32px boxes and eight 4px gaps are 320px, inside
+   the 328px a 360px screen leaves after its gutters. */
+@media (max-width: 480px) {
+  .pagination { gap: 4px; }
+  .pagination a, .pagination span { min-width: 32px; height: 36px; padding: 0 6px; }
+}
 
 .post-layout { display: grid; grid-template-columns: minmax(0,1fr) 280px; gap: 44px; align-items: start; }
 /* See .blog-layout above: a bare `1fr` let long `pre` lines widen the whole page. */

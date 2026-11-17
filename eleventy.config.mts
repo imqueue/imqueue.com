@@ -32,6 +32,7 @@ import { stampCsp } from "./scripts/lib/csp.ts";
 import type { CollectionItem } from "./scripts/lib/eleventy.ts";
 import { slugify } from "./scripts/lib/md-slug.ts";
 import { stackTables } from "./scripts/lib/md-stack-tables.ts";
+import { pageWindow } from "./scripts/lib/page-window.ts";
 import blogTopicMeta from "./src/_data/blogTopics.json" with { type: "json" };
 import pageDates from "./src/_data/pageDates.json" with { type: "json" };
 
@@ -918,6 +919,13 @@ export default function (eleventyConfig: UserConfig) {
   // Posts written by a given author slug (newest first).
   eleventyConfig.addFilter("byAuthor", (posts: CollectionItem[] | undefined, slug: string) =>
     (posts || []).filter((p) => p.data.author === slug)
+  );
+
+  // The page numbers a pager shows, `0` for a gap: first, last, current and its
+  // neighbours, so the pager stays one row however many pages there are.
+  // See scripts/lib/page-window.ts.
+  eleventyConfig.addFilter("pageWindow", (current: number, total: number) =>
+    pageWindow(current, total)
   );
 
   // Look up a single author record by slug from the authors data list.

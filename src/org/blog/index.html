@@ -43,8 +43,11 @@ eleventyComputed:
       {%- if pagination.pages.size > 1 -%}
       <nav class="pagination" aria-label="Blog pages">
         {% if pagination.href.previous %}<a href="{{ pagination.href.previous }}" aria-label="Previous page">←</a>{% else %}<span class="disabled">←</span>{% endif %}
-        {%- for pageEntry in pagination.pages -%}
-          {% if forloop.index0 == pagination.pageNumber %}<span class="current" aria-current="page">{{ forloop.index }}</span>{% else %}<a href="{{ pagination.hrefs[forloop.index0] }}">{{ forloop.index }}</a>{% endif %}
+        {%- assign currentPage = pagination.pageNumber | plus: 1 -%}
+        {%- assign slots = currentPage | pageWindow: pagination.pages.size -%}
+        {%- for n in slots -%}
+          {%- assign hrefIndex = n | minus: 1 -%}
+          {% if n == 0 %}<span class="gap" aria-hidden="true">…</span>{% elsif n == currentPage %}<span class="current" aria-current="page">{{ n }}</span>{% else %}<a href="{{ pagination.hrefs[hrefIndex] }}">{{ n }}</a>{% endif %}
         {%- endfor -%}
         {% if pagination.href.next %}<a href="{{ pagination.href.next }}" aria-label="Next page">→</a>{% else %}<span class="disabled">→</span>{% endif %}
       </nav>
