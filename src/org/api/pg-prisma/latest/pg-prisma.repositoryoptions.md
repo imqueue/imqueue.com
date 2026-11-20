@@ -41,6 +41,25 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[audited?](/api/pg-prisma/latest/pg-prisma.repositoryoptions.audited/)
+
+
+</td><td>
+
+
+</td><td>
+
+Readonly&lt;Record&lt;string, string&gt;&gt;
+
+
+</td><td>
+
+_(Optional)_ Tables the audit trail records, physical table to model, as `deriveDataLayer` gives them in `audit`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [namespace?](/api/pg-prisma/latest/pg-prisma.repositoryoptions.namespace/)
 
 
