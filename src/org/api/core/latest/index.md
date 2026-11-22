@@ -1,5 +1,5 @@
 ---
-title: "@imqueue/core 3.6.0 · API reference"
+title: "@imqueue/core 3.7.0 · API reference"
 description: "Redis-backed message queue engine for the @imqueue framework — the transport shared by @imqueue/rpc and the job packages."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"}]
 ---
@@ -445,6 +445,17 @@ Represents JSON serializable object
 Options accepted by the [profile()](/api/core/latest/core.profile/) decorator.
 
 Every field is optional; omitted fields fall back to the [IMQ\_LOG\_TIME](/api/core/latest/core.imq_log_time/)<!-- -->, [IMQ\_LOG\_ARGS](/api/core/latest/core.imq_log_args/) and [IMQ\_LOG\_LEVEL](/api/core/latest/core.imq_log_level/) environment defaults.
+
+
+</td></tr>
+<tr><td>
+
+[ServerRemoval](/api/core/latest/core.serverremoval/)
+
+
+</td><td>
+
+Why a [ClusterManager](/api/core/latest/core.clustermanager/) removes a server, where it can say.
 
 
 </td></tr>

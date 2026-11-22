@@ -188,6 +188,20 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[answers(timeoutMs)](/api/core/latest/core.redisqueue.answers/)
+
+
+</td><td>
+
+
+</td><td>
+
+Whether the broker answers this queue's writer within the given time.
+
+
+</td></tr>
+<tr><td>
+
 [clear()](/api/core/latest/core.redisqueue.clear/)
 
 
@@ -211,6 +225,20 @@ Deletes this queue's message list and its delayed-message set from redis.
 </td><td>
 
 Gracefully destroys this queue handle. Does not remove queue data from redis unless clearData is explicitly set to true, so that destroying one handle (e.g., on scale-down) never wipes messages still pending for other producers/consumers.
+
+
+</td></tr>
+<tr><td>
+
+[drain(timeoutMs)](/api/core/latest/core.redisqueue.drain/)
+
+
+</td><td>
+
+
+</td><td>
+
+Stops reading and hands on every message the reader already took from the broker, before a teardown that would drop the reader at once.
 
 
 </td></tr>

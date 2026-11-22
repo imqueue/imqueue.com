@@ -89,12 +89,12 @@ Looks a server up, matching by `id` when both sides carry one and by host and po
 
 </td><td>
 
-(server: [IServerInput](/api/core/latest/core.iserverinput/)<!-- -->) =&gt; void
+(server: [IServerInput](/api/core/latest/core.iserverinput/)<!-- -->, removal?: [ServerRemoval](/api/core/latest/core.serverremoval/)<!-- -->) =&gt; void
 
 
 </td><td>
 
-Removes a server from the cluster. A no-op when the server is unknown.
+Removes a server from the cluster. A no-op when the server is unknown. With `removal.lapsed`<!-- -->, only the server's announcements stopped arriving, and a cluster may keep a server that still answers on its connections.
 
 
 </td></tr>

@@ -60,7 +60,7 @@ command-line tool and wants `npm i -g @imqueue/cli`.
 <!-- status:begin packages -->
 | Package | Version | Licence | Node | Last release |
 |---|---|---|---|---|
-| [@imqueue/core](/api/core/latest/) | 3.6.0 | GPL-3.0-only | `>=22.12.0` | 2026-11-12 |
+| [@imqueue/core](/api/core/latest/) | 3.7.0 | GPL-3.0-only | `>=22.12.0` | 2026-11-22 |
 | [@imqueue/rpc](/api/rpc/latest/) | 3.11.0 | GPL-3.0-only | `>=22.12.0` | 2026-11-12 |
 | [@imqueue/pg-pubsub](/api/pg-pubsub/latest/) | 3.0.9 | GPL-3.0-only | `>=22.12.0` | 2026-09-11 |
 | [@imqueue/pg-cache](/api/pg-cache/latest/) | 5.1.9 | GPL-3.0-only | `>=22.12.0` | 2026-10-07 |

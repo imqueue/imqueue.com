@@ -14,7 +14,7 @@ Removes a server from the cluster, matching by `id` or by host and port.
 **Signature:**
 
 ```typescript
-protected removeServer(server: IServerInput): void;
+protected removeServer(server: IServerInput, removal?: ServerRemoval): void;
 ```
 
 ## Parameters
@@ -48,6 +48,22 @@ server
 </td><td>
 
 address of the server to remove
+
+
+</td></tr>
+<tr><td>
+
+removal
+
+
+</td><td>
+
+[ServerRemoval](/api/core/latest/core.serverremoval/)
+
+
+</td><td>
+
+_(Optional)_
 
 
 </td></tr>

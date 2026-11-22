@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "core",
-  "apiVersion": "3.6.0",
+  "apiVersion": "3.7.0",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-11-12T14:21:32.728Z",
+  "apiReleased": "2026-11-22T12:00:22.160Z",
   "apiNav": [
     {
       "group": "Classes",
@@ -141,6 +141,10 @@
         {
           "name": "ProfileDecoratorOptions",
           "url": "/api/core/latest/core.profiledecoratoroptions/"
+        },
+        {
+          "name": "ServerRemoval",
+          "url": "/api/core/latest/core.serverremoval/"
         },
         {
           "name": "UDPClusterManagerOptions",

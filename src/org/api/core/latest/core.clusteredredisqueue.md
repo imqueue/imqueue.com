@@ -410,7 +410,7 @@ Removes a listener from every server's queue and from the internal template. Ali
 </td></tr>
 <tr><td>
 
-[removeServer(server)](/api/core/latest/core.clusteredredisqueue.removeserver/)
+[removeServer(server, removal)](/api/core/latest/core.clusteredredisqueue.removeserver/)
 
 
 </td><td>

@@ -6,7 +6,7 @@
 import type { ApiVersions } from "./api-types.ts";
 
 export const API_VERSIONS: ApiVersions = {
-  "core": { "latest": "3.6.0", "archives": ["2.0.26","1.15.0"] },
+  "core": { "latest": "3.7.0", "archives": ["2.0.26","1.15.0"] },
   "rpc": { "latest": "3.11.0", "archives": ["2.1.0","1.17.1"] },
   "pg-pubsub": { "latest": "3.0.9", "archives": [] },
   "pg-cache": { "latest": "5.1.9", "archives": [] },

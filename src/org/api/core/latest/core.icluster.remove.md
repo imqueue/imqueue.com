@@ -9,10 +9,10 @@ sitemap: false
 
 # ICluster.remove property
 
-Removes a server from the cluster. A no-op when the server is unknown.
+Removes a server from the cluster. A no-op when the server is unknown. With `removal.lapsed`<!-- -->, only the server's announcements stopped arriving, and a cluster may keep a server that still answers on its connections.
 
 **Signature:**
 
 ```typescript
-remove: (server: IServerInput) => void;
+remove: (server: IServerInput, removal?: ServerRemoval) => void;
 ```
