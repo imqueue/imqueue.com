@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "rpc",
-  "apiVersion": "3.11.0",
+  "apiVersion": "3.12.0",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-11-12T21:08:52.665Z",
+  "apiReleased": "2026-11-24T14:03:35.395Z",
   "apiNav": [
     {
       "group": "Classes",

@@ -63,7 +63,7 @@ removal
 
 </td><td>
 
-_(Optional)_
+_(Optional)_ why it is removed, where the manager can say
 
 
 </td></tr>
@@ -75,7 +75,9 @@ void
 
 ## Remarks
 
-A silent no-op when no server matches. Routing stops using the host immediately, but teardown of its redis connections is started in the background and not awaited: in-flight work on that host is not drained, and teardown errors are only logged.
+A silent no-op when no server matches. Routing stops using the host immediately, but teardown of its redis connections is started in the background and not awaited: what its reader already took is drained to the listeners first, and teardown errors are only logged.
+
+With `removal.lapsed` the server is not removed yet: it is asked a PING and kept while it answers within `IMQ_LAPSED_ANSWER_TIMEOUT`<!-- -->, asked again at the interval it announced itself at for as long as its announcements stay away, and removed the first time it does not answer. An `add` for the same server ends that watch.
 
 Because the underlying queues are matched by host and port, all entries sharing an address are removed together.
 

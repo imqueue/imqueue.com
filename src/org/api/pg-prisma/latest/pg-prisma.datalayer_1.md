@@ -56,7 +56,7 @@ The contract, what cannot be derived, and the resolvers.
 
 [DataLayer](/api/pg-prisma/latest/pg-prisma.datalayer/)
 
-The middleware array and a teardown hook.
+The middleware array, a teardown hook, and `bind` for the client.
 
 ## Exceptions
 
@@ -79,10 +79,12 @@ const layer = dataLayer({
     getActorId: currentActorId,
 });
 
-export const db = postgres<Contract>({
-    contractJson,
-    url: config.db.url,
-    middleware: layer.middleware,
-});
+export const db = layer.bind(
+    postgres<Contract>({
+        contractJson,
+        url: config.db.url,
+        middleware: layer.middleware,
+    }),
+);
 ```
 

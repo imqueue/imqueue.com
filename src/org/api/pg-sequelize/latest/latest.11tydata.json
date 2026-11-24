@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "pg-sequelize",
-  "apiVersion": "4.2.10",
+  "apiVersion": "4.2.11",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-10-07T08:00:41.656Z",
+  "apiReleased": "2026-11-24T14:12:05.759Z",
   "apiNav": [
     {
       "group": "Classes",

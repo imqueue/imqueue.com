@@ -15,6 +15,7 @@ Build the middleware recording every write to the tables it is given.
 ```typescript
 export declare function audit(input: AuditOptions): SqlMiddleware & {
     close(): Promise<void>;
+    bind<Client extends object>(client: Client): Client;
 };
 ```
 
@@ -56,9 +57,9 @@ The trail's connection, table config, tables and actor.
 
 **Returns:**
 
-SqlMiddleware &amp; { close(): Promise&lt;void&gt;; }
+SqlMiddleware &amp; { close(): Promise&lt;void&gt;; bind&lt;Client extends object&gt;(client: Client): Client; }
 
-Middleware with a `close()` for teardown.
+Middleware with a `close()` for teardown and a `bind()` for the client it is installed on.
 
 ## Remarks
 
@@ -68,5 +69,26 @@ Rows are captured as the database returns them, so the trail holds what was actu
 
 The actor is resolved at the \*\*first row\*\*, inside the statement's own async context, for the same reason.
 
+\*\*A write in a transaction is recorded once the transaction commits.\*\* The trail is written through its own pool, so a row inserted when the statement completes stays in the trail when the transaction rolls back afterwards — a write that never happened, attributed to a real actor. The middleware is told only that a statement ran in \*a\* transaction, not which one or how it ended, so the client is passed through `bind()`<!-- -->: its `transaction` then holds the trail rows of the writes made inside it, writes them once COMMIT has succeeded, and drops them when it rolls back. A crash between the commit and that insert loses them; the trail errs towards missing a write rather than recording one that did not happen.
+
+Two kinds of transaction are not seen by `bind()` and are recorded when the statement completes, as before: one opened on a client that was not bound — said once through `onError` while no client is bound — and the one the ORM opens for itself around a top-level `db.orm` `update()`<!-- -->, `delete()` or nested write, which leaves a trail row behind if its COMMIT fails. For an audited table, write through `repositoriesFor` instead: its writes are single statements, with no transaction around them and so no such window.
+
+Inside a bound transaction, write only through `tx`<!-- -->. A write through the outer client runs on another connection and commits on its own, but its rows are held with the transaction's — and dropped with them when the transaction rolls back, leaving a committed write unrecorded.
+
 Call `close()` on the returned middleware when shutting down, or the pool keeps the process alive.
+
+## Example
+
+
+```typescript
+const trail = audit({ connectionString, tables, getPrincipal });
+const db = trail.bind(
+    postgres<Contract>({ contractJson, url, middleware: [trail] }),
+);
+
+await db.transaction(async tx => {
+    await tx.orm.public.Invoice.where({ id }).update({ amount });
+    await charge(); // throws: the update rolls back and is not recorded
+});
+```
 

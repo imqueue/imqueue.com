@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "pg-prisma",
-  "apiVersion": "3.2.1",
+  "apiVersion": "3.3.0",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-11-19T15:16:54.714Z",
+  "apiReleased": "2026-11-24T14:01:38.133Z",
   "apiNav": [
     {
       "group": "Functions",

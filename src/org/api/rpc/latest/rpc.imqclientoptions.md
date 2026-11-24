@@ -122,6 +122,25 @@ Transpile the generated client and evaluate it in-process, returning its exports
 </td></tr>
 <tr><td>
 
+[handleSignals?](/api/rpc/latest/rpc.imqclientoptions.handlesignals/)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Let this package handle `SIGTERM`<!-- -->, `SIGINT`<!-- -->, `SIGHUP` and `SIGQUIT` for the process. Set it to `false` when the host owns shutdown — an HTTP gateway holding clients, for one.
+
+
+</td></tr>
+<tr><td>
+
 [local?](/api/rpc/latest/rpc.imqclientoptions.local/)
 
 

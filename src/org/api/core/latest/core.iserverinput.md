@@ -100,5 +100,24 @@ TCP port the server listens on.
 
 
 </td></tr>
+<tr><td>
+
+[timeout?](/api/core/latest/core.iserverinput.timeout/)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ How long this server may go unheard, in milliseconds, as announced to a discovering cluster manager — [UDPClusterManager](/api/core/latest/core.udpclustermanager/) sets it from the interval carried by the server's announcement. Static `cluster` entries leave it out.
+
+
+</td></tr>
 </tbody></table>
 

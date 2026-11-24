@@ -9,7 +9,7 @@ sitemap: false
 
 # ICluster.add property
 
-Adds a server to the cluster and returns its registration record. Registration is idempotent — an already-known server is returned unchanged.
+Adds a server to the cluster and returns its registration record. Registration is idempotent — an already-known server is returned unchanged. A manager calls it again for a known server whose announcements resumed after a lapse, so a cluster still checking that server can stop.
 
 **Signature:**
 

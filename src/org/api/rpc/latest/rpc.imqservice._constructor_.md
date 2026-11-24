@@ -79,5 +79,7 @@ Constructing a service installs process signal handlers for `SIGTERM`<!-- -->, `
 
 With [IMQServiceOptions.drain](/api/rpc/latest/rpc.imqserviceoptions.drain/) on — or `IMQ_DRAIN_ENABLE=1` — `SIGTERM` and `SIGINT` instead start a graceful drain: stop consuming, await the requests already in flight for at most [IMQServiceOptions.drainTimeout](/api/rpc/latest/rpc.imqserviceoptions.draintimeout/)<!-- -->, then tear down and exit `0`<!-- -->. That drain takes over from every signal handler this package registered, including this service's own for `SIGHUP`<!-- -->/`SIGQUIT` and any client's in the same process, and forces `handleSignals: false` on the queue so the queue layer does not exit mid-drain. Handlers registered by anything other than this package are never touched.
 
+Pass `handleSignals: false` when the host owns the process's shutdown: then neither the service nor its queue installs a handler for the fixed-timer shutdown above, and the host calls [IMQService.destroy()](/api/rpc/latest/rpc.imqservice.destroy/) when it is ready. A drain is the exception — an explicit opt-in to this package handling shutdown gracefully — so with draining on, `SIGTERM` and `SIGINT` still start it; pass `drain: false` as well to own those too.
+
 The merged options are passed straight to the queue factory, so `vendor` and `cluster`<!-- -->/`clusterManagers` select the transport implementation.
 

@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "pg-cache",
-  "apiVersion": "5.1.9",
+  "apiVersion": "5.1.10",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-10-07T08:06:49.305Z",
+  "apiReleased": "2026-11-24T14:19:10.569Z",
   "apiNav": [
     {
       "group": "Enumerations",

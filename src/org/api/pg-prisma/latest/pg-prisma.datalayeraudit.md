@@ -98,6 +98,25 @@ Resolves the actor to record, or a falsy value to record none.
 </td></tr>
 <tr><td>
 
+[onError?](/api/pg-prisma/latest/pg-prisma.datalayeraudit.onerror/)
+
+
+</td><td>
+
+
+</td><td>
+
+[AuditOptions](/api/pg-prisma/latest/pg-prisma.auditoptions/)<!-- -->\['onError'\]
+
+
+</td><td>
+
+_(Optional)_ Told when the trail could not record a write as it should. Omitted, `console.error`<!-- -->, plus the runtime's `ctx.log.warn` when it has one. See [AuditOptions.onError](/api/pg-prisma/latest/pg-prisma.auditoptions.onerror/)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [pool?](/api/pg-prisma/latest/pg-prisma.datalayeraudit.pool/)
 
 

@@ -141,6 +141,25 @@ _(Optional)_ Milliseconds a drain waits for in-flight requests before giving up 
 </td></tr>
 <tr><td>
 
+[handleSignals?](/api/rpc/latest/rpc.imqserviceoptions.handlesignals/)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Let this package handle `SIGTERM`<!-- -->, `SIGINT`<!-- -->, `SIGHUP` and `SIGQUIT` for the process. Set it to `false` when the host owns shutdown.
+
+
+</td></tr>
+<tr><td>
+
 [local?](/api/rpc/latest/rpc.imqserviceoptions.local/)
 
 

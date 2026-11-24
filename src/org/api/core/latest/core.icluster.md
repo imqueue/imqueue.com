@@ -56,7 +56,7 @@ Description
 
 </td><td>
 
-Adds a server to the cluster and returns its registration record. Registration is idempotent — an already-known server is returned unchanged.
+Adds a server to the cluster and returns its registration record. Registration is idempotent — an already-known server is returned unchanged. A manager calls it again for a known server whose announcements resumed after a lapse, so a cluster still checking that server can stop.
 
 
 </td></tr>
@@ -94,7 +94,7 @@ Looks a server up, matching by `id` when both sides carry one and by host and po
 
 </td><td>
 
-Removes a server from the cluster. A no-op when the server is unknown. With `removal.lapsed`<!-- -->, only the server's announcements stopped arriving, and a cluster may keep a server that still answers on its connections.
+Removes a server from the cluster. A no-op when the server is unknown. With `removal.lapsed`<!-- -->, only the server's announcements stopped arriving, and a cluster may keep a server that still answers on its connections — checking it itself until it stops answering or `add` reports it again.
 
 
 </td></tr>

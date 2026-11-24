@@ -91,7 +91,11 @@ TypeError when [IMQClient](/api/rpc/latest/rpc.imqclient/) is constructed direct
 
 ## Remarks
 
-Construction has side effects. It reserves an instance id by creating a pid file under `$TMPDIR/.imq-rpc`<!-- -->, opens its message queue (two in `singleQueue` mode), raises the process max-listener limit once per process, and installs `SIGTERM`<!-- -->/`SIGINT`<!-- -->/`SIGHUP`<!-- -->/`SIGQUIT` handlers that destroy the client and then exit the process after `IMQ_SHUTDOWN_TIMEOUT`<!-- -->. Any library embedding a client inherits that process-terminating behaviour.
+Construction has side effects. It reserves an instance id by creating a pid file under `$TMPDIR/.imq-rpc`<!-- -->, opens its message queue (two in `singleQueue` mode), raises the process max-listener limit once per process, and installs `SIGTERM`<!-- -->/`SIGINT`<!-- -->/`SIGHUP`<!-- -->/`SIGQUIT` handlers that destroy the client and then exit the process after `IMQ_SHUTDOWN_TIMEOUT`<!-- -->, without waiting for calls still in flight. Any library embedding a client inherits that process-terminating behaviour.
+
+Pass `handleSignals: false` when the host owns the process's shutdown — an HTTP gateway holding clients, say. Then neither the client nor its queue installs a signal handler, and the host's own handler decides when to call [IMQClient.destroy()](/api/rpc/latest/rpc.imqclient.destroy/)<!-- -->: typically after it has stopped taking new work and the calls already made have settled. The option is process-wide in effect, not per client — any client or service in the process that leaves it on still exits the process on a signal.
+
+With draining enabled in this process — a service's `drain` option or `IMQ_DRAIN_ENABLE=1` — the client's queue is kept from installing handlers, but the client still installs its own unless the host passed `handleSignals: false` itself; the drain takes those over.
 
 Only [IMQClient.destroy()](/api/rpc/latest/rpc.imqclient.destroy/) releases the pid file and removes those handlers.
 

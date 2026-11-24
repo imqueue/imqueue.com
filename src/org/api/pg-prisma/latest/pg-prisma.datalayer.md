@@ -94,6 +94,17 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
+[bind(client)](/api/pg-prisma/latest/pg-prisma.datalayer.bind/)
+
+
+</td><td>
+
+The client `postgres()` built over [DataLayer.middleware](/api/pg-prisma/latest/pg-prisma.datalayer.middleware/)<!-- -->, with its transactions known to the trail.
+
+
+</td></tr>
+<tr><td>
+
 [close()](/api/pg-prisma/latest/pg-prisma.datalayer.close/)
 
 

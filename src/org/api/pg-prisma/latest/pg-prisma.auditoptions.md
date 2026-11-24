@@ -98,6 +98,25 @@ Resolves the actor to record, or a falsy value to record none.
 </td></tr>
 <tr><td>
 
+[onError?](/api/pg-prisma/latest/pg-prisma.auditoptions.onerror/)
+
+
+</td><td>
+
+
+</td><td>
+
+(error: Error) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Told whenever the trail could not record a write as it should, in place of the default report.
+
+
+</td></tr>
+<tr><td>
+
 [pool?](/api/pg-prisma/latest/pg-prisma.auditoptions.pool/)
 
 
