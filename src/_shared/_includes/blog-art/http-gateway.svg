@@ -1,0 +1,31 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <text x="16" y="30" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">http in · rpc out</text>
+
+    <rect x="16" y="52" width="92" height="80" rx="10" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.6"/>
+    <text x="62" y="88" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">browsers</text>
+    <text x="62" y="106" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">partners</text>
+    <path d="M 108 92 l 26 0" stroke="var(--muted)" stroke-width="1.6"/>
+    <path d="M 134 92 l -7 -4 m 7 4 l -7 4" stroke="var(--muted)" stroke-width="1.6"/>
+
+    <rect x="134" y="42" width="200" height="100" rx="12" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="234" y="64" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--accent)" stroke="none">gateway</text>
+    <text x="148" y="86" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--accent)" stroke="none">code -&gt; status</text>
+    <text x="148" y="106" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--accent)" stroke="none">callTimeout -&gt; 504</text>
+    <text x="148" y="126" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="11" fill="var(--accent)" stroke="none">SIGTERM -&gt; drain</text>
+
+    <path d="M 334 92 l 26 0" stroke="var(--accent)" stroke-width="2"/>
+    <path d="M 360 92 l -8 -4 m 8 4 l -8 4" stroke="var(--accent)" stroke-width="2"/>
+    <rect x="360" y="52" width="104" height="80" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.6"/>
+    <text x="412" y="88" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">orders</text>
+    <text x="412" y="106" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">users · …</text>
+
+    <rect x="16" y="160" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="30" y="180" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">restart, framework handlers</text>
+    <text x="450" y="180" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">15 requests cut</text>
+
+    <rect x="16" y="198" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.8"/>
+    <text x="30" y="218" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">restart, handleSignals: false</text>
+    <text x="450" y="218" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">0 cut · 0.6 s</text>
+  </g>
+</svg>

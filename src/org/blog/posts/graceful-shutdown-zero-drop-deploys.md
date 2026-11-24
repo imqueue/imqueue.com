@@ -44,7 +44,7 @@ The first surprise when you go to wire this up in `@imqueue` is that the signals
 are not free. `IMQService` and `IMQClient` register handlers for `SIGTERM`,
 `SIGINT`, `SIGHUP` and `SIGQUIT` in their constructors, and the Redis-backed
 queue adds its own for `SIGTERM`, `SIGINT` and `SIGABRT` when you call `start()`
-— that last set governed by
+— all of them governed by
 [`handleSignals`](/api/core/latest/core.imqoptions.handlesignals/), on by
 default.
 
@@ -249,9 +249,12 @@ for (const signal of ['SIGTERM', 'SIGINT'] as const) {
 `removeAllListeners()` is blunt — it drops any other listener for that signal
 too, including ones a library you depend on may have installed. Doing it directly
 after `start()` keeps the blast radius to the framework's own handlers, which is
-the point, and is the one thing the built-in drain does more precisely. Note also
-that `handleSignals: false` is not a substitute by itself: it silences the
-queue's handler, but `IMQService`'s is unconditional unless the drain owns it.
+the point, and is the one thing the built-in drain does more precisely. The other
+precise way is `handleSignals: false` on the service and on every client in the
+process (`@imqueue/rpc` 3.12.0 or later): the framework's handlers are then never
+installed, so there is nothing to remove and nobody else's listener is touched.
+It has to be every one of them — the handlers are process-wide, and a single
+client left with its own still ends the process early.
 
 ## The caller's half
 

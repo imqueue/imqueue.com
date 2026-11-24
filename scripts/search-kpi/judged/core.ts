@@ -10,6 +10,11 @@
 //     one over the fleet and /tutorial/rest-api/ rebuilds it as REST/OpenAPI with Swagger UI. So
 //     "build an api gateway in node" is answered and "what is an api gateway" is not. The old gap
 //     verdict on the generic question was right.
+//   * Re-judged 2026-11-24: /blog/http-api-gateway-nodejs-services/ is a whole page on building an
+//     HTTP gateway with Express in front of the fleet — clients, timeouts, error mapping, several
+//     copies, shutdown — so it, not the tutorial's GraphQL chapter, is now the best answer to the
+//     generic and Express "build an api gateway in node" queries. The two GraphQL-gateway queries
+//     stay with /tutorial/api-service/, which is the page that builds that one.
 //   * Circuit breakers: two pages state outright that @imqueue ships none, and say what the queue
 //     gives you instead. /blog/rpc-over-redis-nodejs/#is-there-a-circuit-breaker is that answer, and
 //     it is an indexed section, so it is the precise target for the pattern-level question. Hunting
@@ -72,9 +77,10 @@ const GATEWAY = [
   'create an api gateway using nodejs and express', 'create api gateway node js',
   'how to create api gateway in node js', 'implement api gateway in nodejs',
   'node js api gateway example', 'node js as api gateway', 'node js express api gateway',
-  'nodejs api gateway framework', 'graphql api gateway microservices',
-  'graphql gateway microservices',
+  'nodejs api gateway framework',
 ];
+
+const GATEWAY_GRAPHQL = ['graphql api gateway microservices', 'graphql gateway microservices'];
 
 const SCHEDULED = [
   'alternative to cron', 'alternative to node cron', 'node cron alternatives',
@@ -324,7 +330,8 @@ const NOISE = [
 
 export const positive: readonly PositiveJudgement[] = [
   ['/blog/nodejs-service-communication-options-2026/', 'service communication', COMMUNICATE],
-  ['/tutorial/api-service/', 'api gateway', GATEWAY],
+  ['/blog/http-api-gateway-nodejs-services/', 'api gateway', GATEWAY],
+  ['/tutorial/api-service/', 'api gateway', GATEWAY_GRAPHQL],
   ['/blog/scheduled-work-without-a-job-system/', 'scheduled work', SCHEDULED],
   ['/blog/bullmq-alternatives/', 'background jobs', JOB_QUEUE],
   ['/blog/rpc-over-redis-nodejs/#is-there-a-circuit-breaker', 'circuit breaker', CIRCUIT_BREAKER],
