@@ -76,7 +76,7 @@ and each handler ran 2000 times.
 
 Two refinements make one broker as good as all of them. A broker that was just
 discovered is not picked until the cluster has known it for
-`publishSettleTime` — 7 s by default, or `IMQ_PUBLISH_SETTLE_TIME` — so every
+[`publishSettleTime`](/api/core/latest/core.imqoptions.publishsettletime/) — 7 s by default, or `IMQ_PUBLISH_SETTLE_TIME` — so every
 subscriber has had time to hear of it and subscribe on it; when no broker is
 that old, as in a process that has just started, any ready one is used.
 Measured: of 100 publishes made right after a second broker joined, none went
@@ -89,8 +89,9 @@ that are subscribed on the broker it went to, so a subscriber that started a
 moment ago, or whose subscription on that broker is still being retried,
 misses it where a write to every broker would have reached it through
 another. If some subscribers do not hold the whole fleet — a single-host
-queue, or a cluster manager limited to part of it — set `publishFanOut: true`
-on the publisher to write every event to every broker, as before.
+queue, or a cluster manager limited to part of it — set
+[`publishFanOut: true`](/api/core/latest/core.imqoptions.publishfanout/) on the
+publisher to write every event to every broker, as before.
 
 The word *known* matters: with discovery the cluster starts empty, and a publish made before the first broker
 has announced itself has nowhere to go. Measured: publishing on a cluster with

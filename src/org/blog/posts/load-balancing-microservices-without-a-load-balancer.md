@@ -7,7 +7,7 @@ summary: "For internal service-to-service traffic, the load balancer you run and
 description: "Load balance internal Node.js microservices without a load balancer, using competing consumers over a message queue — and what a balancer still does better."
 keywords: "microservice load balancing nodejs, load balance internal services, load balancing without load balancer, competing consumers, imqueue"
 date: 2026-07-14
-dateModified: 2026-07-29
+dateModified: 2026-11-26
 author: mykhailo-stadnyk
 illustration: load-balance
 topics: [load-balancing, queue, architecture]
@@ -87,7 +87,7 @@ It's also not a polling loop. The implementation uses blocking queue operations 
 - The primary **also** starts its own consumer after forking, so N configured workers means N+1 consumers — and N+1 processes will try to bind the metrics port.
 - **Workers are never respawned.** When one dies, an exit watcher kills the whole process with code 1, deliberately leaving supervision to your process manager. Don't enable this without one.
 
-**More Redis nodes**, via clustering. Here the asymmetry matters: `send()` routes each message to exactly one server using health-aware round-robin that skips instances whose writer connection isn't ready — but every *other* operation (`start`, `stop`, `clear`, `publish`, `subscribe`, `queueLength`) fans out to every server using `Promise.all`. So one failing host fails the whole call, with no partial-failure reporting and no rollback. [Horizontally scalable Redis broker](/blog/horizontally-scalable-redis-broker/) goes through the topology properly.
+**More Redis nodes**, via clustering. Here the asymmetry matters: `send()` routes each message to exactly one server using health-aware round-robin that skips instances whose writer connection isn't ready, and from `@imqueue/core` 3.9.0 `publish()` does the same for events — but every *other* operation (`start`, `stop`, `clear`, `subscribe`, `queueLength`) fans out to every server using `Promise.all`. So one failing host fails the whole call, with no partial-failure reporting and no rollback. ([`publish()`](/api/core/latest/core.clusteredredisqueue.publish/) instead retries once on another ready server before it rejects.) [Horizontally scalable Redis broker](/blog/horizontally-scalable-redis-broker/) goes through the topology properly.
 
 ## What a load balancer still does better than competing consumers
 

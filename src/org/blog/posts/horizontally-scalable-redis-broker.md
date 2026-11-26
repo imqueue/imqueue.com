@@ -7,7 +7,7 @@ summary: "One Redis behind your message bus is a ceiling and a single point of f
 description: "Run a horizontally auto-scaling Redis broker with @imqueue: client-side clustering, UDP broker discovery, a unicast path for GCP/Kubernetes, and TLS on a fleet whose broker addresses come from the scheduler."
 keywords: "horizontally scalable redis broker, redis broker auto-scaling, horizontal auto-scaling redis, scale redis message queue, redis broker cluster, redis broker discovery, redis-broker-promoter, redis-broker-unicaster, imqueue cluster, udp broadcast discovery, GCP redis broker, kubernetes redis broker, redis broker tls, encrypt redis broker fleet, redis tls-port announcement, IMQ_REDIS_TLS_SERVERNAME"
 date: 2026-07-24
-dateModified: 2026-09-01
+dateModified: 2026-11-26
 author: serhiy-morenko
 illustration: broker-fleet
 topics: [discovery, queue, architecture, patterns]
@@ -65,7 +65,9 @@ The model is deliberately simple. There is no sharding and no consistent
 hashing: every broker hosts an identically-named queue, producers pick a broker
 per message in **health-aware round-robin** (a broker whose connection is
 known to be down is skipped), and consumers run a blocking read against **all brokers
-concurrently**. Throughput scales with the number of brokers; losing one broker
+concurrently**. Pub/sub follows the same split from `@imqueue/core` 3.9.0: each
+published event goes to one broker, and every subscriber listens on all of
+them ([one event, every instance](/blog/pubsub-over-redis-broker-fleet/)). Throughput scales with the number of brokers; losing one broker
 just narrows the rotation. The brokers themselves are stock standalone Redis —
 they never talk to each other, don't replicate, and don't even know they are
 part of a fleet. Neither announcer module registers a single Redis command.
@@ -233,7 +235,8 @@ Object.assign(serviceOptions, DISABLE_CLUSTER_MANAGER
 
 One rule matters: **apply the same cluster options to every service and every
 client**. Requests and replies flow through the whole fleet, so a client pinned
-to a single broker will miss responses that round-robin landed elsewhere.
+to a single broker will miss responses that round-robin landed elsewhere — and,
+from `@imqueue/core` 3.9.0, events published on the other brokers too.
 
 ## Encrypting the fleet
 

@@ -716,6 +716,7 @@ watch for:
 | `response to request … has no pending call` | a reply arrived for a call nobody is waiting for any more — a late answer, or a backlog left by a process that is gone. This is how you tell it from a service that never answered |
 | a subscription established, and restored after a reconnect | the *absence* of the restore line is what makes a lost subscription provable |
 | no subscribers on a channel, or no server to publish to at all | a `publish()` that resolved successfully while reaching nobody |
+| a publish that failed on one server of a cluster | that server refused the event, reported once until it publishes again; the cluster retried it once on another ready server, and `publish()` rejected only if that failed too |
 
 Two properties are worth relying on. **Nothing is quoted from the error.** Only
 an allow-listed failure code is printed — an `IMQ_`-prefixed framework code, a
@@ -883,7 +884,13 @@ const service = new UserService(options);
 
 Apply those same options to **every service and every client** in the fleet.
 Replies travel back through whichever broker the request round-robined onto, so a
-client pinned to one Redis silently misses responses that landed elsewhere.
+client pinned to one Redis silently misses responses that landed elsewhere. From
+`@imqueue/core` 3.9.0 the same goes for events: each
+[`publish()`](/api/core/latest/core.clusteredredisqueue.publish/) goes to one
+broker, so a subscriber pinned to one Redis misses the events published on the
+others. If some subscribers cannot hold the whole fleet, set
+[`publishFanOut`](/api/core/latest/core.imqoptions.publishfanout/) on the
+publishers.
 
 The announce protocol is worth knowing because it sets the timings you observe. A
 broker announces `up` every `REDIS_BROADCAST_INTERVAL` seconds (default 1) to

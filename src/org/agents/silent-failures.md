@@ -117,6 +117,7 @@ failures that produced none.
 | a retry was promised and missed | `Job re-schedule failed: … code <code>` | `error` | the re-schedule's own write was rejected |
 | a caller timed out | `response to request … has no pending call` | `warn` | the service **did** answer, after the caller gave up |
 | an event reached nobody | `published to channel … with no subscribers` | `warn` | `publish()` succeeded against an empty channel |
+| a broker refused an event | `failed to publish to channel … on server …, code <code>` | `warn` | a clustered publish failed there and was retried once on another ready broker; the call rejected only if that failed too |
 | a subscription silently died | a `restored subscription to channel` line that is **missing** after a reconnect | `info` | absence is the evidence here, not presence |
 
 4. Report the conclusion with the line quoted verbatim. Do not paraphrase a
