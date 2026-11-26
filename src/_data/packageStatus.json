@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-25T14:22:17.299Z",
+  "generated": "2026-11-26T10:07:07.787Z",
   "framework": {
     "license": "GPL-3.0-only",
     "licenseNote": "GPL-3.0-only, or a commercial licence for closed-source distribution. Not AGPL: running it as a network service is not distribution, so internal services and SaaS carry no source-release obligation",
@@ -11,12 +11,12 @@
     {
       "name": "core",
       "scoped": "@imqueue/core",
-      "version": "3.8.0",
+      "version": "3.9.0",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-11-24",
+      "released": "2026-11-26",
       "firstRelease": "2018-06-15",
-      "releases": 98,
+      "releases": 99,
       "majors": [
         1,
         2,
@@ -33,12 +33,12 @@
     {
       "name": "rpc",
       "scoped": "@imqueue/rpc",
-      "version": "3.12.0",
+      "version": "3.12.1",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-11-24",
+      "released": "2026-11-26",
       "firstRelease": "2018-06-15",
-      "releases": 129,
+      "releases": 130,
       "majors": [
         1,
         2,
@@ -77,12 +77,12 @@
     {
       "name": "pg-cache",
       "scoped": "@imqueue/pg-cache",
-      "version": "5.1.10",
+      "version": "5.1.11",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-11-24",
+      "released": "2026-11-26",
       "firstRelease": "2020-03-18",
-      "releases": 70,
+      "releases": 71,
       "majors": [
         1,
         2,
@@ -101,12 +101,12 @@
     {
       "name": "tag-cache",
       "scoped": "@imqueue/tag-cache",
-      "version": "3.0.14",
+      "version": "3.0.15",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-11-24",
+      "released": "2026-11-26",
       "firstRelease": "2019-10-31",
-      "releases": 38,
+      "releases": 39,
       "majors": [
         1,
         2,
@@ -123,12 +123,12 @@
     {
       "name": "pg-sequelize",
       "scoped": "@imqueue/pg-sequelize",
-      "version": "4.2.11",
+      "version": "4.2.12",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-11-24",
+      "released": "2026-11-26",
       "firstRelease": "2026-08-01",
-      "releases": 12,
+      "releases": 13,
       "majors": [
         4
       ],
@@ -207,12 +207,12 @@
     {
       "name": "datadog",
       "scoped": "@imqueue/datadog",
-      "version": "3.2.8",
+      "version": "3.2.9",
       "license": "GPL-3.0-only",
       "node": null,
-      "released": "2026-11-24",
+      "released": "2026-11-26",
       "firstRelease": "2026-08-01",
-      "releases": 9,
+      "releases": 10,
       "majors": [
         3
       ],
@@ -335,12 +335,12 @@
     {
       "name": "job",
       "scoped": "@imqueue/job",
-      "version": "3.3.5",
+      "version": "3.3.6",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-10-07",
+      "released": "2026-11-26",
       "firstRelease": "2020-11-20",
-      "releases": 28,
+      "releases": 29,
       "majors": [
         1,
         2,
@@ -357,12 +357,12 @@
     {
       "name": "cli",
       "scoped": "@imqueue/cli",
-      "version": "5.2.11",
+      "version": "5.2.12",
       "license": "GPL-3.0-only",
       "node": ">=22.12.0",
-      "released": "2026-11-24",
+      "released": "2026-11-26",
       "firstRelease": "2018-06-15",
-      "releases": 104,
+      "releases": 105,
       "majors": [
         1,
         2,

@@ -3,9 +3,9 @@
   "section": "api",
   "bareTitle": true,
   "apiPkg": "datadog",
-  "apiVersion": "3.2.8",
+  "apiVersion": "3.2.9",
   "apiVersionPath": "latest",
-  "apiReleased": "2026-11-24T14:10:28.631Z",
+  "apiReleased": "2026-11-26T09:41:00.606Z",
   "apiNav": [
     {
       "group": "Classes",

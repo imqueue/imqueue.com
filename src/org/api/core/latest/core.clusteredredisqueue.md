@@ -19,7 +19,7 @@ export declare class ClusteredRedisQueue implements IMessageQueue, EventEmitter<
 
 ## Remarks
 
-Distribution is asymmetric, and this is the most important thing to know about the class: [ClusteredRedisQueue.send()](/api/core/latest/core.clusteredredisqueue.send/) routes each message to exactly one server, chosen by health-aware round-robin that skips instances whose writer connection is not ready. Every other operation — `start`<!-- -->, `stop`<!-- -->, `clear`<!-- -->, `destroy`<!-- -->, `publish`<!-- -->, `subscribe`<!-- -->, `unsubscribe` and `queueLength` — fans out to every server.
+Distribution is asymmetric, and this is the most important thing to know about the class: [ClusteredRedisQueue.send()](/api/core/latest/core.clusteredredisqueue.send/) and [ClusteredRedisQueue.publish()](/api/core/latest/core.clusteredredisqueue.publish/) route each message to exactly one server, chosen by health-aware round-robin that skips instances whose writer connection is not ready. Every other operation — `start`<!-- -->, `stop`<!-- -->, `clear`<!-- -->, `destroy`<!-- -->, `subscribe`<!-- -->, `unsubscribe` and `queueLength` — fans out to every server. That pairing is what makes pub/sub split across the cluster: every subscriber listens on every server, so an event published on any one of them reaches each subscriber once.
 
 Fan-out normally uses `Promise.all`<!-- -->, with no rollback on failure. Destroy attempts every cleanup task and reports failures together in an AggregateError.
 
@@ -348,7 +348,7 @@ Registers a one-shot listener at the front of the queue on every server's queue 
 
 </td><td>
 
-Publishes the payload on every redis host in the cluster.
+Publishes the payload on one redis host of the cluster, chosen by health-aware round-robin among the hosts every subscriber can be expected to know.
 
 
 </td></tr>

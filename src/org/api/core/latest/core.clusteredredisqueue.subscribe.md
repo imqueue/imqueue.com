@@ -89,5 +89,5 @@ A rejected call is not retryable: its registration remains remembered and may al
 
 A host that refused the registration is not left behind: the cluster retries its catch-up on its own, with capped backoff, until it succeeds, the host leaves or the cluster is destroyed. A rejection therefore reports that a host was unreachable when the call was made, not that it stays unsubscribed.
 
-The handler receives one invocation per host that delivers the message.
+Each event published through a [ClusteredRedisQueue](/api/core/latest/core.clusteredredisqueue/) goes to one host, so the handler is invoked once per event — once per host only where the publisher uses [IMQOptions.publishFanOut](/api/core/latest/core.imqoptions.publishfanout/)<!-- -->, or publishes the same event on several hosts by other means.
 

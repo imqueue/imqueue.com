@@ -1,6 +1,6 @@
 ---
 title: "ClusteredRedisQueue.publish() method · @imqueue/core"
-description: "Publishes the payload on every redis host in the cluster."
+description: "Publishes the payload on one redis host of the cluster, chosen by health-aware round-robin among the hosts every subscriber can be expected to know."
 apiCrumbs: [{"name":"API reference","url":"/api/"},{"name":"@imqueue/core","url":"/api/core/latest/"},{"name":"ClusteredRedisQueue","url":"/api/core/latest/core.clusteredredisqueue/"},{"name":"publish","url":"/api/core/latest/core.clusteredredisqueue.publish/"}]
 sitemap: false
 ---
@@ -9,7 +9,7 @@ sitemap: false
 
 # ClusteredRedisQueue.publish() method
 
-Publishes the payload on every redis host in the cluster.
+Publishes the payload on one redis host of the cluster, chosen by health-aware round-robin among the hosts every subscriber can be expected to know.
 
 **Signature:**
 
@@ -75,11 +75,15 @@ Promise&lt;void&gt;
 
 ## Exceptions
 
-TypeError propagated from any host that has no writer connection
+TypeError propagated from the chosen host when it has no writer connection and no other host is ready to take the publish
 
 ## Remarks
 
-This is the opposite of [ClusteredRedisQueue.send()](/api/core/latest/core.clusteredredisqueue.send/)<!-- -->: the same payload goes to all hosts. A subscriber connected to several of them therefore receives one copy per host.
+Like [ClusteredRedisQueue.send()](/api/core/latest/core.clusteredredisqueue.send/)<!-- -->, the payload goes to a single host. One is enough: [ClusteredRedisQueue.subscribe()](/api/core/latest/core.clusteredredisqueue.subscribe/) opens the channel on every host, including hosts that join later, so each subscriber receives the event exactly once, and the pub/sub stream splits across the cluster the way queued messages do.
 
-Publication is not atomic — if any host has no writer connection the call rejects even though other hosts may already have published. On an empty cluster it resolves without publishing anything — reporting that through the logger on entering the state — and unlike `send()` it does not wait for a server to appear.
+The host is picked in this order: a ready host known for at least [IMQOptions.publishSettleTime](/api/core/latest/core.imqoptions.publishsettletime/)<!-- -->, so that subscribers have had time to discover it; any ready host, when none has been known that long; and, when no host is ready, the next one in turn, which is known to be down. If publishing on the chosen host fails, the publish is retried once on another ready host, picked the same way, before the call rejects. A publish whose reply was lost after the host accepted it is therefore delivered twice — redis pub/sub is at-most-once per host, not exactly-once.
+
+An event reaches only subscribers that have discovered the chosen host and opened the channel on it. A subscriber that has just started, or whose subscription on that host is still being retried, misses it, where fanning out would have reached it through another host. Fleets whose subscribers do not each hold the whole cluster need [IMQOptions.publishFanOut](/api/core/latest/core.imqoptions.publishfanout/)<!-- -->, which writes every event to every host as before — and then rejects if any host has no writer connection, even though other hosts may already have published.
+
+On an empty cluster it resolves without publishing anything — reporting that through the logger on entering the state — and unlike `send()` it does not wait for a server to appear.
 

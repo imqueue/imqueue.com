@@ -202,6 +202,44 @@ _(Optional)_ Global key namespace for everything this queue writes.
 </td></tr>
 <tr><td>
 
+[publishFanOut?](/api/core/latest/core.imqoptions.publishfanout/)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Makes [ClusteredRedisQueue.publish()](/api/core/latest/core.clusteredredisqueue.publish/) write every event to every server of the cluster, as it did before 3.9.0, instead of to one.
+
+
+</td></tr>
+<tr><td>
+
+[publishSettleTime?](/api/core/latest/core.imqoptions.publishsettletime/)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ How long (ms) a clustered queue must have known a server before [ClusteredRedisQueue.publish()](/api/core/latest/core.clusteredredisqueue.publish/) prefers it as the one server an event goes to.
+
+
+</td></tr>
+<tr><td>
+
 [safeDelivery?](/api/core/latest/core.imqoptions.safedelivery/)
 
 
