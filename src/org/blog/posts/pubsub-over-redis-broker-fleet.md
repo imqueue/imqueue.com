@@ -3,10 +3,11 @@ layout: post.html
 permalink: /blog/pubsub-over-redis-broker-fleet/
 templateEngineOverride: md
 title: "One event, every instance: pub/sub over a Redis broker fleet with @imqueue"
-summary: "You need to tell every instance of a service something at once — a price list changed, a tenant was suspended, an order was created and three concerns want to know. Pub/sub is the tool, and a fleet of brokers changes how it behaves. Here is what a clustered subscription does across several Redis brokers, how to publish and subscribe so brokers joining and leaving never cost you a handler, how to write a handler that stays correct when it gets one copy per broker, and how to see that it works."
-description: "A recipe for pub/sub events over a clustered Redis broker fleet with @imqueue: how publish() and subscribe() fan out, what a broker that joins later receives, one delivery per broker and idempotent handlers, handlers that must not throw, no start() needed, reconnects, unsubscribe, and how to observe and test it."
+summary: "You need to tell every instance of a service something at once — a price list changed, a tenant was suspended, an order was created and three concerns want to know. Pub/sub is the tool, and a fleet of brokers changes how it behaves. Here is what a clustered subscription does across several Redis brokers, how to publish and subscribe so brokers joining and leaving never cost you a handler, how to write a handler that stays correct when an event arrives twice, and how to see that it works."
+description: "A recipe for pub/sub events over a clustered Redis broker fleet with @imqueue: how publish() picks one broker while subscribe() opens every broker, what a broker that joins later receives, one delivery per event and idempotent handlers, handlers that must not throw, no start() needed, reconnects, unsubscribe, and how to observe and test it."
 keywords: "redis pubsub multiple servers, pub/sub across redis instances, redis pub/sub cluster, broadcast event to all instances nodejs, service events nodejs microservices, redis pubsub fan-out, idempotent event handler, pubsub handler called twice, redis pub/sub vs queue, cache invalidation broadcast, imqueue publish subscribe, IMQService publish, IMQClient subscribe, ClusteredRedisQueue subscribe, clusterManagers, UDPClusterManager, redis pubsub reconnect, redis pubsub no start"
 date: 2026-09-15
+dateModified: 2026-11-26
 author: yauheniya-habrykava
 illustration: event-fanout
 topics: [queue, patterns, discovery, resilience]
@@ -28,15 +29,19 @@ pub/sub keeps working, but it behaves in ways that are worth knowing before
 you write the first handler. This post is that knowledge, as a recipe: what a
 subscription does across several brokers, how to publish and subscribe so that
 brokers joining and leaving never cost you a handler, how to write a handler
-that stays correct when it receives one copy per broker, and how to see that
-all of it works. Every behaviour stated here was measured against a real
+that stays correct when the same event arrives twice, and how to see that all
+of it works. Every behaviour stated here was measured against a real
 broker; the figures are in the text.
 
-> **TL;DR** — On a clustered queue, `publish()` writes to **every** broker and
+> **TL;DR** — On a clustered queue, `publish()` writes each event to **one**
+> broker, picked by the same health-aware round-robin as `send()`, and
 > `subscribe()` opens the channel on **every** broker, including brokers that
 > join later, which are given every handler you registered, in order. A
-> subscriber therefore receives one copy per broker, so key handlers by event
-> id and act once. One channel per instance, any number of handlers on it;
+> subscriber therefore receives each event once, and the event stream splits
+> across the brokers. (That is `@imqueue/core` 3.9.0 and later; earlier
+> releases wrote to every broker and delivered one copy per broker.) Still key
+> handlers by event id: a retried publish delivers twice. One channel per
+> instance, any number of handlers on it;
 > route several concerns with a `kind` field. Handlers must not throw — an
 > exception in a handler is uncaught — and should hand real work to the queue.
 > Subscribing needs no `start()`; publishing needs a started service and a
@@ -52,16 +57,42 @@ Clustering in @imqueue is on the client side.
 the options carry a static [`cluster`](/api/core/latest/core.imqoptions.cluster/)
 list or a [`clusterManagers`](/api/core/latest/core.imqoptions.clustermanagers/)
 entry, and every service and generated client gets the same thing through its
-own options. Work queues spread across the brokers — each message goes to one
-broker, by health-aware round-robin. Pub/sub does not spread; it repeats. Four
-rules follow from that, and everything in the recipe rests on them.
+own options. Messages spread across the brokers — each queued message and
+each published event goes to one broker, by health-aware round-robin — while
+subscriptions repeat on every broker. Four rules follow from that, and
+everything in the recipe rests on them.
 
-**1. `publish()` writes to every broker.** A subscriber that happens to be
-connected to broker 2 must hear an event published from a process that
-round-robined onto broker 1, so
-[`publish()`](/api/core/latest/core.clusteredredisqueue.publish/) sends the
-payload to every broker the cluster knows. The word *knows* matters: with
-discovery the cluster starts empty, and a publish made before the first broker
+**1. `publish()` writes to one broker, and one is enough.** Every clustered
+subscriber is subscribed on every broker (rule 2), so an event published on
+any one of them reaches all of them.
+[`publish()`](/api/core/latest/core.clusteredredisqueue.publish/) picks that
+broker the way `send()` does — round-robin, skipping a broker whose connection
+is not ready — so the event stream splits across the fleet instead of being
+carried by every broker. Measured with two brokers, two subscribers and 1000
+publishes: each subscriber's handler ran 1000 times, and each broker received
+half of the published traffic (25.4 kB and 25.4 kB). With every event written
+to every broker, as releases before 3.9.0 did, each broker took all 50.8 kB
+and each handler ran 2000 times.
+
+Two refinements make one broker as good as all of them. A broker that was just
+discovered is not picked until the cluster has known it for
+`publishSettleTime` — 7 s by default, or `IMQ_PUBLISH_SETTLE_TIME` — so every
+subscriber has had time to hear of it and subscribe on it; when no broker is
+that old, as in a process that has just started, any ready one is used.
+Measured: of 100 publishes made right after a second broker joined, none went
+to it, and all 100 were delivered. And a publish that fails on its broker is
+retried once on another ready broker before it rejects. Measured: with one of
+two brokers killed, 100 publishes out of 100 resolved and were delivered.
+
+What one broker costs is redundancy. An event reaches only the subscribers
+that are subscribed on the broker it went to, so a subscriber that started a
+moment ago, or whose subscription on that broker is still being retried,
+misses it where a write to every broker would have reached it through
+another. If some subscribers do not hold the whole fleet — a single-host
+queue, or a cluster manager limited to part of it — set `publishFanOut: true`
+on the publisher to write every event to every broker, as before.
+
+The word *known* matters: with discovery the cluster starts empty, and a publish made before the first broker
 has announced itself has nowhere to go. Measured: publishing on a cluster with
 no known broker delivered nothing and logged, once,
 `nothing published to channel events: knownServers=0`; the next publish, after
@@ -98,12 +129,14 @@ not a defect to design around, it is the contract: pub/sub carries *news*,
 and [the queue carries work](/blog/guaranteed-message-delivery-cost/).
 
 One consequence of rules 1 and 2 deserves its own line, because it is the
-thing people meet first. A publish goes to every broker; a clustered
-subscriber is subscribed on every broker; so **a subscriber receives one copy
-per broker**. Measured with two brokers in the fleet, one handler and one
-`publish()`: the handler ran twice. That is the price of reaching a subscriber
-wherever it is connected, and it is why the handler recipe starts with an
-event id.
+thing people meet first and because it changed. A publish goes to one broker;
+a clustered subscriber is subscribed on every broker; so **a subscriber
+receives each event once**. Before `@imqueue/core` 3.9.0 a publish went to
+every broker and a subscriber received one copy per broker — measured with
+two brokers in the fleet, one handler and one `publish()`, the handler ran
+twice — and a publisher with `publishFanOut` still behaves that way. The
+handler recipe still starts with an event id: a publish retried after a lost
+reply, or a publisher on an older release, delivers the same event twice.
 
 ## Recipe 1: publish from the service, after the fact
 
@@ -147,8 +180,9 @@ Three habits make this reliable on a fleet:
   may never arrive.
 - **Carry an id and a kind.** `kind` is what subscribers route on; `id` is what
   they deduplicate on. Make the id a property of the event, not of the call —
-  a retry of the same operation should produce the same id, and one publish
-  delivered from two brokers certainly does.
+  a retry of the same operation should produce the same id, and a publish
+  delivered twice — retried after a lost reply, or written to every broker by
+  an older publisher — certainly does.
 - **Keep it small and plain.** Payloads are plain JSON; the queue's
   [`useGzip`](/api/core/latest/core.imqoptions.usegzip/) does not apply to
   pub/sub (measured: with `useGzip` on, a plain-JSON message published from
@@ -219,10 +253,13 @@ service", the service publishes and the clients subscribe.
 A handler on a fleet has three obligations that a handler on a single Redis
 can get away without.
 
-**Act once, keyed by the event id.** It will be invoked once per broker that
-delivers the message — twice on a two-broker fleet, as measured — and again
-after any retry the publisher makes. The framework does not deduplicate for
-you, deliberately: the same function registered twice is expected to run
+**Act once, keyed by the event id.** Each event goes to one broker, so it
+normally arrives once. It arrives again after any retry the publisher makes —
+its own, or the cluster's after a broker failed to confirm the publish — and
+once per broker where the publisher writes to every broker: a publisher on a
+release before 3.9.0, or one with `publishFanOut`, which invoked the handler
+twice on a two-broker fleet, as measured. The framework does not deduplicate
+for you, deliberately: the same function registered twice is expected to run
 twice. So the handler remembers what it has seen:
 
 ~~~typescript
@@ -237,7 +274,7 @@ function once(event: JsonObject, run: () => void): void {
         if (expires <= now) seen.delete(key);
     }
 
-    if (seen.has(id)) return;                     // the copy from another broker
+    if (seen.has(id)) return;                     // a copy already handled
     seen.set(id, now + DEDUPE_TTL);
     run();
 }
@@ -246,8 +283,8 @@ const refreshRecentOrders: Handler = event =>
     once(event, () => recentOrders.invalidate(String(event.tenantId)));
 ~~~
 
-A per-process map is enough for the copies a fleet produces, because they
-arrive within milliseconds of each other. If the *action* must be exactly-once
+A per-process map is enough for the copies a publisher produces, because
+they arrive within milliseconds of each other. If the *action* must be exactly-once
 across processes — a payment, an email — the event is the wrong carrier;
 send that through the queue as a job, and let the handler be the thing that
 enqueues it.
@@ -287,10 +324,12 @@ without help:
   registrations and this catch-up go through one serialised operation per
   broker, so a handler is never installed twice on the same broker.
 - **A broker leaves.** Its subscription goes with it; nothing to clean up. The
-  remaining brokers still carry every handler, and every publish still reaches
-  them.
+  remaining brokers still carry every handler, and publishes go to them: a
+  broker that has left is no longer picked, and a publish that fails on a
+  broker going down is retried once on another.
 - **A broker is replaced.** The new address is a broker that joins, and
-  receives everything. Measured: a broker withdrawn and re-announced delivered
+  receives every handler. Publishes start going to it once it has been known
+  for `publishSettleTime`. Measured: a broker withdrawn and re-announced delivered
   to both registered handlers.
 - **A connection drops and comes back.** The subscription is re-established
   automatically. Measured: after `CLIENT KILL TYPE pubsub` on the broker cut
@@ -337,7 +376,7 @@ it or five, so it confirms the socket and nothing else.
 **Count invocations per handler, per replica.** This is the number that
 means something. A counter per `kind`, exported with the service's other
 metrics, lets you compare replicas: on a healthy fleet the counts move
-together (allowing for the one-copy-per-broker multiplier), and a replica
+together (allowing for the odd duplicate from a retried publish), and a replica
 whose counter for one kind stays flat is telling you exactly which handler is
 not running there.
 
@@ -373,7 +412,7 @@ await queue.publish({ id: 'e1' }, 'OrderService');
 // expect: seen contains A:e1 and B:e1, once each
 ~~~
 
-Assert what the rules promise: every handler once per broker, in order, on a
+Assert what the rules promise: every handler once per event, in order, on a
 broker that joined after the registrations; a handler registered after the
 join installed as well; nothing delivered for a publish made before the
 subscription. The framework's own suite runs the same scenarios against a real
@@ -386,8 +425,8 @@ carrier. That decision is one question: *can this be missed?*
 
 | need | carrier | why |
 |---|---|---|
-| every instance should hear it now; a missed one is repaired by the next event or a TTL | pub/sub | reaches every instance on every broker, no backlog, no persistence |
-| cache invalidation, config reload, "look again" signals | pub/sub | idempotent by nature; a copy per broker costs nothing |
+| every instance should hear it now; a missed one is repaired by the next event or a TTL | pub/sub | reaches every instance, whichever broker carries it; no backlog, no persistence |
+| cache invalidation, config reload, "look again" signals | pub/sub | idempotent by nature; a duplicate costs nothing |
 | something must be done exactly once, or at least once, and survive a crash | queue / job | at-least-once delivery, a lease that outlives the worker, retries |
 | the reaction is heavy or slow | pub/sub **then** queue | the event notifies; the handler enqueues; the job does the work |
 | one instance should react, not all | queue | competing consumers; pub/sub has no way to pick one |
@@ -401,19 +440,39 @@ queue.
 
 ### Does Redis pub/sub work across several Redis brokers in @imqueue?
 
-Yes. On a clustered queue, `publish()` writes the payload to every broker in
-the fleet and `subscribe()` opens the channel on every broker, so a publisher
-and a subscriber reach each other regardless of which broker either is
-connected to. Nothing is configured per broker; the cluster options on the
-service and the client are all it takes.
+Yes. On a clustered queue, `subscribe()` opens the channel on every broker in
+the fleet and `publish()` writes each event to one of them, so a publisher and
+a subscriber reach each other regardless of which broker either is connected
+to, and the event stream splits across the brokers. Nothing is configured per
+broker; the cluster options on the service and the client are all it takes.
 
 ### How many times is my handler called on a fleet?
 
-Once per broker that delivers the message. A clustered subscriber is
-subscribed on every broker and a publish goes to every broker, so a fleet of
-two brokers invoked one handler twice for one `publish()`. Key handlers by an
-event id and act once; the framework does not deduplicate, because a function
-registered twice is meant to run twice.
+Once per event, from `@imqueue/core` 3.9.0. A clustered subscriber is
+subscribed on every broker and a publish goes to one broker, so with two
+brokers and 1000 publishes, each of two subscribers ran its handler 1000
+times. Before 3.9.0 — and with `publishFanOut: true` — a publish went to every
+broker and a handler ran once per broker. Key handlers by an event id anyway:
+a retried publish delivers twice, and the framework does not deduplicate,
+because a function registered twice is meant to run twice.
+
+### Does adding brokers spread pub/sub load?
+
+Yes, from `@imqueue/core` 3.9.0. Each publish goes to one broker, round-robin,
+so with two brokers each received half of the published traffic; before, every
+broker carried the whole event stream, and adding brokers took none of it off
+the others. A newly discovered broker joins the rotation once it has been
+known for `publishSettleTime`, 7 s by default.
+
+### Can a subscriber miss an event because it went to one broker?
+
+Only a subscriber that is not yet subscribed on that broker: one that has just
+started, or whose subscription there is still being retried. A broker is
+picked only once every subscriber has had time to discover it, and pub/sub
+never promised delivery to a subscriber that was not listening (see rule 4).
+Where some subscribers hold only part of the fleet — a single-host queue, or a
+cluster manager limited to some brokers — set `publishFanOut: true` on the
+publisher.
 
 ### Can I subscribe before the brokers have been discovered?
 
@@ -455,7 +514,7 @@ an existing broker is re-established automatically.
 
 Subclass `ClusterManager` and announce a local Redis from the test after
 `subscribe()` has run. That exercises the join path exactly as discovery
-would: assert every handler once per broker, in order, and nothing delivered
+would: assert every handler once per event, in order, and nothing delivered
 for a publish made before the subscription existed.
 
 ### Why is my broadcast() not received by other clients?
@@ -470,8 +529,8 @@ publishes.
 - [`ClusteredRedisQueue.publish()`](/api/core/latest/core.clusteredredisqueue.publish/)
   and [`subscribe()`](/api/core/latest/core.clusteredredisqueue.subscribe/),
   [`unsubscribe()`](/api/core/latest/core.clusteredredisqueue.unsubscribe/)
-  — the fan-out contract: every broker, every handler in order, serialised per
-  host, not retryable
+  — one broker per publish, every broker per subscription, every handler in
+  order, serialised per host, not retryable
 - [`IMessageQueue.subscribe()`](/api/core/latest/core.imessagequeue.subscribe/)
   — one channel per instance, additive handlers, no `start()` required,
   re-established on reconnect, plain JSON
