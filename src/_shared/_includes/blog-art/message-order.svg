@@ -1,0 +1,22 @@
+<svg class="post-illu" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <text x="16" y="30" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="13" fill="var(--muted)" stroke="none">200 orders · 5 status changes each</text>
+
+    <rect x="16" y="44" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="30" y="64" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">1 instance, 1 broker</text>
+    <text x="450" y="64" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">122-147 wrong</text>
+    <rect x="16" y="82" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="30" y="102" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">3 instances, 2 brokers</text>
+    <text x="450" y="102" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">151-161 wrong</text>
+    <rect x="16" y="120" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4"/>
+    <text x="30" y="140" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">killed worker, re-delivered</text>
+    <text x="450" y="140" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--muted)" stroke="none">paid, after delivered</text>
+
+    <rect x="16" y="168" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="30" y="188" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">write only if newer</text>
+    <text x="450" y="188" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">0 wrong, every setup</text>
+    <rect x="16" y="206" width="448" height="30" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+    <text x="30" y="226" text-anchor="start" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">wait for each step, per order</text>
+    <text x="450" y="226" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="12" fill="var(--accent)" stroke="none">0 wrong, same total time</text>
+  </g>
+</svg>
